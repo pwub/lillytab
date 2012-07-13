@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!--
+	Generisches Build-Skript
+
+
+  -->
+<project name="lutil" basedir="." default="all">
+	<!-- generic ant build file -->
+	<property name="project-name" value="${ant.project.name}" />
+	<!--	<property name="target-vm" value="1.5" /> -->
+	<property name="debug" value="true" />
+
+	<!-- 
+		main source directory. 
+		to add more source directories, update the <path id="path.src"> below
+	  -->	
+	<property name="dir.src" value="${basedir}/src" />
+	<!--
+		Resource directory. Are jar'd alongside the class files
+	  -->
+	<property name="dir.res" value="${basedir}/res" />
+	<!--
+		Directory to search for library files.
+	  -->
+	<property name="dir.lib" value="${basedir}/lib" />
+	<!--
+		Build directory for storing files generated during build.
+	  -->
+	<property name="dir.build" value="${basedir}/build" />
+	<!--
+		Directory for compiled classes.
+	  -->
+	<property name="dir.classes" value="${dir.build}/classes" />
+	<!--
+		Directory for building documentation before packaging
+	  -->
+	<property name="dir.doc-stage" value="${dir.build}/doc" />
+	<!--
+		Target directory, where project output is stored.
+	  -->
+	<property name="dir.dist" value="${basedir}/dist" />
+	<!--
+		The filename of the main target jar
+	  -->
+	<property name="file.jar" value="${dir.dist}/${project-name}.jar" />
+	<!--
+		The filename of the main documentation jar
+	  -->
+	<property name="file.doc-jar" value="${dir.dist}/${project-name}-doc.jar" />
+
+	<!-- set path element for reference and also a converted 
+		property for the source path -->
+    <path id="path.src">
+        <pathelement location="${dir.src}"/>
+		<!--        <pathelement location="${dir.gensrc}"/> -->
+    </path>
+    <pathconvert property="path.src" refid="path.src"/>
+
+	<!-- classpath for running and building
+
+		- include all .jar-files from ${dir.lib}
+	  -->
+    <path id="path.classpath">
+        <fileset dir="${dir.lib}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+    <pathconvert property="path.classpath" refid="path.classpath"/>
+
+	<target name="init">
+		<mkdir dir="${dir.build}" />
+		<mkdir dir="${dir.dist}" />
+	</target>
+
+	<target name="clean">
+		<delete dir="${dir.build}" />
+		<delete dir="${dir.dist}" />
+	</target>
+
+	<!--
+ 		build sources
+
+		collect all sources from the specified source path(s)
+		and run them through the java-compiler.
+	  -->
+	<target name="compile" depends="init">
+        <mkdir dir="${dir.classes}"/>
+        <javac srcdir="${path.src}"
+            destdir="${dir.classes}"
+            deprecation="yes" nowarn="no" verbose="no"
+            debug="${debug}"
+        >
+			<classpath refid="path.classpath" />
+        </javac>
+	</target>
+
+	<!--
+		build javadoc
+
+		generate javadocs for all source files.
+	  -->
+	<target name="javadoc" depends="compile">
+		<javadoc
+			sourcepath="${path.src}"
+			destdir="${dir.doc-stage}"
+		>
+            <classpath refid="path.classpath"/>
+		</javadoc>	
+	</target>
+
+	<!--
+		generate .jar-file from compiled classes.
+
+		Also sets Main-Class property, so jar file
+		may be run with "java -jar $jar"
+
+		The contents of the lib folder are copied into the "${dir.dist}/lib"
+		folder, so the generated classpath can be relative.
+	  -->
+	<target name="jar" depends="compile">
+		<!--
+			copy library files to dist directory
+
+			TODO - this should be improved to use the
+			classpath
+		  -->
+		<copy todir="${dir.dist}/lib">
+			<fileset dir="${dir.lib}" />
+		</copy>
+		<!-- transform copied library set into manifest classpath
+		This generates relative paths, so that it should
+		be sufficient to just copy the "${dir.dist}"-folder.
+		  -->
+		<manifestclasspath
+			property=".jar.manifestclasspath"
+			jarfile="${file.jar}"  
+		>
+			<classpath>
+				<fileset dir="${dir.dist}/lib">
+					<include name="*.jar"/>
+				</fileset>
+			</classpath>
+		</manifestclasspath>
+        <jar jarfile="${file.jar}" basedir="${dir.classes}">
+            <fileset dir="${dir.classes}"/>
+            <fileset dir="${dir.res}"/>
+			<manifest>
+				<attribute name="Built-By" value="${user.name}"/>
+<!--				<attribute name="Main-Class" value="${main-class}"/>
+					-->
+				<attribute name="Class-Path" value="${.jar.manifestclasspath}"/>
+			</manifest>
+        </jar>
+	</target>
+
+	<!--
+		Generate documentation .jar-file
+	  -->
+	<target name="doc-jar" depends="javadoc">
+		<jar jarfile="${file.doc-jar}" basedir="${dir.doc-stage}">
+            <fileset dir="${dir.doc-stage}"/>
+		</jar>
+	</target>	
+
+	<!--
+		run the project by executing the target jar file.
+	  -->
+	<!--  
+	<target name="run" depends="jar">
+		<java jar="${file.jar}" fork="true" />
+	</target>
+	 -->
+
+	<target name="all" depends="jar, doc-jar" />
+
+</project>
+
+<!--
+	vim:tabstop=4
+	vim:shiftwidth=4
+  -->
