@@ -21,19 +21,19 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.owlapi.OWLAPILoader;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPILoader;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.Reasoner;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ReasonerOptions;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Reasoner;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerOptions;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.dhke.projects.lutil.LoggingClass;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.*;
 import java.util.Collection;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -50,18 +50,18 @@ import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLProperty;
 import org.semanticweb.owlapi.model.UnknownOWLOntologyException;
 
-
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class Main
 	extends LoggingClass
-	implements Runnable
-{
+	implements Runnable {
+
 	private final IDLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _termFactory;
 	private final IABoxFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _aboxFactory;
 	private final Reasoner<OWLObject, OWLClass, OWLProperty<?, ?>> _reasoner;
+
 
 	public Main()
 	{
@@ -75,6 +75,7 @@ public class Main
 		_reasoner = new Reasoner<OWLObject, OWLClass, OWLProperty<?, ?>>(options);
 	}
 
+
 	private void initLogger()
 	{
 		LogManager.getLogManager().reset();
@@ -85,45 +86,51 @@ public class Main
 		Logger.getLogger("").addHandler(handler);
 	}
 
+
 	public void run()
 	{
 		try {
 			final OWLOntologyManager ontMan = OWLManager.createOWLOntologyManager();
-			
+
 			//final OWLOntology ontology = ontMan.loadOntology(URI.create(
 			//	"http://webrum.uni-mannheim.de/math/lski/anatomy09/mouse_anatomy_2008.owl"));
 			// final OWLOntology ontology = ontMan.loadOntology(URI.create(
 			//	"http://nb.vse.cz/~svabo/oaei2009/data/sigkdd.owl"));
-			final OWLOntology ontology = ontMan.loadOntology(IRI.create("http://www.tssg.org/public/ontologies/omg/mof/2004/EMOF.owl"));
-//				"http://webrum.uni-mannheim.de/math/lski/anatomy09/nci_anatomy_2008.owl"));
-			
+			final OWLOntology ontology = ontMan.loadOntology(
+				IRI.create(
+				"http://seals-test.sti2.at/tdrs-web/testdata/persistent/ca1cddfe-c728-4207-b33d-ca245642f4c9/712477b7-e1f9-4633-8d52-17d2b25af008/suite/anatomy-track1/component/target"));
+
 			// final StringOutputTarget tos = new StringOutputTarget();
 
 			final OWLAPILoader loader = new OWLAPILoader();
-			final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> initialABox = loader.fillABox(ontology, _aboxFactory.createABox());
+			final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> initialABox = loader.fillABox(ontology,
+																							  _aboxFactory.createABox());
 			logInfo("Ontology loaded...");
 			// System.out.println(abox.toString());
 
 			logInfo("Adding individuals...");
 			int individualNumber = 0;
-			for (OWLClass klass: ontology.getClassesInSignature()) {
-				final IDLClassReference<OWLObject, OWLClass, OWLProperty<?, ?>> klassRef = _termFactory.getDLClassReference(klass);
-				OWLIndividual individual = ontMan.getOWLDataFactory().getOWLNamedIndividual(IRI.create("http://www.example.org/#" + individualNumber));
+			for (OWLClass klass : ontology.getClassesInSignature()) {
+				final IDLClassReference<OWLObject, OWLClass, OWLProperty<?, ?>> klassRef = _termFactory.getDLClassReference(
+					klass);
+				OWLIndividual individual = ontMan.getOWLDataFactory().getOWLNamedIndividual(IRI.create(
+					"http://www.example.org/#" + individualNumber));
 				++individualNumber;
 				IABoxNode<OWLObject, OWLClass, OWLProperty<?, ?>> node = initialABox.getOrAddNamedNode(individual, false);
 				node.addUnfoldedDescription(klassRef);
 				initialABox.add(node);
 			}
-			
+
 			logInfo("Starting consistency check...");
-			final Collection<? extends IReasonerResult<OWLObject, OWLClass, OWLProperty<?, ?>>> aboxes = _reasoner.checkConsistency(initialABox);
+			final Collection<? extends IReasonerResult<OWLObject, OWLClass, OWLProperty<?, ?>>> aboxes = _reasoner.checkConsistency(
+				initialABox);
 			logInfo("Found consistent ABox...");
-			for (IReasonerResult<OWLObject, OWLClass, OWLProperty<?, ?>> result: aboxes) {
+			for (IReasonerResult<OWLObject, OWLClass, OWLProperty<?, ?>> result : aboxes) {
 				final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox = result.getABox();
 				logInfo(abox.toString());
 			}
 
-		} catch (EInconsistentABoxException ex) {
+		} catch (EInconsistencyException ex) {
 			getLogger().log(Level.SEVERE, "", ex);
 		} catch (EReasonerException ex) {
 			getLogger().log(Level.SEVERE, "", ex);
@@ -134,6 +141,7 @@ public class Main
 		}
 
 	}
+
 
 	/**
 	 * @param args the command line arguments

@@ -21,7 +21,11 @@
  **/
 package de.dhke.projects.cutil.collections;
 
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import org.apache.commons.collections15.MultiMap;
 
 /**
  *
@@ -56,6 +60,23 @@ public class MapUtil {
 					return false;
 			}
 		}
+		for (K k2: m2.keySet()) {
+			if (! m1.containsKey(k2))
+				return false;
+		}
 		return true;
+	}
+	
+	public static <V> Collection<V> getTransitive(final Map<V, V> map, final V key)
+	{
+		final Set<V> values = new HashSet<V>();
+		
+		V value = map.get(key);
+		while (value != null) {
+			values.add(value);
+			value = map.get(value);
+		}
+			
+		return values;
 	}
 }

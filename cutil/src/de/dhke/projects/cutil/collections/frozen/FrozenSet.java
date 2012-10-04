@@ -22,7 +22,7 @@
 package de.dhke.projects.cutil.collections.frozen;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;
-import de.dhke.projects.cutil.collections.CuckooHashMap;
+import de.dhke.projects.cutil.collections.map.CuckooHashMap;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;

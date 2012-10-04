@@ -21,7 +21,7 @@
  **/
 package de.dhke.projects.cutil.collections.factories;
 
-import de.dhke.projects.cutil.collections.MultiTreeSetHashMap;
+import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
 import org.apache.commons.collections15.MultiMap;
 
 /**

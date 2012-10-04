@@ -21,9 +21,11 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStateCache;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
-import de.dhke.projects.cutil.collections.factories.IMultiMapFactory;
 import de.dhke.projects.cutil.collections.aspect.ICollectionListener;
+import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.TBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
@@ -32,7 +34,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
-import org.apache.commons.collections15.MultiMap;
 
 
 /**
@@ -59,7 +60,7 @@ import org.apache.commons.collections15.MultiMap;
  * @param <Role> Type for role names
  */
 public interface IABox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends SortedSet<IABoxNode<Name, Klass, Role>>, Cloneable
+	extends SortedSet<IABoxNode<Name, Klass, Role>>, IImmutable<IABox<Name, Klass, Role>>, Cloneable
 {
 	/**
 	 * <p>
@@ -102,7 +103,7 @@ public interface IABox<Name extends Comparable<? super Name>, Klass extends Comp
 	 * @return A named individual wrapping {@literal individual}.
 	 */
 	IABoxNode<Name, Klass, Role> getOrAddNamedNode(Name individual, boolean isDatatypeNode)
-		throws ENodeMergeException;
+		throws EInconsistencyException;
 
 	/**
 	 * <p>
@@ -156,11 +157,6 @@ public interface IABox<Name extends Comparable<? super Name>, Klass extends Comp
 	 * @return A factory suitable to create a {@link SortedSet} of {@link IDLClassExpression}s.
 	 */
 	ICollectionFactory<IDLTerm<Name, Klass, Role>, SortedSet<IDLTerm<Name, Klass, Role>>> getTermSetFactory();
-
-	/**
-	 * @return A factory used to create the link map that represents connections between abox nodes.
-	 **/
-	IMultiMapFactory<Role, NodeID, MultiMap<Role, NodeID>> getLinkMapFactory();
 
 	/**
 	 * @return A factory used to create a set of {@link NodeID}s.
@@ -236,13 +232,23 @@ public interface IABox<Name extends Comparable<? super Name>, Klass extends Comp
 	 * Note, that callers should take care when modifying the listener list,
 	 * because the list also may also contain internal listeners. In particular,
 	 * it is not safe to assume that the list is initially empty.
+	 * </p><p>
+	 * Listeners are not cloned together with ABoxes.
 	 * </p>
 	 * @return The modifiable list of {@link INodeMergeListener}s.
 	 **/
 	List<INodeMergeListener<Name, Klass, Role>> getNodeMergeListeners();
 
 	/**
-	 *
+	 * <p>
+	 * Return the list of {@link ITermSetListener}s attached to this {@link IABox}.
+	 * </p><p>
+	 * The {@link ITermSetListener} are informed, when the term set of a node 
+	 * is modified.
+	 * </p><p>
+	 * Listeners are not cloned together with ABoxes.
+	 * </p>
+	 * 
 	 * @return The modifiable list of {@link ITermSetListener}s.
 	 */
 	List<ITermSetListener<Name, Klass, Role>> getTermSetListeners();
@@ -299,6 +305,15 @@ public interface IABox<Name extends Comparable<? super Name>, Klass extends Comp
 
 	String toString(String prefix);
 
+	/**
+	 * <p>
+	 * Return an immutable version of the current ABox.
+	 * </p>>
+	 * 
+	 * 
+	 * @return An immutable version of the current ABox.
+	 */
+	@Override
 	IABox<Name, Klass, Role> getImmutable();
 
 

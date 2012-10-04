@@ -25,7 +25,8 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IToStringFormatter {
+public interface IToStringFormatter
+{
 	String toString(final Object obj);
 	void append(final StringBuilder sb, final Object obj);
 }

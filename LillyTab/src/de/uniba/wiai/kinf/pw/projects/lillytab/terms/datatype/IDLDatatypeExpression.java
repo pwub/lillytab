@@ -49,7 +49,8 @@ public interface IDLDatatypeExpression<Name extends Comparable<? super Name>, Kl
 	 * @param ind2 Second value
 	 * @return {@literal true} if the values are compatible {@literal false}, if
 	 *   both values cannot refer to the same individual.
-	 */
+	 **/
+	@SuppressWarnings({"unchecked", "varargs"})
 	public boolean isCompatibleValue(final Name ind1, final Name ind2, final Name... otherInds);
 
 	/**

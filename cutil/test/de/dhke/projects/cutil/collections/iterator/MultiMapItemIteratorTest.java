@@ -21,7 +21,7 @@
  **/
 package de.dhke.projects.cutil.collections.iterator;
 
-import de.dhke.projects.cutil.collections.MultiTreeSetHashMap;
+import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;

@@ -86,13 +86,6 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 	}
 
 	/**
-	 * @return the linkMapFactory
-	 */ public IMultiMapFactory<Role, NodeID, MultiMap<Role, NodeID>> getLinkMapFactory()
-	{
-		return _linkMapFactory;
-	}
-
-	/**
 	 * @return the nodeSetFactory
 	 */ public ICollectionFactory<IABoxNode<Name, Klass, Role>, SortedSet<IABoxNode<Name, Klass, Role>>> getNodeSetFactory()
 	{
@@ -116,6 +109,11 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 	public TermEntryFactory<Name, Klass, Role> getTermEntryFactory()
 	{
 		return _termEntryFactory;
+	}
+	
+	public NodeTermSetListener<Name, Klass, Role> getNodeTermSetListener()
+	{
+		return _nodeTermSetListener;
 	}
 	 
 //	/**
@@ -174,12 +172,12 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 			final Map.Entry<Role, NodeID> entry = e.getItem();
 			final IABoxNode<Name, Klass, Role> target = abox.getNode(entry.getValue());
 			assert target != null;
-			if (e.getCollection() == source.getSuccessors()) {
-				if (!target.getPredecessors().containsValue(entry.getKey(), source.getNodeID()))
-					target.getPredecessors().put(entry.getKey(), source.getNodeID());
-			} else if (e.getCollection() == source.getPredecessors()) {
-				if (!target.getSuccessors().containsValue(entry.getKey(), source.getNodeID()))
-					target.getSuccessors().put(entry.getKey(), source.getNodeID());
+			if (e.getCollection() == source.getLinkMap().getAssertedSuccessors()) {
+				if (!target.getLinkMap().getAssertedPredecessors().containsValue(entry.getKey(), source.getNodeID()))
+					target.getLinkMap().getAssertedPredecessors().put(entry.getKey(), source.getNodeID());
+			} else if (e.getCollection() == source.getLinkMap().getAssertedPredecessors()) {
+				if (!target.getLinkMap().getAssertedSuccessors().containsValue(entry.getKey(), source.getNodeID()))
+					target.getLinkMap().getAssertedSuccessors().put(entry.getKey(), source.getNodeID());
 			}
 		}
 
@@ -195,11 +193,11 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 			final IABoxNode<Name, Klass, Role> target = abox.getNode(entry.getValue());
 
 			if (target != null) {
-				if (e.getCollection() == source.getSuccessors()) {
-					target.getPredecessors().remove(entry.getKey(), source.getNodeID());
-				} else if (e.getCollection() == source.getPredecessors()) {
-					if (!target.getSuccessors().containsValue(entry.getKey(), source.getNodeID()))
-						target.getSuccessors().remove(entry.getKey(), source.getNodeID());
+				if (e.getCollection() == source.getLinkMap().getAssertedSuccessors()) {
+					target.getLinkMap().getAssertedPredecessors().remove(entry.getKey(), source.getNodeID());
+				} else if (e.getCollection() == source.getLinkMap().getAssertedPredecessors()) {
+					if (!target.getLinkMap().getAssertedSuccessors().containsValue(entry.getKey(), source.getNodeID()))
+						target.getLinkMap().getAssertedSuccessors().remove(entry.getKey(), source.getNodeID());
 				}
 			}
 		}
@@ -210,9 +208,9 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 	private final IDLTermFactory<Name, Klass, Role> _termFactory;
 	private final ICollectionFactory<IDLTerm<Name, Klass, Role>, SortedSet<IDLTerm<Name, Klass, Role>>> _termSetFactory = new TreeSortedSetFactory<IDLTerm<Name, Klass, Role>>();
 	private final ICollectionFactory<NodeID, Set<NodeID>> _nodeIDSetFactory = new TreeSetFactory<NodeID>();
-	private final IMultiMapFactory<Role, NodeID, MultiMap<Role, NodeID>> _linkMapFactory = new MultiTreeSetHashMapFactory<Role, NodeID>();
 	private final ICollectionFactory<IABoxNode<Name, Klass, Role>, SortedSet<IABoxNode<Name, Klass, Role>>> _nodeSetFactory = new TreeSortedSetFactory<IABoxNode<Name, Klass, Role>>();
 	private final IMapFactory<Object, IABoxNode<Name, Klass, Role>, Map<Object, IABoxNode<Name, Klass, Role>>> _nodeMapFactory = new HashMapFactory<Object, IABoxNode<Name, Klass, Role>>();
 	private final ICollectionListener<Map.Entry<Role, NodeID>, MultiMap<Role, NodeID>> _linkMapListener = new LinkMapListener<Name, Klass, Role>();
 	private final TermEntryFactory<Name, Klass, Role> _termEntryFactory = new TermEntryFactory<Name, Klass, Role>();
+	private final NodeTermSetListener<Name, Klass, Role> _nodeTermSetListener = new NodeTermSetListener<Name, Klass, Role>();
 }

@@ -3,47 +3,42 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSetListener;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ABoxNodeEvent;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IUnfoldListener;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermChangeEvent;
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.BlockingStateCache;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntryFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable.ImmutableABox;
 import de.dhke.projects.cutil.Pair;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IBlockingStateCache;
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStateCache;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.INodeMergeListener;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
-import de.dhke.projects.cutil.collections.factories.IMultiMapFactory;
 import de.dhke.projects.cutil.collections.aspect.AbstractCollectionListener;
 import de.dhke.projects.cutil.collections.aspect.AspectSortedSet;
 import de.dhke.projects.cutil.collections.aspect.CollectionEvent;
 import de.dhke.projects.cutil.collections.aspect.CollectionItemEvent;
 import de.dhke.projects.cutil.collections.aspect.ICollectionListener;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ABoxNodeEvent;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.BlockingStateCache;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IBlockingStrategy;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSetListener;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IUnfoldListener;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermChangeEvent;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntryFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDependencyMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
@@ -169,6 +164,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	private final TBox<Name, Klass, Role> _tbox;
 
 
+	@Override
 	public TBox<Name, Klass, Role> getTBox()
 	{
 		return _tbox;
@@ -184,13 +180,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	 */
 	protected SortedSet<IABoxNode<Name, Klass, Role>> _realNodes;
 	/**
-	 * <p> The node set as given to any eventuall callers. </p><p>
-	 * {@link #_nodeSetListener} is attached to this {@link AspectSortedSet} by default and handles updates of the node
-	 * list. </p>
+	 * <p> The node set as given to any eventuall callers. </p><p> {@link #_nodeSetListener} is attached to this
+	 * {@link AspectSortedSet} by default and handles updates of the node list. </p>
 	 */
 	private AspectSortedSet<IABoxNode<Name, Klass, Role>> _nodes;
 	/**
-	 * The node map maps both node names and {@link NodeID}s to nodes. This map is maintained by the {@link NodeSetListener}.
+	 * The node map maps both node names and {@link NodeID}s to nodes. This map is maintained by the
+	 * {@link NodeSetListener}.
 	 *
 	 */
 	private Map<Object, IABoxNode<Name, Klass, Role>> _nodeMap;
@@ -201,6 +197,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	protected IBlockingStateCache _blockingStateCache;
 
 
+	@Override
 	public IBlockingStateCache getBlockingStateCache()
 	{
 		return _blockingStateCache;
@@ -212,14 +209,15 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	private final NodeID _id;
 
 
+	@Override
 	public NodeID getID()
 	{
 		return _id;
 	}
 
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="constructors">
 
+	/// <editor-fold defaultstate="collapsed" desc="constructors">
 	public ABox(
 		final ABoxCommon<Name, Klass, Role> commons)
 	{
@@ -232,14 +230,16 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 
 		_realNodes = _common.getNodeSetFactory().getInstance();
 		_nodes = AspectSortedSet.decorate(_realNodes, this);
+
 		_nodes.getListeners().add(_nodeSetListener);
+
 		_nodeMap = _common.getNodeMapFactory().getInstance();
 		_tbox = new TBox<Name, Klass, Role>(_common.getTermFactory());
 	}
 
 
 	/**
-	 * Create a new ABox, directly setting the specified
+	 * Create a new ABox, directly setting the specified objects.
 	 *
 	 * @param commons
 	 * @param idGenerator
@@ -249,18 +249,21 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	ABox(final ABoxCommon<Name, Klass, Role> commons,
 		 final LinearSequenceNumberGenerator idGenerator,
 		 final TBox<Name, Klass, Role> tbox,
-		 final IBlockingStateCache blockingStateCache)
+		 final IBlockingStateCache blockingStateCache,
+		 final DependencyMap<Name, Klass, Role> depMap)
 	{
 		_common = commons;
-		_dependencyMap = new DependencyMap<Name, Klass, Role>(_common.getTermEntryFactory());
+		_dependencyMap = depMap;
 		_id = new NodeID(commons.getAboxIDFactory().next());
 
 		_nodeIDGenerator = idGenerator;
 		_blockingStateCache = blockingStateCache;
 
 		_realNodes = _common.getNodeSetFactory().getInstance();
+
 		_nodes = AspectSortedSet.decorate(_realNodes, this);
 		_nodes.getListeners().add(_nodeSetListener);
+
 		_nodeMap = _common.getNodeMapFactory().getInstance();
 		_tbox = tbox;
 	}
@@ -269,23 +272,21 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	/// <editor-fold defaultstate="collapsed" desc="Cloneable">
 
 	/**
-	 * Copy the
+	 * Copy the listeners from the source to the current ABox.
 	 */
-	private void copyListeners(final ABox<Name, Klass, Role> source)
-	{
-		_nodeMergeListeners.addAll(source.getNodeMergeListeners());
-		for (ICollectionListener<IABoxNode<Name, Klass, Role>, Collection<IABoxNode<Name, Klass, Role>>> nodeSetListener : source.getNodeSetListeners()) {
-			/*
-			 * ignore the others internal listener when copying
-			 */
-			if (nodeSetListener != source._nodeSetListener)
-				getNodeSetListeners().add(nodeSetListener);
-		}
-		_unfoldListeners.addAll(source.getUnfoldListeners());
-		_termSetListeners.addAll(source.getTermSetListeners());
-	}
-
-
+//	private void copyListeners(final ABox<Name, Klass, Role> source)
+//	{
+//		_nodeMergeListeners.addAll(source.getNodeMergeListeners());
+//		for (ICollectionListener<IABoxNode<Name, Klass, Role>, Collection<IABoxNode<Name, Klass, Role>>> nodeSetListener : source.getNodeSetListeners()) {
+//			/*
+//			 * ignore the other's internal listener when copying
+//			 */
+//			if (nodeSetListener != source._nodeSetListener)
+//				getNodeSetListeners().add(nodeSetListener);
+//		}
+//		_unfoldListeners.addAll(source.getUnfoldListeners());
+//		_termSetListeners.addAll(source.getTermSetListeners());
+//	}
 	/**
 	 * Create a writable clone of
 	 *
@@ -295,27 +296,27 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	public ABox<Name, Klass, Role> clone()
 	{
 		LinearSequenceNumberGenerator cloneIDGenerator = _nodeIDGenerator.clone();
-		// we never modify the TBox, currently.
+		// we never modify TBox or RBox, currently.
 		// XXX - this needs to change, if TBox modifications are need to be supported
-		// reasoning!
+		// to do reasoning!
 		final TBox<Name, Klass, Role> cloneTBox = _tbox;
 
-		/*
-		 * clone state cache
-		 */
+		/* clone state cache */
 		final IBlockingStateCache blockingStateCache = _blockingStateCache.clone();
 		final IBlockingStateCache cloneBlockingStateCache = _blockingStateCache.clone();
-
+		
+		/* clone dependency map */
+		final DependencyMap<Name, Klass, Role> depMap = _dependencyMap.clone();
+		
 		ABox<Name, Klass, Role> klone = new ABox<Name, Klass, Role>(_common, cloneIDGenerator, cloneTBox,
-																	cloneBlockingStateCache);
+																	cloneBlockingStateCache, depMap);
 
 		_blockingStateCache = blockingStateCache;
-		for (IABoxNode<Name, Klass, Role> node : _realNodes) {
+		for (IABoxNode<Name, Klass, Role> node : _realNodes)
 			klone.add(node.clone(klone));
-		}
-		klone.getDependencyMap().putAll(getDependencyMap());
 
-		klone.copyListeners(this);
+		// listeners are not cloned any more
+		// klone.copyListeners(this);
 
 		return klone;
 	}
@@ -329,7 +330,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		if (node1.isDatatypeNode() != node2.isDatatypeNode()) {
 			return false;
 		} else if (node1.isDatatypeNode()) {
-			return node1.getSuccessors().isEmpty() && node2.getSuccessors().isEmpty();
+			return node1.getLinkMap().getAssertedSuccessors().isEmpty() && node2.getLinkMap().getAssertedSuccessors().isEmpty();
 		} else
 			return true;
 	}
@@ -428,8 +429,8 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 			 * future changes.
 			 *
 			 */
-			final MultiMap<Role, NodeID> targetSuccessors = target.getSuccessors();
-			for (Map.Entry<Role, Collection<NodeID>> successorEntry : source.getSuccessors().entrySet()) {
+			final MultiMap<Role, NodeID> targetSuccessors = target.getLinkMap().getAssertedSuccessors();
+			for (Map.Entry<Role, Collection<NodeID>> successorEntry : source.getLinkMap().getAssertedSuccessors().entrySet()) {
 				/**
 				 * Iterate over the source's successors and copy the links over to the target.
 				 *
@@ -455,7 +456,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 						 * Try to remove the backlink from the successor and mark the successors as modified, if a
 						 * change was made.
 						 */
-						if (succ.getPredecessors().remove(role, source.getNodeID()) != null)
+						if (succ.getLinkMap().getAssertedPredecessors().remove(role, source.getNodeID()) != null)
 							mergeInfo.setModified(getNode(successorID));
 
 						/*
@@ -475,21 +476,21 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 			 * Rewrite incoming links.
 			 *
 			 */
-			for (Map.Entry<Role, Collection<NodeID>> predEntry : source.getPredecessors().entrySet()) {
+			for (Map.Entry<Role, Collection<NodeID>> predEntry : source.getLinkMap().getAssertedPredecessors().entrySet()) {
 				final Role role = predEntry.getKey();
 				for (NodeID predID : predEntry.getValue()) {
 					if (!predID.equals(source.getNodeID())) {
 						IABoxNode<Name, Klass, Role> pred = getNode(predID);
 						assert pred != null;
-						assert pred.getSuccessors().containsValue(role, source.getNodeID());
+						assert pred.getLinkMap().getAssertedSuccessors().containsValue(role, source.getNodeID());
 						/**
 						 * Remove link to source node, redirect to target node
 						 *
 						 */
-						if (pred.getSuccessors().remove(role, source.getNodeID()) != null) {
+						if (pred.getLinkMap().getAssertedSuccessors().remove(role, source.getNodeID()) != null) {
 							mergeInfo.setModified(pred);
 							mergeInfo.setModified(source);
-							pred.getSuccessors().put(role, target.getNodeID());
+							pred.getLinkMap().getAssertedSuccessors().put(role, target.getNodeID());
 							mergeInfo.setModified(target);
 						}
 					}
@@ -544,20 +545,19 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 			 * PARANOIA: clear out any remains of source node
 			 */
 			source.getTerms().clear();
-			source.getSuccessors().clear();
-			source.getPredecessors().clear();
+			source.getLinkMap().getAssertedSuccessors().clear();
+			source.getLinkMap().getAssertedPredecessors().clear();
 
 			/*
 			 * complex assertion to verify link map consistency
 			 */
 			assert new Predicate<Pair<ABox<Name, Klass, Role>, NodeID>>() {
-
 				public boolean evaluate(Pair<ABox<Name, Klass, Role>, NodeID> object)
 				{
 					for (IABoxNode<Name, Klass, Role> node : object.getFirst()) {
-						if (node.getSuccessors().containsValue(object.getSecond()))
+						if (node.getLinkMap().getAssertedSuccessors().containsValue(object.getSecond()))
 							return false;
-						if (node.getPredecessors().containsValue(object.getSecond()))
+						if (node.getLinkMap().getAssertedPredecessors().containsValue(object.getSecond()))
 							return false;
 					}
 					return true;
@@ -613,12 +613,6 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	public ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory()
 	{
 		return _common.getNodeIDSetFactory();
-	}
-
-
-	public IMultiMapFactory<Role, NodeID, MultiMap<Role, NodeID>> getLinkMapFactory()
-	{
-		return _common.getLinkMapFactory();
 	}
 
 
@@ -755,8 +749,8 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	}
 
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="SortedSet<ABoxNode<Name, Klass, Role>>">
 
+	/// <editor-fold defaultstate="collapsed" desc="SortedSet<ABoxNode<Name, Klass, Role>>">
 	public Comparator<? super IABoxNode<Name, Klass, Role>> comparator()
 	{
 		return null;
@@ -874,8 +868,8 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	}
 
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="deep compare">
 
+	/// <editor-fold defaultstate="collapsed" desc="deep compare">
 	public int deepHashCode()
 	{
 		int hashCode = 323;
@@ -966,9 +960,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 				roles.addAll(((IDLRoleOperator<Name, Klass, Role>) subTermObj).getRoles());
 			}
 		}
-		roles.addAll(getTBox().getRBox().keySet());
-		roles.addAll(getTBox().getRBox().getRoleDomains().keySet());
-		roles.addAll(getTBox().getRBox().getRoleRanges().keySet());
+		roles.addAll(getTBox().getRBox().getRoles());
 
 		return roles;
 	}
@@ -1050,6 +1042,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	private final DependencyMap<Name, Klass, Role> _dependencyMap;
 
 
+	@Override
 	public DependencyMap<Name, Klass, Role> getDependencyMap()
 	{
 		return _dependencyMap;

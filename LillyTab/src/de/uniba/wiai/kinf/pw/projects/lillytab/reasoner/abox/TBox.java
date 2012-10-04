@@ -26,8 +26,8 @@ import de.dhke.projects.cutil.collections.aspect.CollectionEvent;
 import de.dhke.projects.cutil.collections.aspect.CollectionItemEvent;
 import de.dhke.projects.cutil.collections.aspect.CollectionItemReplacedEvent;
 import de.dhke.projects.cutil.collections.aspect.ICollectionListener;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRBox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IAssertedRBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.*;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.Collection;
@@ -82,9 +82,9 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	private boolean _needRecalculate = true;
 	// private final Set<
 	/**
-	 * The RBox associated with this TBox.
+	 * The AssertedRBox associated with this TBox.
 	 **/
-	private final IRBox<Name, Klass, Role> _rbox = new RBox<Name, Klass, Role>(this);
+	private final IAssertedRBox<Name, Klass, Role> _rbox = new AssertedRBox<Name, Klass, Role>(this);
 	private final ICollectionListener<IDLTerm<Name,Klass,Role>, Collection<IDLTerm<Name,Klass,Role>>> _termSetListener
 	= new ICollectionListener<IDLTerm<Name,Klass,Role>, Collection<IDLTerm<Name,Klass,Role>>>() {
 
@@ -229,7 +229,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 			_globalDescriptionSet.add(TermUtil.toNNF(desc, _termFactory));
 	}
 
-	public IRBox<Name, Klass, Role> getRBox()
+	public IAssertedRBox<Name, Klass, Role> getRBox()
 	{
 		return _rbox;
 	}

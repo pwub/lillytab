@@ -32,7 +32,7 @@ import java.util.Collection;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface ISWRLRule<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends ITerm
+	extends ITerm, Comparable<ISWRLRule>
 {
 	ISWRLTerm<Name, Klass, Role> getHead();
 	ISWRLTerm<Name, Klass, Role> getBody();

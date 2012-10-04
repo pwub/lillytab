@@ -27,9 +27,16 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class EInconsistentABoxException
-	extends EABoxException
+	extends EInconsistencyException
 {
 	static final long serialVersionUID = 7993354832275434864L;
+
+	final IABox<?, ?, ?> _abox;
+
+	public IABox<?, ?, ?> getABox()
+	{
+		return _abox;
+	}		
 	
 	/**
 	 * Creates a new instance of
@@ -37,7 +44,7 @@ public class EInconsistentABoxException
 	 */
 	public EInconsistentABoxException(final IABox<?, ?, ?> abox)
 	{
-		super(abox);
+		_abox = abox;
 	}
 
 	/**
@@ -48,6 +55,7 @@ public class EInconsistentABoxException
 	 */
 	public EInconsistentABoxException(final IABox<?, ?, ?> abox, String msg)
 	{
-		super(abox, msg);
+		super(msg);
+		_abox = abox;		
 	}
 }

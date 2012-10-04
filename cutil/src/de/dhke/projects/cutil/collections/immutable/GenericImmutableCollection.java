@@ -21,9 +21,7 @@
  **/
 package de.dhke.projects.cutil.collections.immutable;
 
-import de.dhke.projects.cutil.IDecorator;
 import java.util.Collection;
-import java.util.Iterator;
 import org.apache.commons.collections15.Transformer;
 
 /**
@@ -32,26 +30,12 @@ import org.apache.commons.collections15.Transformer;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class GenericImmutableCollection<T, C extends Collection<T>>
-	implements Collection<T>, IDecorator<C>
+	extends GenericImmutableIterable<T, C>
+	implements Collection<T>
 {
-	private final C _backCollection;
-	private final Transformer<T, T> _valueTransformer;
-
-	public Transformer<T, T> getValueTransformer()
-	{
-		return _valueTransformer;
-	}
-
-	public C getDecoratee()
-	{
-		return _backCollection;
-	}
-
 	protected GenericImmutableCollection(final C backColl, final Transformer<T, T> valueTransformer)
 	{
-		assert backColl != null;
-		_backCollection = backColl;
-		_valueTransformer = valueTransformer;
+		super(backColl, valueTransformer);
 	}
 
 	public static <T, C extends Collection<T>> GenericImmutableCollection<T, C> decorate(final C backColl)
@@ -67,32 +51,27 @@ public class GenericImmutableCollection<T, C extends Collection<T>>
 
 	public int size()
 	{
-		return _backCollection.size();
+		return getDecoratee().size();
 	}
 
 	public boolean isEmpty()
 	{
-		return _backCollection.isEmpty();
+		return getDecoratee().isEmpty();
 	}
 
 	public boolean contains(Object o)
 	{
-		return _backCollection.contains(o);
-	}
-
-	public Iterator<T> iterator()
-	{
-		return ImmutableIterator.decorate(_backCollection.iterator(), _valueTransformer);
+		return getDecoratee().contains(o);
 	}
 
 	public Object[] toArray()
 	{
-		return _backCollection.toArray();
+		return getDecoratee().toArray();
 	}
 
 	public <T> T[] toArray(T[] a)
 	{
-		return _backCollection.toArray(a);
+		return getDecoratee().toArray(a);
 	}
 
 	public boolean add(T e)
@@ -107,7 +86,7 @@ public class GenericImmutableCollection<T, C extends Collection<T>>
 
 	public boolean containsAll(Collection<?> c)
 	{
-		return _backCollection.containsAll(c);
+		return getDecoratee().containsAll(c);
 	}
 
 	public boolean addAll(Collection<? extends T> c)

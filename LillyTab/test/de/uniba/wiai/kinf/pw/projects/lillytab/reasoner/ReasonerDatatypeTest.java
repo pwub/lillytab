@@ -21,11 +21,12 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.owlapi.OWLAPILoader;
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPILoader;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import java.util.HashSet;
@@ -91,7 +92,7 @@ public class ReasonerDatatypeTest {
     }
 
 	@Test
-	public void testSingleDataUnion() throws OWLOntologyCreationException, OWLOntologyChangeException, EInconsistentABoxException
+	public void testSingleDataUnion() throws OWLOntologyCreationException, OWLOntologyChangeException, EInconsistencyException
 	{
 		/* regression test */
 		final Set<OWLAxiom> axioms = new HashSet<OWLAxiom>();

@@ -32,6 +32,7 @@ public class ImmutableIterator<T>
 	private final Iterator<T> _baseIter;
 	private final Transformer<T, T> _valueTransformer;
 	
+	@Override
 	public Iterator<T> getDecoratee()
 	{
 		return _baseIter;
@@ -54,19 +55,22 @@ public class ImmutableIterator<T>
 		_valueTransformer = valueTransformer;
 	}
 
+	@Override
 	public boolean hasNext()
 	{
 		return _baseIter.hasNext();
 	}
 
+	@Override
 	public T next()
 	{
-		if (_valueTransformer != null)
+		if (_valueTransformer == null)
 			return _baseIter.next();
 		else
 			return _valueTransformer.transform(_baseIter.next());
 	}
 
+	@Override
 	public void remove()
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableIterator.");

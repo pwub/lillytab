@@ -31,14 +31,36 @@ public class SortedListSet<T extends Comparable<? super T>>
 	extends AbstractList<T>
 	implements Set<T> {
 
-	private List<T> _backingList;
-
-
+	private final Comparator<T> _comparator;	
+	private final List<T> _backingList;	
+	
 	public SortedListSet(final Collection<? extends T> collection)
 	{
+		_comparator = null;
 		_backingList = new ArrayList<T>(collection);
 		Collections.sort(_backingList);
 		removeDuplicates();
+	}
+
+	public SortedListSet(final Collection<? extends T> collection, final Comparator<T> comparator)
+	{
+		_comparator = comparator;
+		_backingList = new ArrayList<T>(collection);
+		Collections.sort(_backingList, _comparator);
+		removeDuplicates();
+	}
+	
+	
+	public SortedListSet(int initialCapacity)
+	{
+		_comparator = null;
+		_backingList = new ArrayList<T>(initialCapacity);
+	}
+	
+	public SortedListSet()
+	{
+		_comparator = null;
+		_backingList = new ArrayList<T>();
 	}
 
 
@@ -51,8 +73,16 @@ public class SortedListSet<T extends Comparable<? super T>>
 			final T obj = iter.next();
 			if ((lastObj == obj) || ((obj != null) && obj.equals(lastObj)))
 				iter.remove();
-			lastObj = obj;				
+			lastObj = obj;
 		}
+	}
+	
+	private int getPosition(final T e)
+	{
+		if (_comparator == null)
+			return Collections.binarySearch(_backingList, e);
+		else
+			return Collections.binarySearch(_backingList, e, _comparator);		
 	}
 
 
@@ -73,19 +103,48 @@ public class SortedListSet<T extends Comparable<? super T>>
 	@Override
 	public boolean add(final T e)
 	{
-		final boolean added = _backingList.add(e);
-		if (added)
-			Collections.sort(_backingList);
-		return added;
+		int position = getPosition(e);
+		
+		if (position < 0) {
+			/* determine real insertion position from binarySearch() result */
+			position = -(position + 1);
+			_backingList.add(position, e);
+			return true;
+		} else
+			return false;
 	}
 
 
 	@Override
 	public boolean addAll(Collection<? extends T> c)
 	{
-		final boolean added = _backingList.addAll(c);
-		if (added)
-			Collections.sort(_backingList);
+		boolean added = false;
+		for (T item: c)
+			added |= add(item);
 		return added;
+	}
+
+	@Override
+	public boolean remove(Object o)
+	{
+		return _backingList.remove(o);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c)
+	{
+		return _backingList.removeAll(c);
+	}
+
+	@Override
+	public T remove(int index)
+	{
+		return _backingList.remove(index);
+	}
+
+	@Override
+	public boolean contains(Object o)
+	{		
+		return getPosition((T)o) >= 0;
 	}
 }

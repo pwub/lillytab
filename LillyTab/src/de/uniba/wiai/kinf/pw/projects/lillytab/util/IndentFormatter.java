@@ -47,7 +47,7 @@ public class IndentFormatter
 
 	public static String multiplyString(final String item, final int count)
 	{
-		final StringBuffer sb = new StringBuffer(item.length() * count);
+		final StringBuilder sb = new StringBuilder(item.length() * count);
 		for (int i = 0; i < count; ++i)
 			sb.append(item);
 		final String value = sb.toString();
@@ -75,7 +75,7 @@ public class IndentFormatter
 	
 	public static String formatRight(String str, final int width)
 	{	
-		final StringBuffer sb = new StringBuffer(width);
+		final StringBuilder sb = new StringBuilder(width);
 		final int offset = str.length() - width;
 		if (offset > 0)
 			sb.append(str.substring(offset));
@@ -90,7 +90,7 @@ public class IndentFormatter
 	@Override
 	public String format(LogRecord record)
 	{
-		final StringBuffer sb = new StringBuffer();
+		final StringBuilder sb = new StringBuilder();
 		sb.append(String.format("%10d", record.getMillis()));
 		sb.append(levelToIndent(record.getLevel()));
 		sb.append("[");

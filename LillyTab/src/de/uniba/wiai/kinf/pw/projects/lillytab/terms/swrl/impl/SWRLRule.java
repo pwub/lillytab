@@ -51,13 +51,13 @@ public class SWRLRule<Name extends Comparable<? super Name>, Klass extends Compa
 
 	protected SWRLRule(final ISWRLTerm<Name, Klass, Role> head, final ISWRLTerm<Name, Klass, Role> body)
 	{
-		if ((! (head instanceof ISWRLClassAtom)) && (! (head instanceof ISWRLIntersection)))
-			throw new IllegalArgumentException("Only Class atoms or intersections allowed on SWRL rule body");
+		if ((! (head instanceof ISWRLClassAtom)) && (! (head instanceof ISWRLRoleAtom)) && (! (head instanceof ISWRLIntersection)))
+			throw new IllegalArgumentException("Only atoms or intersections allowed on SWRL rule body");
 		else
 			_head = head;
 		
-		if ((! (body instanceof ISWRLClassAtom)) && (! (body instanceof ISWRLIntersection)))
-			throw new IllegalArgumentException("Only Class atoms or intersections allowed on SWRL rule body");
+		if ((! (body instanceof ISWRLClassAtom)) && (! (body instanceof ISWRLRoleAtom)) && (! (body instanceof ISWRLIntersection)))
+			throw new IllegalArgumentException("Only atoms or intersections allowed on SWRL rule body");
 		else
 			_body = body;
 
@@ -198,5 +198,16 @@ public class SWRLRule<Name extends Comparable<? super Name>, Klass extends Compa
 	public ISWRLRule<Name, Klass, Role> clone()
 	{
 		return this;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public int compareTo(ISWRLRule o)
+	{
+		@SuppressWarnings("unchecked")
+		int compare = _head.compareTo(o.getHead());
+		if (compare == 0)
+			compare = _body.compareTo(o.getBody());
+		return compare;
 	}
 }

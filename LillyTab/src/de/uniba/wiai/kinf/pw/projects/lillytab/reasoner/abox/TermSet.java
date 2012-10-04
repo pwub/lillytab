@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable.ImmutableTermSet;
 import de.dhke.projects.cutil.collections.aspect.AspectSortedSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyDescription;

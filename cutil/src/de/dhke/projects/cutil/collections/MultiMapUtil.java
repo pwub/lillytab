@@ -22,7 +22,9 @@
 package de.dhke.projects.cutil.collections;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.SetUtils;
 
@@ -63,4 +65,28 @@ public final class MultiMapUtil {
 		}
 		return hashCode;
 	}
+	
+
+	public static <V> Collection<V> getTransitive(final MultiMap<V, V> multiMap, final V key, final Collection<V> targetSet)
+	{
+		Collection<V> keyValues = multiMap.get(key);
+		if (keyValues != null) {
+			for (V keyValue: keyValues) {
+				if (! targetSet.contains(keyValue)) {
+					targetSet.add(keyValue);
+					targetSet.addAll(getTransitive(multiMap, keyValue, targetSet));
+				}
+			}
+		}
+		return targetSet;
+	}
+
+	
+	public static <V> Collection<V> getTransitive(final MultiMap<V, V> multiMap, final V key)
+	{		
+		final Set<V> values = new HashSet<V>();
+		getTransitive(multiMap, key, values);
+
+		return values;
+	}	
 }

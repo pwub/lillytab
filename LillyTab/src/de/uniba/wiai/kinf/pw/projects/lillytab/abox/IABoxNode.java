@@ -21,11 +21,10 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
+import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import java.util.Collection;
 import java.util.SortedSet;
-import javax.management.relation.Role;
-import org.apache.commons.collections15.MultiMap;
 
 /**
  * <p>
@@ -61,7 +60,8 @@ import org.apache.commons.collections15.MultiMap;
  * @param <Role> Type for role names
  */
 public interface IABoxNode<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends Comparable<IABoxNode<Name, Klass, Role>> {
+	extends Comparable<IABoxNode<Name, Klass, Role>>, IImmutable<IABoxNode<Name, Klass, Role>>
+{
 
 	/**
 	 * @return The unmodifiable {@link NodeID} of the current node.
@@ -100,34 +100,14 @@ public interface IABoxNode<Name extends Comparable<? super Name>, Klass extends 
 	 * @return A collection of {@link TermEntries} representing the terms of the current node.
 	 */
 	Collection<TermEntry<Name, Klass, Role>> getTermEntries();
-
-	/**
-	 *
-	 **/
-	// SortedSet<IDLClassExpression<Name, Klass, Role>> getVisitedConceptTerms();
-	/**
-	 *
-	 **/
-	// SortedSet<IDLClassExpression<Name, Klass, Role>> getUnvisitedConceptTerms();
-	/**
-	 * @return The IDs of nodes that a connected to the current node via a role link.
-	 */
-	@Deprecated
-	MultiMap<Role, NodeID> getSuccessors();
-
-	/**
-	 * @return All nodes that his nodes receives incoming connections via a role link.
-	 */
-	@Deprecated
-	MultiMap<Role, NodeID> getPredecessors();
-		
+	
 	/**
 	 * The link map contains the role associations between nodes.
 	 * 
 	 * @see ILinkMap
 	 * @return ŧhe link map.
 	 */
-	// ILinkMap<Name, Klass, Role> getLinkMap();
+	ILinkMap<Name, Klass, Role> getLinkMap();
 
 	/**
 	 * <p>

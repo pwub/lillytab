@@ -21,102 +21,296 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
-import de.dhke.projects.cutil.collections.MultiTreeSetHashMap;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRBox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITBox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.RoleProperty;
+import de.dhke.projects.cutil.collections.immutable.ImmutableMultiMap;
+import de.dhke.projects.cutil.collections.iterator.MultiMapItemIterable;
+import de.dhke.projects.cutil.collections.map.MultiEnumSetHashMap;
+import de.dhke.projects.cutil.collections.map.MultiSortedListSetHashMap;
+import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.*;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.lang.ref.WeakReference;
+import java.util.*;
+import java.util.Map.Entry;
 import org.apache.commons.collections15.MultiMap;
-import org.apache.commons.collections15.multimap.MultiHashMap;
+import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Name>
- * @param <Klass>
- * @param <Role> Role name type.
  */
 public class RBox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends MultiHashMap<Role, RoleProperty>
 	implements IRBox<Name, Klass, Role>
 {
-	static final long serialVersionUID = 2484966322395859950L;
-
-	private final ITBox<Name, Klass, Role> _tbox;
+	private final WeakReference<AssertedRBox<Name, Klass, Role>> _assertedRBoxRef;
 	private final MultiMap<Role, IDLRestriction<Name, Klass, Role>> _roleDomains = new MultiTreeSetHashMap<Role, IDLRestriction<Name, Klass, Role>>();
 	private final MultiMap<Role, IDLRestriction<Name, Klass, Role>> _roleRanges = new MultiTreeSetHashMap<Role, IDLRestriction<Name, Klass, Role>>();
+	private final MultiMap<Role, Role> _inverseRoles;
+	private final MultiMap<Role, Role> _equivalentRoles;
+	private final MultiMap<Role, Role> _subRoles;
+	private final MultiMap<Role, Role> _superRoles;
+	private final MultiMap<RoleProperty, Role> _propertyRoleMap;
+	private final MultiMap<Role, RoleProperty> _rolePropertyMap;
 
-	public RBox(ITBox<Name, Klass, Role> tbox)
+	protected RBox(final AssertedRBox<Name, Klass, Role> assertedRBox)
 	{
-		_tbox = tbox;
+		_assertedRBoxRef = new WeakReference<AssertedRBox<Name, Klass, Role>>(assertedRBox);
+
+		_rolePropertyMap = new MultiEnumSetHashMap<Role, RoleProperty>(RoleProperty.class);
+		_propertyRoleMap = new MultiTreeSetHashMap<RoleProperty, Role>();
+
+		_inverseRoles = new MultiSortedListSetHashMap<Role, Role>();
+		_equivalentRoles = new MultiSortedListSetHashMap<Role, Role>();
+
+		_subRoles = new MultiSortedListSetHashMap<Role, Role>();
+		_superRoles = new MultiSortedListSetHashMap<Role, Role>();
 	}
 
 	public ITBox<Name, Klass, Role> getTBox()
 	{
-		return _tbox;
+		return _assertedRBoxRef.get().getTBox();
 	}
 
-	/// <editor-fold defaultstate="collapsed" desc="Role Property Management">
-	public Set<RoleProperty> getRoleProperties(Role role)
+	protected void recalculate()
+		throws EInconsistentRBoxException
 	{
-		return (Set<RoleProperty>)get(role);
+		final AssertedRBox<Name, Klass, Role> assertedRBox = _assertedRBoxRef.get();
+
+		/*
+		 * clear local collections, initialize from asserted RBox
+		 */
+		_propertyRoleMap.clear();
+		_propertyRoleMap.putAll(assertedRBox.getPropertyRoles());
+
+		_rolePropertyMap.clear();
+		_rolePropertyMap.putAll(assertedRBox.getRoleProperties());
+
+
+		_inverseRoles.clear();
+		_inverseRoles.putAll(assertedRBox.getInverseRoles());
+
+		_subRoles.clear();
+		_subRoles.putAll(assertedRBox.getSubRoles());
+
+		_superRoles.clear();
+		_superRoles.putAll(assertedRBox.getSuperRoles());
+
+		_equivalentRoles.clear();
+		_equivalentRoles.putAll(assertedRBox.getEquivalentRoles());
+
+		addCommutativeInverses();
+		addCommutativeEqualities();
+		addSubSuper();
+
+		/**
+		 * Perform a fixed point iteration to update the role box.
+		 */
+		boolean isChanged = true;
+		while (isChanged) {
+			isChanged = false;
+			isChanged |= updateInverseEqualities();
+			isChanged |= updateEqualitiesSubSuper();
+			isChanged |= updateTopEqualities();
+			isChanged |= updateSubSuperEqualities();
+			isChanged |= updateTopSubSuper();
+		}
 	}
 
-	public boolean setRoleProperty(Role role, RoleProperty property)
+	private boolean updateTopSubSuper()
 	{
-		if (! containsValue(role, property)) {
-			put(role, property);
-			return true;
-		} else {
-			return false;
+		boolean isChanged = false;
+		final Collection<Role> topRoles = getRoles(RoleProperty.TOP);
+		if (topRoles != null) {
+			for (Role topRole : topRoles) {
+				final RoleType topRoleType = getRoleType(topRole);
+				if (getRoles(topRoleType) != null) {
+					for (Role otherRole : getRoles(topRoleType)) {
+						if (!isSubRole(topRole, otherRole)) {
+							_subRoles.put(topRole, otherRole);
+							_superRoles.put(otherRole, topRole);
+							isChanged = true;
+						}
+					}
+				}
+			}
+		}
+		return isChanged;
+	}
+
+	private boolean updateEqualitiesSubSuper() throws EInconsistentRBoxException
+	{
+		final AssertedRBox<Name, Klass, Role> assertedRBox = _assertedRBoxRef.get();
+		boolean isChanged = false;
+
+		for (Map.Entry<Role, Role> subRoleEntry : MultiMapItemIterable.decorate(_subRoles.entrySet())) {
+			final Role sup = subRoleEntry.getKey();
+			final Role sub = subRoleEntry.getValue();
+			if (getRoleType(sub) != getRoleType(sup))
+				throw new EInconsistentRBoxException(assertedRBox, String.format(
+					"Roles `%s' and `%s' are subroles, but not of the same type", sub, sup));
+			if ((isSubRole(sub, sup)) && (!isEquivalentRole(sub, sup))) {
+				_equivalentRoles.put(sub, sup);
+				_equivalentRoles.put(sup, sub);
+				isChanged = true;
+			}
+		}
+		return isChanged;
+	}
+
+	private boolean updateTopEqualities()
+	{
+		boolean isChanged = false;
+		final Collection<Role> topAdds = new TreeSet<Role>();
+		if (getRoles(RoleProperty.TOP) != null) {
+			for (Role topRole : getRoles(RoleProperty.TOP)) {
+				for (Role topEq : getEquivalentRoles(topRole)) {
+					if (!hasRoleProperty(topEq, RoleProperty.TOP)) {
+						topAdds.add(topEq);
+						isChanged = true;
+					}
+				}
+			}
+		}
+		if (!topAdds.isEmpty()) {
+			for (Role topAdd : topAdds) {
+				_propertyRoleMap.put(RoleProperty.TOP, topAdd);
+				_rolePropertyMap.put(topAdd, RoleProperty.TOP);
+			}
+			isChanged = true;
+		}
+		return isChanged;
+	}
+
+	private boolean updateSubSuperEqualities() throws EInconsistentRBoxException
+	{
+		final AssertedRBox<Name, Klass, Role> assertedRBox = _assertedRBoxRef.get();		
+		boolean isChanged = false;
+		
+		for (Map.Entry<Role, Role> eq : MultiMapItemIterable.decorate(_equivalentRoles)) {
+			if (getRoleType(eq.getKey()) != getRoleType(eq.getValue()))
+				throw new EInconsistentRBoxException(assertedRBox, String.format(
+					"Roles `%s' and `%s' are equal, but of different type", eq.getKey(), eq.getValue()));
+			if (isInverseRole(eq.getKey(), eq.getValue()))
+				throw new EInconsistentRBoxException(assertedRBox, String.format("Roles `%s' and `%s' are inverses and cannot be equal", eq.getKey(), eq.getValue()));				
+
+			if (!isSubRole(eq.getKey(), eq.getValue())) {
+				_subRoles.put(eq.getKey(), eq.getValue());
+				isChanged = true;
+			}
+			if (!isSuperRole(eq.getKey(), eq.getValue())) {
+				_superRoles.put(eq.getKey(), eq.getValue());
+				isChanged = true;
+			}
+		}
+		return isChanged;
+	}
+
+	private boolean updateInverseEqualities() throws EInconsistentRBoxException
+	{
+		final AssertedRBox<Name, Klass, Role> assertedRBox = _assertedRBoxRef.get();		
+		final Collection<Map.Entry<Role, Role>> addList = new HashSet<Map.Entry<Role, Role>>();		
+		boolean isChanged = false;
+		
+		/**
+		 * Iterate through all inverses
+		 * 
+		 */
+		for (Map.Entry<Role, Role> invEntry : MultiMapItemIterable.decorate(_inverseRoles.entrySet())) {
+			final Role first = invEntry.getValue();
+			final Role second = invEntry.getKey();
+
+			if (!hasRoleType(first, RoleType.OBJECT_PROPERTY))
+				throw new EInconsistentRBoxException(assertedRBox, String.format(
+					"Role `%s' has an inverse, but is not an object property", first));
+
+			if (isEquivalentRole(first, second))
+				throw new EInconsistentRBoxException(assertedRBox, String.format(
+					"Roles `%s' and `%s' are both inverses and equal", first, second));
+
+			/**
+			 * All roles equal to the second role are inverses to the first role, too.
+			 *
+			 */
+			final Collection<Role> secondEqs = getEquivalentRoles(second);
+			for (Role secondEq : secondEqs) {
+				if (!isInverseRole(first, secondEq)) {
+					if (isEquivalentRole(first, secondEq))
+						if (isInverseRole(first, secondEq))
+							throw new EInconsistentRBoxException(assertedRBox, String.format("Roles `%s' and `%s' are equal and cannot be inverses", first, secondEq));
+					addList.add(new DefaultMapEntry<Role, Role>(first, secondEq));
+				}
+			}
+
+			/**
+			 * Inverses of the second (= inverses of the inverses of the first role) are equal to the first role.
+			 */
+			final Collection<Role> invInvs = getInverseRoles(second);
+			if (invInvs != null) {
+				for (Role invInv : invInvs) {
+					final Collection<Role> invInvEqs = getEquivalentRoles(invInv);
+					for (Role invInvEq : invInvEqs) {
+						if (isInverseRole(first, invInvEq))
+							throw new EInconsistentRBoxException(assertedRBox, String.format("Roles `%s' and `%s' are inverses and cannot be equal", first, invInvEq));
+						
+						if (!isEquivalentRole(first, invInvEq)) {
+							_equivalentRoles.put(first, invInvEq);
+							isChanged = true;
+						}
+					}
+				}
+			}
 		}
 
-	}
-
-	public boolean clearRoleProperty(Role role, RoleProperty property)
-	{
-		if (containsValue(role, property)) {
-			remove(role, property);
-			return true;
-		} else {
-			return false;
+		if (!addList.isEmpty()) {
+			for (Map.Entry<Role, Role> invAddEntry : addList) {
+				_inverseRoles.put(invAddEntry.getKey(), invAddEntry.getValue());
+				_inverseRoles.put(invAddEntry.getValue(), invAddEntry.getKey());
+			}
+			isChanged = true;
 		}
+		return isChanged;
 	}
 
-	public boolean hasRoleProperty(Role role, RoleProperty property)
+	private void addCommutativeInverses()
 	{
-		return containsValue(role, property);
-	}
-	/// </editor-fold>
-
-	/// <editor-fold defaultstate="collapsed" desc="Domain and Range management">
-	public MultiMap<Role, IDLRestriction<Name, Klass, Role>> getRoleDomains()
-	{
-		return _roleDomains;
-	}
-
-	public MultiMap<Role, IDLRestriction<Name, Klass, Role>> getRoleRanges()
-	{
-		return _roleRanges;
-	}
-	/// </editor-fold>
-
-
-	@Override
-	protected Collection<RoleProperty> createCollection(Collection<? extends RoleProperty> coll)
-	{
-		/* override MultiHashMap core collection to EnumSet */
-		Set<RoleProperty> newCollection = EnumSet.noneOf(RoleProperty.class);
-		if (coll != null) {
-			for (RoleProperty prop : coll)
-				newCollection.add(prop);
+		final Collection<Map.Entry<Role, Role>> addList = new HashSet<Map.Entry<Role, Role>>();
+		for (Map.Entry<Role, Role> invEntry : MultiMapItemIterable.decorate(_inverseRoles.entrySet())) {
+			if (!_inverseRoles.containsValue(invEntry.getValue(), invEntry.getKey()))
+				addList.add(invEntry);
 		}
-		return newCollection;
+		for (Map.Entry<Role, Role> addItem : addList)
+			_inverseRoles.put(addItem.getKey(), addItem.getValue());
+	}
+
+	private void addCommutativeEqualities()
+	{
+		final Collection<Map.Entry<Role, Role>> addList = new HashSet<Map.Entry<Role, Role>>();
+		for (Map.Entry<Role, Role> invEntry : MultiMapItemIterable.decorate(_equivalentRoles.entrySet())) {
+			if (!_equivalentRoles.containsValue(invEntry.getValue(), invEntry.getKey()))
+				addList.add(invEntry);
+		}
+		for (Map.Entry<Role, Role> addItem : addList)
+			_equivalentRoles.put(addItem.getKey(), addItem.getValue());
+	}
+
+	private void addSubSuper()
+	{
+		final Collection<Map.Entry<Role, Role>> addList = new HashSet<Map.Entry<Role, Role>>();
+		for (Map.Entry<Role, Role> invEntry : MultiMapItemIterable.decorate(_subRoles.entrySet())) {
+			if (!_superRoles.containsValue(invEntry.getValue(), invEntry.getKey()))
+				addList.add(invEntry);
+		}
+		for (Map.Entry<Role, Role> addItem : addList)
+			_superRoles.put(addItem.getKey(), addItem.getValue());
+
+		addList.clear();
+		for (Map.Entry<Role, Role> invEntry : MultiMapItemIterable.decorate(_superRoles.entrySet())) {
+			if (!_subRoles.containsValue(invEntry.getValue(), invEntry.getKey()))
+				addList.add(invEntry);
+		}
+		for (Map.Entry<Role, Role> addItem : addList)
+			_subRoles.put(addItem.getKey(), addItem.getValue());
 	}
 
 	@Override
@@ -129,11 +323,11 @@ public class RBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	{
 		StringBuilder sb = new StringBuilder();
 		Set<Role> roles = new TreeSet<Role>();
-		roles.addAll(keySet());;
+		roles.addAll(_rolePropertyMap.keySet());;
 		roles.addAll(getRoleDomains().keySet());
 		roles.addAll(getRoleRanges().keySet());
 
-		for (Role role: roles) {
+		for (Role role : roles) {
 			sb.append(role);
 			sb.append(": Properties: ");
 			sb.append(getRoleProperties(role));
@@ -147,23 +341,122 @@ public class RBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return sb.toString();
 	}
 
-	public Set<Role> getInverseRoles(Role role)
+	public Collection<Role> getEquivalentRoles(Role role)
+	{
+		final Collection<Role> roles = _equivalentRoles.get(role);
+		if (roles != null)
+			return Collections.unmodifiableCollection(roles);
+		else
+			return null;
+	}
+
+	public Collection<Role> getInverseRoles(Role role)
+	{
+		final Collection<Role> roles = _inverseRoles.get(role);
+		if (roles != null)
+			return Collections.unmodifiableCollection(roles);
+		else
+			return null;
+	}
+
+	public MultiMap<Role, IDLRestriction<Name, Klass, Role>> getRoleDomains()
 	{
 		throw new UnsupportedOperationException("Not supported yet.");
 	}
 
-	public Set<Role> getEquivalentRoles(Role role)
+	public Collection<RoleProperty> getRoleProperties(Role role)
 	{
-		throw new UnsupportedOperationException("Not supported yet.");
+		final Collection<RoleProperty> properties = _rolePropertyMap.get(role);
+		if (properties != null)
+			return Collections.unmodifiableCollection(properties);
+		else
+			return null;
 	}
 
-	public Set<Role> getSuperRoles(Role role)
+	public MultiMap<Role, IDLRestriction<Name, Klass, Role>> getRoleRanges()
 	{
-		throw new UnsupportedOperationException("Not supported yet.");
+		return ImmutableMultiMap.decorate(_roleRanges);
 	}
 
-	public Set<Role> getSubRoles(Role role)
+	public RoleType getRoleType(Role role)
 	{
-		throw new UnsupportedOperationException("Not supported yet.");
+		return _assertedRBoxRef.get().getRoleType(role);
+	}
+
+	public Collection<Role> getRoles()
+	{
+		return _assertedRBoxRef.get().getRoles();
+	}
+
+	public Collection<Role> getRoles(RoleProperty property)
+	{
+		final Collection<Role> roles = _propertyRoleMap.get(property);
+		if (roles != null)
+			return Collections.unmodifiableCollection(roles);
+		else
+			return null;
+	}
+
+	public Collection<Role> getRoles(RoleType type)
+	{
+		return _assertedRBoxRef.get().getRoles(type);
+	}
+
+	public Collection<Role> getSubRoles(Role role)
+	{
+		final Collection<Role> subRoles = _subRoles.get(role);
+		if (subRoles != null)
+			return Collections.unmodifiableCollection(subRoles);
+		else
+			return null;
+	}
+
+	public Collection<Role> getSuperRoles(Role role)
+	{
+		final Collection<Role> superRoles = _superRoles.get(role);
+		if (superRoles != null)
+			return Collections.unmodifiableCollection(superRoles);
+		else
+			return null;
+	}
+
+	public boolean hasRoleProperty(Role role, RoleProperty property)
+	{
+		return _rolePropertyMap.containsValue(role, property);
+	}
+
+	public boolean hasRoleType(Role role, RoleType roleType)
+	{
+		return getAssertedRBox().hasRoleType(role, roleType);
+	}
+
+	public boolean isEquivalentRole(Role first, Role second)
+	{
+		return _equivalentRoles.containsValue(first, second);
+	}
+
+	public boolean isInverseRole(Role first, Role second)
+	{
+		return _inverseRoles.containsValue(first, second);
+	}
+
+	public boolean hasInverseRoles()
+	{
+		return !_inverseRoles.isEmpty();
+	}
+
+	public boolean isSubRole(Role sup, Role sub)
+	{
+		return _subRoles.containsValue(sup, sub);
+	}
+
+	public boolean isSuperRole(Role sub, Role sup)
+	{
+		return _superRoles.containsValue(sub, sup);
+	}
+
+	public IAssertedRBox<Name, Klass, Role> getAssertedRBox()
+	{
+		return _assertedRBoxRef.get();
 	}
 }

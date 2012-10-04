@@ -154,7 +154,7 @@ public abstract class AbstractAboxNode<Name extends Comparable<? super Name>, Kl
 		sb.append("\n");
 		sb.append(prefix);
 		sb.append("\tlinks: [");
-		for (Map.Entry<Role, Collection<NodeID>> sEntry : getSuccessors().entrySet()) {
+		for (Map.Entry<Role, Collection<NodeID>> sEntry : getLinkMap().getAssertedSuccessors().entrySet()) {
 			sb.append("(");
 			Role role = sEntry.getKey();
 			sb.append(role);

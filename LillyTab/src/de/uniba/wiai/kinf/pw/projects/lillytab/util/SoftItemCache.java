@@ -44,7 +44,7 @@ import java.util.WeakHashMap;
  */
 public class SoftItemCache<T>
 {
-	private final WeakHashMap<T, SoftReference<T>> _termCache = new WeakHashMap<T, SoftReference<T>>();
+	private final WeakHashMap<T, SoftReference<T>> _itemCache = new WeakHashMap<T, SoftReference<T>>();
 	
 	/**
 	* Check the cache, if an equal (via {@link #hashCode()} and {@link #equals(java.lang.Object) }
@@ -53,20 +53,20 @@ public class SoftItemCache<T>
 	* Otherwise the provided temporary object is stored into the cache, effectively
 	* making it into the cached copy.
 	* </p><p>
-	* if {@literal term} is {@literal null}, behaviour is undefined. Otherwise, {@literal null} is never returned.
+	* if {@literal item} is {@literal null}, behaviour is undefined. Otherwise, {@literal null} is never returned.
 	* </p>
     * @param <TT> The type of the term object to check and return.
-	* @param term The object to lookup (or store) in the cache.
+	* @param item The object to lookup (or store) in the cache.
     **/
 	@SuppressWarnings("unchecked")
-	public <TT extends T> TT updateCache(final TT term)
+	public <TT extends T> TT updateCache(final TT item)
 	{
-		final SoftReference<T> ref = _termCache.get(term);
+		final SoftReference<T> ref = _itemCache.get(item);
 		if ((ref != null) && (ref.get() != null)) {
 			return (TT)ref.get();
 		} else {
-			_termCache.put(term, new SoftReference<T>(term));
-			return term;
+			_itemCache.put(item, new SoftReference<T>(item));
+			return item;
 		}
 	}
 }

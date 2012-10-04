@@ -62,7 +62,7 @@ public class CopyOnWriteMapValueCollection<K, V, M extends Map<K, V>>
 		{
 			/**
 			 * I cannot think of a proper way to fully support this method.
-			 * If a COW list has not been copied yet, a remove would chang thee underlying collection.
+			 * If a COW list has not been copied yet, a remove would change the underlying collection.
 			 * In this case, we would have to create a new iterator at exactly the same
 			 * position for the new collection. This works for lists but not for collections.
 			 **/
