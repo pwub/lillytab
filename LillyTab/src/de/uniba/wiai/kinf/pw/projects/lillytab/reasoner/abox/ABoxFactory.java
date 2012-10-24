@@ -24,7 +24,6 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 
 /**
  *
@@ -42,17 +41,13 @@ public class ABoxFactory<Name extends Comparable<? super Name>, Klass extends Co
 		common = new ABoxCommon<Name, Klass, Role>(_termFactory);
 	}
 
-	public ABoxFactory()
-	{
-		_termFactory = new DLTermFactory<Name, Klass, Role>();
-		common = new ABoxCommon<Name, Klass, Role>(_termFactory);
-	}
-
+	@Override
 	public IDLTermFactory<Name, Klass, Role> getDLTermFactory()
 	{
 		return _termFactory;
 	}
 
+	@Override
 	public IABox<Name, Klass, Role> createABox()
 	{		
 		return new ABox<Name, Klass, Role>(common);

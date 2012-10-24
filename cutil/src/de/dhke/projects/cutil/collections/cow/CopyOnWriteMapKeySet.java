@@ -34,6 +34,7 @@ import java.util.Set;
 class CopyOnWriteMapKeySet<K, V, M extends Map<K, V>>
 	implements Set<K>
 {
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
 	private class Itr
 		implements Iterator<K>
 	{
@@ -70,6 +71,8 @@ class CopyOnWriteMapKeySet<K, V, M extends Map<K, V>>
 				throw new UnsupportedOperationException("Cannot remove from untouched CopyOnWriteMap via iterator.");
 		}
 	}
+	/// </editor-fold>
+	
 	private final GenericCopyOnWriteMap<K, V, M> _cowMap;
 	private Map<K, V> _lastBaseMap = null;
 	private Set<K> _cachedKeySet = null;
@@ -90,31 +93,37 @@ class CopyOnWriteMapKeySet<K, V, M extends Map<K, V>>
 		return _cachedKeySet;
 	}
 
+	@Override
 	public int size()
 	{
 		return getOriginalKeySet().size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return getOriginalKeySet().isEmpty();
 	}
 
+	@Override
 	public boolean contains(final Object o)
 	{
 		return _cowMap.containsKey(o);
 	}
 
+	@Override
 	public Iterator<K> iterator()
 	{
 		return new Itr();
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return getOriginalKeySet().toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return getOriginalKeySet().toArray(a);
@@ -126,6 +135,7 @@ class CopyOnWriteMapKeySet<K, V, M extends Map<K, V>>
 		return true;
 	}
 
+	@Override
 	public boolean remove(final Object o)
 	{
 		boolean willRemove = _cowMap.containsKey(o);
@@ -133,11 +143,13 @@ class CopyOnWriteMapKeySet<K, V, M extends Map<K, V>>
 		return willRemove;
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return getOriginalKeySet().containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends K> c)
 	{
 		boolean added = false;
@@ -148,18 +160,21 @@ class CopyOnWriteMapKeySet<K, V, M extends Map<K, V>>
 		return added;
 	}
 
+	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		_cowMap.copy();
 		return getOriginalKeySet().retainAll(c);
 	}
 
+	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		_cowMap.copy();
 		return getOriginalKeySet().removeAll(c);
 	}
 
+	@Override
 	public void clear()
 	{
 		_cowMap.clear();

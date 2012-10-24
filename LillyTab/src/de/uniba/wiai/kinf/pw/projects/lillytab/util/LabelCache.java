@@ -19,21 +19,50 @@
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
+package de.uniba.wiai.kinf.pw.projects.lillytab.util;
+
+import java.util.WeakHashMap;
 
 /**
- * Global ABox storage options.
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class StorageOptions {
-	/**
-	 * Use CopyOnWrite for branch cloning instead of a full copy.
-	 **/
-	public static boolean COPY_ON_WRITE = true;
+public class LabelCache
+	implements IToStringFormatter {
+
+	private final IToStringFormatter _baseFormatter;
+	private final WeakHashMap<Object, String> _labelCache = new WeakHashMap<Object, String>();
 
 
-	private StorageOptions()
+	@Deprecated
+	public LabelCache(final IToStringFormatter baseFormatter)
 	{
+		_baseFormatter = baseFormatter;
+	}
+
+
+	public static LabelCache decorate(final IToStringFormatter baseFormatter)
+	{
+		return new LabelCache(baseFormatter);
+	}
+
+
+	@Override
+	public String toString(Object obj)
+	{
+		String label = _labelCache.get(obj);
+		if (label == null) {
+			label = _baseFormatter.toString(obj);
+			_labelCache.put(obj, label);
+		}
+		return label;
+	}
+
+
+	@Override
+	public void append(StringBuilder sb, Object obj)
+	{
+		final String label = toString(obj);
+		sb.append(label);
 	}
 }

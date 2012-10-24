@@ -27,7 +27,7 @@ import java.util.TreeSet;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class EqualityAwareSortedTreeSet<T>
 	extends TreeSet<T>

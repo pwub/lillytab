@@ -25,7 +25,7 @@ import java.util.*;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class SortedListSet<T extends Comparable<? super T>>
 	extends AbstractList<T>
@@ -143,6 +143,7 @@ public class SortedListSet<T extends Comparable<? super T>>
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public boolean contains(Object o)
 	{		
 		return getPosition((T)o) >= 0;

@@ -63,6 +63,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleKRSSParser;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.logging.ConsoleHandler;
@@ -170,7 +171,7 @@ public class DependencyTrackingTest {
 	{
 	}
 
-	private final IDLTermFactory<String, String, String> _termFactory = new DLTermFactory<String, String, String>();
+	private final IDLTermFactory<String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String> _aboxFactory = new ABoxFactory<String, String, String>(_termFactory);
 	private IABox<String, String, String> _abox;
 	private Reasoner<String, String, String> _reasoner;
@@ -286,7 +287,7 @@ public class DependencyTrackingTest {
 		_abox.getTBox().getRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		IABoxNode<String, String, String> aNode = _abox.createNode(false);
 		IABoxNode<String, String, String> bNode = _abox.getOrAddNamedNode("b", false);
-		aNode.getLinkMap().getAssertedSuccessors().put("r", bNode.getNodeID());
+		aNode.getRABox().getAssertedSuccessors().put("r", bNode.getNodeID());
 		final IDLRestriction<String, String, String> b = _parser.parse("{b}");
 		final IDLRestriction<String, String, String> only = _parser.parse("(only r {b})");
 		aNode.addUnfoldedDescription(only);
@@ -307,7 +308,7 @@ public class DependencyTrackingTest {
 		IABoxNode<String, String, String> aNode = _abox.createNode(false);
 		IABoxNode<String, String, String> bNode = _abox.getOrAddNamedNode("b", false);
 		IABoxNode<String, String, String> cNode = _abox.getOrAddNamedNode("c", false);
-		aNode.getLinkMap().getAssertedSuccessors().put("r", cNode.getNodeID());
+		aNode.getRABox().getAssertedSuccessors().put("r", cNode.getNodeID());
 		final IDLRestriction<String, String, String> b = _parser.parse("{b}");
 		final IDLRestriction<String, String, String> only = _parser.parse("(only r {b})");
 		aNode.addUnfoldedDescription(only);

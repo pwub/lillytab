@@ -58,9 +58,15 @@ public interface ITermSet<Name extends Comparable<? super Name>, Klass extends C
 	public <T extends IDLTerm<Name, Klass, Role>> Iterator<T> iterator(final DLTermOrder termType, final Class<? extends T> klass);
 
 	/**
-	 *
-	 * @param termType
-	 * @return
+	 * <p>
+	 * Return the subset of the current {@link ITermSet} that
+	 * contains only the terms of the specified type. 
+	 * </p><p>
+	 * Modifications to the subset modify the underlying termset.
+	 * </p>
+	 * @param termType The types of the terms to return.
+	 * @return The subset of the current termset containing only terms of the specified term type.
+	 * @see DLTermOrder
 	 */
 	public SortedSet<IDLTerm<Name, Klass, Role>> subSet(final DLTermOrder termType);
 }

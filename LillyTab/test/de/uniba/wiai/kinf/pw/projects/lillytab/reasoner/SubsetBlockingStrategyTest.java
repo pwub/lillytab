@@ -51,9 +51,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.SubsetBlockingStrategy;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -63,10 +62,10 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author peterw
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SubsetBlockingStrategyTest {
-	private final IDLTermFactory<String, String, String> _termFactory = new DLTermFactory<String, String, String>();
+	private final IDLTermFactory<String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String> _aboxFactory = new ABoxFactory<String, String, String>(_termFactory);
 	private IABox<String, String, String> _abox;
 	private IABoxNode<String, String, String> _aboxNode;
@@ -101,7 +100,7 @@ public class SubsetBlockingStrategyTest {
 
 
 	/**
-	 * Test of getBlockedNodeIDs method, of class ABoxNode.
+	 * Test of getBlockedNodeIDs method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetBlockedNodes()
@@ -138,22 +137,22 @@ public class SubsetBlockingStrategyTest {
 
 // This is an old test. Needs to be refactored.
 //	/**
-//	 * Test of isPotentialBlocker method, of class ABoxNode.
+//	 * Test of isPotentialBlocker method, of class IABoxNode.
 //	 */
 //	@Test
 //	public void testIsPotentialBlocker()
 //	{
 //		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-//		assertTrue(node2 instanceof ABoxNode);
+//		assertTrue(node2 instanceof IABoxNode);
 //		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
 //		_blockingStrategy.
-//		assertTrue(((ABoxNode<String, String, String>) _aboxNode).isPotentialBlocker(node2));
+//		assertTrue(((IABoxNode<String, String, String>) _aboxNode).isPotentialBlocker(node2));
 //		node2.addUnfoldedDescription(_termFactory.getDLClassReference("B"));
-//		assertFalse(((ABoxNode<String, String, String>) _aboxNode).isPotentialBlocker(node2));
+//		assertFalse(((IABoxNode<String, String, String>) _aboxNode).isPotentialBlocker(node2));
 //	}
 
 	/**
-	 * Test of isBlocked method, of class ABoxNode.
+	 * Test of isBlocked method, of class IABoxNode.
 	 */
 	@Test
 	public void testIsBlocked()
@@ -167,7 +166,7 @@ public class SubsetBlockingStrategyTest {
 	}
 
 	/**
-	 * Test of validateBlocks method, of class ABoxNode.
+	 * Test of validateBlocks method, of class IABoxNode.
 	 */
 	@Test
 	public void testValidateBlocks_0args()
@@ -190,7 +189,7 @@ public class SubsetBlockingStrategyTest {
 	}
 
 	/**
-	 * Test of getBlocker method, of class ABoxNode.
+	 * Test of getBlocker method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetBlocker()

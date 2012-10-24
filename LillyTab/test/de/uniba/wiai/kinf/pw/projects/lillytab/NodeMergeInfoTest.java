@@ -31,6 +31,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,8 +41,7 @@ import static org.junit.Assert.*;
 
 
 /**
- *
- * @author peter
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class NodeMergeInfoTest
 {
@@ -58,7 +58,7 @@ public class NodeMergeInfoTest
 	@BeforeClass
 	public static void setUpClass() throws Exception
 	{
-		_termFactory = new DLTermFactory<String, String, String>();
+		_termFactory = new SimpleStringDLTermFactory();
 		_aboxFactory = new ABoxFactory<String, String, String>(_termFactory);
 	}
 

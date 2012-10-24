@@ -26,7 +26,7 @@ import java.util.List;
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Role> The type of the referenced role
+ * @param <Role> The type for properties (roles)
  */
 public interface IDLRoleOperator<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends IDLTerm<Name, Klass, Role>

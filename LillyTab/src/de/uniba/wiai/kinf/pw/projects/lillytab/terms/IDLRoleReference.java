@@ -27,7 +27,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * </p>
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Role> The type of the referenced element.
+ * @param <Role> The type for properties (roles)
  */
 public interface IDLRoleReference<Role extends Comparable<Role>>
 	extends IDLElementReference<Role>

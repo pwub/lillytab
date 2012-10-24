@@ -57,6 +57,8 @@ public class CopyOnWriteCollection<E>
 	@Override
 	public CopyOnWriteCollection<E> clone()
 	{
-		return decorate(getDecoratee(), getFactory());
+		final CopyOnWriteCollection<E> klone = decorate(getDecoratee(), getFactory());
+		this.resetWasCopied();
+		return klone;
 	}
 }

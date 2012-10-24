@@ -49,17 +49,20 @@ public class AspectMultiMapKeySet<K, V, M extends MultiMap<K, V>>
 			_current = null;
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return _keyIter.hasNext();
 		}
 
+		@Override
 		public K next()
 		{
 			_current = _keyIter.next();
 			return _current;
 		}
 
+		@Override
 		public void remove()
 		{
 			/* we operate on copy in the case the MultiMap returns the real value collection */

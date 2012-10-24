@@ -34,6 +34,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.dhke.projects.lutil.LoggingClass;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
 import java.util.Collection;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
@@ -67,7 +69,7 @@ public class Main
 	{
 		super();
 		initLogger();
-		_termFactory = new DLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>>();
+		_termFactory = new OWLAPIDLTermFactory(OWLManager.getOWLDataFactory());
 		_aboxFactory = new ABoxFactory<OWLObject, OWLClass, OWLProperty<?, ?>>(_termFactory);
 		ReasonerOptions options = new ReasonerOptions();
 //		options.TRACE = true;
@@ -130,6 +132,8 @@ public class Main
 				logInfo(abox.toString());
 			}
 
+		} catch (ENodeMergeException ex) {
+			getLogger().log(Level.SEVERE, "", ex);
 		} catch (EInconsistencyException ex) {
 			getLogger().log(Level.SEVERE, "", ex);
 		} catch (EReasonerException ex) {

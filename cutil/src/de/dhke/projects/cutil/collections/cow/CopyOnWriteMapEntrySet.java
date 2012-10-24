@@ -32,6 +32,7 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
 	implements Set<Entry<K, V>>
 {
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
 	private class Itr
 		implements Iterator<Map.Entry<K, V>>
 	{
@@ -71,6 +72,8 @@ class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
 				throw new UnsupportedOperationException("Cannot remove from untouched CopyOnWriteMap via iterator.");
 		}
 	}
+	/// </editor-fold>
+	
 	private final GenericCopyOnWriteMap<K, V, M> _cowMap;
 
 	protected CopyOnWriteMapEntrySet(final GenericCopyOnWriteMap<K, V, M> cowMap)
@@ -91,11 +94,13 @@ class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
 		return _cachedEntrySet;
 	}
 
+	@Override
 	public int size()
 	{
 		return getOriginalEntrySet().size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return getOriginalEntrySet().isEmpty();
@@ -113,27 +118,32 @@ class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
 			return false;
 	}
 
+	@Override
 	public Iterator<Entry<K, V>> iterator()
 	{
 		return new Itr();
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return getOriginalEntrySet().toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return getOriginalEntrySet().toArray(a);
 	}
 
+	@Override
 	public boolean add(final Entry<K, V> e)
 	{
 		_cowMap.put(e.getKey(), e.getValue());
 		return true;
 	}
 
+	@Override
 	public boolean remove(final Object o)
 	{
 		if (o instanceof Entry) {
@@ -148,11 +158,13 @@ class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
 			return false;
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return getOriginalEntrySet().containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends Entry<K, V>> c)
 	{
 		boolean added = false;
@@ -163,18 +175,21 @@ class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
 		return added;
 	}
 
+	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		_cowMap.copy();
 		return getOriginalEntrySet().retainAll(c);
 	}
 
+	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		_cowMap.copy();
 		return getOriginalEntrySet().removeAll(c);
 	}
 
+	@Override
 	public void clear()
 	{
 		_cowMap.copy();

@@ -17,7 +17,7 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.util;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,12 +34,13 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class LabelToStringConverter
+public class LabelToStringFormatter
 	implements IToStringFormatter
 {
+	private static final boolean USE_ALL_ANNOTATIONS = false;
 	private final Set<OWLOntology> _ontologies = new HashSet<OWLOntology>();
 
-	public LabelToStringConverter(final OWLOntology... ontologies)
+	public LabelToStringFormatter(final OWLOntology... ontologies)
 	{
 		_ontologies.addAll(Arrays.asList(ontologies));
 	}
@@ -58,6 +59,7 @@ public class LabelToStringConverter
 		final Pattern dataTypeEndPattern = Pattern.compile("\\^\\^xsd:\\w+$");
 		final Pattern iriPathSepEndPattern = Pattern.compile("/([^/]+)$");
 
+		boolean haveLabel = false;
 		if (obj instanceof OWLEntity) {
 			final OWLEntity entity = (OWLEntity) obj;
 			final Set<OWLAnnotation> annotations = new HashSet<OWLAnnotation>();
@@ -68,31 +70,71 @@ public class LabelToStringConverter
 					String label = annotation.getValue().toString();
 					// strip data trailing datatype marker "^^xsd:", that gets appended by the OWLAPI.
 					label = dataTypeEndPattern.matcher(label).replaceAll("");
+
+					/* strip trailing and leading quotation marks if both are present */
 					if (label.startsWith("\"") && label.endsWith("\""))
 						label = label.substring(1, label.length() - 1);
-					sb.append(label);
+
+					/* is there still is a non-empty label, append it */
+					if (!label.isEmpty()) {
+						haveLabel = true;
+						sb.append(label);
+						/* use only the first, non-empty annotation, if requested to do so */
+						if (!USE_ALL_ANNOTATIONS)
+							break;
+
+					}
 				}
 			}
-			if (sb.length() == 0) {
-				if (entity.getIRI() != null) {
-					final IRI iri = entity.getIRI();
-					if (iri.getFragment() != null) {
-						/* pick the fragment, if there is one */
-						sb.append(entity.getIRI().getFragment());
-					} else {
-						/* pick the last component of the IRI path, if available */
-						final Matcher m = iriPathSepEndPattern.matcher(iri.toString());
-						if (m.find())
-							sb.append(m.group(1));
-					}
-				} else
-					sb.append(entity);
-			}
-		} else if (obj instanceof IDLClassReference) {
-			IDLClassReference<?, ?, ?> classRef = (IDLClassReference<?, ?, ?>) obj;
-			append(sb, classRef.getElement());
-		} else
-			sb.append(obj);
 
+			/**
+			 * Try to build the label from the IRI if we do not yet have one.
+			 *
+			 */
+			if ((!haveLabel) && (entity.getIRI() != null)) {
+				final IRI iri = entity.getIRI();
+				if ((iri.getFragment() != null) && (!iri.getFragment().isEmpty())) {
+					/* pick the fragment, if there is one */
+					haveLabel = true;
+					sb.append(entity.getIRI().getFragment());
+				} else {
+					/* pick the last component of the IRI path, if available */
+					final Matcher m = iriPathSepEndPattern.matcher(iri.toString());
+					if (m.find() && (m.groupCount() > 0) && (!m.group(1).isEmpty())) {
+						haveLabel = true;
+						sb.append(m.group(1));
+					}
+				}
+			}
+		}
+
+		/**
+		 * descend into class reference 
+		 *
+		 */
+		if ((!haveLabel) && (obj instanceof IDLClassReference)) {
+			IDLClassReference<?, ?, ?> classRef = (IDLClassReference<?, ?, ?>) obj;
+			haveLabel = true;
+			append(sb, classRef.getElement());
+		}
+
+		/**
+		 * descend into nominal reference *
+		  *
+		 */
+		if ((!haveLabel) && (obj instanceof IDLNominalReference)) {
+			IDLNominalReference<?, ?, ?> nomRef = (IDLNominalReference<?, ?, ?>) obj;
+			haveLabel = true;
+			sb.append("{");
+			append(sb, nomRef.getIndividual());
+			sb.append("}");
+		}
+
+		/**
+		 * fallback: still no label: use object's toString()
+		 *
+		 */
+		if (!haveLabel)
+			sb.append(obj);
 	}
 }

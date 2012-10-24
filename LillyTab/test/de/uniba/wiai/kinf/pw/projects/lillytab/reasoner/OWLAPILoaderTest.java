@@ -44,16 +44,15 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
  **/
 
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.IReasonerResult;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Reasoner;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPILoader;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import org.junit.After;
@@ -94,7 +93,8 @@ public class OWLAPILoaderTest {
 	private PrefixManager _nsManager = new DefaultPrefixManager(_ontologyURI);
 	private OWLDataFactory _dataFactory = _ontoManager.getOWLDataFactory();
 	private OWLAPILoader _loader;
-	private final IDLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _termFactory = new DLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>>();
+	private final IDLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _termFactory = new OWLAPIDLTermFactory(
+		_dataFactory);
 	private final IABoxFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _aboxFactory = new ABoxFactory<OWLObject, OWLClass, OWLProperty<?, ?>>(_termFactory);
 	private IABox<OWLObject, OWLClass, OWLProperty<?, ?>> _abox;
 	private Reasoner<OWLObject, OWLClass, OWLProperty<?, ?>> _reasoner;
@@ -238,7 +238,7 @@ public class OWLAPILoaderTest {
 		_reasoner.checkConsistency(_abox);
 	}
 
-	@Test(expected=EInconsistentABoxException.class)
+	@Test()
 	public void testIncorrectBooleanLiteral()
 		throws OWLOntologyCreationException, OWLOntologyChangeException, EReasonerException, EInconsistencyException
 	{
@@ -257,6 +257,9 @@ public class OWLAPILoaderTest {
 
 		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
 		_loader.fillABox(onto, _abox);
-		_reasoner.checkConsistency(_abox);
+		
+		final Collection<? extends IReasonerResult<OWLObject, OWLClass, OWLProperty<?, ?>>> results = _reasoner.checkConsistency(_abox);
+		assertTrue(results.isEmpty());
+		
 	}
 }

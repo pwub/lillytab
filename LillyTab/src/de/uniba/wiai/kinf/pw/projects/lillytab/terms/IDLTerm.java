@@ -21,6 +21,8 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+
 /**
  * <p>
  * Base interface for all DL related {@link ITerm}s.

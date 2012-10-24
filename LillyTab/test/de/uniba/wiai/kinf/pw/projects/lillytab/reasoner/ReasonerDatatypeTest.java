@@ -27,6 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPILoader;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import java.util.HashSet;
@@ -56,7 +57,7 @@ import org.semanticweb.owlapi.util.DefaultPrefixManager;
 
 /**
  *
- * @author peterw
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ReasonerDatatypeTest {
 	private OWLOntologyManager _ontoManager = OWLManager.createOWLOntologyManager();
@@ -64,7 +65,8 @@ public class ReasonerDatatypeTest {
 	private PrefixManager _nsManager = new DefaultPrefixManager(_ontologyURI);
 	private OWLDataFactory _dataFactory = _ontoManager.getOWLDataFactory();
 	private OWLAPILoader _loader;
-	private final IDLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _termFactory = new DLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>>();
+	private final IDLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _termFactory = new OWLAPIDLTermFactory(
+		_dataFactory);
 	private final IABoxFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _aboxFactory = new ABoxFactory<OWLObject, OWLClass, OWLProperty<?, ?>>(_termFactory);
 	private final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox = _aboxFactory.createABox();
 

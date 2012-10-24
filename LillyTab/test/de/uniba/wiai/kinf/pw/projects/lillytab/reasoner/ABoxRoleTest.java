@@ -28,7 +28,9 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleKRSSParser;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 import org.junit.After;
@@ -54,7 +56,8 @@ public class ABoxRoleTest {
 	@BeforeClass
 	public static void setUpClass() throws Exception
 	{
-		_aboxFactory = new ABoxFactory<String, String, String>();
+		final IDLTermFactory<String, String, String> termFactory = new SimpleStringDLTermFactory();		
+		_aboxFactory = new ABoxFactory<String, String, String>(termFactory);
 		_parser = new SimpleKRSSParser(_aboxFactory.getDLTermFactory());
 	}
 
@@ -90,11 +93,11 @@ public class ABoxRoleTest {
 
 		final IABoxNode<String, String, String> aNode = _abox.getOrAddNamedNode("a", false);
 		final IABoxNode<String, String, String> bNode = _abox.getOrAddNamedNode("b", false);
-		aNode.getLinkMap().getAssertedSuccessors().put("r0", bNode.getNodeID());
-		aNode.getLinkMap().getAssertedSuccessors().put("r1", bNode.getNodeID());
+		aNode.getRABox().getAssertedSuccessors().put("r0", bNode.getNodeID());
+		aNode.getRABox().getAssertedSuccessors().put("r1", bNode.getNodeID());
 		
 		final Bag<String> outRoles = new HashBag<String>();
-		for (String role: aNode.getLinkMap().getOutgoingRoles()) {
+		for (String role: aNode.getRABox().getOutgoingRoles()) {
 			outRoles.add(role);
 		}
 		assertEquals(1, outRoles.getCount("parent"));

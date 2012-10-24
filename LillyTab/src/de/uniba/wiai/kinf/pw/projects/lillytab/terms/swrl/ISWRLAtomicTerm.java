@@ -22,7 +22,7 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IAtom;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 
 /**
  *

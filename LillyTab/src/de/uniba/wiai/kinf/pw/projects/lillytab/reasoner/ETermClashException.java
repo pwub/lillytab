@@ -27,7 +27,7 @@ import java.util.Collection;
 
 /**
  *
- * @author peter
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ETermClashException
 	extends EInconsistentABoxNodeException

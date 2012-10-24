@@ -23,7 +23,7 @@ package de.dhke.projects.cutil;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public final class IdentityWrapper<T>
 	implements IDecorator<T>

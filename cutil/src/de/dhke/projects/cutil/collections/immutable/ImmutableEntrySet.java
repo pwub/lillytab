@@ -33,7 +33,7 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class ImmutableEntrySet<K, V>
 	implements Set<Map.Entry<K, V>>, IDecorator<Set<Map.Entry<K, V>>>

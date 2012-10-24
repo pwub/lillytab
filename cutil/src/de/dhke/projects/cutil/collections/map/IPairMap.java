@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public interface IPairMap<First, Second, Tag>
 	extends Map<Pair<First, Second>, Tag>

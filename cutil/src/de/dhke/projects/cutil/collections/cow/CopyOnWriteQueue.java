@@ -41,11 +41,13 @@ public class CopyOnWriteQueue<E>
 	{
 		return new CopyOnWriteQueue<E>(baseQueue, new ICollectionFactory<E, Queue<E>>() {
 
+			@Override
 			public Queue<E> getInstance()
 			{
 				return new LinkedList<E>();
 			}
 
+			@Override
 			public Queue<E> getInstance(final Queue<E> baseCollection)
 			{
 				return new LinkedList<E>(baseCollection);

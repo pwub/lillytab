@@ -21,10 +21,11 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.tbox;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Collection;
 import java.util.Set;
 
@@ -79,4 +80,6 @@ public interface ITBox<Name extends Comparable<? super Name>, Klass extends Comp
 	Collection<IDLRestriction<Name, Klass, Role>> getUnfolding(IDLRestriction<Name, Klass, Role> unfoldee);
 
 	String toString(String prefix);
+	
+	ITBox<Name, Klass, Role> clone();
 }

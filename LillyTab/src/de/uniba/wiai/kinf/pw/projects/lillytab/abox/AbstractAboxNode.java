@@ -31,9 +31,9 @@ import java.util.Map;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  * 
- * @param <Name> The type for named individuals.
- * @param <Klass> Type for class names
- * @param <Role> Type for role names
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  */
 public abstract class AbstractAboxNode<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends LoggingClass
@@ -141,6 +141,8 @@ public abstract class AbstractAboxNode<Name extends Comparable<? super Name>, Kl
 	public String toString(final String prefix)
 	{
 		StringBuilder sb = new StringBuilder();
+		if (isDatatypeNode())
+			sb.append("d");
 		sb.append(getNodeID().toString());
 		sb.append(": names: ");
 		sb.append(getNames().toString());
@@ -154,7 +156,7 @@ public abstract class AbstractAboxNode<Name extends Comparable<? super Name>, Kl
 		sb.append("\n");
 		sb.append(prefix);
 		sb.append("\tlinks: [");
-		for (Map.Entry<Role, Collection<NodeID>> sEntry : getLinkMap().getAssertedSuccessors().entrySet()) {
+		for (Map.Entry<Role, Collection<NodeID>> sEntry : getRABox().getAssertedSuccessors().entrySet()) {
 			sb.append("(");
 			Role role = sEntry.getKey();
 			sb.append(role);

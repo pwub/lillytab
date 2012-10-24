@@ -56,6 +56,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleKRSSParser;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import java.text.ParseException;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -95,7 +96,7 @@ public class ABoxNodeTest
 	public void setUp()
 		throws EReasonerException, EInconsistencyException
 	{
-		_termFactory = new DLTermFactory<String, String, String>();
+		_termFactory = new SimpleStringDLTermFactory();
 		_parser = new SimpleKRSSParser(_termFactory);
 		_aboxFactory = new ABoxFactory<String, String, String>(_termFactory);
 		_abox = _aboxFactory.createABox();
@@ -113,7 +114,7 @@ public class ABoxNodeTest
 	}
 
 	/**
-	 * Test of clone method, of class ABoxNode.
+	 * Test of clone method, of class IABoxNode.
 	 */
 	@Test
 	public void testClone() throws ENodeMergeException
@@ -136,7 +137,7 @@ public class ABoxNodeTest
 	}
 
 	/**
-	 * Test of getTerms method, of class ABoxNode.
+	 * Test of getTerms method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetConceptTerms()
@@ -148,7 +149,7 @@ public class ABoxNodeTest
 	}
 
 	/**
-	 * Test of getABox method, of class ABoxNode.
+	 * Test of getABox method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetABox()
@@ -157,7 +158,7 @@ public class ABoxNodeTest
 	}
 
 	/**
-	 * Test of getSuccessorPairs method, of class ABoxNode.
+	 * Test of getSuccessorPairs method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetSuccessors()
@@ -165,14 +166,14 @@ public class ABoxNodeTest
 	{
 		final IABox<String, String, String> box2 = _aboxFactory.createABox();
 		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-		_aboxNode.getLinkMap().getAssertedSuccessors().put("r", node2.getNodeID());
-		assertTrue(_aboxNode.getLinkMap().getAssertedSuccessors().get("r").contains(node2.getNodeID()));
+		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2.getNodeID());
+		assertTrue(_aboxNode.getRABox().getAssertedSuccessors().get("r").contains(node2.getNodeID()));
 		IABoxNode<String, String, String> klone = _aboxNode.clone(box2);
-		assertTrue(klone.getLinkMap().getAssertedSuccessors().get("r").contains(node2.getNodeID()));
+		assertTrue(klone.getRABox().getAssertedSuccessors().get("r").contains(node2.getNodeID()));
 	}
 
 	/**
-	 * Test of getPredecessorPairs method, of class ABoxNode.
+	 * Test of getPredecessorPairs method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetPredecessors()
@@ -181,9 +182,9 @@ public class ABoxNodeTest
 		final IABox<String, String, String> box2 = _aboxFactory.createABox();
 		final IABoxNode<String, String, String> node2 = _abox.createNode(false);
 
-		_aboxNode.getLinkMap().getAssertedSuccessors().put("r", node2.getNodeID());
+		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2.getNodeID());
 
-		assertTrue(node2.getLinkMap().getAssertedPredecessors().get("r").contains(_aboxNode.getNodeID()));
+		assertTrue(node2.getRABox().getAssertedPredecessors().get("r").contains(_aboxNode.getNodeID()));
 	}
 
 	@Test
@@ -205,12 +206,12 @@ public class ABoxNodeTest
 		assertTrue(node1.deepHashCode() == node2.deepHashCode());
 
 		IABoxNode<String, String, String> node3 = _abox.createNode(false);
-		node1.getLinkMap().getAssertedSuccessors().put("r", node3.getNodeID());
+		node1.getRABox().getAssertedSuccessors().put("r", node3.getNodeID());
 
 		/* not necessarily */
 		assertFalse(node1.deepHashCode() == node2.deepHashCode());
 
-		node2.getLinkMap().getAssertedSuccessors().put("r", node3.getNodeID());
+		node2.getRABox().getAssertedSuccessors().put("r", node3.getNodeID());
 		assertTrue(node1.deepHashCode() == node2.deepHashCode());
 	}
 
@@ -233,12 +234,12 @@ public class ABoxNodeTest
 		assertTrue(node1.deepEquals(node2));
 
 		IABoxNode<String, String, String> node3 = _abox.createNode(false);
-		node1.getLinkMap().getAssertedSuccessors().put("r", node3.getNodeID());
+		node1.getRABox().getAssertedSuccessors().put("r", node3.getNodeID());
 
 		/* not necessarily */
 		assertFalse(node1.deepEquals(node2));
 
-		node2.getLinkMap().getAssertedSuccessors().put("r", node3.getNodeID());
+		node2.getRABox().getAssertedSuccessors().put("r", node3.getNodeID());
 		assertTrue(node1.deepEquals(node2));
 	}
 	

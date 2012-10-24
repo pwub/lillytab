@@ -40,9 +40,9 @@ import org.apache.commons.collections15.MultiMap;
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Name>
- * @param <Klass>
- * @param <Role> Role name type.
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  */
 public class AssertedRBox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	implements IAssertedRBox<Name, Klass, Role>

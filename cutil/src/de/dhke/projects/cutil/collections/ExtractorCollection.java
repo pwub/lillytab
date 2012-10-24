@@ -31,7 +31,7 @@ import org.apache.commons.collections15.iterators.TransformIterator;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class ExtractorCollection<I, O, C extends Collection<I>>
 	extends AbstractCollection<O>

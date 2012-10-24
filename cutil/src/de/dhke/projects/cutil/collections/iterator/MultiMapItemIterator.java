@@ -31,7 +31,7 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class MultiMapItemIterator<K, V>
 	implements Iterator<Map.Entry<K, V>> {

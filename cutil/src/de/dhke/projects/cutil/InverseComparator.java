@@ -26,7 +26,7 @@ import java.util.Comparator;
 /**
  *
  * @param <T>
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class InverseComparator<T>
 	implements Comparator<T>, IDecorator<Comparator<? super T>>

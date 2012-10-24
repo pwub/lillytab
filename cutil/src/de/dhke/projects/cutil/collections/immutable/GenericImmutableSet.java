@@ -26,7 +26,7 @@ import org.apache.commons.collections15.Transformer;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class GenericImmutableSet<T, S extends Set<T>>
 	extends GenericImmutableCollection<T, S>

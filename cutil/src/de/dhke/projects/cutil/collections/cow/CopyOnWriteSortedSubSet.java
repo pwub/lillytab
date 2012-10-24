@@ -39,6 +39,7 @@ public class CopyOnWriteSortedSubSet<E, S extends SortedSet<E>>
 	private E _from = null;
 	private E _to = null;
 
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
 	private class Itr
 		implements Iterator<E>
 	{
@@ -51,11 +52,13 @@ public class CopyOnWriteSortedSubSet<E, S extends SortedSet<E>>
 			_collectionAlreadyCopied = _cowSet.isWasCopied();
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return _baseIter.hasNext();
 		}
 
+		@Override
 		public E next()
 		{
 			return _baseIter.next();
@@ -69,6 +72,7 @@ public class CopyOnWriteSortedSubSet<E, S extends SortedSet<E>>
 		 * {@link GenericCopyOnWriteCollection} is not supported.
 		 * </p>
 		 */
+		@Override
 		public void remove()
 		{
 			/**
@@ -84,6 +88,7 @@ public class CopyOnWriteSortedSubSet<E, S extends SortedSet<E>>
 					"Cannot remove from untouched CopyOnWriteCollection.");
 		}
 	}
+	/// </editor-fold>
 
 	private SortedSet<E> getOriginalSubSet()
 	{
@@ -107,101 +112,120 @@ public class CopyOnWriteSortedSubSet<E, S extends SortedSet<E>>
 		_to = to;
 	}
 
+	@Override
 	public Comparator<? super E> comparator()
 	{
 		return _cowSet.getDecoratee().comparator();
 	}
 
+	@Override
 	public SortedSet<E> subSet(final E fromElement, final E toElement)
 	{
 		return new CopyOnWriteSortedSubSet<E, S>(_cowSet, fromElement, toElement);
 	}
 
+	@Override
 	public SortedSet<E> headSet(final E toElement)
 	{
 		return new CopyOnWriteSortedSubSet<E, S>(_cowSet, null, toElement);
 	}
 
+	@Override
 	public SortedSet<E> tailSet(final E fromElement)
 	{
 		return new CopyOnWriteSortedSubSet<E, S>(_cowSet, fromElement, null);
 	}
 
+	@Override
 	public E first()
 	{
 		return getOriginalSubSet().first();
 	}
 
+	@Override
 	public E last()
 	{
 		return getOriginalSubSet().last();
 	}
 
+	@Override
 	public int size()
 	{
 		return getOriginalSubSet().size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return getOriginalSubSet().isEmpty();
 	}
 
+	@Override
 	public boolean contains(final Object o)
 	{
 		return getOriginalSubSet().contains(o);
 	}
 
+	@Override
 	public Iterator<E> iterator()
 	{
 		return new Itr();
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return getOriginalSubSet().toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return getOriginalSubSet().toArray(a);
 	}
 
+	@Override
 	public boolean add(final E e)
 	{
 		_cowSet.copy();
 		return getOriginalSubSet().add(e);
 	}
 
+	@Override
 	public boolean remove(final Object o)
 	{
 		_cowSet.copy();
 		return getOriginalSubSet().remove(o);
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return getOriginalSubSet().containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends E> c)
 	{
 		_cowSet.copy();
 		return getOriginalSubSet().addAll(c);
 	}
 
+	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		_cowSet.copy();
 		return getOriginalSubSet().retainAll(c);
 	}
 
+	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		_cowSet.copy();
 		return getOriginalSubSet().removeAll(c);
 	}
 
+	@Override
 	public void clear()
 	{
 		_cowSet.copy();

@@ -21,12 +21,12 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ILinkMap;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
@@ -35,10 +35,15 @@ import java.util.Collections;
 import java.util.SortedSet;
 
 /**
+ * <p>
+ * A proxy object to an {@link IABoxNode} that forbids changes to the underlying node.
+ * </p><p>
+ * If an immutable is first created and the underlying node is modified, afterwards, behaviour of the immutable is undefined.
+ * </p>
  *
- * @param <Name>
- * @param <Klass>
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -95,12 +100,12 @@ public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass exte
 		return _baseNode.getTerms().getImmutable();
 	}
 
-	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescription(IDLRestriction<Name, Klass, Role> desc) throws ENodeMergeException
+	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescription(IDLRestriction<Name, Klass, Role> desc)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
 
-	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescriptions(Iterable<? extends IDLRestriction<Name, Klass, Role>> descs) throws ENodeMergeException
+	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescriptions(Iterable<? extends IDLRestriction<Name, Klass, Role>> descs)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
@@ -121,7 +126,6 @@ public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass exte
 	}
 
 	public NodeMergeInfo<Name, Klass, Role> unfoldAll()
-		throws ENodeMergeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
@@ -160,8 +164,8 @@ public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass exte
 	}
 
 
-	public ILinkMap<Name, Klass, Role> getLinkMap()
+	public IRABox<Name, Klass, Role> getRABox()
 	{
-		return ImmutableLinkMap.decorate(_baseNode.getLinkMap());
+		return ImmutableRABox.decorate(_baseNode.getRABox());
 	}
 }

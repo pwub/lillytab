@@ -33,6 +33,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 
 /**
  *
@@ -54,29 +55,30 @@ public class SymmetricRoleCompleter<Name extends Comparable<? super Name>, Klass
 	}
 
 
+	@Override
 	public ReasonerContinuationState completeNode(IABoxNode<Name, Klass, Role> node,
-												  Node<Branch<Name, Klass, Role>> branchNode) throws EReasonerException, EInconsistentABoxException
+												  Node<Branch<Name, Klass, Role>> branchNode) throws EReasonerException
 	{
 		final Branch<Name, Klass, Role> branch = branchNode.getData();
 		final IABox<Name, Klass, Role> abox = node.getABox();
 		final IAssertedRBox<Name, Klass, Role> rbox = abox.getTBox().getRBox();
 
 		/**
-		 * Remember, if we performed any modifications. If so, we should recheck the branch queue afterwards.
+		 * Remember, if we performed any modifications. If so, we should recheck the node queue afterwards.
 		 */
 		boolean wasModified = false;
 		/**
 		 * Walk through list of outgoing roles, check for symmetric roles
 		 */
-		for (Pair<Role, NodeID> outgoing : node.getLinkMap().getSuccessorPairs()) {
+		for (Pair<Role, NodeID> outgoing : node.getRABox().getSuccessorPairs()) {
 			/**
 			 * check for successors of the role that do not link back to us.
 			 */
 			final Role role = outgoing.getFirst();
 			if (rbox.hasRoleProperty(role, RoleProperty.SYMMETRIC)) {
 				final IABoxNode<Name, Klass, Role> otherNode = abox.getNode(outgoing.getSecond());
-				if (! otherNode.getLinkMap().hasSuccessor(role, node)) {
-					otherNode.getLinkMap().getAssertedSuccessors().put(role, node.getNodeID());
+				if (! otherNode.getRABox().hasSuccessor(role, node)) {
+					otherNode.getRABox().getAssertedSuccessors().put(role, node.getNodeID());
 					wasModified = true;
 					branch.touchNode(node);
 					branch.touchNode(otherNode);
@@ -90,7 +92,7 @@ public class SymmetricRoleCompleter<Name extends Comparable<? super Name>, Klass
 			}
 		}
 		if (wasModified)
-			return ReasonerContinuationState.RECHECK_BRANCH;
+			return ReasonerContinuationState.RECHECK_NODE;
 		else
 			return ReasonerContinuationState.CONTINUE;
 	}

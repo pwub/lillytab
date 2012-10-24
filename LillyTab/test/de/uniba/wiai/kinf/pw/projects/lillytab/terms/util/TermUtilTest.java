@@ -31,16 +31,19 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class TermUtilTest {
+public class TermUtilTest
+{
 	private IDLTermFactory<String, String, String> _termFactory;
 	private SimpleKRSSParser _parser;
 
-    public TermUtilTest() {
-    }
+	public TermUtilTest()
+	{
+	}
 
 	@BeforeClass
 	public static void setUpClass() throws Exception
@@ -52,17 +55,19 @@ public class TermUtilTest {
 	{
 	}
 
-    @Before
-    public void setUp() {
-		_termFactory = new DLTermFactory<String, String, String>();
+	@Before
+	public void setUp()
+	{
+		_termFactory = new SimpleStringDLTermFactory();
 		_parser = new SimpleKRSSParser(_termFactory);
-    }
+	}
 
-    @After
-    public void tearDown() {
+	@After
+	public void tearDown()
+	{
 		_termFactory = null;
 		_parser = null;
-    }
+	}
 
 	/**
 	 * Test of isSyntacticNegation method, of class TermUtil.
@@ -93,7 +98,6 @@ public class TermUtilTest {
 			_parser.parse("A"),
 			_termFactory));
 	}
-
 
 	/**
 	 * Test of isSyntacticSubClass method, of class TermUtil.

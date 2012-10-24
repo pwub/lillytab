@@ -19,14 +19,12 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ILinkMap;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.AbstractAboxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
-import de.dhke.projects.cutil.collections.cow.CopyOnWriteSortedSet;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.StorageOptions;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
@@ -44,22 +42,19 @@ import org.apache.commons.collections15.SetUtils;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  *
- * @param <Name> The type of the referenced individuals
- * @param <Klass> Type for class names
- * @param <Role> Type for role names
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  */
 public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends AbstractAboxNode<Name, Klass, Role>
 	implements Cloneable {
 	// private final Map<DLTermOrder, IDLClassExpression<Name, Klass, Role>> _smallestTerms;
-	/// <editor-fold defaultstate="collapsed" desc="private fields">
-
 	private ABox<Name, Klass, Role> _abox;
 	/**
 	 * The set of concept terms for this node. Not final because of copy-on-write.
-	 *
 	 */
-	private TermSet<Name, Klass, Role> _terms;
+	private final ABoxNodeTermSet<Name, Klass, Role> _terms;
 	/**
 	 * The set of node names.
 	 *
@@ -67,11 +62,11 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	protected SortedSet<Name> _names = new TreeSet<Name>();
 	/**
 	 * The link map
-	 *
-	 */
-	protected ILinkMap<Name, Klass, Role> _linkMap;
+	 **/
+	protected IRABox<Name, Klass, Role> _raBox;
 
 
+	@Override
 	public Name getPrimaryName()
 	{
 		if (_names.isEmpty())
@@ -81,9 +76,10 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 
-	public ILinkMap<Name, Klass, Role> getLinkMap()
+	@Override
+	public IRABox<Name, Klass, Role> getRABox()
 	{
-		return _linkMap;
+		return _raBox;
 	}
 
 	/// </editor-fold>
@@ -96,7 +92,8 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 				// assert wasRemoved;
 			}
 			_abox = abox;
-			abox.add(this);
+			if (_abox != null)
+				abox.add(this);
 		}
 	}
 
@@ -106,47 +103,43 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	 *
 	 * @param abox The abox of the new individual.
 	 * @param id The number of the new node.
+	 * @param isDatatypeNode
 	 */
 	protected ABoxNode(final ABox<Name, Klass, Role> abox, final int id, final boolean isDatatypeNode)
 	{
 		super(id, isDatatypeNode);
 		_abox = abox;
-		_terms = new TermSet<Name, Klass, Role>(this);
-		_linkMap = new LinkMap<Name, Klass, Role>(this);
-		if (_abox != null)
-			_terms.getListeners().add(_abox.getCommon().getNodeTermSetListener());
-
+		_terms = new ABoxNodeTermSet<Name, Klass, Role>(this);
+		_raBox = new RABox<Name, Klass, Role>(this);
 	}
 
 
-	protected ABoxNode(final ABox<Name, Klass, Role> abox, final NodeID id,
-					   final boolean isDatatypeNode,
-					   final SortedSet<IDLTerm<Name, Klass, Role>> initialTerms,
-					   final SortedSet<Name> initialNames,
-					   final ILinkMap<Name, Klass, Role> linkMap)
+	protected ABoxNode(final ABox<Name, Klass, Role> newABox, 
+					   final ABoxNode<Name, Klass, Role> klonee)
 	{
-		super(id, isDatatypeNode);
-		_abox = abox;
-		_names.addAll(initialNames);
-		_terms = new TermSet<Name, Klass, Role>(initialTerms, this);
-		if (_abox != null)
-			_terms.getListeners().add(_abox.getCommon().getNodeTermSetListener());
-		_linkMap = linkMap.clone(this);
+		super(klonee.getNodeID(), klonee.isDatatypeNode());
+		_abox = newABox;
+		_names.addAll(klonee.getNames());
+		_terms = klonee._terms.clone(this);
+		_raBox = klonee._raBox.clone(this);
 	}
 
 
+	@Override
 	public SortedSet<Name> getNames()
 	{
 		return Collections.unmodifiableSortedSet(_names);
 	}
 
 
+	@Override
 	public ITermSet<Name, Klass, Role> getTerms()
 	{
 		return _terms;
 	}
 
 
+	@Override
 	public Collection<TermEntry<Name, Klass, Role>> getTermEntries()
 	{
 		/*
@@ -170,7 +163,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 		if ((!getTerms().contains(desc)) && (desc instanceof IDLNominalReference)) {
 			final IDLNominalReference<Name, Klass, Role> nRef = (IDLNominalReference<Name, Klass, Role>) desc;
 			final Name newName = nRef.getIndividual();
-			IABoxNode<Name, Klass, Role> otherNode = abox.getNode(newName);
+			final IABoxNode<Name, Klass, Role> otherNode = abox.getNode(newName);
 			if (otherNode != null) {
 				mergeInfo.append(abox.mergeNodes(otherNode, currentNode));
 				currentNode = mergeInfo.getCurrentNode();
@@ -183,6 +176,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 
+	@Override
 	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescription(final IDLRestriction<Name, Klass, Role> term)
 		throws ENodeMergeException
 	{
@@ -196,7 +190,8 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 		 * get direct unfoldings, perform notify for direct unfoldings and update dependency map.
 		 *
 		 */
-		ABoxNode<Name, Klass, Role> currentNode = (ABoxNode<Name, Klass, Role>) mergeInfo.getCurrentNode();
+		@SuppressWarnings("unchecked")
+		final ABoxNode<Name, Klass, Role> currentNode = (ABoxNode<Name, Klass, Role>) mergeInfo.getCurrentNode();
 
 		final Collection<IDLRestriction<Name, Klass, Role>> directUnfolds = abox.getTBox().getUnfolding(nnfTerm);
 		if (!directUnfolds.isEmpty()) {
@@ -237,7 +232,6 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 			/*
 			 * dispatch notification BEFORE actual unfold. Make sure, this is the ONLY piece of code that does this
 			 */
-
 			for (IDLRestriction<Name, Klass, Role> unfold : allUnfolds) {
 				final NodeMergeInfo<Name, Klass, Role> unfoldResult = currentNode.addTerm(unfold);
 				mergeInfo.append(unfoldResult);
@@ -249,6 +243,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 
+	@Override
 	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescriptions(
 		final Iterable<? extends IDLRestriction<Name, Klass, Role>> descs)
 		throws ENodeMergeException
@@ -273,16 +268,16 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	 * <p> Perform concept unfolding an all concept terms of the current node. </p><p> When the unfolding produces
 	 * nominals references, node joins (see {@link IABox#mergeNodes(de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode, de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode)
 	 * }
-	 * may take place. {@literal unfoldAll()} thus returns a {@link NodeMergeInfo} indicating the ID of the target node
+	 *  may take place. {@literal unfoldAll()} thus returns a {@link NodeMergeInfo} indicating the ID of the target node
 	 * containing the unfoldings and information, if the target node was modified. </p
-	 *
-	 *
 	 *
 
 	 *
-	 * @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings and information,
+	 *  @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings and information,
 	 * if the target node was modified.
+	 *  @throws ENodeMergeException
 	 */
+	@Override
 	public NodeMergeInfo<Name, Klass, Role> unfoldAll()
 		throws ENodeMergeException
 	{
@@ -318,85 +313,17 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 /// <editor-fold defaultstate="collapsed" desc="Cloneable">
-
-	private ABoxNode<Name, Klass, Role> copyOnWriteClone(final ABox<Name, Klass, Role> newABox)
-	{
-		assert newABox != null;
-		ABoxNode<Name, Klass, Role> klone;
-
-		/**
-		 * We try to be smart about which set to decorate with copy on write.
-		 *
-		 * If the underlying collection is already a copy-on-write, we create another CopyOnWriteCollection on top of
-		 * the decorated set underlying the CopyOnWriteCollection.
-		 *
-		 * This only works, since we really implement a branch operation during cloning: We keep the basic state before
-		 * cloning and modify this node and the clone to be copy-on-write from the common base state.
-		 */
-		SortedSet<IDLTerm<Name, Klass, Role>> realTermSet;
-		/*
-		 * move past the AspectSet, first
-		 */
-		realTermSet = _terms.getDecoratee();
-		while (realTermSet instanceof CopyOnWriteSortedSet)
-			realTermSet = ((CopyOnWriteSortedSet<IDLTerm<Name, Klass, Role>>) realTermSet).getDecoratee();
-		assert !(realTermSet instanceof CopyOnWriteSortedSet);
-
-		/**
-		 * TERMS
-		 *
-		 */
-		final SortedSet<IDLTerm<Name, Klass, Role>> terms = CopyOnWriteSortedSet.decorate(realTermSet,
-																						  _abox.getTermSetFactory());
-		final SortedSet<IDLTerm<Name, Klass, Role>> cloneTerms = CopyOnWriteSortedSet.decorate(realTermSet,
-																							   _abox.getTermSetFactory());
-
-		/**
-		 * NAMES
-		 *
-		 */
-		final SortedSet<Name> cloneNames = new TreeSet<Name>(_names);
-
-		/*
-		 * update internal state
-		 */
-		_terms = new TermSet<Name, Klass, Role>(terms, this);
-		_terms.getListeners().add(newABox.getCommon().getNodeTermSetListener());
-
-		/**
-		 * the link map is passed to the clone's constructor, because it needs to know about the new ABoxNode
-		 *
-		 * XXX - maybe fix this for better consistency.
-		 *
-		 */
-		return new ABoxNode<Name, Klass, Role>(newABox, getNodeID(), isDatatypeNode(), cloneTerms, cloneNames, _linkMap);
-	}
-
-
-	private ABoxNode<Name, Klass, Role> copyClone(final ABox<Name, Klass, Role> newABox)
-	{
-		/**
-		 * the link map is passed to the clone's constructor, because it needs to know about the new ABoxNode
-		 *
-		 * XXX - maybe fix this for better consistency.
-		 *
-		 */
-		return new ABoxNode<Name, Klass, Role>(newABox, getNodeID(), isDatatypeNode(), _terms, _names, _linkMap);
-	}
-
-
 	public ABoxNode<Name, Klass, Role> clone(final IABox<Name, Klass, Role> newABox)
 	{
+		assert newABox != null;
 		assert newABox instanceof ABox;
-		final ABox<Name, Klass, Role> nAbox = (ABox<Name, Klass, Role>) newABox;
-		if (StorageOptions.COPY_ON_WRITE)
-			return copyOnWriteClone(nAbox);
-		else
-			return copyClone(nAbox);
+		final ABox<Name, Klass, Role> nABox = (ABox<Name, Klass, Role>) newABox;
+		return new ABoxNode<Name, Klass, Role>(nABox, this);
 	}
 /// </editor-fold>
 
 
+	@Override
 	public ABox<Name, Klass, Role> getABox()
 	{
 		return _abox;
@@ -416,7 +343,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	{
 		char[] fill = new char[indent];
 		Arrays.fill(fill, ' ');
-		return new String(fill);
+		return toString(String.valueOf(fill));
 	}
 
 
@@ -425,7 +352,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	{
 		int hashcode = 147;
 		hashcode += SetUtils.hashCodeForSet(getTerms());
-		hashcode += _linkMap.deepHashCode();
+		hashcode += _raBox.deepHashCode();
 		return hashcode;
 	}
 
@@ -433,12 +360,12 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	@Override
 	public boolean deepEquals(final Object obj)
 	{
-		if (obj instanceof IABoxNode) {
+		if (obj instanceof ABoxNode) {
 			@SuppressWarnings("unchecked")
-			final IABoxNode<Name, Klass, Role> other = (IABoxNode<Name, Klass, Role>) obj;
+			final ABoxNode<Name, Klass, Role> other = (ABoxNode<Name, Klass, Role>) obj;
 			if (!SetUtils.isEqualSet(getTerms(), other.getTerms()))
 				return false;
-			if (!_linkMap.deepEquals(other.getLinkMap()))
+			if (!_raBox.deepEquals(other.getRABox()))
 				return false;
 			return true;
 		} else
@@ -447,6 +374,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 /// </editor-fold>
 
 
+	@Override
 	public IABoxNode<Name, Klass, Role> getImmutable()
 	{
 		// XXX - this may cause problems */

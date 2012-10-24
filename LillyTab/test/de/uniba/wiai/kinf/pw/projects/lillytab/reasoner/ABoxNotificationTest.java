@@ -57,6 +57,7 @@ import java.util.Set;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -97,7 +98,7 @@ public class ABoxNotificationTest
 			clearedHistory.add(ev);
 		}
 	}
-	private static final IDLTermFactory<String, String, String> _termFactory = new DLTermFactory<String, String, String>();
+	private static final IDLTermFactory<String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private static final IABoxFactory<String, String, String> _aboxFactory = new ABoxFactory<String, String, String>(
 		_termFactory);
 	private IABox<String, String, String> _abox;

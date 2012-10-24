@@ -25,7 +25,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.EInvalidTermException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLElementReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIntersection;
@@ -60,26 +60,19 @@ public class SWRLRule<Name extends Comparable<? super Name>, Klass extends Compa
 			throw new IllegalArgumentException("Only atoms or intersections allowed on SWRL rule body");
 		else
 			_body = body;
-
+		
+		updateVariableSet();
 		checkRuleValidity();
 	}
 
 	private void checkRuleValidity()
 	{
-		final Set<ISWRLVariable<Name, Klass, Role>> bodyVars = extractVariables(_body);
-		final Set<ISWRLVariable<Name, Klass, Role>> headVars = extractVariables(_head);
-		for (ISWRLVariable<Name, Klass, Role> headVar: headVars) {
-			if (! bodyVars.contains(headVar))
-				throw new EInvalidTermException(String.format("Invalid SWRL Rule, variable %s in head, but not in body: %s", headVar, this));
-		}
-		
-		/* fill variables set */
-		extractVariables(_body, _variables);
-		extractVariables(_head, _variables);
-		
-		/**
-		 * XXX - TODO, check graph connectivity of rule
-		 **/
+//		final Set<ISWRLVariable<Name, Klass, Role>> bodyVars = extractVariables(_body);
+//		final Set<ISWRLVariable<Name, Klass, Role>> headVars = extractVariables(_head);
+//		for (ISWRLVariable<Name, Klass, Role> headVar: headVars) {
+//			if (! bodyVars.contains(headVar))
+//				throw new EInvalidTermException(String.format("Invalid SWRL Rule, variable %s in head, but not in body: %s", headVar, this));
+//		}
 	}
 
 	private static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -209,5 +202,13 @@ public class SWRLRule<Name extends Comparable<? super Name>, Klass extends Compa
 		if (compare == 0)
 			compare = _body.compareTo(o.getBody());
 		return compare;
+	}
+
+
+	private void updateVariableSet()
+	{
+		/* fill variables set */
+		extractVariables(_body, _variables);
+		extractVariables(_head, _variables);
 	}
 }

@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author peter
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class DecisionTreeTest {
 

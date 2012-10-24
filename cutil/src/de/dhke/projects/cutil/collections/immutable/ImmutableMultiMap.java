@@ -34,7 +34,7 @@ import org.apache.commons.collections15.iterators.UnmodifiableIterator;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class ImmutableMultiMap<K, V>
 	implements MultiMap<K, V>, IDecorator<MultiMap<K, V>>

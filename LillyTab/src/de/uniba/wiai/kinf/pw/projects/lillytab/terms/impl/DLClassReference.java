@@ -22,19 +22,16 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyDescription;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLThing;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLNothing;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IToStringFormatter;
-import org.semanticweb.owlapi.model.OWLNamedObject;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 
 
 /**
  *
- * @param <Klass> The type of the referenced klass
+ * @param <Klass> The type for DL classes
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLClassReference<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -47,6 +44,7 @@ public class DLClassReference<Name extends Comparable<? super Name>, Klass exten
 		_klass = klass;
 	}
 
+	@Override
 	public Klass getElement()
 	{
 		return _klass;
@@ -74,6 +72,7 @@ public class DLClassReference<Name extends Comparable<? super Name>, Klass exten
 	}
 
 
+	@Override
 	public String toString(IToStringFormatter entityFormatter)
 	{
 		return entityFormatter.toString(_klass);
@@ -87,30 +86,30 @@ public class DLClassReference<Name extends Comparable<? super Name>, Klass exten
 	}
 
 	@SuppressWarnings("unchecked")
-	public int compareTo(final IDLTerm o)
+	@Override
+	public int compareTo(final IDLTerm<Name, Klass, Role> o)
 	{
 		final int compare = getDLTermOrder().compareTo(o);
 		if (compare == 0) {
 			assert o instanceof IDLClassReference;
-			/* this is neither DLThing nor DLNothing */
-			if ((o instanceof DLThing) || (o instanceof DLNothing))
-				return 1;
-			else
-				return _klass.compareTo((Klass)(((IDLClassReference)o).getElement()));
+			return _klass.compareTo((Klass)(((IDLClassReference)o).getElement()));
 		} else
 			return compare;
 	}
 
+	@Override
 	public DLTermOrder getDLTermOrder()
 	{
 		return DLTermOrder.DL_CLASS_REFERENCE;
 	}
 
+	@Override
 	public IDLRestriction<Name, Klass, Role> getBefore()
 	{
 		return new DLDummyDescription<Name, Klass, Role>(DLTermOrder.DL_BEFORE_CLASS_REFERENCE);
 	}
 
+	@Override
 	public IDLRestriction<Name, Klass, Role> getAfter()
 	{
 		return new DLDummyDescription<Name, Klass, Role>(DLTermOrder.DL_AFTER_CLASS_REFERENCE);

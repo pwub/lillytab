@@ -27,7 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObject;
 

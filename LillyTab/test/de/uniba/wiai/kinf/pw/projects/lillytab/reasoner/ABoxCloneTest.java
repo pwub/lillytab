@@ -21,29 +21,6 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
-/**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
- *
- * $Id$
- *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
- *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
- *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
-
-
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
@@ -61,7 +38,9 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLImplies;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleKRSSParser;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import java.util.ArrayList;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -74,7 +53,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author peter
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABoxCloneTest
 {
@@ -83,6 +62,7 @@ public class ABoxCloneTest
 	{
 		public List<Pair<IABoxNode<String, String, String>, IABoxNode<String, String, String>>> merges = new ArrayList<Pair<IABoxNode<String, String, String>, IABoxNode<String, String, String>>>();
 
+		@Override
 		public void beforeNodeMerge(IABoxNode<String, String, String> source,
 									IABoxNode<String, String, String> target)
 		{
@@ -126,6 +106,7 @@ public class ABoxCloneTest
 		}
 		public List<UnfoldInfo> unfoldInfos = new ArrayList<UnfoldInfo>();
 
+		@Override
 		public void beforeConceptUnfold(IABoxNode<String, String, String> node,
 										IDLRestriction<String, String, String> initial,
 										Collection<IDLRestriction<String, String, String>> unfolds)
@@ -145,7 +126,8 @@ public class ABoxCloneTest
 	@BeforeClass
 	public static void setUpClass() throws Exception
 	{
-		_aboxFactory = new ABoxFactory<String, String, String>();
+		final IDLTermFactory<String, String, String> termFactory = new SimpleStringDLTermFactory();
+		_aboxFactory = new ABoxFactory<String, String, String>(termFactory);
 		_parser = new SimpleKRSSParser(_aboxFactory.getDLTermFactory());
 	}
 
@@ -239,13 +221,13 @@ public class ABoxCloneTest
 	{
 		final IABoxNode<String, String, String> node0 = _abox.createNode(false);
 		final IABoxNode<String, String, String> node1 = _abox.createNode(false);
-		node0.getLinkMap().getAssertedSuccessors().put("r", node1.getNodeID());
+		node0.getRABox().getAssertedSuccessors().put("r", node1.getNodeID());
 
 		final IABox<String, String, String> klone = _abox.clone();
 		final IABoxNode<String, String, String> kloneNode0 = klone.getNode(node0.getNodeID());
 		final IABoxNode<String, String, String> kloneNode1 = klone.getNode(node0.getNodeID());
 
-		assertArrayEquals(node0.getLinkMap().getAssertedSuccessors().values().toArray(), kloneNode0.getLinkMap().
+		assertArrayEquals(node0.getRABox().getAssertedSuccessors().values().toArray(), kloneNode0.getRABox().
 			getAssertedSuccessors().values().toArray());
 	}
 
@@ -254,16 +236,16 @@ public class ABoxCloneTest
 	{
 		final IABoxNode<String, String, String> node0 = _abox.createNode(false);
 		final IABoxNode<String, String, String> node1 = _abox.createNode(false);
-		node0.getLinkMap().getAssertedSuccessors().put("r1", node1.getNodeID());
+		node0.getRABox().getAssertedSuccessors().put("r1", node1.getNodeID());
 
 		final IABox<String, String, String> klone = _abox.clone();
 		final IABoxNode<String, String, String> kloneNode0 = klone.getNode(node0.getNodeID());
 		final IABoxNode<String, String, String> kloneNode1 = klone.getNode(node1.getNodeID());
-		kloneNode0.getLinkMap().getAssertedSuccessors().put("r2", node1.getNodeID());
+		kloneNode0.getRABox().getAssertedSuccessors().put("r2", node1.getNodeID());
 
-		assertArrayEquals(new Object[]{kloneNode1.getNodeID()}, kloneNode0.getLinkMap().getAssertedSuccessors().get("r1").
+		assertArrayEquals(new Object[]{kloneNode1.getNodeID()}, kloneNode0.getRABox().getAssertedSuccessors().get("r1").
 			toArray());
-		assertArrayEquals(new Object[]{kloneNode1.getNodeID()}, kloneNode0.getLinkMap().getAssertedSuccessors().get("r2").
+		assertArrayEquals(new Object[]{kloneNode1.getNodeID()}, kloneNode0.getRABox().getAssertedSuccessors().get("r2").
 			toArray());
 	}
 
@@ -282,7 +264,7 @@ public class ABoxCloneTest
 		final IABox<String, String, String> klone = _abox.clone();
 		final IABoxNode<String, String, String> kloneNode0 = klone.getNode(node0.getNodeID());
 		final IABoxNode<String, String, String> kloneNode1 = klone.getNode(node1.getNodeID());
-		kloneNode0.getLinkMap().getAssertedSuccessors().put("r2", node1.getNodeID());
+		kloneNode0.getRABox().getAssertedSuccessors().put("r2", node1.getNodeID());
 
 		/*
 		 * force a merge
@@ -307,7 +289,7 @@ public class ABoxCloneTest
 		final IABox<String, String, String> klone = _abox.clone();
 		final IABoxNode<String, String, String> kloneNode0 = klone.getNode(node0.getNodeID());
 		final IABoxNode<String, String, String> kloneNode1 = klone.getNode(node1.getNodeID());
-		kloneNode0.getLinkMap().getAssertedSuccessors().put("r2", node1.getNodeID());
+		kloneNode0.getRABox().getAssertedSuccessors().put("r2", node1.getNodeID());
 
 		final HistoryNodeMergeListener nmListener = new HistoryNodeMergeListener();
 		assert nmListener != null;

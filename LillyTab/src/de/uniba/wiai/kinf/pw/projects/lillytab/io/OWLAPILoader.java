@@ -167,7 +167,7 @@ public class OWLAPILoader
 
 
 	private IDLRestriction<OWLObject, OWLClass, OWLProperty<?, ?>> makeDLDescription(
-		final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox, final OWLRestriction owlDesc)
+		final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox, final OWLRestriction<?> owlDesc)
 	{
 		/**
 		 * Dissect incoming property expression into IDLTerms.
@@ -333,7 +333,7 @@ public class OWLAPILoader
 
 	private void processClassAssertionAxiom(final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox,
 											final OWLClassAssertionAxiom axiom)
-		throws EInconsistencyException
+		throws ENodeMergeException, EInconsistencyException
 	{
 		final OWLIndividual individual = axiom.getIndividual();
 		final IABoxNode<OWLObject, OWLClass, OWLProperty<?, ?>> node = abox.getOrAddNamedNode(individual, false);
@@ -345,7 +345,7 @@ public class OWLAPILoader
 
 	private void processDataPropertyAssertionAxiom(final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox,
 												   final OWLDataPropertyAssertionAxiom axiom)
-		throws EInconsistencyException
+		throws ENodeMergeException, EInconsistencyException
 	{
 		final IAssertedRBox<OWLObject, OWLClass, OWLProperty<?, ?>> rbox = abox.getTBox().getRBox();
 		final OWLIndividual source = axiom.getSubject();
@@ -357,11 +357,11 @@ public class OWLAPILoader
 		
 		final IABoxNode<OWLObject, OWLClass, OWLProperty<?, ?>> sourceNode = abox.getOrAddNamedNode(source, false);
 		final IABoxNode<OWLObject, OWLClass, OWLProperty<?, ?>> targetNode = abox.getOrAddNamedNode(target, true);
-		if (!sourceNode.getLinkMap().getAssertedSuccessors().containsValue(property, targetNode.getNodeID())) {
+		if (!sourceNode.getRABox().getAssertedSuccessors().containsValue(property, targetNode.getNodeID())) {
 			/*
 			 * add link
 			 */
-			sourceNode.getLinkMap().getAssertedSuccessors().put(property, targetNode.getNodeID());
+			sourceNode.getRABox().getAssertedSuccessors().put(property, targetNode.getNodeID());
 		}
 	}
 
@@ -453,7 +453,7 @@ public class OWLAPILoader
 
 	private void processObjectPropertyAssertionAxiom(final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox,
 													 final OWLObjectPropertyAssertionAxiom axiom)
-		throws EInconsistencyException
+		throws ENodeMergeException, EInconsistencyException
 	{
 		final IAssertedRBox<OWLObject, OWLClass, OWLProperty<?, ?>> rbox = abox.getTBox().getRBox();
 		final OWLIndividual source = axiom.getSubject();
@@ -464,11 +464,11 @@ public class OWLAPILoader
 			rbox.addRole(property, RoleType.OBJECT_PROPERTY);
 		final IABoxNode<OWLObject, OWLClass, OWLProperty<?, ?>> sourceNode = abox.getOrAddNamedNode(source, false);
 		final IABoxNode<OWLObject, OWLClass, OWLProperty<?, ?>> targetNode = abox.getOrAddNamedNode(target, false);
-		if (!sourceNode.getLinkMap().getAssertedSuccessors().containsValue(property, targetNode.getNodeID())) {
+		if (!sourceNode.getRABox().getAssertedSuccessors().containsValue(property, targetNode.getNodeID())) {
 			/*
 			 * add link
 			 */
-			sourceNode.getLinkMap().getAssertedSuccessors().put(property, targetNode.getNodeID());
+			sourceNode.getRABox().getAssertedSuccessors().put(property, targetNode.getNodeID());
 		}
 	}
 
@@ -623,7 +623,7 @@ public class OWLAPILoader
 
 	public IABox<OWLObject, OWLClass, OWLProperty<?, ?>> fillABox(final OWLOntology ontology,
 																  final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> targetAbox)
-		throws EInconsistencyException
+		throws ENodeMergeException, EInconsistencyException
 	{
 		for (OWLAxiom axiom : ontology.getAxioms()) {
 			try {

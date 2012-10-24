@@ -3,22 +3,17 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.dhke.projects.cutil.collections.map.TransitiveHashMap;
@@ -45,22 +40,21 @@ import java.util.Map;
 
 /**
  * <p> A branch represents a specific state in the reasoning process. It contains a (partially expanded) ABox as well as
- * various information needed to continue with the reasoning process. </p><p> Branches do support {@link Object#clone()}ing,
- * making it possible to open up a secondary decision path (i.e. a new branch). </p><p> Branches maintain two node
- * queues: The non-generating node queue available via {@link #getNonGeneratingQueue()} and the non-generating node
- * queue {@link #getGeneratingQueue()}. </p><p> This support is specified to {@link Reasoner}, as the implemented
- * algorithm first applies all non-generating rules (that do not generate a new node} and only if there are no more
- * applicable non-generating rules, start applying generating rules. </p><p> Both queues are sorted by the natural node
- * order. The next node on each queue is available via {@link #nextNonGeneratingNode() } and {@link #nextGeneratingNode()
- * }, respectively. Nodes may (re-) added to both queues at once via the
- * {@link #touch(java.lang.Comparable) }, {@link #touch(de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID) },
+ * various information needed to continue with the reasoning process. </p><p> Branches do support
+ * {@link Object#clone()}ing, making it possible to open up a secondary decision path (i.e. a new branch). </p><p>
+ * Branches maintain two node queues: The non-generating node queue available via {@link #getNonGeneratingQueue()} and
+ * the non-generating node queue {@link #getGeneratingQueue()}. </p><p> This support is specified to {@link Reasoner},
+ * as the implemented algorithm first applies all non-generating rules (that do not generate a new node} and only if
+ * there are no more applicable non-generating rules, start applying generating rules. </p><p> Both queues are sorted by
+ * the natural node order. The next node on each queue is available via {@link #nextNonGeneratingNode() } and {@link #nextGeneratingNode()
+ * }, respectively. Nodes may (re-) added to both queues at once via the  {@link #touch(java.lang.Comparable) }, {@link #touch(de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID) },
  * {@link #touchAll(java.util.Collection) },
  * {@link #touchNode(de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode)}, and {@link #touchNodes(java.util.Collection)
  * } methods. </p>
  *
- * @param <Name>
- * @param <Klass>
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class Branch<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -141,6 +135,7 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 	final class NodeMergeListener
 		implements INodeMergeListener<Name, Klass, Role> {
 
+		@Override
 		public void beforeNodeMerge(IABoxNode<Name, Klass, Role> source,
 									IABoxNode<Name, Klass, Role> target)
 		{
@@ -150,29 +145,31 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 	}
 	/// </editor-fold>
 
-	/// <editor-fold defaultstate="collapsed" desc="TermSetListener">
+	/// <editor-fold defaultstate="collapsed" desc="class TermSetListener">
 	final class TermSetListener
 		implements ITermSetListener<Name, Klass, Role> {
 
+		@Override
 		public void termAdded(TermChangeEvent<Name, Klass, Role> ev)
 		{
-			touchNode(ev.getNode());;
+			touchNode(ev.getNode());
 		}
 
 
+		@Override
 		public void termRemoved(TermChangeEvent<Name, Klass, Role> ev)
 		{
-			touchNode(ev.getNode());;
+			touchNode(ev.getNode());
 		}
 
 
+		@Override
 		public void termSetCleared(ABoxNodeEvent<Name, Klass, Role> ev)
 		{
-			touchNode(ev.getNode());;
+			touchNode(ev.getNode());
 		}
 	}
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="private fields">
 	private IABox<Name, Klass, Role> _abox;
 	private final Comparator<NodeID> _nodeIDComparator = new NodeIDComparator();
 	/*
@@ -184,7 +181,7 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 	private final TermSetListener _termSetListener = new TermSetListener();
 	private final NodeMergeListener _mergeListener = new NodeMergeListener();
 	private Map<NodeID, NodeID> _mergeMap = null;
-	/// </editor-fold>
+	private ConsistencyInfo<Name, Klass, Role> _consistencyInfo;
 
 
 	public Branch(final IABox<Name, Klass, Role> abox, final boolean enableMergeTracking)
@@ -198,6 +195,7 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 			_nonGeneratingQueue.add(node.getNodeID());
 			_generatingQueue.add(node.getNodeID());
 		}
+		_consistencyInfo = new ConsistencyInfo<Name, Klass, Role>();
 	}
 
 
@@ -212,6 +210,20 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 		setABox(abox);
 		_nonGeneratingQueue.addAll(nonGeneratingQueue);
 		_generatingQueue.addAll(generatingQueue);
+		_consistencyInfo = new ConsistencyInfo<Name, Klass, Role>();
+	}
+
+
+	public ConsistencyInfo<Name, Klass, Role> getConsistencyInfo()
+	{
+		return _consistencyInfo;
+	}
+
+
+	public ConsistencyInfo<Name, Klass, Role> upgradeConsistencyInfo(final ConsistencyInfo<Name, Klass, Role> cInfo)
+	{
+		_consistencyInfo = _consistencyInfo.updateFrom(cInfo);
+		return _consistencyInfo;
 	}
 
 
@@ -225,7 +237,8 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 
 
 	/**
-	 * Update the ABox of the current branch and
+	 * <p> Update the ABox of the current branch and update the branch-specified listeners of the ABoxes, if
+	 * appropriate. </p>
 	 *
 	 * @param abox The new ABox
 	 */
@@ -282,7 +295,11 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 	 * will be returned instead of an anonymous node. Additionally, the named node may not be new, but be an existing
 	 * node from the {@link ABox}. </p>
 	 *
+	 * @param isDatatypeNode
 	 * @return A (potentially new) node with a proper set of global descriptions.
+	 *
+	 * @throws ENodeMergeException
+	 * @deprecated
 	 */
 	@Deprecated
 	public IABoxNode<Name, Klass, Role> createNode(boolean isDatatypeNode)
@@ -495,7 +512,7 @@ public class Branch<Name extends Comparable<? super Name>, Klass extends Compara
 		final IABoxNode<Name, Klass, Role> node = _abox.getNode(nodeID);
 		if (node != null) {
 			wasRemoved = _nonGeneratingQueue.remove(nodeID);
-			wasRemoved = _generatingQueue.remove(nodeID);
+			wasRemoved |= _generatingQueue.remove(nodeID);
 		}
 		return wasRemoved;
 	}

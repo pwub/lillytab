@@ -26,7 +26,7 @@ import org.apache.commons.collections15.Transformer;
 /**
  * A simple class that cast's an input value into a target type.
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public final class CastTransformer<I, O>
 	implements Transformer<I, O> {

@@ -55,9 +55,9 @@ import java.util.SortedSet;
  * </p>
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Name> The type for named individuals.
- * @param <Klass> Type for class names
- * @param <Role> Type for role names
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  */
 public interface IABoxNode<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends Comparable<IABoxNode<Name, Klass, Role>>, IImmutable<IABoxNode<Name, Klass, Role>>
@@ -102,12 +102,14 @@ public interface IABoxNode<Name extends Comparable<? super Name>, Klass extends 
 	Collection<TermEntry<Name, Klass, Role>> getTermEntries();
 	
 	/**
-	 * The link map contains the role associations between nodes.
+	 * <p>
+	 * The RABox the role associations between nodes.
+	 * </p>
 	 * 
-	 * @see ILinkMap
-	 * @return ŧhe link map.
+	 * @see IRABox
+	 * @return ŧhe RABox of the current node.
 	 */
-	ILinkMap<Name, Klass, Role> getLinkMap();
+	IRABox<Name, Klass, Role> getRABox();
 
 	/**
 	 * <p>
@@ -124,6 +126,7 @@ public interface IABoxNode<Name extends Comparable<? super Name>, Klass extends 
 	 *
 	 * @param desc A description to add to the current node.
 	 * @return A {@link NodeMergeInfo} indicating the progress of the operation.
+	 * @throws ENodeMergeException A node merge was required but failed. 
 	 */
 	NodeMergeInfo<Name, Klass, Role> addUnfoldedDescription(final IDLRestriction<Name, Klass, Role> desc)
 		throws ENodeMergeException;
@@ -144,6 +147,7 @@ public interface IABoxNode<Name extends Comparable<? super Name>, Klass extends 
 	 * @param descs Sequence of descriptions to add to the current node.
 	 * @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings
 	 * and information, if the target node was modified.
+	 * @throws ENodeMergeException A node merge was required but failed. 
 	 */
 	NodeMergeInfo<Name, Klass, Role> addUnfoldedDescriptions(
 		final Iterable<? extends IDLRestriction<Name, Klass, Role>> descs)
@@ -180,9 +184,9 @@ public interface IABoxNode<Name extends Comparable<? super Name>, Klass extends 
 	 *
 	 * @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings
 	 * and information, if the target node was modified.
+	 * @throws ENodeMergeException A node merge was required, but failed.
 	 */
-	NodeMergeInfo<Name, Klass, Role> unfoldAll()
-		throws ENodeMergeException;
+	NodeMergeInfo<Name, Klass, Role> unfoldAll() throws ENodeMergeException;
 
 	/**
 	 * <p>

@@ -33,10 +33,16 @@ import java.util.Iterator;
 import java.util.SortedSet;
 
 /**
- *
- * @param <Name> 
- * @param <Klass> 
- * @param <Role> 
+/**
+ * * <p>
+ * A proxy object to an {@link ITermSet} that forbids changes to the underlying set.
+ * </p><p>
+ * If an immutable is first created and the underlying map is modified, afterwards, behaviour of the immutable is undefined.
+ * </p>
+ * 
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ImmutableTermSet<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>

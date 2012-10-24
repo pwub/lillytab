@@ -28,7 +28,7 @@ import org.apache.commons.collections15.Transformer;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class ExtractorList<I, O, L extends List<I>>
 	extends AbstractList<O>

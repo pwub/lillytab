@@ -36,7 +36,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  *
- * @param <Role> Role name type.
+ * @param <Role> The type for properties (roles)
  */
 public interface IAssertedRBox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends IRBox<Name, Klass, Role>

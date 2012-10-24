@@ -29,13 +29,14 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.*;
 import static org.junit.Assert.*;
 
 
 /**
  *
- * @author peter
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class RBoxTest
 {
@@ -60,7 +61,7 @@ public class RBoxTest
 	@Before
 	public void setUp()
 	{
-		_termFactory = new DLTermFactory<String, String, String>();
+		_termFactory = new SimpleStringDLTermFactory();
 		_tbox = new TBox<String, String, String>(_termFactory);
 		_assertedRBox = new AssertedRBox<String, String, String>(_tbox);
 	}

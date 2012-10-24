@@ -26,6 +26,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * and open the template in the editor.
  */
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -35,10 +36,7 @@ import static org.junit.Assert.*;
 
 
 /**
- * <p>
- * Test term equality for
- * for sample implementation {@link de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl}.
- * </p>
+ * <p> Test term equality for for sample implementation {@link de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl}. </p>
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
@@ -63,7 +61,7 @@ public class TermEqualityTest
 	@Before
 	public void setUp()
 	{
-		_termFactory = new DLTermFactory<String, String, String>();
+		_termFactory = new SimpleStringDLTermFactory();
 	}
 
 	@After
@@ -199,10 +197,10 @@ public class TermEqualityTest
 		assertFalse(rest3.equals(rest2));
 	}
 
-
 	/**
 	 * Cross non-equality test for all term classes.
-	 **/
+	 *
+	 */
 	@Test
 	@SuppressWarnings("unchecked")
 	public void testCrossEquality()
@@ -219,8 +217,8 @@ public class TermEqualityTest
 			a, b, neg, union, intersection, some, all
 		};
 
-		for (IDLRestriction<String, String, String> d0: allDescriptions)
-			for (IDLRestriction<String, String, String> d1: allDescriptions)
+		for (IDLRestriction<String, String, String> d0 : allDescriptions)
+			for (IDLRestriction<String, String, String> d1 : allDescriptions)
 				if (d0 != d1)
 					assertFalse(d0.equals(d1));
 	}

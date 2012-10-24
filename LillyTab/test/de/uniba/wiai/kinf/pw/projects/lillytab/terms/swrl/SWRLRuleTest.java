@@ -32,7 +32,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author peterw
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SWRLRuleTest {
 	private ISWRLTermFactory<String, String, String> _termFactory;
@@ -77,15 +77,15 @@ public class SWRLRuleTest {
 		assertTrue(rule.getVariables().contains(varB));
 	}
 
-	@Test(expected=EInvalidTermException.class)
-	public void variableNotInBodyTest()
-	{
-		final ISWRLVariable<String, String, String> varA = _termFactory.getSWRLVariable("a");
-		final ISWRLVariable<String, String, String> varB = _termFactory.getSWRLVariable("b");
-
-		final ISWRLClassAtom<String, String, String> head = _termFactory.getSWRLClassAtom("A", varA);
-		final ISWRLAtomicTerm<String, String, String> body = _termFactory.getSWRLClassAtom("B", varB);
-
-		ISWRLRule<String, String, String> rule = _termFactory.getSWRLRule(head, body);
-	}
+//	@Test(expected=EInvalidTermException.class)
+//	public void variableNotInBodyTest()
+//	{
+//		final ISWRLVariable<String, String, String> varA = _termFactory.getSWRLVariable("a");
+//		final ISWRLVariable<String, String, String> varB = _termFactory.getSWRLVariable("b");
+//
+//		final ISWRLClassAtom<String, String, String> head = _termFactory.getSWRLClassAtom("A", varA);
+//		final ISWRLAtomicTerm<String, String, String> body = _termFactory.getSWRLClassAtom("B", varB);
+//
+//		ISWRLRule<String, String, String> rule = _termFactory.getSWRLRule(head, body);
+//	}
 }

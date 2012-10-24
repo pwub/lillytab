@@ -57,6 +57,8 @@ public class CopyOnWriteSet<E>
 	@Override
 	public CopyOnWriteSet<E> clone()
 	{
-		return decorate(getDecoratee(), getFactory());
+		final CopyOnWriteSet<E> klone = decorate(getDecoratee(), getFactory());
+		resetWasCopied();
+		return klone;
 	}
 }

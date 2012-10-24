@@ -22,7 +22,7 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.EInvalidTermException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTermList;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
@@ -37,9 +37,9 @@ import java.util.Map;
 
 /**
  *
- * @param <Name>
- * @param <Klass>
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SWRLIntersection<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>

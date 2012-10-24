@@ -30,7 +30,7 @@ import org.apache.commons.collections15.multimap.MultiHashMap;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class MultiSortedListSetHashMap<K, V extends Comparable<? super V>>
 	extends MultiHashMap<K ,V>

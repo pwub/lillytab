@@ -31,7 +31,7 @@ import java.util.Set;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class PairMap<First, Second, Tag>
 	implements IPairMap<First, Second, Tag>, IDecorator<Map<Pair<First, Second>, Tag>>

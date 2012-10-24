@@ -25,7 +25,7 @@ import java.io.Serializable;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class Pair<First, Second>
 	implements Serializable

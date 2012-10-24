@@ -29,7 +29,7 @@ import java.util.TreeSet;
 
 /**
  *
- * @param <Name> 
+ * @param <Name> The type for nominals and values
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLIndividual<Name extends Comparable<Name>>

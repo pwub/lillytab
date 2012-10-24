@@ -57,6 +57,7 @@ import java.lang.String;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleKRSSParser;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -95,14 +96,14 @@ public class BranchTest {
 	@Before
 	public void setUp() throws ParseException, EReasonerException, EInconsistencyException
 	{
-		_termFactory = new DLTermFactory<String, String, String>();
+		_termFactory = new SimpleStringDLTermFactory();
 		_aboxFactory = new ABoxFactory<String, String, String>(_termFactory);
 		SimpleKRSSParser parser = new SimpleKRSSParser(_termFactory);
 		_abox = _aboxFactory.createABox();
 
 		IABoxNode<String, String, String> a = _abox.getOrAddNamedNode("a", false);
 		IABoxNode<String, String, String> b = _abox.getOrAddNamedNode("b", false);
-		a.getLinkMap().getAssertedSuccessors().put("r0", b.getNodeID());
+		a.getRABox().getAssertedSuccessors().put("r0", b.getNodeID());
 
 		a.addUnfoldedDescription(parser.parse("A"));
 		b.addUnfoldedDescription(parser.parse("B"));
@@ -150,10 +151,10 @@ public class BranchTest {
 		assertTrue(secondBranch.getABox().getNodeMap().containsKey("d"));
 
 		/* check, if link was copied */
-		assertEquals(1, secondBranch.getABox().getNode("a").getLinkMap().getAssertedSuccessors().size());
-		assertTrue(secondBranch.getABox().getNode("a").getLinkMap().getAssertedSuccessors().containsValue("r0", secondBranch.getABox().getNode("b").getNodeID()));
-		assertEquals(1, secondBranch.getABox().getNode("b").getLinkMap().getAssertedPredecessors().size());
-		assertTrue(secondBranch.getABox().getNode("b").getLinkMap().getAssertedPredecessors().containsValue("r0", secondBranch.getABox().getNode("a").getNodeID()));
+		assertEquals(1, secondBranch.getABox().getNode("a").getRABox().getAssertedSuccessors().size());
+		assertTrue(secondBranch.getABox().getNode("a").getRABox().getAssertedSuccessors().containsValue("r0", secondBranch.getABox().getNode("b").getNodeID()));
+		assertEquals(1, secondBranch.getABox().getNode("b").getRABox().getAssertedPredecessors().size());
+		assertTrue(secondBranch.getABox().getNode("b").getRABox().getAssertedPredecessors().containsValue("r0", secondBranch.getABox().getNode("a").getNodeID()));
 
 		assertFalse(_branch.getABox().getNodeMap().containsKey(c));
 		assertFalse(_branch.getABox().getNodeMap().containsKey("c"));

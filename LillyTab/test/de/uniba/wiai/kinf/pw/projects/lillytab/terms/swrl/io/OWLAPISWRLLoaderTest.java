@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author peterw
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class OWLAPISWRLLoaderTest {
 	private OWLOntologyManager _ontoMan;

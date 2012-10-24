@@ -39,6 +39,7 @@ class CopyOnWriteMultiMapEntrySet<K, V, M extends MultiMap<K, V>>
 {
 	private GenericCopyOnWriteMultiMap<K, V, M> _cowMap;
 
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
 	private class Itr
 		implements Iterator<Map.Entry<K, Collection<V>>>
 	{
@@ -52,17 +53,20 @@ class CopyOnWriteMultiMapEntrySet<K, V, M extends MultiMap<K, V>>
 			_keyIterator = _cowMap.getDecoratee().keySet().iterator();
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return _keyIterator.hasNext();
 		}
 
+		@Override
 		public Entry<K, Collection<V>> next()
 		{
 			K nextKey = _keyIterator.next();
 			return new DefaultMapEntry<K, Collection<V>>(nextKey, _cowMap.get(nextKey));
 		}
 
+		@Override
 		public void remove()
 		{
 			if (_collectionAlreadyCopied)
@@ -72,6 +76,7 @@ class CopyOnWriteMultiMapEntrySet<K, V, M extends MultiMap<K, V>>
 		}
 
 	}
+	/// </editor-fold>
 
 	private MultiMap<K, V> _lastBaseMap = null;
 	private Set<Entry<K, Collection<V>>> _cachedEntrySet = null;
@@ -91,71 +96,84 @@ class CopyOnWriteMultiMapEntrySet<K, V, M extends MultiMap<K, V>>
 		_cowMap = cowMap;
 	}
 
+	@Override
 	public int size()
 	{
 		return getOriginalEntrySet().size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return getOriginalEntrySet().isEmpty();
 	}
 
+	@Override
 	public boolean contains(final Object o)
 	{
 		return getOriginalEntrySet().contains(o);
 	}
 
+	@Override
 	public Iterator<Entry<K, Collection<V>>> iterator()
 	{
 		return new Itr();
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return getOriginalEntrySet().toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return getOriginalEntrySet().toArray(a);
 	}
 
+	@Override
 	public boolean add(final Entry<K, Collection<V>> e)
 	{
 		_cowMap.copy();
 		return _cowMap.putAll(e.getKey(), e.getValue());
 	}
 
+	@Override
 	public boolean remove(final Object o)
 	{
 		_cowMap.copy();
 		return getOriginalEntrySet().remove(o);
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return getOriginalEntrySet().containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends Entry<K, Collection<V>>> c)
 	{
 		_cowMap.copy();
 		return getOriginalEntrySet().addAll(c);
 	}
 
+	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		_cowMap.copy();;
 		return getOriginalEntrySet().retainAll(c);
 	}
 
+	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		_cowMap.copy();
 		return getOriginalEntrySet().removeAll(c);
 	}
 
+	@Override
 	public void clear()
 	{
 		_cowMap.copy();

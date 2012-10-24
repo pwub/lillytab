@@ -122,7 +122,7 @@ public class CopyOnWriteMultiMapKeySetTest
 	 * Test of iterator method, of class CopyOnWriteMultiMapKeySet.
 	 */
 	@Test
-	public void testIterator()
+	public void testIteratorCopyBefore()
 	{
 		Iterator<String> iter = _keySet.iterator();
 		String[] referenceArray = {
@@ -142,6 +142,31 @@ public class CopyOnWriteMultiMapKeySetTest
 		assertFalse(_cowMap.containsKey(first));
 	}
 
+
+	/**
+	 * Test of iterator method, of class CopyOnWriteMultiMapKeySet.
+	 */
+	@Test
+	public void testIteratorNoCopyBefore()
+	{
+		Iterator<String> iter = _keySet.iterator();
+		String[] referenceArray = {
+			"1", "2", "3"
+		};
+		Arrays.sort(referenceArray);
+		for (int i = 0; i < _keySet.size(); ++i) {
+			assertTrue(iter.hasNext());
+			assertTrue(Arrays.binarySearch(referenceArray, iter.next()) >= 0);
+		}
+		assertFalse(iter.hasNext());
+
+		// _cowMap.copy();
+		iter = _keySet.iterator();
+		String first = iter.next();
+		iter.remove();
+		assertFalse(_cowMap.containsKey(first));
+	}
+	
 	/**
 	 * Test of toArray method, of class CopyOnWriteMultiMapKeySet.
 	 */

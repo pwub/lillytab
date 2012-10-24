@@ -27,7 +27,7 @@ import org.apache.commons.collections15.Transformer;
 /**
  *
  * @param <Collection<T>>
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class GenericImmutableCollection<T, C extends Collection<T>>
 	extends GenericImmutableIterable<T, C>

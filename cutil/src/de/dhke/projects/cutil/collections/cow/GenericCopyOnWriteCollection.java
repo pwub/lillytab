@@ -53,11 +53,13 @@ public class GenericCopyOnWriteCollection<E, C extends Collection<E>>
 			_baseIter = getDecoratee().iterator();
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return _baseIter.hasNext();
 		}
 
+		@Override
 		public E next()
 		{
 			return _baseIter.next();
@@ -71,11 +73,12 @@ public class GenericCopyOnWriteCollection<E, C extends Collection<E>>
 		 * {@link GenericCopyOnWriteCollection} is not supported.
 		 * </p>
 		 */
+		@Override
 		public void remove()
 		{
 			/**
 			 * I cannot think of a proper way to fully support this method.
-			 * If a COW list has not been copied yet, a remove would chang thee underlying collection.
+			 * If a COW list has not been copied yet, a remove would change the underlying collection.
 			 * In this case, we would have to create a new iterator at exactly the same
 			 * position for the new collection. This works for lists but not for collections.
 			 **/
@@ -97,7 +100,13 @@ public class GenericCopyOnWriteCollection<E, C extends Collection<E>>
 	{
 		return _wasCopied;
 	}
+	
+	protected void resetWasCopied()
+	{
+		_wasCopied = false;
+	}
 
+	@Override
 	public C getDecoratee()
 	{
 		return _wrappedCollection;
@@ -115,71 +124,84 @@ public class GenericCopyOnWriteCollection<E, C extends Collection<E>>
 			return false;
 	}
 
+	@Override
 	public int size()
 	{
 		return _wrappedCollection.size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return _wrappedCollection.isEmpty();
 	}
 
+	@Override
 	public boolean contains(Object o)
 	{
 		return _wrappedCollection.contains(o);
 	}
 
+	@Override
 	public Iterator<E> iterator()
 	{
 		return new Itr();
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return _wrappedCollection.toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return _wrappedCollection.toArray(a);
 	}
 
+	@Override
 	public boolean add(final E e)
 	{
 		copy();
 		return _wrappedCollection.add(e);
 	}
 
+	@Override
 	public boolean remove(final Object o)
 	{
 		copy();
 		return _wrappedCollection.remove(o);
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return _wrappedCollection.containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends E> c)
 	{
 		copy();
 		return _wrappedCollection.addAll(c);
 	}
 
+	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		copy();
 		return _wrappedCollection.removeAll(c);
 	}
 
+	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		copy();
 		return _wrappedCollection.retainAll(c);
 	}
 
+	@Override
 	public void clear()
 	{
 		/* don't copy items first */

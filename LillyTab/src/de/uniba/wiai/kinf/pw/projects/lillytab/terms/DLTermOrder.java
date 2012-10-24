@@ -76,10 +76,6 @@ public enum DLTermOrder
 	DL_NEGATION(IDLNegation.class),
 	DL_AFTER_NEGATION(null),
 
-	DL_BEFORE_NOTHING(null),
-	DL_NOTHING(DLNothing.class),
-	DL_AFTER_NOTHING(null),
-
 	DL_BEFORE_NOMINAL_REFERENCE(null),
 	DL_NOMIMAL_REFERENCE(DLNominalReference.class),
 	DL_AFTER_NOMINAL_REFERENCE(null),
@@ -88,10 +84,6 @@ public enum DLTermOrder
 	DL_CLASS_REFERENCE(IDLClassReference.class),
 	DL_AFTER_CLASS_REFERENCE(null),
 
-	DL_BEFORE_THING(null),
-	DL_THING(DLThing.class),
-	DL_AFTER_THING(null),
-	
 	DL_BEFORE_DATATYPE_EXPRESSION(null),
 	DL_DATATYPE_EXPRESSION(IDLDatatypeExpression.class),
 	DL_AFTER_DATATYPE_EXPRESSION(null),

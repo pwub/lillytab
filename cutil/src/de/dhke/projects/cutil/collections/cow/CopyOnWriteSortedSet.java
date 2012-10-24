@@ -58,6 +58,8 @@ public class CopyOnWriteSortedSet<E>
 	@Override
 	public CopyOnWriteSortedSet<E> clone()
 	{
-		return decorate(getDecoratee(), getFactory());
+		final CopyOnWriteSortedSet<E> klone = decorate(getDecoratee(), getFactory());
+		resetWasCopied();
+		return klone;
 	}
 }

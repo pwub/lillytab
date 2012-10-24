@@ -21,7 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLNominalReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
@@ -29,9 +29,9 @@ import java.io.Serializable;
 
 /**
  *
- * @param <Name>
- * @param <Klass>
- * @param <Role> 
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SWRLNominalReference<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>

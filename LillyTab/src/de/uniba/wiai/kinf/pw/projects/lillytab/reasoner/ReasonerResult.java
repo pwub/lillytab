@@ -28,7 +28,9 @@ import java.util.Map;
 
 
 /**
- *
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ReasonerResult<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>	
@@ -56,11 +58,13 @@ public class ReasonerResult<Name extends Comparable<? super Name>, Klass extends
 	}
 
 	
+	@Override
 	public IABox<Name, Klass, Role> getABox()
 	{
 		return _abox;
 	}
 
+	@Override
 	public Map<NodeID, NodeID> getMergeMap()
 	{
 		return _mergeMap;

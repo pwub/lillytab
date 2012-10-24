@@ -30,9 +30,18 @@ package de.dhke.projects.cutil.collections.immutable;
  * {@link IImmutable} should create a proxy object that prevents
  * direct modifications to the initial object.
  * </p><p>
- * Implementations may choose between two type of dynamic behaviour models:
+ * Implementations may choose between three types of dynamic behaviour models:
  * <dl>
- *   <dd>Unmodifiable Proxy</dd>
+ *   <dd>Unmodifiable Proxy with unmodifiable source</dd>
+ *   <dt>
+ *     In this case, modifications through the immutable object are prevented.
+ *     Modifications to the underlying object are unsupported. The behaviour
+ *	   of the immutable is undefined, when the underlying object is changed.
+ *     This model is usually the cheapest to implement, but 
+ *     it leaves it to the responsibility of the caller
+ *     not to modify the original object.
+ *   </dt>
+ *   <dd>Unmodifiable Proxy with mutable source</dd>
  *   <dt>
  *     In this case, modifications through the immutable object are prevented,
  *     but modifications to the underlying object are still possible and
@@ -41,7 +50,7 @@ package de.dhke.projects.cutil.collections.immutable;
  *   <dd>Unmodifiable Clone</dd>
  *   <dt>
  *     In this case, modifications through the immutable object are prevented
- *     and modifications to the initial object do not (direcetly) influence
+ *     and modifications to the initial object do not (directly) influence
  *	   the state of the immutable object. This is usually implemented by
  *     creating an internal copy of the initial object.
  *   </dt>

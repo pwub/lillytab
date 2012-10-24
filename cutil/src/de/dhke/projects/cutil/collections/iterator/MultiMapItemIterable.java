@@ -29,7 +29,7 @@ import org.apache.commons.collections15.MultiMap;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class MultiMapItemIterable<K, V>
 	implements Iterable<Map.Entry<K, V>>

@@ -3,22 +3,17 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
@@ -30,8 +25,10 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EInconsistentABoxNodeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.dhke.projects.cutil.collections.tree.IDecisionTree;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIntersection;
@@ -39,22 +36,22 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
 import java.util.SortedSet;
 
-
 /**
  *
- * @param <Name>
- * @param <Klass>
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class IntersectionCompleter<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends AbstractCompleter<Name, Klass, Role>
-	implements ICompleter<Name, Klass, Role>
-{
+	implements ICompleter<Name, Klass, Role> {
+
 	public IntersectionCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
+
 
 	;
 
@@ -62,6 +59,7 @@ public class IntersectionCompleter<Name extends Comparable<? super Name>, Klass 
 	{
 		this(cChecker, false);
 	}
+
 
 	;
 
@@ -82,55 +80,60 @@ public class IntersectionCompleter<Name extends Comparable<? super Name>, Klass 
 	 * @param node The node, whose concept set to search for Intersections.
 	 * @param branch The branch the node is on.
 	 * @param branchQueue The branch queue
-	 * @return {@literal true}, if further completion rules should be applied to this node,
-	 *	or {@literal false} if the node queue needs to be checked again before applying new rules.
 	 * @throws EReasonerException
 	 */
 	public ReasonerContinuationState completeNode(final IABoxNode<Name, Klass, Role> node,
-												  final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode) 
-		throws EReasonerException, EInconsistencyException
+																	final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode)
+		throws EReasonerException
 	{
-		try {
-			final Branch<Name, Klass, Role> branch = branchNode.getData();
-			final IABox<Name, Klass, Role> abox = branch.getABox();
-			NodeMergeInfo<Name, Klass, Role> mergeInfo = new NodeMergeInfo<Name, Klass, Role>(node, false);
-			
-			SortedSet<IDLTerm<Name, Klass, Role>> conceptTerms = node.getTerms().subSet(DLTermOrder.DL_INTERSECTION);
-			Iterator<IDLTerm<Name, Klass, Role>> iter = conceptTerms.iterator();
-			while (iter.hasNext()) {
-				IDLTerm<Name, Klass, Role> term = iter.next();
-				if (term instanceof IDLIntersection) {
-					IDLIntersection<Name, Klass, Role> intersection = (IDLIntersection<Name, Klass, Role>) term;
+		final Branch<Name, Klass, Role> branch = branchNode.getData();
+		final IABox<Name, Klass, Role> abox = branch.getABox();
+		NodeMergeInfo<Name, Klass, Role> mergeInfo = new NodeMergeInfo<Name, Klass, Role>(node, false);
 
-					/* if not all subterms are already part of the concept set */
-					if ((!node.getTerms().containsAll(intersection))) {
-						/* update dependency map */
-						for (IDLRestriction<Name, Klass, Role> subTerm : intersection) {
-							if (!abox.getDependencyMap().containsKey(node, subTerm))
-								abox.getDependencyMap().addParent(node, subTerm, node, intersection);
-						}
-						/* try to add subterm and its unfolding */
+		SortedSet<IDLTerm<Name, Klass, Role>> conceptTerms = node.getTerms().subSet(DLTermOrder.DL_INTERSECTION);
+		Iterator<IDLTerm<Name, Klass, Role>> iter = conceptTerms.iterator();
+		while (iter.hasNext()) {
+			IDLTerm<Name, Klass, Role> term = iter.next();
+			if (term instanceof IDLIntersection) {
+				IDLIntersection<Name, Klass, Role> intersection = (IDLIntersection<Name, Klass, Role>) term;
+
+				/* if not all subterms are already part of the concept set */
+				if ((!node.getTerms().containsAll(intersection))) {
+					/* update dependency map */
+					for (IDLRestriction<Name, Klass, Role> subTerm : intersection) {
+						if (!abox.getDependencyMap().containsKey(node, subTerm))
+							abox.getDependencyMap().addParent(node, subTerm, node, intersection);
+					}
+
+					try {
 						final NodeMergeInfo<Name, Klass, Role> unfoldResult = node.addUnfoldedDescriptions(intersection);
 						mergeInfo.append(unfoldResult);
-						getNodeConsistencyChecker().checkConsistency(mergeInfo.getCurrentNode());
-						
-						if (!mergeInfo.getMergedNodes().isEmpty())
-							/**
-							 * the current node was merged away, stop processing,
-							 * recheck queues
-							 **/
-							return ReasonerContinuationState.RECHECK_NODE;
-						else if (mergeInfo.isModified(node)) {
-							/* restart iteration for modified set, prevents ConcurrentModificationException */
-							conceptTerms = node.getTerms().subSet(DLTermOrder.DL_INTERSECTION);
-							iter = conceptTerms.iterator();
-						}
+					} catch (ENodeMergeException ex) {
+						branch.getConsistencyInfo().addCulprits(node, intersection);
+						branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
+						return ReasonerContinuationState.INCONSISTENT;
+					}
+
+					final ConsistencyInfo<Name, Klass, Role> cInfo = getNodeConsistencyChecker().isConsistent(
+						mergeInfo.getCurrentNode());
+					if (cInfo.isFinallyInconsistent()) {
+						branch.upgradeConsistencyInfo(cInfo);
+						return ReasonerContinuationState.INCONSISTENT;																			   
+					}
+
+					if (!mergeInfo.getMergedNodes().isEmpty())
+						/**
+						 * the current node was merged away, stop processing, recheck queues
+						 */
+						return ReasonerContinuationState.RECHECK_NODE;
+					else if (mergeInfo.isModified(node)) {
+						/* restart iteration for modified set, prevents ConcurrentModificationException */
+						conceptTerms = node.getTerms().subSet(DLTermOrder.DL_INTERSECTION);
+						iter = conceptTerms.iterator();
 					}
 				}
 			}
-			return ReasonerContinuationState.CONTINUE;
-		} catch (ENodeMergeException ex) {
-			throw new EInconsistentABoxNodeException(ex.getSourceNode());
 		}
+		return ReasonerContinuationState.CONTINUE;
 	}
 }

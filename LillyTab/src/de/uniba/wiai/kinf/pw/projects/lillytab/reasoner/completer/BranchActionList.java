@@ -22,6 +22,7 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
@@ -41,9 +42,9 @@ import java.util.List;
  * first branch in the returned successor list.
  * </p>
  *
- * @param <Name> 
- * @param <Klass>
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class BranchActionList<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -71,7 +72,6 @@ public class BranchActionList<Name extends Comparable<? super Name>, Klass exten
 	 */
 	public List<BranchCreationInfo<Name, Klass, Role>> commit(final Branch<Name, Klass, Role> baseBranch,
 															  final INodeConsistencyChecker<Name, Klass, Role> cChecker)
-		throws EInconsistentABoxException
 	{
 		final int nBranches = size();
 		final List<BranchCreationInfo<Name, Klass, Role>> creationInfos = new ArrayList<BranchCreationInfo<Name, Klass, Role>>();
@@ -103,7 +103,7 @@ public class BranchActionList<Name extends Comparable<? super Name>, Klass exten
 			 * go through the list of actions and apply those
 			 * actions that are applicable.
 			 *
-			 * iBranch indexes into trhe pre-created branch-list
+			 * iBranch indexes into the pre-created branch-list
 			 * and is only incremented for committed actions.
 			 **/
 			int iBranch = 0;
@@ -114,13 +114,16 @@ public class BranchActionList<Name extends Comparable<? super Name>, Klass exten
 
 					/* get the next branch and apply the action to it */
 					final Branch<Name, Klass, Role> targetBranch = branches.get(iBranch);
-					final NodeMergeInfo<Name, Klass, Role> mergeInfo = action.commit(targetBranch);
-					creationInfos.add(new BranchCreationInfo<Name, Klass, Role>(targetBranch, action, mergeInfo));
+					try {
+						final NodeMergeInfo<Name, Klass, Role> mergeInfo = action.commit(targetBranch);
+						creationInfos.add(new BranchCreationInfo<Name, Klass, Role>(targetBranch, action, mergeInfo));
+						++iBranch;
+					} catch (ENodeMergeException ex) {
+						/* ignore for now */
+					}
 
-					++iBranch;
 				}
 			}
-			assert iBranch == nCommittableActions;
 		}
 		return creationInfos;
 	}

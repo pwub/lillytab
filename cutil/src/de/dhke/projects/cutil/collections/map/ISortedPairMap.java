@@ -26,7 +26,7 @@ import java.util.SortedMap;
 
 /**
  *
- * @author peterw
+ * @author Peter Wullinger <java@dhke.de>
  */
 public interface ISortedPairMap<First extends Comparable<? super First>, Second extends Comparable<? super Second>, Tag>
 {

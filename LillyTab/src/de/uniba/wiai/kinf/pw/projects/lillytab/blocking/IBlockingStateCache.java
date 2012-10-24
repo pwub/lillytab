@@ -68,9 +68,9 @@ public interface IBlockingStateCache
 	 * Retrieve the blocker for the specified node.
 	 *
 	 *
-	 * @param <Name>
-	 * @param <Klass>
-	 * @param <Role>
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param blockedNode The blocked node.
 	 * @return The blocking node of {@literal blockedNode}, if such exists in the cache; {@literal null} otherwise.
 	 */

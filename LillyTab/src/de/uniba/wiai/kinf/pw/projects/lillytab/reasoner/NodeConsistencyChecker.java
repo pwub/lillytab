@@ -3,45 +3,50 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
-import de.dhke.projects.cutil.Pair;
+import de.dhke.projects.cutil.collections.frozen.FrozenSet;
+import de.dhke.projects.cutil.collections.iterator.ChainIterable;
+import de.dhke.projects.cutil.collections.set.Flat3Set;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.dhke.projects.lutil.LoggingClass;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IAssertedRBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntryFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNegation;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datatype.IDLDatatypeExpression;
-import de.dhke.projects.lutil.LoggingClass;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
 
 /**
  *
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -66,284 +71,367 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 	}
 
 
-	private static <T> ArrayList<T> makePairArrayList(final T one, final T two)
+	private Set<TermEntry<Name, Klass, Role>> makeTermEntryPairSet(
+		final TermEntryFactory<Name, Klass, Role> factory,
+		final NodeID nodeID,
+		final IDLTerm<Name, Klass, Role> one, final IDLTerm<Name, Klass, Role> two)
 	{
-		final ArrayList<T> list = new ArrayList<T>();
-		list.add(one);
-		list.add(two);
-		return list;
+		final Set<TermEntry<Name, Klass, Role>> set = new Flat3Set<TermEntry<Name, Klass, Role>>(2);
+		set.add(factory.getEntry(nodeID, one));
+		set.add(factory.getEntry(nodeID, two));
+		return new FrozenSet<TermEntry<Name, Klass, Role>>(set);
 	}
 
 
-	/**
-	 * Determine if the union of both sets of descriptions contains a direct contradiction and return the first pair of
-	 * contradicting terms.
-	 *
-	 * @param abox The ABox whose IDLTermFactory is to be used.
-	 * @param descs A set of descriptions
-	 * @param extraDescs An extra set of descriptions.
-	 * @return {@literal false} if a direct contradiction was found in the union set.
-	 */
-	// @SuppressWarnings("unchecked")
-	public Collection<IDLTerm<Name, Klass, Role>> getInconsistentTerms(final IABox<Name, Klass, Role> abox,
-																	   final Collection<? extends IDLTerm<Name, Klass, Role>> descs,
-																	   final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	private boolean hasAtMostNSuccessors(final IRABox<Name, Klass, Role> raBox, final Role role, final int n)
 	{
-		assert abox != null;
-		assert abox.getDLTermFactory() != null;
-		final IDLRestriction<Name, Klass, Role> nothing = abox.getDLTermFactory().getDLNothing();
-		// final IDLClassExpression<Name, Klass, Role> thing = abox.getDLTermFactory().getDLThing();
-
-		if (descs.contains(nothing)) {
-			if (_trace) {
-				logFiner("Inconsistent concept set: %s", descs);
-				logFinest("\t'%s' in set", nothing);
-			}
-			return Collections.<IDLTerm<Name, Klass, Role>>singleton(nothing);
-		} else if ((extraDescs != null) && extraDescs.contains(nothing)) {
-			if (_trace) {
-				logFiner("Inconsistent concept set: %s", descs);
-				logFinest("\t'%s' in set", nothing);
-			}
-			return Collections.<IDLTerm<Name, Klass, Role>>singleton(nothing);
-		} else {
-			for (IDLTerm<Name, Klass, Role> desc : descs) {
-				if (desc instanceof IDLNegation) {
-					/*
-					 * check for negated concept clash
-					 */
-					IDLNegation<Name, Klass, Role> neg = (IDLNegation<Name, Klass, Role>) desc;
-					if (descs.contains(neg.getTerm())) {
-						/*
-						 * descs internal inconsistency
-						 */
-						if (_trace) {
-							logFiner("Inconsistent concept set: %s", descs);
-							logFinest("\t'%s' and its negation '%s' in set", neg.getTerm(), neg);
-						}
-						return makePairArrayList((IDLTerm<Name, Klass, Role>) neg.getTerm(), neg);
-					} else if ((extraDescs != null) && extraDescs.contains(neg.getTerm())) {
-						/*
-						 * desc->extraDescs cross inconsistency
-						 */
-						if (_trace) {
-							logFiner("Inconsistent concept sets: %s, %s", descs, extraDescs);
-							logFinest("\t'%s' and its negation '%s' present.", neg.getTerm(), neg);
-						}
-						return makePairArrayList((IDLTerm<Name, Klass, Role>) neg.getTerm(), neg);
-					}
-				}
-			}
-
-			if (extraDescs != null) {
-				for (IDLTerm<Name, Klass, Role> xDesc : extraDescs) {
-					if (xDesc instanceof IDLNegation) {
-						IDLNegation<Name, Klass, Role> neg = (IDLNegation<Name, Klass, Role>) xDesc;
-						if (descs.contains(neg.getTerm())) {
-							if (_trace) {
-								logFiner("Inconsistent concept sets: %s, %s", extraDescs, descs);
-								logFinest("\t'%s' and its negation '%s' present.", neg.getTerm(), neg);
-							}
-							return makePairArrayList((IDLTerm<Name, Klass, Role>) neg.getTerm(), neg);
-						} else if (extraDescs.contains(neg.getTerm())) {
-							/*
-							 * extraDescs internal inconsistency
-							 */
-							if (_trace) {
-								logFiner("Inconsistent concept set: %s", extraDescs);
-								logFinest("\t'%s' and its negation '%s' present.", neg.getTerm(), neg);
-							}
-							return makePairArrayList((IDLTerm<Name, Klass, Role>) neg.getTerm(), neg);
-						}
-					}
-				}
-			}
-		}
-		/*
-		 * no clash found
-		 */
-		return null;
-	}
-
-
-	private void checkFunctionalRoles(final IABoxNode<Name, Klass, Role> node)
-		throws EReasonerException, EInconsistencyException
-	{
-		final IABox<Name, Klass, Role> abox = node.getABox();
-		final IAssertedRBox<Name, Klass, Role> rbox = abox.getTBox().getRBox();
-
-		for (Role role : node.getLinkMap().getOutgoingRoles()) {
-			if (rbox.hasRoleProperty(role, RoleProperty.FUNCTIONAL)) {
-				Iterator<NodeID> succIDiter = node.getLinkMap().getSuccessors(role).iterator();
-				if (succIDiter.hasNext() && (succIDiter.next() != null) && succIDiter.hasNext()) {
-					throw new ERoleCardinalityException(node, role,
-														String.format("More than one successor for functional role '%s'",
-																	  role));
-				}
-			}
-		}
-		for (Role role : node.getLinkMap().getIncomingRoles()) {
-			if (rbox.hasRoleProperty(role, RoleProperty.INVERSE_FUNCTIONAL)) {
-				final Iterator<NodeID> predIDIter = node.getLinkMap().getSuccessors(role).iterator();
-				if (predIDIter.hasNext() && (predIDIter.next() != null) && predIDIter.hasNext()) {
-					throw new ERoleCardinalityException(node, role,
-														String.format(
-						"More than one predecessor for inverse functional role '%s'", role));
-				}
-			}
-		}
-	}
-
-
-	private boolean hasProperFunctionalRoles(final IABoxNode<Name, Klass, Role> node)
-	{
-		final IABox<Name, Klass, Role> abox = node.getABox();
-		final IAssertedRBox<Name, Klass, Role> rbox = abox.getTBox().getRBox();
-
-		for (Pair<Role, NodeID> outgoing : node.getLinkMap().getSuccessorPairs()) {
-			final Role role = outgoing.getFirst();
-			if (rbox.hasRoleProperty(role, RoleProperty.FUNCTIONAL)) {
-				Iterator<NodeID> succIDiter = node.getLinkMap().getSuccessors(role).iterator();
-				if (succIDiter.hasNext() && (succIDiter.next() != null) && succIDiter.hasNext()) {
-					return false;
-				}
-			}
-		}
-		for (Pair<Role, NodeID> incoming : node.getLinkMap().getPredecessorPairs()) {
-			final Role role = incoming.getFirst();
-			if (rbox.hasRoleProperty(role, RoleProperty.INVERSE_FUNCTIONAL)) {
-				final Iterator<NodeID> predIDIter = node.getLinkMap().getSuccessors(role).iterator();
-				if (predIDIter.hasNext() && (predIDIter.next() != null) && predIDIter.hasNext()) {
-					return false;
-				}
-			}
+		int i = n;
+		for (NodeID succID : raBox.getSuccessors(role)) {
+			--i;
+			if (i < 0)
+				return false;
 		}
 		return true;
 	}
 
 
-	private void checkDatatypeNode(final IABoxNode<Name, Klass, Role> node)
-		throws EReasonerException, EInconsistentABoxException
+	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
+		final IDLTermFactory<Name, Klass, Role> termFactory,
+		final TermEntryFactory<Name, Klass, Role> termEntryFactory,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> descs,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
-		if (node.isDatatypeNode()) {
-			/* This check is superfluous in the current implementation, as datatype nodes can programmatically never have successors */
-			//if (! node.getLinkMap().getAssertedSuccessors().isEmpty())
-			//	throw new EInconsistentABoxNodeException(node, "Datatype node cannot have successors");
+		final Set<Set<TermEntry<Name, Klass, Role>>> clashTermSets = new Flat3Set<Set<TermEntry<Name, Klass, Role>>>();
 
-			for (IDLTerm<Name, Klass, Role> term : node.getTerms().subSet(DLTermOrder.DL_DATATYPE_EXPRESSION)) {
-				assert term instanceof IDLDatatypeExpression;
-				final IDLDatatypeExpression<Name, Klass, Role> dtExpression = (IDLDatatypeExpression<Name, Klass, Role>) term;
-				if (!node.isAnonymous()) {
-					for (Name individual : node.getNames())
-						if (!dtExpression.isValidValue(individual))
-							throw new EInconsistentABoxNodeException(node,
-																	 "'" + individual + " is not a valid value for datatype expression " + dtExpression);
-					if (!dtExpression.isCompatibleValue(node.getNames()))
-						throw new EInconsistentABoxNodeException(node,
-																 "Incompatible datatype values: " + node.getNames());
-				}
+		final Collection<Iterable<? extends IDLTerm<Name, Klass, Role>>> termColl = new ArrayList<Iterable<? extends IDLTerm<Name, Klass, Role>>>();
+		termColl.add(descs);
+		if (extraDescs != null)
+			termColl.add(extraDescs);
+		for (IDLTerm<Name, Klass, Role> term : ChainIterable.decorate(termColl)) {
+			if (term instanceof IDLRestriction) {
+				final IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
+				final IDLRestriction<Name, Klass, Role> negDesc = termFactory.getDLNegation(desc);
+				if (descs.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
+				if ((extraDescs != null) && extraDescs.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
 			}
 		}
+		return clashTermSets;
 	}
 
 
-	private boolean isProperDatatypeNode(final IABoxNode<Name, Klass, Role> node)
+	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentExtraTermEntries(
+		final IDLTermFactory<Name, Klass, Role> termFactory,
+		final TermEntryFactory<Name, Klass, Role> termEntryFactory,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> descs,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
+		final Set<Set<TermEntry<Name, Klass, Role>>> clashTermSets = new Flat3Set<Set<TermEntry<Name, Klass, Role>>>();
+
+		if (extraDescs.contains(termFactory.getDLNothing()))
+			clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, termFactory.getDLNothing(),
+												   termFactory.getDLThing()));
+
+		/* it is sufficient to iterate over extraDescs, because descs are assumed to be consistent */
+		for (IDLTerm<Name, Klass, Role> term : extraDescs) {
+			if (term instanceof IDLRestriction) {
+				final IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
+				final IDLRestriction<Name, Klass, Role> negDesc = termFactory.getDLNegation(desc);
+				if (descs.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
+				if ((extraDescs != null) && extraDescs.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
+			}
+		}
+		return clashTermSets;
+	}
+
+
+	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
+		final IABox<Name, Klass, Role> abox,
+		final IABoxNode<Name, Klass, Role> node,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	{
+		final IDLTermFactory<Name, Klass, Role> termFactory = abox.getDLTermFactory();
+		final TermEntryFactory<Name, Klass, Role> termEntryFactory = abox.getTermEntryFactory();
+		return getInconsistentTermEntries(termFactory, termEntryFactory, abox.getTBox(), node, extraDescs);
+	}
+
+
+	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
+		final IABoxNode<Name, Klass, Role> node,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	{
+		return getInconsistentTermEntries(node.getABox(), node, extraDescs);
+	}
+
+
+	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
+		final IDLTermFactory<Name, Klass, Role> termFactory,
+		final TermEntryFactory<Name, Klass, Role> termEntryFactory,
+		final ITBox<Name, Klass, Role> tbox,
+		final IABoxNode<Name, Klass, Role> node,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	{
+		final Set<Set<TermEntry<Name, Klass, Role>>> clashTermSets = new Flat3Set<Set<TermEntry<Name, Klass, Role>>>();
+		final Collection<Iterable<? extends IDLTerm<Name, Klass, Role>>> termColl = new ArrayList<Iterable<? extends IDLTerm<Name, Klass, Role>>>();
+
+		if (node.getTerms().contains(termFactory.getDLNothing()))
+			clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), termFactory.getDLNothing(),
+												   termFactory.getDLThing()));
+
+		if ((extraDescs != null) && extraDescs.contains(termFactory.getDLNothing()))
+			clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), termFactory.getDLNothing(),
+												   termFactory.getDLThing()));
+
+		termColl.add(node.getTerms());
+		/* XXX - test, if it is more efficient to collect all unfoldings into a set */
+		if (extraDescs != null) {
+			for (IDLTerm<Name, Klass, Role> desc : extraDescs) {
+				if (desc instanceof IDLRestriction)
+					termColl.add(tbox.getUnfolding((IDLRestriction<Name, Klass, Role>) desc));
+			}
+		}
+		final SortedSet<IDLTerm<Name, Klass, Role>> nodeNegations = node.getTerms().subSet(DLTermOrder.DL_NEGATION);
+
+		for (IDLTerm<Name, Klass, Role> term : ChainIterable.decorate(termColl)) {
+			if (term instanceof IDLRestriction) {
+				final IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
+				final IDLRestriction<Name, Klass, Role> negDesc = termFactory.getDLNegation(desc);
+				if (nodeNegations.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), desc, negDesc));
+				if ((extraDescs != null) && extraDescs.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), desc, negDesc));
+			}
+		}
+		return clashTermSets;
+	}
+
+
+	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentExtraTermEntries(
+		final IABox<Name, Klass, Role> abox,
+		final IABoxNode<Name, Klass, Role> node,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	{
+		return getInconsistentExtraTermEntries(abox.getDLTermFactory(), abox.getTermEntryFactory(), abox.getTBox(), node,
+											   extraDescs);
+	}
+
+
+	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentExtraTermEntries(
+		final IDLTermFactory<Name, Klass, Role> termFactory,
+		final TermEntryFactory<Name, Klass, Role> termEntryFactory,
+		final ITBox<Name, Klass, Role> tbox,
+		final IABoxNode<Name, Klass, Role> node,
+		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	{
+		final Set<Set<TermEntry<Name, Klass, Role>>> clashTermSets = new Flat3Set<Set<TermEntry<Name, Klass, Role>>>();
+		final Collection<Iterable<? extends IDLTerm<Name, Klass, Role>>> termColl = new ArrayList<Iterable<? extends IDLTerm<Name, Klass, Role>>>();
+		/* XXX - test, if it is more efficient to collect all unfoldings into a set */
+		if (extraDescs != null) {
+			if (extraDescs.contains(termFactory.getDLNothing()))
+				clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), termFactory.getDLNothing(),
+													   termFactory.getDLThing()));
+
+			for (IDLTerm<Name, Klass, Role> desc : extraDescs) {
+				if (desc instanceof IDLRestriction)
+					termColl.add(tbox.getUnfolding((IDLRestriction<Name, Klass, Role>) desc));
+			}
+		}
+		final SortedSet<IDLTerm<Name, Klass, Role>> nodeNegations = node.getTerms().subSet(DLTermOrder.DL_NEGATION);
+
+		for (IDLTerm<Name, Klass, Role> term : ChainIterable.decorate(termColl)) {
+			if (term instanceof IDLRestriction) {
+				final IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
+				final IDLRestriction<Name, Klass, Role> negDesc = termFactory.getDLNegation(desc);
+				if (nodeNegations.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), desc, negDesc));
+				if ((extraDescs != null) && extraDescs.contains(negDesc))
+					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), desc, negDesc));
+			}
+		}
+		return clashTermSets;
+	}
+
+
+	private ConsistencyInfo<Name, Klass, Role> isProperDatatypeNode(final IABoxNode<Name, Klass, Role> node)
+	{
+		final ConsistencyInfo<Name, Klass, Role> cInfo = new ConsistencyInfo<Name, Klass, Role>();
 		if (node.isDatatypeNode()) {
 			/* This check is superfluous in the current implementation, as datatype nodes can programmatically never have successors */
-			//if (! node.getLinkMap().getAssertedSuccessors().isEmpty())
+			//if (! node.getRABox().getAssertedSuccessors().isEmpty())
 			//	return false;
 
 			for (IDLTerm<Name, Klass, Role> term : node.getTerms().subSet(DLTermOrder.DL_DATATYPE_EXPRESSION)) {
 				assert term instanceof IDLDatatypeExpression;
 				final IDLDatatypeExpression<Name, Klass, Role> dtExpression = (IDLDatatypeExpression<Name, Klass, Role>) term;
 				for (Name individual : node.getNames())
-					if (!dtExpression.isValidValue(individual))
-						return false;
-				if (!dtExpression.isCompatibleValue(node.getNames()))
-					return false;
+					if (!dtExpression.isValidValue(individual)) {
+						cInfo.addCulprits(node,
+										  node.getABox().getDLTermFactory().getDLNominalReference(individual),
+										  dtExpression);
+						cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);
+						return cInfo;
+					}
+				final Set<Set<Name>> inconsistent = dtExpression.getIncompatibleValues(node.getNames());
+				if (!inconsistent.isEmpty()) {
+					for (Set<Name> clashNames : inconsistent) {
+						List<IDLTerm<Name, Klass, Role>> clashTerms = new ArrayList<IDLTerm<Name, Klass, Role>>();
+						for (Name name : clashNames) {
+							final IDLNominalReference<Name, Klass, Role> nomRef = node.getABox().getDLTermFactory().
+								getDLNominalReference(name);
+							clashTerms.add(nomRef);
+						}
+						cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);
+						cInfo.addCulprits(node, clashTerms);
+					}
+					return cInfo;
+				}
 			}
 
 		}
-		return true;
+		return cInfo;
 	}
 
 
-	public void checkConsistency(IABoxNode<Name, Klass, Role> node) throws EReasonerException, EInconsistencyException
+	@SuppressWarnings("unchecked")
+	public ConsistencyInfo<Name, Klass, Role> isLinkConsistent(final IABoxNode<Name, Klass, Role> node)
 	{
-		checkConsistency(node, null);
+		final IRABox<Name, Klass, Role> raBox = node.getRABox();
+		final IRBox<Name, Klass, Role> rBox = node.getABox().getTBox().getRBox();
+		final Collection<Role> outRoles = raBox.getOutgoingRoles();
+		final ConsistencyInfo<Name, Klass, Role> cInfo = new ConsistencyInfo<Name, Klass, Role>();
+		for (Role outRole : outRoles) {
+			if (rBox.hasRoleProperty(outRole, RoleProperty.FUNCTIONAL)) {
+				if (!hasAtMostNSuccessors(raBox, outRole, 1)) {
+					/* XXX - this needs to be fixed to be the governing term of the node */
+					cInfo.addCulprits(node, node.getABox().getDLTermFactory().getDLThing());
+					cInfo.upgradeClashType(ConsistencyInfo.ClashType.TRANSIENT);
+					return cInfo;
+				}
+			}
+		}
+		return cInfo;
 	}
 
 
-	public void checkConsistency(IABoxNode<Name, Klass, Role> node,
-								 Collection<? extends IDLTerm<Name, Klass, Role>> extraDesc) throws EReasonerException, EInconsistencyException
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABox<Name, Klass, Role> abox,
+														   IABoxNode<Name, Klass, Role> node)
 	{
-		final IABox<Name, Klass, Role> abox = node.getABox();
-		final Collection<? extends IDLTerm<Name, Klass, Role>> inconsistent = getInconsistentTerms(abox, node.getTerms(),
-																								   null);
-		if (inconsistent != null)
-			throw new ETermClashException(node, inconsistent, "Clashing terms");
-		checkFunctionalRoles(node);
-		checkDatatypeNode(node);
+		return isConsistent(abox, node, null);
 	}
 
 
-	public void checkExtraConsistency(IABoxNode<Name, Klass, Role> node,
-									  Collection<? extends IDLTerm<Name, Klass, Role>> extraDesc) throws EReasonerException, EInconsistencyException
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABoxNode<Name, Klass, Role> node)
 	{
-		final IABox<Name, Klass, Role> abox = node.getABox();
-		final Collection<? extends IDLTerm<Name, Klass, Role>> inconsistent = getInconsistentTerms(abox, node.getTerms(),
-																								   null);
-		if (inconsistent != null)
-			throw new ETermClashException(node, inconsistent, "Clashing terms");
-		checkFunctionalRoles(node);
-		checkDatatypeNode(node);
+		return isConsistent(node.getABox(), node);
 	}
 
 
-	public boolean isConsistent(IABox<Name, Klass, Role> abox,
-								Collection<? extends IDLTerm<Name, Klass, Role>> descs,
-								Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABox<Name, Klass, Role> abox,
+														   IABoxNode<Name, Klass, Role> node,
+														   Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
-		final Collection<? extends IDLTerm<Name, Klass, Role>> inconsistent = getInconsistentTerms(abox, descs,
-																								   extraDescs);
-		return (inconsistent == null);
+		final ConsistencyInfo<Name, Klass, Role> cInfo = new ConsistencyInfo<Name, Klass, Role>();
+		final Set<Set<TermEntry<Name, Klass, Role>>> inconsistent = getInconsistentTermEntries(abox, node, extraDescs);
+		if (! inconsistent.isEmpty()) {
+			cInfo.addCulpritEntries(node, inconsistent);
+			cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);;
+		}
+		if (cInfo.isFinallyInconsistent())
+			return cInfo;
+
+		cInfo.updateFrom(isProperDatatypeNode(node));
+		if (cInfo.isFinallyInconsistent())
+			return cInfo;
+
+		cInfo.updateFrom(isLinkConsistent(node));
+		return cInfo;
 	}
 
 
-	public boolean isExtraConsistent(IABox<Name, Klass, Role> abox,
-									 Collection<? extends IDLTerm<Name, Klass, Role>> descs,
-									 Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isExtraConsistent(IABox<Name, Klass, Role> abox,
+																IABoxNode<Name, Klass, Role> node,
+																Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
-		/*
-		 * TODO: speedup
-		 */
-		final Collection<? extends IDLTerm<Name, Klass, Role>> inconsistent = getInconsistentTerms(abox, descs,
-																								   extraDescs);
-		return (inconsistent == null);
+		final ConsistencyInfo<Name, Klass, Role> cInfo = new ConsistencyInfo<Name, Klass, Role>();
+		final Set<Set<TermEntry<Name, Klass, Role>>> inconsistent = getInconsistentExtraTermEntries(abox, node,
+																									extraDescs);
+		cInfo.addCulpritEntries(node, inconsistent);
+		if (cInfo.isFinallyInconsistent())
+			return cInfo;
+
+		cInfo.updateFrom(isProperDatatypeNode(node));
+		if (cInfo.isFinallyInconsistent())
+			return cInfo;
+
+		cInfo.updateFrom(isLinkConsistent(node));
+		return cInfo;
 	}
 
 
-	public boolean isConsistent(IABox<Name, Klass, Role> abox,
-								IABoxNode<Name, Klass, Role> node)
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isExtraConsistent(IABoxNode<Name, Klass, Role> node,
+																Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
-		return isConsistent(abox, node.getTerms()) && hasProperFunctionalRoles(node) && isProperDatatypeNode(node);
+		return isExtraConsistent(null, node, extraDescs);
+	}
+
+
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABoxNode<Name, Klass, Role> node,
+														   Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	{
+		return isConsistent(node.getABox(), node, extraDescs);
+	}
+
+
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isConsistent(IDLTermFactory<Name, Klass, Role> termFactory,
+														   TermEntryFactory<Name, Klass, Role> termEntryFactory,
+														   Collection<? extends IDLTerm<Name, Klass, Role>> descs)
+	{
+		return isConsistent(termFactory, termEntryFactory, descs, null);
+	}
+
+
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isConsistent(IDLTermFactory<Name, Klass, Role> termFactory,
+														   TermEntryFactory<Name, Klass, Role> termEntryFactory,
+														   Collection<? extends IDLTerm<Name, Klass, Role>> descs,
+														   Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
+	{
+		final ConsistencyInfo<Name, Klass, Role> cInfo = new ConsistencyInfo<Name, Klass, Role>();
+		final Set<Set<TermEntry<Name, Klass, Role>>> inconsistent = getInconsistentTermEntries(termFactory,
+																							   termEntryFactory, descs,
+																							   extraDescs);
+		if (!inconsistent.isEmpty())
+			cInfo.addCulpritEntries((IABox<Name, Klass, Role>) null, inconsistent);
+
+		return cInfo;
 
 	}
 
 
-	public boolean isConsistent(IABox<Name, Klass, Role> abox,
-								IABoxNode<Name, Klass, Role> node,
-								Collection<? extends IDLTerm<Name, Klass, Role>> extraDesc)
+	@Override
+	public ConsistencyInfo<Name, Klass, Role> isExtraConsistent(IDLTermFactory<Name, Klass, Role> termFactory,
+																TermEntryFactory<Name, Klass, Role> termEntryFactory,
+																Collection<? extends IDLTerm<Name, Klass, Role>> descs,
+																Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
-		return isConsistent(abox, node.getTerms(), extraDesc) && hasProperFunctionalRoles(node) && isProperDatatypeNode(
-			node);
-	}
+		final ConsistencyInfo<Name, Klass, Role> cInfo = new ConsistencyInfo<Name, Klass, Role>();
+		final Set<Set<TermEntry<Name, Klass, Role>>> inconsistent = getInconsistentExtraTermEntries(termFactory,
+																									termEntryFactory,
+																									descs,
+																									extraDescs);
+		if (!inconsistent.isEmpty())
+			cInfo.addCulpritEntries((IABox<Name, Klass, Role>) null, inconsistent);
 
-
-	public boolean isConsistent(IABox<Name, Klass, Role> abox,
-								Collection<? extends IDLTerm<Name, Klass, Role>> descs)
-	{
-		return isConsistent(abox, descs);
+		return cInfo;
 	}
 }

@@ -21,9 +21,9 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.datatype;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import java.util.Collection;
+import java.util.Set;
 
 /**
  *
@@ -58,8 +58,7 @@ public interface IDLDatatypeExpression<Name extends Comparable<? super Name>, Kl
 	 * each other under the constraints of the current data type.
 	 *
 	 * @param ind Individuals
-	 * @return {@literal true} if the values are compatible {@literal false}, if
-	 *   both values cannot refer to the same individual.
+	 * @return A set of sets of mutually incompatible values. An empty set is returned if all values are compatible.
 	 */
-	public boolean isCompatibleValue(final Collection<? extends Name> inds);
+	public Set<Set<Name>> getIncompatibleValues(final Collection<? extends Name> inds);
 }

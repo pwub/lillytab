@@ -3,22 +3,17 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
 import de.dhke.projects.cutil.collections.aspect.ICollectionListener;
@@ -34,6 +29,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSetListener;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IUnfoldListener;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntryFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStateCache;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
@@ -49,11 +45,16 @@ import java.util.Set;
 import java.util.SortedSet;
 import org.apache.commons.collections15.Transformer;
 
+
 /**
+ * <p> An immutable proxy object of {@link IABox} that forbids changes to the underlying ABox. </p><p> Note that
+ * immutable does not it self create a clone or prevent changes to the underlying ABox. That is the responsibility of
+ * the user. {@link ImmutableABox} just provides a proxy object trough changes are not possible. </p><p> If an Immutable
+ * is first created and the underlying object is changed afterwards, the behaviour of the immutable is undefined. </p>
  *
- * @param <Name> 
- * @param <Klass> 
- * @param <Role> 
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -61,9 +62,8 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 {
 	private final IABox<Name, Klass, Role> _baseABox;
 	private final Map<Object, IABoxNode<Name, Klass, Role>> _nodeMap;
-	private final Transformer<IABoxNode<Name, Klass, Role>, IABoxNode<Name, Klass, Role>> _nodeTransformer
-		= new Transformer<IABoxNode<Name, Klass, Role>, IABoxNode<Name, Klass, Role>>() {
-
+	private final Transformer<IABoxNode<Name, Klass, Role>, IABoxNode<Name, Klass, Role>> _nodeTransformer = new Transformer<IABoxNode<Name, Klass, Role>, IABoxNode<Name, Klass, Role>>()
+	{
 		@Override
 		public IABoxNode<Name, Klass, Role> transform(IABoxNode<Name, Klass, Role> input)
 		{
@@ -77,7 +77,7 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 	protected ImmutableABox(final IABox<Name, Klass, Role> baseABox)
 	{
-		/* create a clone of the initial ABox */
+		/* the initial ABox is not cloned, but left as is. Make sure, you do not modify it, afterwards (cloning is okay) */
 		_baseABox = baseABox;
 		_nodeSet = GenericImmutableSortedSet.decorate(baseABox, _nodeTransformer);
 		_nodeMap = ImmutableMap.decorate(_baseABox.getNodeMap(), _nodeTransformer);
@@ -88,8 +88,8 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 		return _baseABox;
 	}
 
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-		ImmutableABox<Name, Klass, Role> decorate(final IABox<Name, Klass, Role> baseABox)
+	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ImmutableABox<Name, Klass, Role> decorate(
+		final IABox<Name, Klass, Role> baseABox)
 	{
 		return new ImmutableABox<Name, Klass, Role>(baseABox);
 	}
@@ -153,12 +153,6 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 	}
 
 	@Override
-	public ICollectionFactory<IDLTerm<Name, Klass, Role>, SortedSet<IDLTerm<Name, Klass, Role>>> getTermSetFactory()
-	{
-		return _baseABox.getTermSetFactory();
-	}
-
-	@Override
 	public ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory()
 	{
 		return _baseABox.getNodeIDSetFactory();
@@ -182,8 +176,8 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 	{
 		return Collections.unmodifiableList(_baseABox.getNodeMergeListeners());
 	}
-
 	private int _hashCode = 0;
+
 	@Override
 	public int deepHashCode()
 	{
@@ -285,7 +279,7 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 	@Override
 	public Object[] toArray()
 	{
-		
+
 		return _nodeSet.toArray();
 	}
 
@@ -361,7 +355,6 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 		return ImmutableDependencyMap.decorate(_baseABox.getDependencyMap());
 	}
 
-
 	@Override
 	public String toString()
 	{
@@ -385,5 +378,17 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 							final IABoxNode<Name, Klass, Role> node2)
 	{
 		return _baseABox.canMerge(node1, node2);
+	}
+
+	@Override
+	public boolean containsAllTermEntries(Collection<TermEntry<Name, Klass, Role>> entries)
+	{
+		return _baseABox.containsAllTermEntries(entries);
+	}
+
+	@Override
+	public boolean containsTermEntry(TermEntry<Name, Klass, Role> entry)
+	{
+		return _baseABox.containsTermEntry(entry);
 	}
 }

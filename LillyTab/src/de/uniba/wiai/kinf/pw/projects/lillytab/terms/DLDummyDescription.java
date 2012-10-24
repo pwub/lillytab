@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;

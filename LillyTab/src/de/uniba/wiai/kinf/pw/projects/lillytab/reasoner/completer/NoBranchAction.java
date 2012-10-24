@@ -30,9 +30,9 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 /**
  * A {@link IBranchAction} that does nothing.
  *
- * @param <Name> 
- * @param <Klass> 
- * @param <Role> 
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class NoBranchAction<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>

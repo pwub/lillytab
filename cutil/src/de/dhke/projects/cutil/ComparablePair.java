@@ -23,7 +23,7 @@ package de.dhke.projects.cutil;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class ComparablePair<First extends Comparable<? super First>, Second extends Comparable<? super Second>>
 	extends Pair<First, Second>

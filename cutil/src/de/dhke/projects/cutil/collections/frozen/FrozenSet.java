@@ -31,7 +31,7 @@ import org.apache.commons.collections15.set.MapBackedSet;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class FrozenSet<T>
 	implements Set<T>
@@ -45,78 +45,91 @@ public class FrozenSet<T>
 		_baseSet.addAll(source);
 	}
 
+	@Override
 	public int size()
 	{
 		return _baseSet.size();
 	}
 
 
+	@Override
 	public boolean isEmpty()
 	{
 		return _baseSet.isEmpty();
 	}
 
 
+	@Override
 	public boolean contains(Object o)
 	{
 		return _baseSet.contains(o);
 	}
 
 
+	@Override
 	public Iterator<T> iterator()
 	{
 		return FrozenIterator.decorate(_baseSet.iterator());
 	}
 
 
+	@Override
 	public Object[] toArray()
 	{
 		return _baseSet.toArray();
 	}
 
 
+	@Override
 	public <T> T[] toArray(T[] a)
 	{
 		return _baseSet.toArray(a);
 	}
 
 
+	@Override
 	public boolean add(T e)
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");
 	}
 
 
+	@Override
 	public boolean remove(Object o)
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");
 	}
 
 
+	@Override
 	public boolean containsAll(Collection<?> c)
 	{
 		return _baseSet.containsAll(c);
 	}
 
 
+	@Override
 	public boolean addAll(Collection<? extends T> c)
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");
 	}
 
 
+	@Override
 	public boolean retainAll(Collection<?> c)
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");
 	}
 
 
+	@Override
 	public boolean removeAll(Collection<?> c)
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");
 	}
 
 
+	@Override
 	public void clear()
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");

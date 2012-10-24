@@ -57,6 +57,8 @@ public class CopyOnWriteMap<K, V>
 	@Override
 	public CopyOnWriteMap<K, V> clone()
 	{
-		return decorate(getDecoratee(), getFactory());
+		CopyOnWriteMap<K, V> klone = decorate(getDecoratee(), getFactory());
+		resetWasCopied();
+		return klone;
 	}
 }

@@ -31,7 +31,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IUnaryOperator;
 
 /**
  *
- * @param <Role> The type of the referenced role.
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLSomeRestriction<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>

@@ -26,7 +26,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRoleReference;
 
 /**
  *
- * @param <Role> The type of the referenced role
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLRoleReference<Role extends Comparable<Role>>

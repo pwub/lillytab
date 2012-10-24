@@ -52,6 +52,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -70,7 +71,7 @@ import static org.junit.Assert.*;
  */
 public class ABoxTest
 {
-	private final IDLTermFactory<String, String, String> _termFactory = new DLTermFactory<String, String, String>();
+	private final IDLTermFactory<String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String> _aboxFactory = new ABoxFactory<String, String, String>(_termFactory);
 	private IABox<String, String, String> _abox;
 
@@ -132,8 +133,8 @@ public class ABoxTest
 		IABoxNode<String, String, String> node2 = _abox.createNode(false);
 		node2.addUnfoldedDescription(_termFactory.getDLClassReference("C"));
 
-		node1.getLinkMap().getAssertedSuccessors().put("r", node2.getNodeID());
-		node0.getLinkMap().getAssertedSuccessors().put("r", node2.getNodeID());
+		node1.getRABox().getAssertedSuccessors().put("r", node2.getNodeID());
+		node0.getRABox().getAssertedSuccessors().put("r", node2.getNodeID());
 
 		NodeMergeInfo<String, String, String> mergeInfo = _abox.mergeNodes(node0, node2);
 		assertEquals(node0, mergeInfo.getCurrentNode());
@@ -144,13 +145,13 @@ public class ABoxTest
 		assertFalse(_abox.contains(node2));
 		assertEquals(2, _abox.size());
 
-		assertTrue(node0.getLinkMap().getAssertedSuccessors().containsValue("r", node0.getNodeID()));
-		assertTrue(node0.getLinkMap().getAssertedPredecessors().containsValue("r", node0.getNodeID()));
-		assertFalse(node0.getLinkMap().getAssertedSuccessors().containsValue("r", node2.getNodeID()));
+		assertTrue(node0.getRABox().getAssertedSuccessors().containsValue("r", node0.getNodeID()));
+		assertTrue(node0.getRABox().getAssertedPredecessors().containsValue("r", node0.getNodeID()));
+		assertFalse(node0.getRABox().getAssertedSuccessors().containsValue("r", node2.getNodeID()));
 
-		assertTrue(node1.getLinkMap().getAssertedSuccessors().containsValue("r", node0.getNodeID()));
-		assertTrue(node0.getLinkMap().getAssertedPredecessors().containsValue("r", node1.getNodeID()));
-		assertFalse(node1.getLinkMap().getAssertedSuccessors().containsValue("r", node2.getNodeID()));
+		assertTrue(node1.getRABox().getAssertedSuccessors().containsValue("r", node0.getNodeID()));
+		assertTrue(node0.getRABox().getAssertedPredecessors().containsValue("r", node1.getNodeID()));
+		assertFalse(node1.getRABox().getAssertedSuccessors().containsValue("r", node2.getNodeID()));
 
 		assertTrue(node0.getTerms().contains(_termFactory.getDLClassReference("A")));
 		assertTrue(node0.getTerms().contains(_termFactory.getDLClassReference("C")));
@@ -162,9 +163,9 @@ public class ABoxTest
 		assertTrue(node0.getTerms().contains(_termFactory.getDLClassReference("C")));
 
 		assertEquals(1, _abox.size());
-		assertTrue(node0.getLinkMap().getAssertedSuccessors().containsValue("r", node0.getNodeID()));
-		assertTrue(node0.getLinkMap().getAssertedPredecessors().containsValue("r", node0.getNodeID()));
-		assertFalse(node0.getLinkMap().getAssertedSuccessors().containsValue("r", node1.getNodeID()));
+		assertTrue(node0.getRABox().getAssertedSuccessors().containsValue("r", node0.getNodeID()));
+		assertTrue(node0.getRABox().getAssertedPredecessors().containsValue("r", node0.getNodeID()));
+		assertFalse(node0.getRABox().getAssertedSuccessors().containsValue("r", node1.getNodeID()));
 	}
 
 	/**
@@ -488,4 +489,7 @@ public class ABoxTest
 		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
 		assertTrue(_abox.deepEquals(abox2));
 	}
+	
+	
+	
 }

@@ -42,7 +42,7 @@ public class SimpleKRSSParser
 
 	public SimpleKRSSParser()
 	{
-		_termFactory = new DLTermFactory<String, String, String>();
+		this(new SimpleStringDLTermFactory());
 	}
 
 	private static void checkNextToken(final TokenIterator tokenIter, final String token)
@@ -89,14 +89,10 @@ public class SimpleKRSSParser
 				checkNextToken(tokenIter, ")");
 				return _termFactory.getDLAllRestriction(role, t);
 			}
-				throw new ParseException(String.format("Unknown operator: %s", operator), (int) tokenIter.getPosition());
-		} else if (token.equalsIgnoreCase("_Thing_"))
-			return _termFactory.getDLThing();
-		else if (token.equalsIgnoreCase("_Nothing_"))
-			return _termFactory.getDLNothing();
-		else if (token.equals("{")) {
+			throw new ParseException(String.format("Unknown operator: %s", operator), (int) tokenIter.getPosition());
+		} else if (token.equals("{")) {
 			final String nominal = tokenIter.next();
-				checkNextToken(tokenIter, "}");
+			checkNextToken(tokenIter, "}");
 			return _termFactory.getDLNominalReference(nominal);
 		} else
 			return _termFactory.getDLClassReference(token);

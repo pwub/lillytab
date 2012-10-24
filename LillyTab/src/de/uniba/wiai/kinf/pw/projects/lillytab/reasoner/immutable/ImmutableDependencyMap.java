@@ -32,6 +32,11 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
+ * * <p>
+ * A proxy object to an {@link IDependencyMap} that forbids changes to the underlying map.
+ * </p><p>
+ * If an immutable is first created and the underlying map is modified, afterwards, behaviour of the immutable is undefined.
+ * </p>
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */

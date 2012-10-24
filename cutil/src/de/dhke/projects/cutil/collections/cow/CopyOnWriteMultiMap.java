@@ -58,6 +58,8 @@ public class CopyOnWriteMultiMap<K, V>
 	@Override
 	public CopyOnWriteMultiMap<K, V> clone()
 	{
-		return decorate(getDecoratee(), getFactory());
+		CopyOnWriteMultiMap<K, V> klone = decorate(getDecoratee(), getFactory());
+		resetWasCopied();
+		return klone;
 	}
 }

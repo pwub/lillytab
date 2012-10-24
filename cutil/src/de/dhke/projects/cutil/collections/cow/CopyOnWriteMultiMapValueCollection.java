@@ -36,6 +36,7 @@ import org.apache.commons.collections15.MultiMap;
 public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 	implements Collection<V>
 {
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
 	private class Itr
 		implements Iterator<V>
 	{
@@ -78,6 +79,8 @@ public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 				throw new UnsupportedOperationException("Cannot remove from untouched CopyOnWriteMap via iterator.");
 		}
 	}
+	/// </editor-fold>
+	
 	private final GenericCopyOnWriteMultiMap<K, V, M> _cowMap;
 	private final Object _key;
 	private MultiMap<K, V> _lastBaseMap = null;
@@ -109,6 +112,7 @@ public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 		return _cachedValueCollection;
 	}
 
+	@Override
 	public int size()
 	{
 		if (_key == null)
@@ -117,6 +121,7 @@ public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 			return _cowMap.size(_key);
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		if (_key == null)
@@ -125,6 +130,7 @@ public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 			return (! _cowMap.containsKey(_key)) || (_cowMap.getDecoratee().get(_key).isEmpty());
 	}
 
+	@Override
 	public boolean contains(final Object o)
 	{
 		if (_key == null)
@@ -133,6 +139,7 @@ public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 			return _cowMap.containsValue(_key, o);
 	}
 
+	@Override
 	public Iterator<V> iterator()
 	{
 		if (_key == null)
@@ -141,49 +148,58 @@ public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 			return new Itr(_key);
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return getOriginalValueCollection().toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return getOriginalValueCollection().toArray(a);
 	}
 
+	@Override
 	public boolean add(final V key)
 	{
 		throw new UnsupportedOperationException("Cannot add to value set");
 	}
 
+	@Override
 	public boolean remove(final Object o)
 	{
 		_cowMap.copy();
 		return getOriginalValueCollection().remove(o);
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return getOriginalValueCollection().containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends V> c)
 	{
 		throw new UnsupportedOperationException("Cannot add to value set");
 	}
 
+	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		_cowMap.copy();
 		return getOriginalValueCollection().retainAll(c);
 	}
 
+	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		_cowMap.copy();
 		return getOriginalValueCollection().removeAll(c);
 	}
 
+	@Override
 	public void clear()
 	{
 		getOriginalValueCollection().clear();

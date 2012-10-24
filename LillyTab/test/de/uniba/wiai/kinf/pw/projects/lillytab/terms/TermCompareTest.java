@@ -22,6 +22,7 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,7 +54,7 @@ public class TermCompareTest
 	@Before
 	public void setUp()
 	{
-		_termFactory = new DLTermFactory<String, String, String>();
+		_termFactory = new  SimpleStringDLTermFactory();
 		_a0 = _termFactory.getDLClassReference(aClassName);
 		_a1 = _termFactory.getDLClassReference(aClassName);
 		_b0 = _termFactory.getDLClassReference(bClassName);

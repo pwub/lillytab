@@ -36,6 +36,9 @@ import java.util.TreeSet;
  * An implementation of subset blocking as it is sufficient for description
  * logics without inverse roles.
  *
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SubsetBlockingStrategy<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -52,6 +55,7 @@ public class SubsetBlockingStrategy<Name extends Comparable<? super Name>, Klass
 	 * we may not block ourselves.
 	 * </p>
 	 *
+	 * @param blocker 
 	 * @param target A potential blocker.
 	 * @return {@literal true} if {@literal target} is a potential blocking node for {@literal this} node.
 	 */
@@ -70,6 +74,7 @@ public class SubsetBlockingStrategy<Name extends Comparable<? super Name>, Klass
 			&& blocker.getTerms().containsAll(target.getTerms()));
 	}
 
+	@Override
 	public Set<NodeID> validateBlocks(IABoxNode<Name, Klass, Role> blocker)
 	{
 		final Set<NodeID> unblocked = new TreeSet<NodeID>();
@@ -100,7 +105,7 @@ public class SubsetBlockingStrategy<Name extends Comparable<? super Name>, Klass
 			/* stop if hit the current node */
 			if (targetNode.compareTo(testNode) <= 0)
 				break;
-			ABoxNode<Name, Klass, Role> blocker = (ABoxNode<Name, Klass, Role>) testNode;
+			IABoxNode<Name, Klass, Role> blocker = (ABoxNode<Name, Klass, Role>) testNode;
 			if (isPotentialBlocker(blocker, targetNode)) {
 				stateCache.setBlocker(targetNode.getNodeID(), blocker.getNodeID());
 				/* found blocker, stop */

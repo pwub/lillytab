@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author peterw
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class MultiMapUtilTest {
 	

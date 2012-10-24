@@ -24,7 +24,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Role> The role type.
+ * @param <Role> The type for properties (roles)
  */
 public interface IDLUnaryRoleOperator<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends IDLRoleOperator<Name, Klass, Role>

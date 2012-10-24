@@ -25,7 +25,7 @@ import java.util.Set;
 
 /**
  *
- * @param <Name> The name type for named individuals
+ * @param <Name> The type for nominals and values
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IDLIndividual<Name extends Comparable<Name>>

@@ -65,6 +65,11 @@ public class GenericCopyOnWriteMap<K, V, M extends Map<K, V>>
 	{
 		return _wasCopied;
 	}
+	
+	protected void resetWasCopied()
+	{
+		_wasCopied = false;
+	}
 
 	public boolean copy()
 	{
@@ -78,54 +83,64 @@ public class GenericCopyOnWriteMap<K, V, M extends Map<K, V>>
 			return false;
 	}
 
+	@Override
 	public M getDecoratee()
 	{
 		return _wrappedMap;
 	}
 
+	@Override
 	public int size()
 	{
 		return _wrappedMap.size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return _wrappedMap.isEmpty();
 	}
 
+	@Override
 	public boolean containsKey(final Object key)
 	{
 		return _wrappedMap.containsKey(key);
 	}
 
+	@Override
 	public boolean containsValue(final Object value)
 	{
 		return _wrappedMap.containsValue(value);
 	}
 
+	@Override
 	public V get(final Object key)
 	{
 		return _wrappedMap.get(key);
 	}
 
+	@Override
 	public V put(final K key, final V value)
 	{
 		copy();
 		return _wrappedMap.put(key, value);
 	}
 
+	@Override
 	public V remove(final Object key)
 	{
 		copy();
 		return _wrappedMap.remove(key);
 	}
 
+	@Override
 	public void putAll(final Map<? extends K, ? extends V> m)
 	{
 		copy();
 		_wrappedMap.putAll(m);
 	}
 
+	@Override
 	public void clear()
 	{
 		copy();
@@ -133,16 +148,19 @@ public class GenericCopyOnWriteMap<K, V, M extends Map<K, V>>
 		_wasCopied = true;
 	}
 
+	@Override
 	public Set<K> keySet()
 	{
 		return _keySet;
 	}
 
+	@Override
 	public Set<Entry<K, V>> entrySet()
 	{
 		return _entrySet;
 	}
 
+	@Override
 	public Collection<V> values()
 	{
 		return _valueCollection;

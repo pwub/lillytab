@@ -21,8 +21,6 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLThing;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLNothing;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
@@ -52,18 +50,25 @@ import java.util.WeakHashMap;
  * are not referenced elsewhere.
  * </p>
  *
- * @param <Name>
- * @param <Klass>
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLTermFactory<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends SoftItemCache<IDLTerm<Name, Klass, Role>>
 	implements IDLTermFactory<Name, Klass, Role>
 {
-	private final DLThing<Name, Klass, Role> _thing = new DLThing<Name, Klass, Role>();
-	private final DLNothing<Name, Klass, Role> _nothing = new DLNothing<Name, Klass, Role>();
-
+	private final IDLClassReference<Name, Klass, Role> _thing;
+	private final IDLClassReference<Name, Klass, Role> _nothing;	
+	
+	public DLTermFactory(final Klass thing, final Klass nothing)
+	{
+		_thing = updateCache(new DLClassReference<Name, Klass, Role>(thing));
+		_nothing = updateCache(new DLClassReference<Name, Klass, Role>(nothing));
+	}
+	
+	@Override
 	public IDLClassReference<Name, Klass, Role> getDLClassReference(final Klass klass)
 	{
 		IDLClassReference<Name, Klass, Role> klassRef = new DLClassReference<Name, Klass, Role>(klass);
@@ -71,64 +76,75 @@ public class DLTermFactory<Name extends Comparable<? super Name>, Klass extends 
 		return updateCache(klassRef);
 	}
 
+	@Override
 	public IDLNegation<Name, Klass, Role> getDLNegation(final IDLRestriction<Name, Klass, Role> d)
 	{
 		final IDLNegation<Name, Klass, Role> neg = new DLNegation<Name, Klass, Role>(d);
 		return updateCache(neg);
 	}
 
+	@Override
 	public IDLIntersection<Name, Klass, Role> getDLIntersection(final IDLRestriction<Name, Klass, Role> d0, final IDLRestriction<Name, Klass, Role> d1)
 	{
 		final IDLIntersection<Name, Klass, Role> and = new DLIntersection<Name, Klass, Role>(d0, d1);
 		return updateCache(and);
 	}
 
+	@Override
 	public IDLIntersection<Name, Klass, Role> getDLIntersection(final Collection<? extends IDLRestriction<Name, Klass, Role>> ds)
 	{
 		final IDLIntersection<Name, Klass, Role> and = new DLIntersection<Name, Klass, Role>(ds);
 		return updateCache(and);
 	}
 
+	@Override
 	public IDLUnion<Name, Klass, Role> getDLUnion(final IDLRestriction<Name, Klass, Role> d0, final IDLRestriction<Name, Klass, Role> d1)
 	{
 		final IDLUnion<Name, Klass, Role> or = new DLUnion<Name, Klass, Role>(d0, d1);
 		return updateCache(or);
 	}
 
+	@Override
 	public IDLUnion<Name, Klass, Role> getDLUnion(final Collection<? extends IDLRestriction<Name, Klass, Role>> ds)
 	{
 		final IDLUnion<Name, Klass, Role> or = new DLUnion<Name, Klass, Role>(ds);
 		return updateCache(or);
 	}
 
+	@Override
 	public IDLSomeRestriction<Name, Klass, Role> getDLSomeRestriction(final Role role, final IDLRestriction<Name, Klass, Role> d)
 	{
 		final IDLSomeRestriction<Name, Klass, Role> some = new DLSomeRestriction<Name, Klass, Role>(role, d);
 		return updateCache(some);
 	}
 
+	@Override
 	public IDLAllRestriction<Name, Klass, Role> getDLAllRestriction(final Role role, final IDLRestriction<Name, Klass, Role> d)
 	{
 		final IDLAllRestriction<Name, Klass, Role> all = new DLAllRestriction<Name, Klass, Role>(role, d);
 		return updateCache(all);
 	}
 
+	@Override
 	public IDLImplies<Name, Klass, Role> getDLImplies(final IDLRestriction<Name, Klass, Role> sub, final IDLRestriction<Name, Klass, Role> sup)
 	{
 		final IDLImplies<Name, Klass, Role> imp = new DLImplies<Name, Klass, Role>(sub, sup);
 		return updateCache(imp);
 	}
 
-	public IDLRestriction<Name, Klass, Role> getDLThing()
+	@Override
+	public IDLClassReference<Name, Klass, Role> getDLThing()
 	{
 		return _thing;
 	}
 
-	public IDLRestriction<Name, Klass, Role> getDLNothing()
+	@Override
+	public IDLClassReference<Name, Klass, Role> getDLNothing()
 	{
 		return _nothing;
 	}
 
+	@Override
 	public IDLNominalReference<Name, Klass, Role> getDLNominalReference(final Name individual)
 	{
 		final IDLNominalReference<Name, Klass, Role> nominalRef = new DLNominalReference<Name, Klass, Role>(individual);

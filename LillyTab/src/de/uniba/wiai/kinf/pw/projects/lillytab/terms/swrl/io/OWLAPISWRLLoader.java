@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.io;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.util.SWRLTermUtil;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
@@ -29,6 +30,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl.SWRLTermFactory;
 import java.util.*;
 import org.apache.commons.collections15.BidiMap;
 import org.apache.commons.collections15.bidimap.DualHashBidiMap;
+import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
 
 /**
@@ -44,7 +46,7 @@ public class OWLAPISWRLLoader {
 	public OWLAPISWRLLoader()
 	{
 		this(
-			new DLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>>(),
+			new OWLAPIDLTermFactory(OWLManager.getOWLDataFactory()),
 			new SWRLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>>());
 	}
 

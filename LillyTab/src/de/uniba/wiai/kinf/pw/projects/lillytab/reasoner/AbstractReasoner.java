@@ -33,9 +33,9 @@ import java.util.Collection;
 
 /**
  *
- * @param <Name>
- * @param <Klass> 
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class AbstractReasoner<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -59,23 +59,14 @@ public abstract class AbstractReasoner<Name extends Comparable<? super Name>, Kl
 	public boolean isConsistent(final IABox<Name, Klass, Role> abox, final IDLRestriction<Name, Klass, Role> concept)
 		throws EReasonerException, EInconsistencyException
 	{
-		assert isConsistent(abox);
-		try {
-			checkConsistency(abox, concept, true);
-		} catch (EInconsistentABoxException ex) {
-			return true;
-		}
-		return false;
+		final Collection<? extends IReasonerResult<Name, Klass, Role>> results = checkConsistency(abox, concept, true);
+		return !results.isEmpty();
 	}
 
 	public boolean isConsistent(final IABox<Name, Klass, Role> abox)
 		throws EReasonerException, EInconsistencyException
 	{
-		try {
-			checkConsistency(abox, true);
-		} catch (EInconsistentABoxException ex) {
-			return false;
-		}
-		return true;
+		final Collection<? extends IReasonerResult<Name, Klass, Role>> results = checkConsistency(abox, true);
+		return !results.isEmpty();
 	}
 }

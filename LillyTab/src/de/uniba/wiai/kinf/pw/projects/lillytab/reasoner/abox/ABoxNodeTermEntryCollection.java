@@ -30,6 +30,9 @@ import java.util.Iterator;
 
 /**
  *
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
@@ -38,24 +41,27 @@ public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, 
 
 	private final IABoxNode<Name, Klass, Role> _node;
 
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
 	class Itr
 		implements Iterator<TermEntry<Name, Klass, Role>> {
 
 		private final Iterator<IDLTerm<Name, Klass, Role>> _baseIter;
 
 
-		public Itr()
+		Itr()
 		{
 			_baseIter = _node.getTerms().iterator();
 		}
 
 
+		@Override
 		public boolean hasNext()
 		{
 			return _baseIter.hasNext();
 		}
 
 
+		@Override
 		public TermEntry<Name, Klass, Role> next()
 		{
 			final IDLTerm<Name, Klass, Role> term = _baseIter.next();
@@ -64,12 +70,13 @@ public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, 
 		}
 
 
+		@Override
 		public void remove()
 		{
 			_baseIter.remove();
 		}
 	}
-
+	/// </editor-fold>
 
 	public ABoxNodeTermEntryCollection(final IABoxNode<Name, Klass, Role> node)
 	{

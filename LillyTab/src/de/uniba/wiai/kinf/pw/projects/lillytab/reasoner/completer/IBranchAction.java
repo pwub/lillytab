@@ -22,6 +22,7 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
@@ -75,6 +76,6 @@ public interface IBranchAction<Name extends Comparable<? super Name>, Klass exte
 	 * @return The {@link NodeMergeInfo} created during the commit.
 	 */
 	NodeMergeInfo<Name, Klass, Role> commit(Branch<Name, Klass, Role> branch)
-		throws EInconsistentABoxException;
+		throws ENodeMergeException;
 
 }

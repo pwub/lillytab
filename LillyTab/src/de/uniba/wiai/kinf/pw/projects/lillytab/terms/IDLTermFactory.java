@@ -26,13 +26,13 @@ import java.util.Collection;
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Klass> Type of referenced DL classes
- * @param <Role> Type of referenced DL roles.
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  */
 public interface IDLTermFactory<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> {
 	IDLClassReference<Name, Klass, Role> getDLClassReference(Klass klass);
-	IDLRestriction<Name, Klass, Role> getDLThing();
-	IDLRestriction<Name, Klass, Role> getDLNothing();
+	IDLClassReference<Name, Klass, Role>getDLThing();
+	IDLClassReference<Name, Klass, Role> getDLNothing();
 
 	IDLNegation<Name, Klass, Role> getDLNegation(IDLRestriction<Name, Klass, Role> d);
 	IDLIntersection<Name, Klass, Role> getDLIntersection(IDLRestriction<Name, Klass, Role> d0, IDLRestriction<Name, Klass, Role> d1);

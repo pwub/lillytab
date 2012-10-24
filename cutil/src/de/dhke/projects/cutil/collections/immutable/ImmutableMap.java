@@ -30,7 +30,7 @@ import org.apache.commons.collections15.Transformer;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class ImmutableMap <K, V>
 	implements Map<K, V>, IDecorator<Map<K, V>>

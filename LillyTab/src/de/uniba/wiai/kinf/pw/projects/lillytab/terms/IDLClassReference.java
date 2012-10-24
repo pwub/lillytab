@@ -29,7 +29,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * </p>
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <Klass> The type of the referenced element
+ * @param <Klass> The type for DL classes
  */
 public interface IDLClassReference<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends IDLObjectRestriction<Name, Klass, Role>, IDLElementReference<Klass>, IAtom

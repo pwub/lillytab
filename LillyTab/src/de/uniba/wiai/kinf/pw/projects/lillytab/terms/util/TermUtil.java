@@ -22,8 +22,6 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.util;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLNothing;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLThing;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
@@ -52,7 +50,7 @@ public class TermUtil
 	private TermUtil()
 	{
 	}
-	
+
 	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Set<IDLTerm<Name, Klass, Role>> unfoldIntersections(
 		final IDLTerm<Name, Klass, Role> sourceDesc, final IDLTermFactory<Name, Klass, Role> termFactory)
 	{
@@ -64,7 +62,7 @@ public class TermUtil
 			targetSet.add(sourceDesc);
 		return targetSet;
 	}
-	
+
 	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Set<IDLTerm<Name, Klass, Role>> unfoldIntersections(
 		final Set<IDLTerm<Name, Klass, Role>> sourceSet, final IDLTermFactory<Name, Klass, Role> termFactory)
 	{
@@ -82,9 +80,9 @@ public class TermUtil
 	 * required, use {@link #toNNF(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction, de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory) ).
 	 * </p><p>
 	 *
-	 * @param <Name> The name type of the description
-	 * @param <Klass> The concept type of the description
-	 * @param <Role> The role type of the description
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param desc The {@link IDLClassExpression} to simplify
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
 	 * @return A term representing a simplified version of the input term.
@@ -94,12 +92,12 @@ public class TermUtil
 	{
 		if (desc instanceof IDLImplies) {
 			IDLImplies<Name, Klass, Role> implies = (IDLImplies<Name, Klass, Role>) desc;
-			if (implies.getSubDescription() instanceof DLThing)
+			if (implies.getSubDescription().equals(termFactory.getDLThing()))
 				/*
 				 * (simp (implies _Thing_ A)) => (simp A)
 				 */
 				return simplify(implies.getSuperDescription(), termFactory);
-			else if (implies.getSubDescription() instanceof DLNothing)
+			else if (implies.getSubDescription().equals(termFactory.getDLNothing()))
 				/*
 				 * (simp (implies _Nothing_ A)) => _Thing_
 				 */
@@ -116,13 +114,13 @@ public class TermUtil
 				final IDLUnion<Name, Klass, Role> subUnion = (IDLUnion<Name, Klass, Role>) implies.getSubDescription();
 				final IDLRestriction<Name, Klass, Role> supTerm = simplify(implies.getSuperDescription(), termFactory);
 				final Set<IDLRestriction<Name, Klass, Role>> newTerms = new HashSet<IDLRestriction<Name, Klass, Role>>();
-				for (IDLRestriction<Name, Klass, Role> subTerm : subUnion) {					
+				for (IDLRestriction<Name, Klass, Role> subTerm : subUnion) {
 					final IDLRestriction<Name, Klass, Role> newTerm =
 						simplify(termFactory.getDLImplies(
 						simplify(subTerm, termFactory), supTerm), termFactory);
 					newTerms.add(newTerm);
 				}
-				return simplify(termFactory.getDLIntersection(newTerms), termFactory);				
+				return simplify(termFactory.getDLIntersection(newTerms), termFactory);
 			} else
 				/*
 				 * (simp (implies A B)) => (implies (simp A) (simp B)))
@@ -143,7 +141,7 @@ public class TermUtil
 						 * (or (and (A (and B C))) => (or (simp A) (simp B) (simp C))
 						 */
 						subTerms.addAll(((IDLUnion<Name, Klass, Role>) simplifiedSubTerm));
-					else if (!(simplifiedSubTerm instanceof DLNothing))
+					else if (!(simplifiedSubTerm.equals(termFactory.getDLNothing())))
 						subTerms.add(simplifiedSubTerm);
 				}
 			}
@@ -161,7 +159,7 @@ public class TermUtil
 						 * (simp (and (A (and B C))) => (and (simp A) (simp B) (simp C))
 						 */
 						subTerms.addAll(((IDLIntersection<Name, Klass, Role>) simplifiedSubTerm));
-					else if (!(simplifiedSubTerm instanceof DLThing))
+					else if (!(simplifiedSubTerm.equals(termFactory.getDLThing())))
 						subTerms.add(simplifiedSubTerm);
 				}
 			}
@@ -201,9 +199,9 @@ public class TermUtil
 
 	/**
 	 *
-	 * @param <Name> The name type of the description
-	 * @param <Klass> The concept type of the description
-	 * @param <Role> The role type of the description
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param ds A list of terms
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
 	 * @return A list of terms with negations of all input terms.
@@ -219,9 +217,9 @@ public class TermUtil
 	}
 
 	/**
-	 * @param <Name> The name type of the description
-	 * @param <Klass> The concept type of the description
-	 * @param <Role> The role type of the description
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param ds A list of terms.
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
 	 * @return A list of terms where in Negation Normal Form.
@@ -240,9 +238,9 @@ public class TermUtil
 	/**
 	 * Transform an input term into negation normal form (NNF).
 	 *
-	 * @param <Name> The name type of the description
-	 * @param <Klass> The concept type of the description
-	 * @param <Role> The role type of the description
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param desc A term
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
 	 * @return A transformation of the input term into Negation Normal Form.
@@ -252,7 +250,7 @@ public class TermUtil
 		IDLRestriction<Name, Klass, Role> desc, final IDLTermFactory<Name, Klass, Role> termFactory)
 	{
 		desc = simplify(desc, termFactory);
-		
+
 		IDLRestriction<Name, Klass, Role> returnValue = null;
 		if (desc instanceof IAtom)
 			/*
@@ -275,12 +273,12 @@ public class TermUtil
 				 * for negations of atoms, simply return the original term
 				 */
 				return neg;
-			else if (neg.getTerm() instanceof DLThing)
+			else if (neg.getTerm().equals(termFactory.getDLThing()))
 				/*
 				 * special case: not Thing => Nothing
 				 */
 				return termFactory.getDLNothing();
-			else if (neg.getTerm() instanceof DLNothing)
+			else if (neg.getTerm().equals(termFactory.getDLNothing()))
 				/*
 				 * special case: not Nothing => Thing
 				 */
@@ -305,28 +303,27 @@ public class TermUtil
 				/*
 				 * some restrictions: (not (some r A)) => (only r (not A))
 				 */
-				IDLSomeRestriction some = (IDLSomeRestriction<Name, Klass, Role>) neg.getTerm();
+				final IDLSomeRestriction<Name, Klass, Role> some = (IDLSomeRestriction<Name, Klass, Role>) neg.getTerm();
 				/*
 				 * we could cast above, but this is less restrictive, as it actually allows for different role types
 				 */
-				@SuppressWarnings("unchecked")
-				IDLAllRestriction<Name, Klass, Role> all = termFactory.getDLAllRestriction((Role) some.getRole(), toNNF(
-					termFactory.getDLNegation((IDLRestriction<Name, Klass, Role>) some.getTerm()), termFactory));
+				IDLAllRestriction<Name, Klass, Role> all = termFactory.getDLAllRestriction(some.getRole(), toNNF(
+					termFactory.getDLNegation(some.getTerm()), termFactory));
 				returnValue = all;
 			} else if (neg.getTerm() instanceof IDLAllRestriction) {
 				/*
 				 * all restrictions: (not (only r A)) => (some r (not * A))
 				 */
-				IDLAllRestriction all = (IDLAllRestriction<Name, Klass, Role>) neg.getTerm();
+				final IDLAllRestriction<Name, Klass, Role> all = (IDLAllRestriction<Name, Klass, Role>) neg.getTerm();
 				/**
 				 * we could include <Role> in the cast above, but this is less restrictive, as it actually allows for
 				 * different role types
 				 *
 				 */
 				@SuppressWarnings("unchecked")
-				IDLSomeRestriction<Name, Klass, Role> some = termFactory.getDLSomeRestriction((Role) all.getRole(),
+				IDLSomeRestriction<Name, Klass, Role> some = termFactory.getDLSomeRestriction(all.getRole(),
 																							  toNNF(
-					termFactory.getDLNegation((IDLRestriction<Name, Klass, Role>) all.getTerm()), termFactory));
+					termFactory.getDLNegation(all.getTerm()), termFactory));
 				returnValue = some;
 			} else if (neg.getTerm() instanceof IDLImplies) {
 				/*
@@ -368,18 +365,19 @@ public class TermUtil
 			return desc;
 		} else
 			throw new IllegalArgumentException("Unsupported term type: " + desc.getClass());
-		
+
 		return returnValue;
 	}
 
 	/**
 	 * <p> Do a syntactic check if {@literal desc1} and {@literal desc2} are negations of each other. </p><p>
-	 * {@literal true} is returned if {@literal desc1} is a negation of {@literal desc2}. A return value of {@literal false}
-	 * does not mean, that the terms are not contradictory, just that it could not be verified syntactically. </p>
+	 * {@literal true} is returned if {@literal desc1} is a negation of {@literal desc2}. A return value of
+	 * {@literal false} does not mean, that the terms are not contradictory, just that it could not be verified
+	 * syntactically. </p>
 	 *
-	 * @param <Name>
-	 * @param <Klass>
-	 * @param <Role>
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param desc1
 	 * @param desc2
 	 * @param termFactory
@@ -436,16 +434,16 @@ public class TermUtil
 	{
 		if (presumedSub.equals(presumedSuper))
 			return true;
-		
+
 		final IDLRestriction<Name, Klass, Role> subNNF = simplify(presumedSub, termFactory);
 		final IDLRestriction<Name, Klass, Role> superNNF = simplify(presumedSuper, termFactory);
-		
+
 		if (subNNF instanceof IDLUnion) {
 			final IDLUnion<Name, Klass, Role> subUnion = (IDLUnion<Name, Klass, Role>) presumedSub;
 			if (subUnion.contains(superNNF))
 				return true;
 		}
-		
+
 		if (superNNF instanceof IDLIntersection) {
 			final IDLIntersection<Name, Klass, Role> superIntersection = (IDLIntersection<Name, Klass, Role>) superNNF;
 			if (superIntersection.contains(presumedSub))
@@ -465,8 +463,8 @@ public class TermUtil
 
 	/**
 	 * <p> Compare two term lists by comparing their subterms in order. </p><p> The comparison of the first non-equal
-	 * subterm decides. If the first
-	 * {@literal min(tl0.size(), tl1.size())} of both term lists are equal, the term length is used to decide. </p>
+	 * subterm decides. If the first {@literal min(tl0.size(), tl1.size())} of both term lists are equal, the term
+	 * length is used to decide. </p>
 	 *
 	 * @param <Term> The subterm type, must derive from {@link IDLTerm}.
 	 * @param tl0 The first term list
@@ -489,7 +487,7 @@ public class TermUtil
 		 */
 		if (compare == 0)
 			compare = tl1.size() - tl0.size();
-		
+
 		if (compare < 0)
 			return -1;
 		else if (compare > 0)
@@ -501,16 +499,16 @@ public class TermUtil
 	/**
 	 * Create a union of the specified subterms. If there is only one subterm, return it directly.
 	 *
-	 * @param <Name>
-	 * @param <Klass>
-	 * @param <Role>
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param subTerms List of subterms for the new term.
 	 * @param termFactory
 	 * @return
 	 */
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>  IDLRestriction<Name, Klass, Role> joinToUnion(
+	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> IDLRestriction<Name, Klass, Role> joinToUnion(
 		final Collection<IDLRestriction<Name, Klass, Role>> subTerms,
-																																														final IDLTermFactory<Name, Klass, Role> termFactory)
+		final IDLTermFactory<Name, Klass, Role> termFactory)
 	{
 		if (subTerms.size() > 1)
 			return termFactory.getDLUnion(subTerms);
@@ -521,16 +519,16 @@ public class TermUtil
 	/**
 	 * Create an intersection of the specified subterms. If there is only one subterm, return it directly.
 	 *
-	 * @param <Name>
-	 * @param <Klass>
-	 * @param <Role>
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param subTerms List of subterms for the new term.
 	 * @param termFactory
 	 * @return
 	 */
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>  IDLRestriction<Name, Klass, Role> joinToIntersection(
+	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> IDLRestriction<Name, Klass, Role> joinToIntersection(
 		final Collection<IDLRestriction<Name, Klass, Role>> subTerms,
-																																															   final IDLTermFactory<Name, Klass, Role> termFactory)
+		final IDLTermFactory<Name, Klass, Role> termFactory)
 	{
 		if (subTerms.size() == 1)
 			return subTerms.iterator().next();
@@ -547,22 +545,21 @@ public class TermUtil
 				return termFactory.getDLIntersection(terms);
 			} else
 				return terms.get(0);
-		}		
+		}
 	}
 
 	/**
-	 * Create an intersection of two terms, possible folding
-	 * multiple layers of intersections.
+	 * Create an intersection of two terms, possible folding multiple layers of intersections.
 	 *
-	 * @param <Name>
-	 * @param <Klass>
-	 * @param <Role>
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param first First term
 	 * @param second Second term
 	 * @param termFactory
 	 * @return
 	 */
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>  IDLRestriction<Name, Klass, Role> joinToIntersection(
+	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> IDLRestriction<Name, Klass, Role> joinToIntersection(
 		final IDLRestriction<Name, Klass, Role> first,
 		final IDLRestriction<Name, Klass, Role> second,
 		final IDLTermFactory<Name, Klass, Role> termFactory)
@@ -573,20 +570,20 @@ public class TermUtil
 		list.trimToSize();
 		return joinToIntersection(list, termFactory);
 	}
-	
+
 	/**
 	 * Collect all subterms of a certain type
-	 * 
-	 * @param <Name>
-	 * @param <Klass>
-	 * @param <Role>
+	 *
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param <Term> The type of the term to extract
 	 * @param targetTerm The target term to extract from
 	 * @param termType The class/type of the terms to extract
 	 * @param targetSet The set to add results to.
 	 */
 	@SuppressWarnings("unchecked")
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>, Term extends IDLTerm<Name, Klass, Role>>  void collectSubTerms(
+	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>, Term extends IDLTerm<Name, Klass, Role>> void collectSubTerms(
 		final IDLTerm<Name, Klass, Role> targetTerm, final Class<Term> termType, final Set targetSet)
 	{
 		if (termType.isInstance(targetTerm))
@@ -598,18 +595,18 @@ public class TermUtil
 			}
 		}
 	}
-	
+
 	/**
 	 * Collect all subterms of a certain type
-	 * 
-	 * @param <Name>
-	 * @param <Klass>
-	 * @param <Role>
+	 *
+	 * @param <Name> The type for nominals and values
+	 * @param <Klass> The type for DL classes
+	 * @param <Role> The type for properties (roles)
 	 * @param <Term> The type of the term to extract
 	 * @param targetTerm The target term to extract from
 	 * @param termType The class/type of the terms to extract
 	 */
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>, Term extends IDLTerm<Name, Klass, Role>>  Set<Term> collectSubTerms(
+	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>, Term extends IDLTerm<Name, Klass, Role>> Set<Term> collectSubTerms(
 		final IDLTerm<Name, Klass, Role> targetTerm, final Class<Term> termType)
 	{
 		final Set<Term> targetTerms = new HashSet<Term>();

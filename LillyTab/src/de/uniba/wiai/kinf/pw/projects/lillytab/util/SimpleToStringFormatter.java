@@ -19,14 +19,26 @@
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
+package de.uniba.wiai.kinf.pw.projects.lillytab.util;
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IToStringFormatter
+public class SimpleToStringFormatter
+	implements IToStringFormatter
 {
-	String toString(final Object obj);
-	void append(final StringBuilder sb, final Object obj);
+
+	@Override
+	public String toString(Object obj)
+	{
+		return obj.toString();
+	}
+
+	@Override
+	public void append(StringBuilder sb, Object obj)
+	{
+		sb.append(obj);
+	}
+
 }

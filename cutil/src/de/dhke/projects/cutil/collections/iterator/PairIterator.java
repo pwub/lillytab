@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class PairIterator<First, Second>
 	implements Iterator<Pair<First, Second>>

@@ -29,9 +29,9 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
  * Helper class to contain information about newly creation branches.
  * </p>
  *
- * @param <Name>
- * @param <Klass>
- * @param <Role>
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class BranchCreationInfo<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>

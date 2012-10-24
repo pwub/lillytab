@@ -25,7 +25,7 @@ import java.util.Iterator;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public final class FrozenIterator<T>
 	implements Iterator<T>

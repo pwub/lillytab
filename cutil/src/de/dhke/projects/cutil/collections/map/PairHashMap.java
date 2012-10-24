@@ -26,7 +26,7 @@ import java.util.HashMap;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class PairHashMap<First, Second, Tag>
 	extends PairMap<First, Second, Tag>

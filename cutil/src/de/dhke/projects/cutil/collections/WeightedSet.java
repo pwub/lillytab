@@ -30,7 +30,7 @@ import org.apache.commons.collections15.map.HashedMap;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class WeightedSet<K>
 	implements Map<K, Double>
