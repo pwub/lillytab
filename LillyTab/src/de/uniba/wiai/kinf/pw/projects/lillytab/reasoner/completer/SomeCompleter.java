@@ -19,7 +19,6 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
@@ -28,10 +27,7 @@ import de.dhke.projects.cutil.collections.tree.IDecisionTree;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EIncompatibleNodeTypeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EInconsistentABoxNodeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
@@ -42,14 +38,18 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
 import java.util.Set;
 
+
 /**
  *
+ * @param <Name> The type for nominals and values
+ * @param <Klass> The type for DL classes
+ * @param <Role> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends AbstractGeneratingCompleter<Name, Klass, Role>
-	implements ICompleter<Name, Klass, Role> {
-
+	implements ICompleter<Name, Klass, Role>
+{
 	public SomeCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker,
 						 final IBlockingStrategy<Name, Klass, Role> blockingStrategy,
 						 final boolean trace)
@@ -57,13 +57,11 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 		super(cChecker, blockingStrategy, trace);
 	}
 
-
 	public SomeCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker,
 						 final IBlockingStrategy<Name, Klass, Role> blockingStrategy)
 	{
 		this(cChecker, blockingStrategy, false);
 	}
-
 
 	private ReasonerContinuationState completeFunctionalRole(
 		final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode,
@@ -114,7 +112,6 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 		else
 			return ReasonerContinuationState.CONTINUE;
 	}
-
 
 	/**
 	 *
@@ -212,7 +209,7 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 		return ReasonerContinuationState.CONTINUE;
 	}
 
-
+	@Override
 	public ReasonerContinuationState completeNode(IABoxNode<Name, Klass, Role> node,
 												  IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode)
 		throws EReasonerException

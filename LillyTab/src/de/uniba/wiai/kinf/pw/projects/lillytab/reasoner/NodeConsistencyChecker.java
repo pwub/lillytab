@@ -37,10 +37,10 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datatype.IDLDatatypeExpression;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+
 
 /**
  *
@@ -51,25 +51,22 @@ import java.util.SortedSet;
  */
 public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends LoggingClass
-	implements INodeConsistencyChecker<Name, Klass, Role> {
+	implements INodeConsistencyChecker<Name, Klass, Role>
+{
 	/*
 	 * perform tracing
 	 */
-
 	private final boolean _trace;
-
 
 	public NodeConsistencyChecker(final boolean trace)
 	{
 		_trace = false;
 	}
 
-
 	public NodeConsistencyChecker()
 	{
 		this(false);
 	}
-
 
 	private Set<TermEntry<Name, Klass, Role>> makeTermEntryPairSet(
 		final TermEntryFactory<Name, Klass, Role> factory,
@@ -82,7 +79,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return new FrozenSet<TermEntry<Name, Klass, Role>>(set);
 	}
 
-
 	private boolean hasAtMostNSuccessors(final IRABox<Name, Klass, Role> raBox, final Role role, final int n)
 	{
 		int i = n;
@@ -93,7 +89,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		}
 		return true;
 	}
-
 
 	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
 		final IDLTermFactory<Name, Klass, Role> termFactory,
@@ -111,15 +106,18 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 			if (term instanceof IDLRestriction) {
 				final IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
 				final IDLRestriction<Name, Klass, Role> negDesc = termFactory.getDLNegation(desc);
-				if (descs.contains(negDesc))
+				if (descs.contains(negDesc)) {
 					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
-				if ((extraDescs != null) && extraDescs.contains(negDesc))
+					return clashTermSets;
+				}
+				if ((extraDescs != null) && extraDescs.contains(negDesc)) {
 					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
+					return clashTermSets;
+				}
 			}
 		}
 		return clashTermSets;
 	}
-
 
 	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentExtraTermEntries(
 		final IDLTermFactory<Name, Klass, Role> termFactory,
@@ -138,15 +136,18 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 			if (term instanceof IDLRestriction) {
 				final IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
 				final IDLRestriction<Name, Klass, Role> negDesc = termFactory.getDLNegation(desc);
-				if (descs.contains(negDesc))
+				if (descs.contains(negDesc)) {
 					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
-				if ((extraDescs != null) && extraDescs.contains(negDesc))
+					return clashTermSets;
+				}
+				if ((extraDescs != null) && extraDescs.contains(negDesc)) {
 					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, null, desc, negDesc));
+					return clashTermSets;
+				}
 			}
 		}
 		return clashTermSets;
 	}
-
 
 	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
 		final IABox<Name, Klass, Role> abox,
@@ -158,14 +159,12 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return getInconsistentTermEntries(termFactory, termEntryFactory, abox.getTBox(), node, extraDescs);
 	}
 
-
 	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
 		final IABoxNode<Name, Klass, Role> node,
 		final Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
 		return getInconsistentTermEntries(node.getABox(), node, extraDescs);
 	}
-
 
 	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentTermEntries(
 		final IDLTermFactory<Name, Klass, Role> termFactory,
@@ -177,13 +176,17 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		final Set<Set<TermEntry<Name, Klass, Role>>> clashTermSets = new Flat3Set<Set<TermEntry<Name, Klass, Role>>>();
 		final Collection<Iterable<? extends IDLTerm<Name, Klass, Role>>> termColl = new ArrayList<Iterable<? extends IDLTerm<Name, Klass, Role>>>();
 
-		if (node.getTerms().contains(termFactory.getDLNothing()))
+		if (node.getTerms().contains(termFactory.getDLNothing())) {
 			clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), termFactory.getDLNothing(),
 												   termFactory.getDLThing()));
+			return clashTermSets;
+		}
 
-		if ((extraDescs != null) && extraDescs.contains(termFactory.getDLNothing()))
+		if ((extraDescs != null) && extraDescs.contains(termFactory.getDLNothing())) {
 			clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), termFactory.getDLNothing(),
 												   termFactory.getDLThing()));
+			return clashTermSets;
+		}
 
 		termColl.add(node.getTerms());
 		/* XXX - test, if it is more efficient to collect all unfoldings into a set */
@@ -208,7 +211,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return clashTermSets;
 	}
 
-
 	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentExtraTermEntries(
 		final IABox<Name, Klass, Role> abox,
 		final IABoxNode<Name, Klass, Role> node,
@@ -217,7 +219,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return getInconsistentExtraTermEntries(abox.getDLTermFactory(), abox.getTermEntryFactory(), abox.getTBox(), node,
 											   extraDescs);
 	}
-
 
 	public Set<Set<TermEntry<Name, Klass, Role>>> getInconsistentExtraTermEntries(
 		final IDLTermFactory<Name, Klass, Role> termFactory,
@@ -230,13 +231,17 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		final Collection<Iterable<? extends IDLTerm<Name, Klass, Role>>> termColl = new ArrayList<Iterable<? extends IDLTerm<Name, Klass, Role>>>();
 		/* XXX - test, if it is more efficient to collect all unfoldings into a set */
 		if (extraDescs != null) {
-			if (extraDescs.contains(termFactory.getDLNothing()))
+			if (extraDescs.contains(termFactory.getDLNothing())) {
 				clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), termFactory.getDLNothing(),
 													   termFactory.getDLThing()));
+				return clashTermSets;
+			}
 
 			for (IDLTerm<Name, Klass, Role> desc : extraDescs) {
-				if (desc instanceof IDLRestriction)
+				if (desc instanceof IDLRestriction) {
 					termColl.add(tbox.getUnfolding((IDLRestriction<Name, Klass, Role>) desc));
+					return clashTermSets;
+				}
 			}
 		}
 		final SortedSet<IDLTerm<Name, Klass, Role>> nodeNegations = node.getTerms().subSet(DLTermOrder.DL_NEGATION);
@@ -245,15 +250,18 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 			if (term instanceof IDLRestriction) {
 				final IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
 				final IDLRestriction<Name, Klass, Role> negDesc = termFactory.getDLNegation(desc);
-				if (nodeNegations.contains(negDesc))
+				if (nodeNegations.contains(negDesc)) {
 					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), desc, negDesc));
-				if ((extraDescs != null) && extraDescs.contains(negDesc))
+					return clashTermSets;
+				}
+				if ((extraDescs != null) && extraDescs.contains(negDesc)) {
 					clashTermSets.add(makeTermEntryPairSet(termEntryFactory, node.getNodeID(), desc, negDesc));
+					return clashTermSets;
+				}
 			}
 		}
 		return clashTermSets;
 	}
-
 
 	private ConsistencyInfo<Name, Klass, Role> isProperDatatypeNode(final IABoxNode<Name, Klass, Role> node)
 	{
@@ -294,7 +302,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return cInfo;
 	}
 
-
 	@SuppressWarnings("unchecked")
 	public ConsistencyInfo<Name, Klass, Role> isLinkConsistent(final IABoxNode<Name, Klass, Role> node)
 	{
@@ -315,7 +322,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return cInfo;
 	}
 
-
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABox<Name, Klass, Role> abox,
 														   IABoxNode<Name, Klass, Role> node)
@@ -323,13 +329,11 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return isConsistent(abox, node, null);
 	}
 
-
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABoxNode<Name, Klass, Role> node)
 	{
 		return isConsistent(node.getABox(), node);
 	}
-
 
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABox<Name, Klass, Role> abox,
@@ -338,7 +342,7 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 	{
 		final ConsistencyInfo<Name, Klass, Role> cInfo = new ConsistencyInfo<Name, Klass, Role>();
 		final Set<Set<TermEntry<Name, Klass, Role>>> inconsistent = getInconsistentTermEntries(abox, node, extraDescs);
-		if (! inconsistent.isEmpty()) {
+		if (!inconsistent.isEmpty()) {
 			cInfo.addCulpritEntries(node, inconsistent);
 			cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);;
 		}
@@ -352,7 +356,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		cInfo.updateFrom(isLinkConsistent(node));
 		return cInfo;
 	}
-
 
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isExtraConsistent(IABox<Name, Klass, Role> abox,
@@ -374,14 +377,12 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return cInfo;
 	}
 
-
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isExtraConsistent(IABoxNode<Name, Klass, Role> node,
 																Collection<? extends IDLTerm<Name, Klass, Role>> extraDescs)
 	{
 		return isExtraConsistent(null, node, extraDescs);
 	}
-
 
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isConsistent(IABoxNode<Name, Klass, Role> node,
@@ -390,7 +391,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return isConsistent(node.getABox(), node, extraDescs);
 	}
 
-
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isConsistent(IDLTermFactory<Name, Klass, Role> termFactory,
 														   TermEntryFactory<Name, Klass, Role> termEntryFactory,
@@ -398,7 +398,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 	{
 		return isConsistent(termFactory, termEntryFactory, descs, null);
 	}
-
 
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isConsistent(IDLTermFactory<Name, Klass, Role> termFactory,
@@ -416,7 +415,6 @@ public class NodeConsistencyChecker<Name extends Comparable<? super Name>, Klass
 		return cInfo;
 
 	}
-
 
 	@Override
 	public ConsistencyInfo<Name, Klass, Role> isExtraConsistent(IDLTermFactory<Name, Klass, Role> termFactory,

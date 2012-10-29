@@ -21,7 +21,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
 import de.dhke.projects.cutil.collections.aspect.ICollectionListener;
 import de.dhke.projects.cutil.collections.immutable.IImmutable;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.TBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.TBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import java.util.Collection;
 import java.util.List;
@@ -268,17 +268,17 @@ public interface IABox<Name extends Comparable<? super Name>, Klass extends Comp
 	IABox<Name, Klass, Role> getImmutable();
 
 
-	/**
-	 * <p> Retrieve the list of unfold listeners. </p><p> {@link IUnfoldListener}s are informed, whenever a node's
-	 * concept set is changed in result to an unfold (see {@link #addUnfoldedDescription(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression)
-	 * }
-	 * operation. </p><p> Note, that callers should take care when modifying the listener list, because the list also
-	 * may also contain internal listeners. In particular, it is not safe to assume that the list is initially empty.
-	 * </p>
-	 *
-	 * @return The modifiable list of {@link IUnfoldListener}s.
-	 */
-	List<IUnfoldListener<Name, Klass, Role>> getUnfoldListeners();
+//	/**
+//	 * <p> Retrieve the list of unfold listeners. </p><p> {@link IUnfoldListener}s are informed, whenever a node's
+//	 * concept set is changed in result to an unfold (see {@link #addUnfoldedDescription(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression)
+//	 * }
+//	 * operation. </p><p> Note, that callers should take care when modifying the listener list, because the list also
+//	 * may also contain internal listeners. In particular, it is not safe to assume that the list is initially empty.
+//	 * </p>
+//	 *
+//	 * @return The modifiable list of {@link IUnfoldListener}s.
+//	 */
+//	List<IUnfoldListener<Name, Klass, Role>> getUnfoldListeners();
 
 
 	/**
@@ -301,4 +301,14 @@ public interface IABox<Name extends Comparable<? super Name>, Klass extends Comp
 	 *
 	 */
 	boolean containsAllTermEntries(final Collection<TermEntry<Name, Klass, Role>> entries);
+	
+	/**
+	 * Perform lazy unfolding for all terms (for all nodes)
+	 * contained in the current ABox.
+	 * 
+	 * @throws ENodeMergeException 
+	 **/
+	public void unfoldAll() 
+		throws ENodeMergeException;
+	
 }

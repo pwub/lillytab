@@ -101,8 +101,8 @@ public class SubsetBlockingStrategy<Name extends Comparable<? super Name>, Klass
 		assert abox != null;
 		final IBlockingStateCache stateCache = abox.getBlockingStateCache();
 		/* search for potential blockers */
-		for (IABoxNode<Name, Klass, Role> testNode : abox) {
-			/* stop if hit the current node */
+		for (IABoxNode<Name, Klass, Role> testNode : abox.headSet(targetNode)) {
+			/* stop if we hit the current node */
 			if (targetNode.compareTo(testNode) <= 0)
 				break;
 			IABoxNode<Name, Klass, Role> blocker = (ABoxNode<Name, Klass, Role>) testNode;

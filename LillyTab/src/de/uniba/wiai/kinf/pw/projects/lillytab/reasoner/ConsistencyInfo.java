@@ -111,8 +111,8 @@ public final class ConsistencyInfo<Name extends Comparable<? super Name>, Klass 
 		for (IDLTerm<Name, Klass, Role> culprit : culprits) {
 			TermEntry<Name, Klass, Role> culpritEntry = termEntryFactory.getEntry(node, culprit);
 			final Set<TermEntry<Name, Klass, Role>> altSet = new Flat3Set<TermEntry<Name, Klass, Role>>();
-			while (culpritEntry != null) {
-				altSet.add(culpritEntry);
+			/* if we still have another culprit and if it is not part of the set of alternative culprits, yet */
+			while ((depMap != null) && (culpritEntry != null) && altSet.add(culpritEntry)) {
 				final Collection<TermEntry<Name, Klass, Role>> parentSet = depMap.getParents(culpritEntry);
 				/* if the culprit has only a single parent, it is an alternative */
 				if ((parentSet != null) && parentSet.isEmpty() || (parentSet.size() > 1))
@@ -140,8 +140,7 @@ public final class ConsistencyInfo<Name extends Comparable<? super Name>, Klass 
 			for (TermEntry<Name, Klass, Role> culpritEntry : culpritEntries) {
 				final Set<TermEntry<Name, Klass, Role>> altSet = new Flat3Set<TermEntry<Name, Klass, Role>>();
 				TermEntry<Name, Klass, Role> currentEntry = culpritEntry;
-				while ((depMap != null) && (currentEntry != null)) {
-					altSet.add(currentEntry);
+				while ((depMap != null) && (currentEntry != null) && altSet.add(currentEntry)) {
 					final Collection<TermEntry<Name, Klass, Role>> parentSet = depMap.getParents(currentEntry);
 					/* if the culprit has only a single parent, it is an alternative */
 					if ((parentSet == null) || parentSet.isEmpty() || (parentSet.size() > 1))

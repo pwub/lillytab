@@ -1,0 +1,8 @@
+syntax: glob
+
+lutil/build
+cutil/build
+LillyTab/build
+lutil/dist
+cutil/dist
+LillyTab/dist

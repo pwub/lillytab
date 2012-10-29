@@ -29,6 +29,8 @@ import de.dhke.projects.cutil.collections.immutable.ImmutableIterator;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
 
@@ -84,6 +86,49 @@ public class ImmutableTermSet<Name extends Comparable<? super Name>, Klass exten
 																	   Class<? extends T> klass)
 	{
 		return ImmutableIterator.decorate(getDecoratee().iterator(termType, klass));
+	}
+
+
+	@Override
+	public Comparator<? super IDLTerm<Name, Klass, Role>> comparator()
+	{
+		return getDecoratee().comparator();
+	}
+
+
+	@Override
+	public SortedSet<IDLTerm<Name, Klass, Role>> subSet(IDLTerm<Name, Klass, Role> fromElement,
+														IDLTerm<Name, Klass, Role> toElement)
+	{
+		return Collections.unmodifiableSortedSet(getDecoratee().subSet(fromElement, toElement));
+	}
+
+
+	@Override
+	public SortedSet<IDLTerm<Name, Klass, Role>> headSet(IDLTerm<Name, Klass, Role> toElement)
+	{
+		return Collections.unmodifiableSortedSet(getDecoratee().headSet(toElement));
+	}
+
+
+	@Override
+	public SortedSet<IDLTerm<Name, Klass, Role>> tailSet(IDLTerm<Name, Klass, Role> fromElement)
+	{
+		return Collections.unmodifiableSortedSet(getDecoratee().tailSet(fromElement));
+	}
+
+
+	@Override
+	public IDLTerm<Name, Klass, Role> first()
+	{
+		return getDecoratee().first();
+	}
+
+
+	@Override
+	public IDLTerm<Name, Klass, Role> last()
+	{
+		return getDecoratee().last();
 	}
 
 }

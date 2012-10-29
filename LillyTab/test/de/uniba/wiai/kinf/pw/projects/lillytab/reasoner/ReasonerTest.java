@@ -1099,9 +1099,9 @@ public class ReasonerTest
 		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		IABoxNode<String, String, String> a0 = _abox.getOrAddNamedNode("a0", false);
-		a0.getTerms().add(_parser.parse("(only r A)"));
+		a0.addUnfoldedDescription(_parser.parse("(only r A)"));
 		IABoxNode<String, String, String> a1 = _abox.getOrAddNamedNode("a1", false);
-		a1.getTerms().add(_parser.parse("A"));
+		a1.addUnfoldedDescription(_parser.parse("A"));
 
 		_abox.getTBox().getRBox().addRole("sub", RoleType.OBJECT_PROPERTY);
 		_abox.getTBox().getRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -1121,7 +1121,7 @@ public class ReasonerTest
 	{
 		IABoxNode<String, String, String> a0 = _abox.getOrAddNamedNode("a", false);
 		_abox.getTBox().getRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		a0.getTerms().add(_parser.parse("(some r {a})"));
+		a0.addUnfoldedDescription(_parser.parse("(some r {a})"));
 		final Collection<? extends IReasonerResult<String, String, String>> results = _reasoner.checkConsistency(_abox);
 		assertEquals(1, results.size());
 		final IReasonerResult<String, String, String> result = results.iterator().next();
@@ -1135,7 +1135,7 @@ public class ReasonerTest
 	{
 		IABoxNode<String, String, String> a0 = _abox.getOrAddNamedNode("a", false);
 		_abox.getTBox().getRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		a0.getTerms().add(_parser.parse("(some r (and {a} {b}))"));
+		a0.addUnfoldedDescription(_parser.parse("(some r (and {a} {b}))"));
 		final Collection<? extends IReasonerResult<String, String, String>> results = _reasoner.checkConsistency(_abox);
 		assertEquals(1, results.size());
 		final IReasonerResult<String, String, String> result = results.iterator().next();
@@ -1229,13 +1229,29 @@ public class ReasonerTest
 		_abox.getTBox().getRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 
 		IABoxNode<String, String, String> a = _abox.createNode(false);
-		a.addUnfoldedDescription(_parser.parse("(or C0 D0)"));
-		a.addUnfoldedDescription(_parser.parse("(or C1 D1)"));
-		a.addUnfoldedDescription(_parser.parse("(or C2 D2)"));
+		/* create 750 unions. Without DDB, consistency takes forever */
+		for (int i = 0; i < 750; ++i)
+			a.addUnfoldedDescription(_parser.parse(String.format("(or C%04d D%04d)", i, i)));
 		a.addUnfoldedDescription(_parser.parse("(some r (and C D))"));
 		a.addUnfoldedDescription(_parser.parse("(only r (not C))"));
 
 		final Collection<? extends IReasonerResult<String, String, String>> results = _reasoner.checkConsistency(_abox);
 		assertTrue(results.isEmpty());
+	}
+
+	@Test
+	public void testInverseRolePropagation()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	{
+		_abox.getTBox().getRBox().addRole("r", RoleType.OBJECT_PROPERTY);
+		_abox.getTBox().getRBox().addRole("rinv", RoleType.OBJECT_PROPERTY);
+		_abox.getTBox().getRBox().addInverseRole("r", "rinv");
+
+		final IABoxNode<String, String, String> a = _abox.createNode(false);
+		a.addUnfoldedDescription(_parser.parse("(some r (only rinv A))"));
+		final Collection<? extends IReasonerResult<String, String, String>> results = _reasoner.checkConsistency(_abox);
+		assertEquals(1, results.size());
+		final IABox<String, String, String> abox = results.iterator().next().getABox();
+		abox.getNode(a.getNodeID()).getTerms().contains(_parser.parse("A"));
 	}
 }

@@ -37,12 +37,14 @@ public abstract class AbstractBlockingStrategy<Name extends Comparable<? super N
 
 	implements IBlockingStrategy<Name, Klass, Role>
 {
+	@Override
 	public Set<NodeID> getBlockedNodeIDs(IABoxNode<Name, Klass, Role> blocker)
 	{
 		final IBlockingStateCache stateCache = blocker.getABox().getBlockingStateCache();
 		return stateCache.getBlockedNodes(blocker.getNodeID());
 	}
 
+	@Override
 	public boolean isBlocked(IABoxNode<Name, Klass, Role> blockedNode)
 	{
 		assert blockedNode.getABox() != null;
@@ -59,6 +61,7 @@ public abstract class AbstractBlockingStrategy<Name extends Comparable<? super N
 		}
 	}
 
+	@Override
 	public IABoxNode<Name, Klass, Role> getBlocker(final IABoxNode<Name, Klass, Role> blockedNode)
 	{
 		final IBlockingStateCache stateCache = blockedNode.getABox().getBlockingStateCache();

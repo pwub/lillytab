@@ -41,8 +41,7 @@ public class ABoxNodeTermSet<Name extends Comparable<? super Name>, Klass extend
 			((CopyOnWriteSortedSet<IDLTerm<Name, Klass, Role>>) getDecoratee()).clone();
 		return new ABoxNodeTermSet<Name, Klass, Role>(klonedSet, newNode);
 	}
-
-
+	
 	@Override
 	protected void notifyBeforeElementAdded(
 		CollectionItemEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> ev)

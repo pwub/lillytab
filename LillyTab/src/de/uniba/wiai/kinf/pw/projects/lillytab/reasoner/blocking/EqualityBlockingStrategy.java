@@ -51,6 +51,7 @@ public class EqualityBlockingStrategy<Name extends Comparable<? super Name>, Kla
 	 * @param target A potential blocker.
 	 * @return {@literal true} if {@literal target} is a potential blocking node for {@literal this} node.
 	 */
+	@Override
 	protected boolean isPotentialBlocker(final IABoxNode<Name, Klass, Role> blocker,
 									   final IABoxNode<Name, Klass, Role> target)
 	{

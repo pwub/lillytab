@@ -16,6 +16,7 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.TBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSetListener;
@@ -23,7 +24,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ABoxNodeEvent;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IUnfoldListener;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermChangeEvent;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.BlockingStateCache;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntryFactory;
@@ -35,10 +35,12 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
 import de.dhke.projects.cutil.collections.aspect.AspectSortedSet;
 import de.dhke.projects.cutil.collections.aspect.ICollectionListener;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDependencyMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRoleOperator;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
@@ -55,7 +57,6 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-
 /**
  * <p> In-memory copy-on-write implementation of the {@link IABox} interface. </p><p> </p>
  *
@@ -65,10 +66,153 @@ import java.util.TreeSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	implements IABox<Name, Klass, Role>
-{
+	implements IABox<Name, Klass, Role> {
+
 	private static final long serialVersionUID = 3990522176232016954L;
 	private static final boolean TO_STRING_ID_ONLY = false;
+	/**
+	 * <p> ABoxCommon contains the information common to a set of ABoxes, avoiding duplication. </p>
+	 *
+	 */
+	private final ABoxCommon<Name, Klass, Role> _common;
+	/**
+	 * node id sequence generator
+	 *
+	 */
+	protected final LinearSequenceNumberGenerator _nodeIDGenerator;
+	/**
+	 * The number of the last valid TBox generation used.
+	 *
+	 */
+	private int _tboxGeneration;
+	/**
+	 * The {@link ITBox} of the current ABox
+	 */
+	private final TBox<Name, Klass, Role> _tbox;
+	/**
+	 * <p> The node set as given to any eventual callers. </p><p> {@link #_nodeSetListener} is attached to this
+	 * {@link AspectSortedSet} by default and handles updates of the node list. </p>
+	 *
+	 */
+	private final ABoxNodeSet<Name, Klass, Role> _nodes;
+	/**
+	 * The node map maps both node names and {@link NodeID}s to nodes.
+	 *
+	 * XXX - this is currently protected for access from {@link ABoxNodeSet}. To go away.
+	 *
+	 */
+	protected final Map<Object, IABoxNode<Name, Klass, Role>> _nodeMap;
+	/**
+	 * The ABox-internal state blocking state cache used by {@link IBlockingStrategy}.
+	 *
+	 */
+	private final IBlockingStateCache _blockingStateCache;
+	/**
+	 * The set of node {@link ITermSetListener}s.
+	 *
+	 */
+	private List<ITermSetListener<Name, Klass, Role>> _termSetListeners = new ArrayList<ITermSetListener<Name, Klass, Role>>();
+	/**
+	 * The unique ID of this {@link ABox}.
+	 *
+	 */
+	private final NodeID _id;
+	/**
+	 * The {@link IDependencyMap}
+	 *
+	 */
+	private final DependencyMap<Name, Klass, Role> _dependencyMap;
+
+
+	/// <editor-fold defaultstate="collapsed" desc="constructors">
+	public ABox(
+		final ABoxCommon<Name, Klass, Role> commons)
+	{
+		_common = commons;
+		_dependencyMap = new DependencyMap<Name, Klass, Role>(_common.getTermEntryFactory());
+
+		_id = new NodeID(_common.getAboxIDFactory().next());
+		_nodeIDGenerator = new LinearSequenceNumberGenerator();
+		_blockingStateCache = new BlockingStateCache();
+
+		_nodes = new ABoxNodeSet<Name, Klass, Role>(this);
+
+		_nodeMap = _common.getNodeMapFactory().getInstance();
+		
+		_tbox = new TBox<Name, Klass, Role>(_common.getTermFactory());
+		_tboxGeneration = _tbox.getGeneration();
+	}
+
+
+	/**
+	 * Create a new ABox, kloning from another ABox.
+	 *
+	 * @param commons
+	 * @param idGenerator
+	 * @param tbox
+	 * @param blockingStateCache
+	 */
+	ABox(final ABox<Name, Klass, Role> klonee)
+	{
+		_common = klonee._common;
+		_dependencyMap = klonee.getDependencyMap().clone();
+		_id = new NodeID(_common.getAboxIDFactory().next());
+		_nodeIDGenerator = klonee._nodeIDGenerator.clone();
+		_blockingStateCache = klonee._blockingStateCache.clone();
+		_nodes = new ABoxNodeSet<Name, Klass, Role>(this);
+		_nodeMap = _common.getNodeMapFactory().getInstance();		
+		_tbox = klonee._tbox.clone();
+		_tboxGeneration = klonee._tboxGeneration;
+		
+		for (IABoxNode<Name, Klass, Role> node : klonee)
+			add(node.clone(this));
+	}
+	/// </editor-fold>	
+
+
+	ABoxCommon<Name, Klass, Role> getCommon()
+	{
+		return _common;
+	}
+
+
+	@Override
+	public TBox<Name, Klass, Role> getTBox()
+	{
+		return _tbox;
+	}
+
+
+	@Override
+	public IBlockingStateCache getBlockingStateCache()
+	{
+		return _blockingStateCache;
+	}
+
+
+	@Override
+	public NodeID getID()
+	{
+		return _id;
+	}
+
+	/// </editor-fold>
+
+	/// <editor-fold defaultstate="collapsed" desc="Cloneable">
+	/**
+	 * Create a writable clone of the current ABox.
+	 *
+	 * @return An independent clone of the current {@link IABox}.
+	 */
+	@Override
+	public ABox<Name, Klass, Role> clone()
+	{
+		ABox<Name, Klass, Role> klone = new ABox<Name, Klass, Role>(this);
+		return klone;
+	}
+	/// </editor-fold>
+
+	/// <editor-fold defaultstate="collapsed" desc="node merging">
 
 	private void moveSuccessors(final IABoxNode<Name, Klass, Role> source,
 								final IABoxNode<Name, Klass, Role> target,
@@ -135,6 +279,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		}
 	}
 
+
 	private void movePredecessors(IABoxNode<Name, Klass, Role> source, IABoxNode<Name, Klass, Role> target,
 								  NodeMergeInfo<Name, Klass, Role> mergeInfo)
 	{
@@ -176,6 +321,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 			}
 		}
 	}
+
 
 	private void updateDependencyMap(IABoxNode<Name, Klass, Role> source,
 									 IABoxNode<Name, Klass, Role> target)
@@ -225,124 +371,9 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		for (Pair<TermEntry<Name, Klass, Role>, TermEntry<Name, Klass, Role>> newEntry : newEntries)
 			getDependencyMap().put(newEntry.getFirst(), newEntry.getSecond());
 	}
-	/// <editor-fold defaultstate="desc" desc="private variables" >
-	/**
-	 * <p> ABoxCommon contains the information common to a set of ABoxes, avoiding duplication. </p>
-	 *
-	 */
-	private final ABoxCommon<Name, Klass, Role> _common;
 
-	ABoxCommon<Name, Klass, Role> getCommon()
-	{
-		return _common;
-	}
-
-	/*
-	 * node id sequence generator
-	 */
-	protected final LinearSequenceNumberGenerator _nodeIDGenerator;
-
-	/*
-	 * TBox
-	 */
-	private final TBox<Name, Klass, Role> _tbox;
 
 	@Override
-	public TBox<Name, Klass, Role> getTBox()
-	{
-		return _tbox;
-	}
-	/**
-	 * <p> The node set as given to any eventual callers. </p><p> {@link #_nodeSetListener} is attached to this
-	 * {@link AspectSortedSet} by default and handles updates of the node list. </p>
-	 */
-	private final ABoxNodeSet<Name, Klass, Role> _nodes;
-	/**
-	 * The node map maps both node names and {@link NodeID}s to nodes. This map is maintained by the
-	 * {@link NodeSetListener}.
-	 *
-	 * XXX - this is currently protected for access from {@link ABoxNodeSet}. To go away.
-	 */
-	protected final Map<Object, IABoxNode<Name, Klass, Role>> _nodeMap;
-	/**
-	 * The ABox-internal state blocking state cache used by {@link IBlockingStrategy}.
-	 *
-	 */
-	private final IBlockingStateCache _blockingStateCache;
-
-	@Override
-	public IBlockingStateCache getBlockingStateCache()
-	{
-		return _blockingStateCache;
-	}
-	/**
-	 * The unique ID of this {@link ABox}.
-	 *
-	 */
-	private final NodeID _id;
-
-	@Override
-	public NodeID getID()
-	{
-		return _id;
-	}
-
-	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="constructors">
-	public ABox(
-		final ABoxCommon<Name, Klass, Role> commons)
-	{
-		_common = commons;
-		_dependencyMap = new DependencyMap<Name, Klass, Role>(_common.getTermEntryFactory());
-
-		_id = new NodeID(_common.getAboxIDFactory().next());
-		_nodeIDGenerator = new LinearSequenceNumberGenerator();
-		_blockingStateCache = new BlockingStateCache();
-
-		_nodes = new ABoxNodeSet<Name, Klass, Role>(this);
-
-		_nodeMap = _common.getNodeMapFactory().getInstance();
-		_tbox = new TBox<Name, Klass, Role>(_common.getTermFactory());
-	}
-
-	/**
-	 * Create a new ABox, kloning from another ABox.
-	 *
-	 * @param commons
-	 * @param idGenerator
-	 * @param tbox
-	 * @param blockingStateCache
-	 */
-	ABox(final ABox<Name, Klass, Role> klonee)
-	{
-		_common = klonee._common;
-		_dependencyMap = klonee.getDependencyMap().clone();
-		_id = new NodeID(_common.getAboxIDFactory().next());
-		_nodeIDGenerator = klonee._nodeIDGenerator.clone();
-		_blockingStateCache = klonee._blockingStateCache.clone();
-		_nodes = new ABoxNodeSet<Name, Klass, Role>(this);
-		_nodeMap = _common.getNodeMapFactory().getInstance();
-		_tbox = klonee._tbox.clone();
-		for (IABoxNode<Name, Klass, Role> node : klonee)
-			add(node.clone(this));
-	}
-	/// </editor-fold>
-
-	/// <editor-fold defaultstate="collapsed" desc="Cloneable">
-	/**
-	 * Create a writable clone of the current ABox.
-	 *
-	 * @return An independent clone of the current {@link IABox}.
-	 */
-	@Override
-	public ABox<Name, Klass, Role> clone()
-	{
-		ABox<Name, Klass, Role> klone = new ABox<Name, Klass, Role>(this);
-		return klone;
-	}
-	/// </editor-fold>
-
-	/// <editor-fold defaultstate="collapsed" desc="node merging">
 	public boolean canMerge(IABoxNode<Name, Klass, Role> node1,
 							IABoxNode<Name, Klass, Role> node2)
 	{
@@ -354,6 +385,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		} else
 			return true;
 	}
+
 
 	/**
 	 * <p> Join the two nodes {@literal node1} and {@literal node2} into a single node. The result of the join is a
@@ -395,14 +427,14 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 			 */
 			assert contains(node1);
 			assert contains(node2);
-			IABoxNode<Name, Klass, Role> target;
-			IABoxNode<Name, Klass, Role> source;
+			ABoxNode<Name, Klass, Role> target;
+			ABoxNode<Name, Klass, Role> source;
 			if (node1.compareTo(node2) <= 0) {
-				target = node1;
-				source = node2;
+				target = (ABoxNode<Name, Klass, Role>) node1;
+				source = (ABoxNode<Name, Klass, Role>) node2;
 			} else {
-				target = node2;
-				source = node1;
+				target = (ABoxNode<Name, Klass, Role>) node2;
+				source = (ABoxNode<Name, Klass, Role>) node1;
 			}
 
 			/*
@@ -434,7 +466,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 			final ArrayList<IDLTerm<Name, Klass, Role>> sourceTerms = new ArrayList<IDLTerm<Name, Klass, Role>>(
 				source.getTerms());
 			source.getTerms().clear();
-			if (target.getTerms().addAll(sourceTerms))
+			if (target._terms.addAll(sourceTerms))
 				mergeInfo.setModified(target);
 
 
@@ -466,6 +498,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	}
 	private final List<INodeMergeListener<Name, Klass, Role>> _nodeMergeListeners = new ArrayList<INodeMergeListener<Name, Klass, Role>>();
 
+
 	/**
 	 * Notify all node merge listeners of an immanent node merge.
 	 *
@@ -484,6 +517,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		}
 	}
 
+
 	@Override
 	public List<INodeMergeListener<Name, Klass, Role>> getNodeMergeListeners()
 	{
@@ -492,17 +526,20 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="Collection factories">
+
 	@Override
 	public ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory()
 	{
 		return _common.getNodeIDSetFactory();
 	}
 
+
 	@Override
 	public IDLTermFactory<Name, Klass, Role> getDLTermFactory()
 	{
 		return _common.getTermFactory();
 	}
+
 
 	@Override
 	public TermEntryFactory<Name, Klass, Role> getTermEntryFactory()
@@ -512,11 +549,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="toString()">
+
 	@Override
 	public String toString()
 	{
 		return toString("");
 	}
+
 
 	public String toString(final int indent)
 	{
@@ -524,6 +563,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		Arrays.fill(fill, ' ');
 		return new String(fill);
 	}
+
 
 	public String toString(final String prefix)
 	{
@@ -569,12 +609,14 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="Node set and node map">
+
 	@Override
 	public Map<Object, IABoxNode<Name, Klass, Role>> getNodeMap()
 	{
 		/* XXX - returns a modifiable node map */
 		return _nodeMap;
 	}
+
 
 	@Override
 	public IABoxNode<Name, Klass, Role> createNode(boolean isDatatypeNode)
@@ -588,6 +630,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		assert mergeInfo.getCurrentNode() instanceof IABoxNode;
 		return (IABoxNode<Name, Klass, Role>) mergeInfo.getCurrentNode();
 	}
+
 
 	@Override
 	public IABoxNode<Name, Klass, Role> getOrAddNamedNode(final Name individual, boolean isDataTypeNode)
@@ -611,17 +654,20 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		}
 	}
 
+
 	@Override
 	public IABoxNode<Name, Klass, Role> getNode(final NodeID id)
 	{
 		return _nodeMap.get(id);
 	}
 
+
 	@Override
 	public IABoxNode<Name, Klass, Role> getNode(final Name name)
 	{
 		return _nodeMap.get(name);
 	}
+
 
 	@Override
 	public List<ICollectionListener<IABoxNode<Name, Klass, Role>, Collection<IABoxNode<Name, Klass, Role>>>> getNodeSetListeners()
@@ -630,12 +676,14 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	}
 
 	/// </editor-fold>
+
 	/// <editor-fold defaultstate="collapsed" desc="SortedSet<ABoxNode<Name, Klass, Role>>">
 	@Override
 	public Comparator<? super IABoxNode<Name, Klass, Role>> comparator()
 	{
 		return null;
 	}
+
 
 	@Override
 	public SortedSet<IABoxNode<Name, Klass, Role>> subSet(final IABoxNode<Name, Klass, Role> fromElement,
@@ -644,11 +692,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _nodes.subSet(fromElement, toElement);
 	}
 
+
 	@Override
 	public SortedSet<IABoxNode<Name, Klass, Role>> headSet(final IABoxNode<Name, Klass, Role> toElement)
 	{
 		return _nodes.headSet(toElement);
 	}
+
 
 	@Override
 	public SortedSet<IABoxNode<Name, Klass, Role>> tailSet(final IABoxNode<Name, Klass, Role> fromElement)
@@ -656,11 +706,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _nodes.tailSet(fromElement);
 	}
 
+
 	@Override
 	public IABoxNode<Name, Klass, Role> first()
 	{
 		return _nodes.first();
 	}
+
 
 	@Override
 	public IABoxNode<Name, Klass, Role> last()
@@ -668,11 +720,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _nodes.last();
 	}
 
+
 	@Override
 	public int size()
 	{
 		return _nodes.size();
 	}
+
 
 	@Override
 	public boolean isEmpty()
@@ -680,11 +734,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _nodes.isEmpty();
 	}
 
+
 	@Override
 	public boolean contains(final Object o)
 	{
 		return _nodes.contains(o);
 	}
+
 
 	@Override
 	public Iterator<IABoxNode<Name, Klass, Role>> iterator()
@@ -694,11 +750,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return iter;
 	}
 
+
 	@Override
 	public Object[] toArray()
 	{
 		return _nodes.toArray();
 	}
+
 
 	@Override
 	public <T> T[] toArray(final T[] a)
@@ -706,11 +764,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _nodes.toArray(a);
 	}
 
+
 	@Override
 	public boolean add(final IABoxNode<Name, Klass, Role> e)
 	{
 		return _nodes.add(e);
 	}
+
 
 	@Override
 	public boolean remove(final Object o)
@@ -718,11 +778,13 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _nodes.remove(o);
 	}
 
+
 	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return _nodes.containsAll(c);
 	}
+
 
 	@Override
 	public boolean addAll(final Collection<? extends IABoxNode<Name, Klass, Role>> c)
@@ -730,17 +792,20 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _nodes.addAll(c);
 	}
 
+
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		return _nodes.retainAll(c);
 	}
 
+
 	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		return _nodes.removeAll(c);
 	}
+
 
 	@Override
 	public void clear()
@@ -749,6 +814,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	}
 
 	/// </editor-fold>
+
 	/// <editor-fold defaultstate="collapsed" desc="deep compare">
 	public int deepHashCode()
 	{
@@ -759,6 +825,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		hashCode += 5 * getBlockingStateCache().hashCode();
 		return hashCode;
 	}
+
 
 	public boolean deepEquals(Object obj)
 	{
@@ -789,7 +856,9 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="element collection">
+
 	@SuppressWarnings("unchecked")
+	@Override
 	public Set<Klass> getClassesInSignature()
 	{
 		Set<Klass> classes = new TreeSet<Klass>();
@@ -799,23 +868,26 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		 */
 		for (IABoxNode<Name, Klass, Role> node : this) {
 			for (IDLTerm<Name, Klass, Role> desc : node.getTerms()) {
-				Set subTerms = TermUtil.collectSubTerms(desc, IDLClassReference.class);
-				for (Object subTermObj : subTerms) {
-					classes.add(((IDLClassReference<Name, Klass, Role>) subTermObj).getElement());
+				Set<IDLClassReference<Name, Klass, Role>> subTerms = TermUtil.collectSubTerms(desc,
+																							  IDLClassReference.class);
+				for (IDLClassReference<Name, Klass, Role> subTermObj : subTerms) {
+					classes.add(subTermObj.getElement());
 				}
 			}
 		}
 		for (IDLTerm<Name, Klass, Role> term : getTBox()) {
-			Set subTerms = TermUtil.collectSubTerms(term, IDLClassReference.class);
-			for (Object subTermObj : subTerms) {
-				classes.add(((IDLClassReference<Name, Klass, Role>) subTermObj).getElement());
+			Set<IDLClassReference<Name, Klass, Role>> subTerms = TermUtil.collectSubTerms(term, IDLClassReference.class);
+			for (IDLClassReference<Name, Klass, Role> subTermObj : subTerms) {
+				classes.add(subTermObj.getElement());
 			}
 		}
 
 		return classes;
 	}
 
+
 	@SuppressWarnings("unchecked")
+	@Override
 	public Set<Role> getRolesInSignature()
 	{
 		Set<Role> roles = new TreeSet<Role>();
@@ -842,34 +914,15 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return roles;
 	}
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="unfold listener">
-	private final List<IUnfoldListener<Name, Klass, Role>> _unfoldListeners = new ArrayList<IUnfoldListener<Name, Klass, Role>>();
 
-	@Override
-	public List<IUnfoldListener<Name, Klass, Role>> getUnfoldListeners()
-	{
-		return _unfoldListeners;
-	}
-
-	public void notifyUnfoldListeners(
-		final IABoxNode<Name, Klass, Role> node,
-		final IDLRestriction<Name, Klass, Role> original,
-		final Collection<IDLRestriction<Name, Klass, Role>> unfold)
-	{
-		if (!_unfoldListeners.isEmpty()) {
-			for (IUnfoldListener<Name, Klass, Role> listener : _unfoldListeners)
-				listener.beforeConceptUnfold(node, original, unfold);
-		}
-	}
-	/// </editor-fold>
 	/// <editor-fold defaultstate="collapsed" desc="node set listener">
-	private List<ITermSetListener<Name, Klass, Role>> _termSetListeners = new ArrayList<ITermSetListener<Name, Klass, Role>>();
 
 	@Override
 	public List<ITermSetListener<Name, Klass, Role>> getTermSetListeners()
 	{
 		return _termSetListeners;
 	}
+
 
 	protected TermChangeEvent<Name, Klass, Role> notifyTermAdded(final IABoxNode<Name, Klass, Role> node,
 																 final IDLTerm<Name, Klass, Role> term)
@@ -882,6 +935,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return ev;
 	}
 
+
 	public TermChangeEvent<Name, Klass, Role> notifyTermRemoved(final IABoxNode<Name, Klass, Role> node,
 																final IDLTerm<Name, Klass, Role> term)
 	{
@@ -892,6 +946,7 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		}
 		return ev;
 	}
+
 
 	public ABoxNodeEvent<Name, Klass, Role> notifyTermSetCleared(final IABoxNode<Name, Klass, Role> node)
 	{
@@ -917,11 +972,54 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="IImmutable">
+
 	public IABox<Name, Klass, Role> getImmutable()
 	{
 		return ImmutableABox.decorate(this);
 	}
 	/// </editor-fold>
+
+
+	@Override
+	public void unfoldAll()
+		throws ENodeMergeException
+	{
+		/**
+		 * We remember the TBox generation number and re-run the unfold operation only if the TBox
+		 * was re-calculated in between.
+		 */
+		final TBox<Name, Klass, Role> tbox = getTBox();
+		if (tbox.getGeneration() > _tboxGeneration) {
+			final Set<IDLRestriction<Name, Klass, Role>> globalDescs = tbox.getGlobalDescriptions();
+
+			Iterator<IABoxNode<Name, Klass, Role>> iter = iterator();
+			while (iter.hasNext()) {
+				IABoxNode<Name, Klass, Role> currentNode = iter.next();
+				assert contains(currentNode);
+
+				/*
+				 * unfold existing terms
+				 */
+				NodeMergeInfo<Name, Klass, Role> unfoldResult = currentNode.unfoldAll();
+
+				/*
+				 * unfold global descriptions
+				 */
+				unfoldResult.append(currentNode.addUnfoldedDescriptions(globalDescs));
+
+				if (!unfoldResult.getMergedNodes().isEmpty()) {
+					/*
+					 * a merge occured, refetch node
+					 */
+					currentNode = unfoldResult.getCurrentNode();
+					assert contains(currentNode);
+					iter = iterator();
+				}
+			}
+			_tboxGeneration = tbox.getGeneration();
+		}
+	}
+
 
 	@Override
 	public boolean containsAllTermEntries(Collection<TermEntry<Name, Klass, Role>> entries)
@@ -933,15 +1031,15 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return true;
 	}
 
+
 	@Override
 	public boolean containsTermEntry(TermEntry<Name, Klass, Role> entry)
 	{
 		final IABoxNode<Name, Klass, Role> node = getNode(entry.getNodeID());
-		return ((node != null) && node.getTerms().contains(entry.getTerm()));		
+		return ((node != null) && node.getTerms().contains(entry.getTerm()));
 	}
-	
 	/// <editor-fold defaultstate="collapsed" desc="DependencyMap">
-	private final DependencyMap<Name, Klass, Role> _dependencyMap;
+
 
 	@Override
 	public DependencyMap<Name, Klass, Role> getDependencyMap()
@@ -949,10 +1047,12 @@ public class ABox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		return _dependencyMap;
 	}
 
+
 	protected boolean removeNoUnlink(final ABoxNode<Name, Klass, Role> node)
 	{
 		return _nodes.removeNoUnlink(node);
 	}
+
 
 	protected boolean addNoUnlink(final ABoxNode<Name, Klass, Role> node)
 	{

@@ -16,18 +16,15 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EInconsistentABoxNodeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.dhke.projects.cutil.collections.tree.IDecisionTree;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
@@ -35,6 +32,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
 import java.util.SortedSet;
+
 
 /**
  *
@@ -45,13 +43,12 @@ import java.util.SortedSet;
  */
 public class IntersectionCompleter<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
 	extends AbstractCompleter<Name, Klass, Role>
-	implements ICompleter<Name, Klass, Role> {
-
+	implements ICompleter<Name, Klass, Role>
+{
 	public IntersectionCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
-
 
 	;
 
@@ -59,7 +56,6 @@ public class IntersectionCompleter<Name extends Comparable<? super Name>, Klass 
 	{
 		this(cChecker, false);
 	}
-
 
 	;
 
@@ -78,12 +74,13 @@ public class IntersectionCompleter<Name extends Comparable<? super Name>, Klass 
 	 * </p>
 	 *
 	 * @param node The node, whose concept set to search for Intersections.
-	 * @param branch The branch the node is on.
-	 * @param branchQueue The branch queue
+	 * @param branchNode The current node inside the decision tree.
+	 * @return {@link ReasonerContinuationState} determining how to continue with reasoning.
 	 * @throws EReasonerException
 	 */
+	@Override
 	public ReasonerContinuationState completeNode(final IABoxNode<Name, Klass, Role> node,
-																	final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode)
+												  final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode)
 		throws EReasonerException
 	{
 		final Branch<Name, Klass, Role> branch = branchNode.getData();
@@ -118,7 +115,7 @@ public class IntersectionCompleter<Name extends Comparable<? super Name>, Klass 
 						mergeInfo.getCurrentNode());
 					if (cInfo.isFinallyInconsistent()) {
 						branch.upgradeConsistencyInfo(cInfo);
-						return ReasonerContinuationState.INCONSISTENT;																			   
+						return ReasonerContinuationState.INCONSISTENT;
 					}
 
 					if (!mergeInfo.getMergedNodes().isEmpty())

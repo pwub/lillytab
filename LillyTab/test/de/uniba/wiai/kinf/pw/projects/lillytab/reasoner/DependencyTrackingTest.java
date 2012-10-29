@@ -61,7 +61,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Collection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleKRSSParser;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import java.text.ParseException;
@@ -210,18 +209,18 @@ public class DependencyTrackingTest {
 		_parser = null;
 	}
 
-	@Test
-	public void testUnfoldTracking()
-		throws  EInconsistentABoxException, ParseException
-	{
-		_abox.getTBox().add(_parser.parse(("(implies A B)")));
-		final IABoxNode<String, String, String> node = _abox.createNode(false);
-		final IDLRestriction<String, String, String> A = _parser.parse("A");
-		final IDLRestriction<String, String, String> B = _parser.parse("B");
-		node.addUnfoldedDescription(A);
-		assertEquals(1, _abox.getDependencyMap().getParents(node, B).size());
-		assertTrue(_abox.getDependencyMap().getParents(node, B).contains(_abox.getTermEntryFactory().getEntry(node, A)));
-	}
+//	@Test
+//	public void testUnfoldTracking()
+//		throws  EInconsistentABoxException, ParseException
+//	{
+//		_abox.getTBox().add(_parser.parse(("(implies A B)")));
+//		final IABoxNode<String, String, String> node = _abox.createNode(false);
+//		final IDLRestriction<String, String, String> A = _parser.parse("A");
+//		final IDLRestriction<String, String, String> B = _parser.parse("B");
+//		node.addUnfoldedDescription(A);
+//		assertEquals(1, _abox.getDependencyMap().getParents(node, B).size());
+//		assertTrue(_abox.getDependencyMap().getParents(node, B).contains(_abox.getTermEntryFactory().getEntry(node, A)));
+//	}
 
 	@Test
 	public void testExistsTracking()
@@ -382,5 +381,24 @@ public class DependencyTrackingTest {
 		assertEquals(2, results.size());
 		for (IReasonerResult<String, String, String> result: results)
 			assertThat(result.getABox(), new OnlyOneOf<IABox<String, String, String>>(matchers));
+	}
+	
+	@Test
+	public void testNoTrackingExistingTerm()
+		throws  EInconsistencyException, EReasonerException, ParseException
+	{
+		IABoxNode<String, String, String> aNode = _abox.createNode(false);
+		_abox.getTBox().add(_parser.parse("(implies A B)"));
+		aNode.addUnfoldedDescription(_parser.parse("B"));	
+		aNode.addUnfoldedDescription(_parser.parse("A"));
+		
+		final TermEntry<String, String, String> aTerm = _abox.getTermEntryFactory().getEntry(aNode, _parser.parse("A"));
+		final TermEntry<String, String, String> bTerm = _abox.getTermEntryFactory().getEntry(aNode, _parser.parse("B"));
+		assertFalse(_abox.getDependencyMap().hasChild(aTerm, bTerm));
+		assertFalse(_abox.getDependencyMap().hasChild(bTerm, aTerm));
+		assertFalse(_abox.getDependencyMap().hasChild(aNode, _parser.parse("(implies A B)"), aNode, _parser.parse("A")));
+		assertFalse(_abox.getDependencyMap().hasChild(aNode, _parser.parse("(implies A B)"), aNode, _parser.parse("B")));		
+		assertFalse(_abox.getDependencyMap().hasChild(aNode, _parser.parse("A"), aNode, _parser.parse("(implies A B)")));
+		assertFalse(_abox.getDependencyMap().hasChild(aNode, _parser.parse("B"), aNode, _parser.parse("(implies A B)")));		
 	}
 }

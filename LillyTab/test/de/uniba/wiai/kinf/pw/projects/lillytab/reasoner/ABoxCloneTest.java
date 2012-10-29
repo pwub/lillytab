@@ -314,26 +314,26 @@ public class ABoxCloneTest
 		assertTrue(nmListener.merges.contains(Pair.wrap(kloneNode1, kloneNode0)));
 	}
 
-	@Test
-	public void testUnfoldListenerClone()
-		throws EInconsistentABoxException, ParseException
-	{
-		HistoryUnfoldListener unfoldListener = new HistoryUnfoldListener();
-
-		IDLRestriction<String, String, String> A = _aboxFactory.getDLTermFactory().getDLClassReference("A");
-		IDLImplies<String, String, String> implies = (IDLImplies<String, String, String>) _parser.parse("(implies A B)");
-		_abox.getTBox().add(implies);
-
-		_abox.getUnfoldListeners().add(unfoldListener);
-
-		final IABoxNode<String, String, String> node0 = _abox.createNode(false);
-		final IABox<String, String, String> klone = _abox.clone();
-		final IABoxNode<String, String, String> kloneNode0 = klone.getNode(node0.getNodeID());
-		kloneNode0.addUnfoldedDescription(A);
-
-		assertEquals(1, _abox.getUnfoldListeners().size());
-		assertTrue(_abox.getUnfoldListeners().contains(unfoldListener));
-
-		assertTrue(unfoldListener.unfoldInfos.isEmpty());
-	}
+//	@Test
+//	public void testUnfoldListenerClone()
+//		throws EInconsistentABoxException, ParseException
+//	{
+//		HistoryUnfoldListener unfoldListener = new HistoryUnfoldListener();
+//
+//		IDLRestriction<String, String, String> A = _aboxFactory.getDLTermFactory().getDLClassReference("A");
+//		IDLImplies<String, String, String> implies = (IDLImplies<String, String, String>) _parser.parse("(implies A B)");
+//		_abox.getTBox().add(implies);
+//
+//		_abox.getUnfoldListeners().add(unfoldListener);
+//
+//		final IABoxNode<String, String, String> node0 = _abox.createNode(false);
+//		final IABox<String, String, String> klone = _abox.clone();
+//		final IABoxNode<String, String, String> kloneNode0 = klone.getNode(node0.getNodeID());
+//		kloneNode0.addUnfoldedDescription(A);
+//
+//		assertEquals(1, _abox.getUnfoldListeners().size());
+//		assertTrue(_abox.getUnfoldListeners().contains(unfoldListener));
+//
+//		assertTrue(unfoldListener.unfoldInfos.isEmpty());
+//	}
 }

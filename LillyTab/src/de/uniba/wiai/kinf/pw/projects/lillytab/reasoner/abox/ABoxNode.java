@@ -16,15 +16,16 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.AbstractAboxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDependencyMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
@@ -33,7 +34,9 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import org.apache.commons.collections15.SetUtils;
 
@@ -50,20 +53,24 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	extends AbstractAboxNode<Name, Klass, Role>
 	implements Cloneable {
 	// private final Map<DLTermOrder, IDLClassExpression<Name, Klass, Role>> _smallestTerms;
+
 	private ABox<Name, Klass, Role> _abox;
 	/**
 	 * The set of concept terms for this node. Not final because of copy-on-write.
 	 */
-	private final ABoxNodeTermSet<Name, Klass, Role> _terms;
+	protected final ABoxNodeTermSet<Name, Klass, Role> _terms;
+	/**
+	 * Wrapper around {@link #_terms} that prevents direct additions.
+	 */
+	private final NoAddTermSet<Name, Klass, Role> _noAddTerms;
 	/**
 	 * The set of node names.
-	 *
-	 */
-	protected SortedSet<Name> _names = new TreeSet<Name>();
+	 **/
+	protected final SortedSet<Name> _names = new TreeSet<Name>();
 	/**
 	 * The link map
 	 **/
-	protected IRABox<Name, Klass, Role> _raBox;
+	private final IRABox<Name, Klass, Role> _raBox;
 
 
 	@Override
@@ -110,17 +117,19 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 		super(id, isDatatypeNode);
 		_abox = abox;
 		_terms = new ABoxNodeTermSet<Name, Klass, Role>(this);
+		_noAddTerms = new NoAddTermSet<Name, Klass, Role>(_terms, this);
 		_raBox = new RABox<Name, Klass, Role>(this);
 	}
 
 
-	protected ABoxNode(final ABox<Name, Klass, Role> newABox, 
+	protected ABoxNode(final ABox<Name, Klass, Role> newABox,
 					   final ABoxNode<Name, Klass, Role> klonee)
 	{
 		super(klonee.getNodeID(), klonee.isDatatypeNode());
 		_abox = newABox;
 		_names.addAll(klonee.getNames());
 		_terms = klonee._terms.clone(this);
+		_noAddTerms = new NoAddTermSet<Name, Klass, Role>(_terms, this);
 		_raBox = klonee._raBox.clone(this);
 	}
 
@@ -135,7 +144,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	@Override
 	public ITermSet<Name, Klass, Role> getTerms()
 	{
-		return _terms;
+		return _noAddTerms;
 	}
 
 
@@ -159,18 +168,18 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 		 */
 		final ABox<Name, Klass, Role> abox = getABox();
 		assert abox != null;
-		IABoxNode<Name, Klass, Role> currentNode = this;
+		ABoxNode<Name, Klass, Role> currentNode = this;
 		if ((!getTerms().contains(desc)) && (desc instanceof IDLNominalReference)) {
 			final IDLNominalReference<Name, Klass, Role> nRef = (IDLNominalReference<Name, Klass, Role>) desc;
 			final Name newName = nRef.getIndividual();
 			final IABoxNode<Name, Klass, Role> otherNode = abox.getNode(newName);
 			if (otherNode != null) {
 				mergeInfo.append(abox.mergeNodes(otherNode, currentNode));
-				currentNode = mergeInfo.getCurrentNode();
+				currentNode = (ABoxNode<Name, Klass, Role>) mergeInfo.getCurrentNode();
 				assert abox.contains(currentNode);
 			}
 		}
-		if (currentNode.getTerms().add(desc))
+		if (currentNode._terms.add(desc))
 			mergeInfo.setModified(currentNode);
 		return mergeInfo;
 	}
@@ -180,65 +189,35 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescription(final IDLRestriction<Name, Klass, Role> term)
 		throws ENodeMergeException
 	{
-		// XXX cleanup and code manu are needed
 		final ABox<Name, Klass, Role> abox = getABox();
+		final IDependencyMap<Name, Klass, Role> depMap = abox.getDependencyMap();
+		final ITBox<Name, Klass, Role> tbox = abox.getTBox();
 		assert abox != null;
 		final IDLRestriction<Name, Klass, Role> nnfTerm = TermUtil.toNNF(term, abox.getCommon().getTermFactory());
-		final NodeMergeInfo<Name, Klass, Role> mergeInfo = addTerm(nnfTerm);
 
-		/**
-		 * get direct unfoldings, perform notify for direct unfoldings and update dependency map.
-		 *
-		 */
-		@SuppressWarnings("unchecked")
-		final ABoxNode<Name, Klass, Role> currentNode = (ABoxNode<Name, Klass, Role>) mergeInfo.getCurrentNode();
+		final SortedMap<IDLRestriction<Name, Klass, Role>, IDLRestriction<Name, Klass, Role>> addQueue = new TreeMap<IDLRestriction<Name, Klass, Role>, IDLRestriction<Name, Klass, Role>>();
 
-		final Collection<IDLRestriction<Name, Klass, Role>> directUnfolds = abox.getTBox().getUnfolding(nnfTerm);
-		if (!directUnfolds.isEmpty()) {
-			abox.notifyUnfoldListeners(this, nnfTerm, directUnfolds);
-			if ((!abox.getDependencyMap().containsKey(nnfTerm))) {
-				for (IDLRestriction<Name, Klass, Role> unfoldee : directUnfolds)
-					abox.getDependencyMap().addParent(currentNode, unfoldee, currentNode, nnfTerm);
-			}
-		}
+		addQueue.put(nnfTerm, null);
+		final NodeMergeInfo<Name, Klass, Role> mergeInfo = new NodeMergeInfo<Name, Klass, Role>(this, false);
+		while (!addQueue.isEmpty()) {
+			final IDLRestriction<Name, Klass, Role> addTerm = addQueue.firstKey();
+			final IDLRestriction<Name, Klass, Role> parent = addQueue.remove(addTerm);
 
-		/**
-		 * Handle recursive unfoldings:
-		 *
-		 * To avoid a recursive call, perform transitive unfolding.
-		 */
-		final TreeSet<IDLRestriction<Name, Klass, Role>> allUnfolds = new TreeSet<IDLRestriction<Name, Klass, Role>>(
-			directUnfolds);
-		Iterator<IDLRestriction<Name, Klass, Role>> unfoldIter = allUnfolds.iterator();
-		while (unfoldIter.hasNext()) {
-			final IDLRestriction<Name, Klass, Role> currentTerm = unfoldIter.next();
-			Collection<IDLRestriction<Name, Klass, Role>> newUnfolds = abox.getTBox().getUnfolding(currentTerm);
-			if (allUnfolds.addAll(newUnfolds)) {
-				if (!newUnfolds.isEmpty()) {
-					abox.notifyUnfoldListeners(this, currentTerm, newUnfolds);
-					if (!abox.getDependencyMap().containsKey(currentTerm)) {
-						for (IDLRestriction<Name, Klass, Role> unfoldee : newUnfolds)
-							abox.getDependencyMap().addParent(currentNode, unfoldee, currentNode, currentTerm);
-					}
+			final ABoxNode<Name, Klass, Role> currentNode = (ABoxNode<Name, Klass, Role>) mergeInfo.getCurrentNode();
+			assert abox.contains(mergeInfo.getCurrentNode());
+			if (!currentNode.getTerms().contains(addTerm)) {
+				final NodeMergeInfo<Name, Klass, Role> newMergeInfo = currentNode.addTerm(addTerm);
+				for (IDLRestriction<Name, Klass, Role> unfoldee : tbox.getUnfolding(addTerm)) {
+					if (!currentNode.getTerms().contains(unfoldee))
+						addQueue.put(unfoldee, addTerm);
 				}
-				/*
-				 * new unfolds, restart iterator
-				 */
-				unfoldIter = allUnfolds.iterator();
+				mergeInfo.append(newMergeInfo);
+				if ((parent != null) && (!depMap.containsKey(currentNode, term)))
+					depMap.addParent(currentNode, term, currentNode, parent);
 			}
 		}
 
-		if (!allUnfolds.isEmpty()) {
-			/*
-			 * dispatch notification BEFORE actual unfold. Make sure, this is the ONLY piece of code that does this
-			 */
-			for (IDLRestriction<Name, Klass, Role> unfold : allUnfolds) {
-				final NodeMergeInfo<Name, Klass, Role> unfoldResult = currentNode.addTerm(unfold);
-				mergeInfo.append(unfoldResult);
-			}
-		}
-		assert abox.contains(currentNode);
-
+		assert abox.contains(mergeInfo.getCurrentNode());
 		return mergeInfo;
 	}
 
@@ -265,17 +244,18 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	/**
-	 * <p> Perform concept unfolding an all concept terms of the current node. </p><p> When the unfolding produces
-	 * nominals references, node joins (see {@link IABox#mergeNodes(de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode, de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode)
-	 * }
-	 *  may take place. {@literal unfoldAll()} thus returns a {@link NodeMergeInfo} indicating the ID of the target node
-	 * containing the unfoldings and information, if the target node was modified. </p
+	 * <p>
+	 * Perform concept unfolding an all concept terms of the current node. 
+	 * </p><p>
+	 * When the unfolding produces nominals references, node joins 
+	 * (see {@link IABox#mergeNodes(de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode, de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode)}
+	 * may take place. {@literal unfoldAll()} thus returns a {@link NodeMergeInfo} indicating the ID of the target node
+	 * containing the unfoldings and information, if the target node was modified. 
+	 * </p>
 	 *
-
-	 *
-	 *  @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings and information,
+	 * @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings and information,
 	 * if the target node was modified.
-	 *  @throws ENodeMergeException
+	 * @throws ENodeMergeException
 	 */
 	@Override
 	public NodeMergeInfo<Name, Klass, Role> unfoldAll()
@@ -295,15 +275,11 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 				mergeInfo.append(unfoldResult);
 				assert _abox.contains(currentNode);
 				if (!currentNode.equals(unfoldResult.getCurrentNode())) {
-					/*
-					 * a merge operation occured, switch current node, restart description iterator
-					 */
+					// a merge operation occured, switch current node, restart description iterator
 					currentNode = unfoldResult.getCurrentNode();
 					iter = currentNode.getTerms().iterator();
 				} else if (unfoldResult.isModified(currentNode))
-					/*
-					 * no merge operation, but the current node was modified, restart iterator
-					 */
+					 // no merge operation, but the current node was modified, restart iterator
 					iter = currentNode.getTerms().iterator();
 			}
 		}
@@ -313,6 +289,7 @@ public class ABoxNode<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 /// <editor-fold defaultstate="collapsed" desc="Cloneable">
+
 	public ABoxNode<Name, Klass, Role> clone(final IABox<Name, Klass, Role> newABox)
 	{
 		assert newABox != null;

@@ -55,7 +55,7 @@ public class RABox<Name extends Comparable<? super Name>, Klass extends Comparab
 	{
 		private Iterator<NodeID> _iter;
 
-		public SubRoleAwareNodeIDIterator(final Role role, final MultiMap<Role, NodeID> map)
+		SubRoleAwareNodeIDIterator(final Role role, final MultiMap<Role, NodeID> map)
 		{
 			final Collection<Role> subRoles = _node.getABox().getTBox().getRBox().getSubRoles(role);
 			final List<Iterator<? extends NodeID>> iterators = new ArrayList<Iterator<? extends NodeID>>(subRoles.size());
@@ -103,7 +103,7 @@ public class RABox<Name extends Comparable<? super Name>, Klass extends Comparab
 		private Iterator<NodeID> _nodeIDIter;
 		private Pair<Role, NodeID> _currentPair;
 
-		public SubRoleAwarePairIterator(final MultiMap<Role, NodeID> map)
+		SubRoleAwarePairIterator(final MultiMap<Role, NodeID> map)
 		{
 			_map = map;
 			_assertedRoleIter = map.keySet().iterator();
@@ -276,9 +276,7 @@ public class RABox<Name extends Comparable<? super Name>, Klass extends Comparab
 	public boolean hasPredecessor(Role role, NodeID predecessor)
 	{
 		if (_predecessors.containsValue(role, predecessor)) {
-			/*
-			 * short circuit path: role link is asserted
-			 */
+			// short circuit path: role link is asserted
 			return true;
 		} else {
 			for (Role superRole : _node.getABox().getTBox().getRBox().getSubRoles(role)) {

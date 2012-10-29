@@ -21,8 +21,8 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.AssertedRBox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.TBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.AssertedRBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.TBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
