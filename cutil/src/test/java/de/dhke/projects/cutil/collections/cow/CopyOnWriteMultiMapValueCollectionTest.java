@@ -28,9 +28,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import org.apache.commons.collections15.MultiMap;
 import org.junit.After;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  */
 public class CopyOnWriteMultiMapValueCollectionTest
 {
-	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<String, String>();
+	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<>();
 	private MultiMap<String, String> _baseMap;
 	private CopyOnWriteMultiMap<String, String> _cowMap;
 	private Collection<String> _valueCollection;
@@ -58,7 +58,7 @@ public class CopyOnWriteMultiMapValueCollectionTest
 		_baseMap.put("2", "B");
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
-		_cowMap = new CopyOnWriteMultiMap<String, String>(_baseMap, _factory);
+		_cowMap = new CopyOnWriteMultiMap<>(_baseMap, _factory);
 		_valueCollection = _cowMap.values();
 	}
 

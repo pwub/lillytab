@@ -20,32 +20,39 @@ import java.util.Collection;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ISWRLTermFactory<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> {
+public interface ISWRLTermFactory<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> {
 
-	ISWRLNominalReference<Name, Klass, Role> getSWRLNominalReference(Name nomimal);
-
-
-	ISWRLClassAtom<Name, Klass, Role> getSWRLClassAtom(Klass klass, ISWRLIndividual<Name, Klass, Role> individual);
+	ISWRLIndividualReference<I, L, K, R> getSWRLIndividualReference(I individual);
 
 
-	ISWRLRoleAtom<Name, Klass, Role> getSWRLRoleAtom(Role role, ISWRLIndividual<Name, Klass, Role> source,
-													 ISWRLIndividual<Name, Klass, Role> target);
+	ISWRLLiteralReference<I, L, K, R> getSWRLLiteralReference(L literal);
 
 
-	ISWRLIntersection<Name, Klass, Role> getSWRLIntersection(Collection<ISWRLAtomicTerm<Name, Klass, Role>> atoms);
+	ISWRLClassAtom<I, L, K, R> getSWRLClassAtom(K klass, ISWRLIArgument<I, L, K, R> individual);
 
 
-	ISWRLIntersection<Name, Klass, Role> getSWRLIntersection(ISWRLAtomicTerm<Name, Klass, Role> atom1,
-															 ISWRLAtomicTerm<Name, Klass, Role> atom2);
+	ISWRLObjectRoleAtom<I, L, K, R> getSWRLObjectRoleAtom(R role, ISWRLIArgument<I, L, K, R> source,
+														  ISWRLIArgument<I, L, K, R> target);
 
 
-	ISWRLRule<Name, Klass, Role> getSWRLRule(ISWRLTerm<Name, Klass, Role> head, ISWRLTerm<Name, Klass, Role> body);
+	ISWRLDataRoleAtom<I, L, K, R> getSWRLDataRoleAtom(R role, ISWRLIArgument<I, L, K, R> source,
+													  ISWRLDArgument<I, L, K, R> target);
 
 
-	ISWRLVariable<Name, Klass, Role> getSWRLVariable(String name);
+	ISWRLIntersection<I, L, K, R> getSWRLIntersection(Collection<ISWRLAtomicTerm<I, L, K, R>> atoms);
+
+
+	ISWRLIntersection<I, L, K, R> getSWRLIntersection(ISWRLAtomicTerm<I, L, K, R> atom1,
+													  ISWRLAtomicTerm<I, L, K, R> atom2);
+
+
+	ISWRLRule<I, L, K, R> getSWRLRule(ISWRLTerm<I, L, K, R> head, ISWRLTerm<I, L, K, R> body);
+
+
+	ISWRLVariable<I, L, K, R> getSWRLVariable(String name);
 }

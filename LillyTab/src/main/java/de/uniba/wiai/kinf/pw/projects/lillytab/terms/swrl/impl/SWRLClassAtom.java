@@ -16,27 +16,27 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLClassAtom<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	implements ISWRLClassAtom<Name, Klass, Role> {
+public class SWRLClassAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements ISWRLClassAtom<I, L, K, R> {
 
-	private final Klass _klass;
-	private final ISWRLIndividual<Name, Klass, Role> _individual;
+	private final K _klass;
+	private final ISWRLIArgument<I, L, K, R> _individual;
 
 
-	protected SWRLClassAtom(final Klass klass, final ISWRLIndividual<Name, Klass, Role> individual)
+	protected SWRLClassAtom(final K klass, final ISWRLIArgument<I, L, K, R> individual)
 	{
 		_klass = klass;
 		_individual = individual;
@@ -44,19 +44,21 @@ public class SWRLClassAtom<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public ISWRLClassAtom<Name, Klass, Role> clone()
+	public ISWRLClassAtom<I, L, K, R> clone()
 	{
 		return this;
 	}
 
 
-	public Klass getKlass()
+	@Override
+	public K getKlass()
 	{
 		return _klass;
 	}
 
 
-	public ISWRLIndividual<Name, Klass, Role> getIndividual()
+	@Override
+	public ISWRLIArgument<I, L, K, R> getIndividual()
 	{
 		return _individual;
 	}
@@ -77,7 +79,7 @@ public class SWRLClassAtom<Name extends Comparable<? super Name>, Klass extends 
 		}
 		if (obj instanceof ISWRLClassAtom) {
 			@SuppressWarnings("unchecked")
-			final ISWRLClassAtom<Name, Klass, Role> atom = (ISWRLClassAtom<Name, Klass, Role>) obj;
+			final ISWRLClassAtom<I, L, K, R> atom = (ISWRLClassAtom<I, L, K, R>) obj;
 			return (_klass.equals(atom.getKlass()) && _individual.equals(atom.getIndividual()));
 		} else {
 			return false;
@@ -99,6 +101,7 @@ public class SWRLClassAtom<Name extends Comparable<? super Name>, Klass extends 
 	}
 
 
+	@Override
 	public String toString(IToStringFormatter formatter)
 	{
 		final StringBuilder sb = new StringBuilder();
@@ -111,18 +114,20 @@ public class SWRLClassAtom<Name extends Comparable<? super Name>, Klass extends 
 	}
 
 
+	@Override
 	public SWRLTermOrder getSWRLTermOrder()
 	{
 		return SWRLTermOrder.SWRL_AFTER_CLASS_ATOM;
 	}
 
 
-	public int compareTo(final ISWRLTerm<Name, Klass, Role> o)
+	@Override
+	public int compareTo(final ISWRLTerm<I, L, K, R> o)
 	{
 		int compare = getSWRLTermOrder().compareTo(o);
 		if (compare == 0) {
 			assert o instanceof ISWRLClassAtom;
-			final ISWRLClassAtom<Name, Klass, Role> other = (ISWRLClassAtom<Name, Klass, Role>) o;
+			final ISWRLClassAtom<I, L, K, R> other = (ISWRLClassAtom<I, L, K, R>) o;
 			/**
 			 * lexicographically compare klass first and then individual.
 			 *

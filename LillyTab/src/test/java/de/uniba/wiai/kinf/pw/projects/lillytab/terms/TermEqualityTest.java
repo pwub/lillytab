@@ -3,45 +3,42 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
 /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
- * <p> Test term equality for for sample implementation {@link de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl}. </p>
+ *  Test term equality for for sample implementation {@link de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl}. 
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class TermEqualityTest {
-
-	private IDLTermFactory<String, String, String> _termFactory;
-
-
-	public TermEqualityTest()
-	{
-	}
 
 
 	@BeforeClass
@@ -54,6 +51,13 @@ public class TermEqualityTest {
 	@AfterClass
 	public static void tearDownClass()
 		throws Exception
+	{
+	}
+
+	private IDLTermFactory<String, String, String, String> _termFactory;
+
+
+	public TermEqualityTest()
 	{
 	}
 
@@ -91,12 +95,12 @@ public class TermEqualityTest {
 	@Test
 	public void testNegationEquality()
 	{
-		IDLRestriction<String, String, String> a = _termFactory.getDLClassReference("A");
-		IDLRestriction<String, String, String> b = _termFactory.getDLClassReference("B");
+		IDLClassExpression<String, String, String, String> a = _termFactory.getDLClassReference("A");
+		IDLClassExpression<String, String, String, String> b = _termFactory.getDLClassReference("B");
 
-		IDLNegation na0 = _termFactory.getDLNegation(a);
-		IDLNegation na1 = _termFactory.getDLNegation(a);
-		IDLNegation nb = _termFactory.getDLNegation(b);
+		IDLObjectNegation na0 = _termFactory.getDLObjectNegation(a);
+		IDLObjectNegation na1 = _termFactory.getDLObjectNegation(a);
+		IDLObjectNegation nb = _termFactory.getDLObjectNegation(b);
 
 		assertEquals(na0, na1);
 		assertFalse(na0.equals(nb));
@@ -110,14 +114,14 @@ public class TermEqualityTest {
 	@Test
 	public void testUnionEquality()
 	{
-		IDLRestriction<String, String, String> a = _termFactory.getDLClassReference("A");
-		IDLRestriction<String, String, String> b = _termFactory.getDLClassReference("B");
-		IDLRestriction<String, String, String> c = _termFactory.getDLClassReference("C");
+		IDLClassExpression<String, String, String, String> a = _termFactory.getDLClassReference("A");
+		IDLClassExpression<String, String, String, String> b = _termFactory.getDLClassReference("B");
+		IDLClassExpression<String, String, String, String> c = _termFactory.getDLClassReference("C");
 
-		IDLRestriction<String, String, String> u0 = _termFactory.getDLUnion(a, b);
-		IDLRestriction<String, String, String> u1 = _termFactory.getDLUnion(a, b);
-		IDLRestriction<String, String, String> u2 = _termFactory.getDLUnion(b, a);
-		IDLRestriction<String, String, String> u3 = _termFactory.getDLUnion(a, c);
+		IDLClassExpression<String, String, String, String> u0 = _termFactory.getDLObjectUnion(a, b);
+		IDLClassExpression<String, String, String, String> u1 = _termFactory.getDLObjectUnion(a, b);
+		IDLClassExpression<String, String, String, String> u2 = _termFactory.getDLObjectUnion(b, a);
+		IDLClassExpression<String, String, String, String> u3 = _termFactory.getDLObjectUnion(a, c);
 
 		assertEquals(u0, u1);
 		assertEquals(u0, u2);
@@ -135,14 +139,14 @@ public class TermEqualityTest {
 	@Test
 	public void testIntersectionEquality()
 	{
-		IDLRestriction<String, String, String> a = _termFactory.getDLClassReference("A");
-		IDLRestriction<String, String, String> b = _termFactory.getDLClassReference("B");
-		IDLRestriction<String, String, String> c = _termFactory.getDLClassReference("C");
+		IDLClassExpression<String, String, String, String> a = _termFactory.getDLClassReference("A");
+		IDLClassExpression<String, String, String, String> b = _termFactory.getDLClassReference("B");
+		IDLClassExpression<String, String, String, String> c = _termFactory.getDLClassReference("C");
 
-		IDLRestriction<String, String, String> i0 = _termFactory.getDLIntersection(a, b);
-		IDLRestriction<String, String, String> i1 = _termFactory.getDLIntersection(a, b);
-		IDLRestriction<String, String, String> i2 = _termFactory.getDLIntersection(b, a);
-		IDLRestriction<String, String, String> i3 = _termFactory.getDLIntersection(a, c);
+		IDLClassExpression<String, String, String, String> i0 = _termFactory.getDLObjectIntersection(a, b);
+		IDLClassExpression<String, String, String, String> i1 = _termFactory.getDLObjectIntersection(a, b);
+		IDLClassExpression<String, String, String, String> i2 = _termFactory.getDLObjectIntersection(b, a);
+		IDLClassExpression<String, String, String, String> i3 = _termFactory.getDLObjectIntersection(a, c);
 
 		assertEquals(i0, i1);
 		assertEquals(i0, i2);
@@ -160,15 +164,15 @@ public class TermEqualityTest {
 	@Test
 	public void testSomeRestrictionEquality()
 	{
-		IDLRestriction<String, String, String> a = _termFactory.getDLClassReference("A");
-		IDLRestriction<String, String, String> b = _termFactory.getDLClassReference("B");
+		IDLClassExpression<String, String, String, String> a = _termFactory.getDLClassReference("A");
+		IDLClassExpression<String, String, String, String> b = _termFactory.getDLClassReference("B");
 		String r0 = "r0";
 		String r1 = "r1";
 
-		IDLRestriction<String, String, String> rest0 = _termFactory.getDLSomeRestriction(r0, a);
-		IDLRestriction<String, String, String> rest1 = _termFactory.getDLSomeRestriction(r0, a);
-		IDLRestriction<String, String, String> rest2 = _termFactory.getDLSomeRestriction(r0, b);
-		IDLRestriction<String, String, String> rest3 = _termFactory.getDLSomeRestriction(r1, a);
+		IDLClassExpression<String, String, String, String> rest0 = _termFactory.getDLObjectSomeRestriction(r0, a);
+		IDLClassExpression<String, String, String, String> rest1 = _termFactory.getDLObjectSomeRestriction(r0, a);
+		IDLClassExpression<String, String, String, String> rest2 = _termFactory.getDLObjectSomeRestriction(r0, b);
+		IDLClassExpression<String, String, String, String> rest3 = _termFactory.getDLObjectSomeRestriction(r1, a);
 
 		assertEquals(rest0, rest1);
 		assertFalse(rest1.equals(rest2));
@@ -184,15 +188,15 @@ public class TermEqualityTest {
 	@Test
 	public void testAllRestrictionEquality()
 	{
-		IDLRestriction<String, String, String> a = _termFactory.getDLClassReference("A");
-		IDLRestriction<String, String, String> b = _termFactory.getDLClassReference("B");
+		IDLClassExpression<String, String, String, String> a = _termFactory.getDLClassReference("A");
+		IDLClassExpression<String, String, String, String> b = _termFactory.getDLClassReference("B");
 		String r0 = "r0";
 		String r1 = "r1";
 
-		IDLRestriction<String, String, String> rest0 = _termFactory.getDLAllRestriction(r0, a);
-		IDLRestriction<String, String, String> rest1 = _termFactory.getDLAllRestriction(r0, a);
-		IDLRestriction<String, String, String> rest2 = _termFactory.getDLAllRestriction(r0, b);
-		IDLRestriction<String, String, String> rest3 = _termFactory.getDLAllRestriction(r1, a);
+		IDLClassExpression<String, String, String, String> rest0 = _termFactory.getDLObjectAllRestriction(r0, a);
+		IDLClassExpression<String, String, String, String> rest1 = _termFactory.getDLObjectAllRestriction(r0, a);
+		IDLClassExpression<String, String, String, String> rest2 = _termFactory.getDLObjectAllRestriction(r0, b);
+		IDLClassExpression<String, String, String, String> rest3 = _termFactory.getDLObjectAllRestriction(r1, a);
 
 		assertEquals(rest0, rest1);
 		assertFalse(rest1.equals(rest2));
@@ -213,20 +217,20 @@ public class TermEqualityTest {
 	@SuppressWarnings("unchecked")
 	public void testCrossEquality()
 	{
-		IDLRestriction<String, String, String> a = _termFactory.getDLClassReference("A");
-		IDLRestriction<String, String, String> b = _termFactory.getDLClassReference("B");
-		IDLRestriction<String, String, String> neg = _termFactory.getDLNegation(a);
-		IDLRestriction<String, String, String> union = _termFactory.getDLUnion(a, b);
-		IDLRestriction<String, String, String> intersection = _termFactory.getDLIntersection(a, b);
-		IDLRestriction<String, String, String> some = _termFactory.getDLSomeRestriction("r", a);
-		IDLRestriction<String, String, String> all = _termFactory.getDLAllRestriction("r", a);
+		IDLClassExpression<String, String, String, String> a = _termFactory.getDLClassReference("A");
+		IDLClassExpression<String, String, String, String> b = _termFactory.getDLClassReference("B");
+		IDLClassExpression<String, String, String, String> neg = _termFactory.getDLObjectNegation(a);
+		IDLClassExpression<String, String, String, String> union = _termFactory.getDLObjectUnion(a, b);
+		IDLClassExpression<String, String, String, String> intersection = _termFactory.getDLObjectIntersection(a, b);
+		IDLClassExpression<String, String, String, String> some = _termFactory.getDLObjectSomeRestriction("r", a);
+		IDLClassExpression<String, String, String, String> all = _termFactory.getDLObjectAllRestriction("r", a);
 
-		IDLRestriction[] allDescriptions = new IDLRestriction[]{
+		IDLClassExpression[] allDescriptions = new IDLClassExpression[]{
 			a, b, neg, union, intersection, some, all
 		};
 
-		for (IDLRestriction<String, String, String> d0 : allDescriptions) {
-			for (IDLRestriction<String, String, String> d1 : allDescriptions) {
+		for (IDLClassExpression<String, String, String, String> d0 : allDescriptions) {
+			for (IDLClassExpression<String, String, String, String> d1 : allDescriptions) {
 				if (d0 != d1) {
 					assertFalse(d0.equals(d1));
 				}
@@ -239,10 +243,10 @@ public class TermEqualityTest {
 	public void testImpliesNonEquals()
 	{
 		/* regression test */
-		IDLRestriction<String, String, String> a = _termFactory.getDLClassReference("A");
-		IDLRestriction<String, String, String> b = _termFactory.getDLClassReference("B");
-		IDLImplies<String, String, String> imp1 = _termFactory.getDLImplies(a, b);
-		IDLImplies<String, String, String> imp2 = _termFactory.getDLImplies(b, a);
+		IDLClassExpression<String, String, String, String> a = _termFactory.getDLClassReference("A");
+		IDLClassExpression<String, String, String, String> b = _termFactory.getDLClassReference("B");
+		IDLImplies<String, String, String, String> imp1 = _termFactory.getDLImplies(a, b);
+		IDLImplies<String, String, String, String> imp2 = _termFactory.getDLImplies(b, a);
 		assertNotSame(imp1, imp2);
 		assertFalse(imp1.equals(imp2));
 	}

@@ -21,8 +21,6 @@
  **/
 package de.dhke.projects.cutil.collections.aspect;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,10 +33,10 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -68,7 +66,7 @@ public class AspectMultiMapTest
 	@Before
 	public void setUp()
 	{
-		_baseMap = new MultiHashMap<String, String>();
+		_baseMap = new MultiHashMap<>();
 		_baseMap.put("1", "a");
 		_baseMap.put("1", "A");
 		_baseMap.put("2", "b");
@@ -76,7 +74,7 @@ public class AspectMultiMapTest
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
 		_aspectMap = AspectMultiMap.decorate(_baseMap, this);
-		_listener = new AspectCollectionHistoryListener<Map.Entry<String, String>, MultiMap<String, String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectMap.getListeners().add(_listener);
 	}
 
@@ -102,9 +100,9 @@ public class AspectMultiMapTest
 		assertFalse(_aspectMap.containsValue("2", "B"));
 		assertTrue(_aspectMap.containsValue("2", "b"));
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("2", "B"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "B"), _listener.beforeRemoveEvents.get(0).getItem());
 		assertEquals(1, _listener.afterRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("2", "B"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "B"), _listener.afterRemoveEvents.get(0).getItem());
 	}
 
 	/**
@@ -176,9 +174,9 @@ public class AspectMultiMapTest
 		values.remove("a");
 		assertFalse(_aspectMap.containsValue("1", "a"));
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
 		assertEquals(1, _listener.afterRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "a"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "a"), _listener.afterRemoveEvents.get(0).getItem());
 	}
 
 		/**
@@ -245,9 +243,9 @@ public class AspectMultiMapTest
 		TestHelper.assertSequenceEquals(Arrays.asList("a", "A", "_"), _aspectMap.get("1"));
 
 		assertEquals(1, _listener.beforeAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "_"), _listener.beforeAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "_"), _listener.beforeAddEvents.get(0).getItem());
 		assertEquals(1, _listener.afterAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "_"), _listener.afterAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "_"), _listener.afterAddEvents.get(0).getItem());
 	}
 
 		/**
@@ -278,8 +276,8 @@ public class AspectMultiMapTest
 		assertNull(_aspectMap.remove("0"));
 		TestHelper.assertSequenceEquals(Arrays.asList("a", "A"), _aspectMap.remove("1"));
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("1", "A"), _listener.beforeRemoveEvents.get(1).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "A"), _listener.beforeRemoveEvents.get(1).getItem());
 	}
 
 	/**
@@ -329,24 +327,24 @@ public class AspectMultiMapTest
 	public void testPutAll_Map()
 	{
 		/* use tree map so item checks below works. HashMap reorders entries */
-		Map<String, String> addMap = new TreeMap<String, String>();
+		Map<String, String> addMap = new TreeMap<>();
 		addMap.put("1", "α");
 		addMap.put("2", "β");
 		_aspectMap.putAll(addMap);
 		TestHelper.assertSequenceEquals(Arrays.asList("a", "A", "α"), _aspectMap.get("1"));
 		TestHelper.assertSequenceEquals(Arrays.asList("b", "B", "β"), _aspectMap.get("2"));
 		assertEquals(2, _listener.beforeAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "α"), _listener.beforeAddEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("2", "β"), _listener.beforeAddEvents.get(1).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "α"), _listener.beforeAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "β"), _listener.beforeAddEvents.get(1).getItem());
 		assertEquals(2, _listener.afterAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "α"), _listener.afterAddEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("2", "β"), _listener.afterAddEvents.get(1).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "α"), _listener.afterAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "β"), _listener.afterAddEvents.get(1).getItem());
 	}
 
 	@Test
 	public void testPutAll_Map_veto()
 	{
-		Map<String, String> addMap = new HashMap<String, String>();
+		Map<String, String> addMap = new HashMap<>();
 		addMap.put("1", "α");
 		addMap.put("2", "β");
 		_listener.vetoAdd = true;
@@ -366,7 +364,7 @@ public class AspectMultiMapTest
 	@Test
 	public void testPutAll_MultiMap()
 	{
-		MultiMap<String, String> addMap = new MultiHashMap<String, String>();
+		MultiMap<String, String> addMap = new MultiHashMap<>();
 		addMap.put("1", "α");
 		addMap.put("1", "alpha");
 		addMap.put("2", "β");
@@ -375,21 +373,21 @@ public class AspectMultiMapTest
 		TestHelper.assertSequenceEquals(Arrays.asList("a", "A", "α", "alpha"), _aspectMap.get("1"));
 		TestHelper.assertSequenceEquals(Arrays.asList("b", "B", "β", "beta"), _aspectMap.get("2"));
 		assertEquals(4, _listener.beforeAddEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "α"), _listener.beforeAddEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "alpha"), _listener.beforeAddEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "β"), _listener.beforeAddEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "beta"), _listener.beforeAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "α"), _listener.beforeAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "alpha"), _listener.beforeAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "β"), _listener.beforeAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "beta"), _listener.beforeAddEvents));
 		assertEquals(4, _listener.afterAddEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "α"), _listener.afterAddEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "alpha"), _listener.afterAddEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "β"), _listener.afterAddEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "beta"), _listener.afterAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "α"), _listener.afterAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "alpha"), _listener.afterAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "β"), _listener.afterAddEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "beta"), _listener.afterAddEvents));
 	}
 
 	@Test
 	public void testPutAll_MultiMap_veto()
 	{
-		MultiMap<String, String> addMap = new MultiHashMap<String, String>();
+		MultiMap<String, String> addMap = new MultiHashMap<>();
 		addMap.put("1", "α");
 		addMap.put("1", "alpha");
 		addMap.put("2", "β");
@@ -419,11 +417,11 @@ public class AspectMultiMapTest
 		_aspectMap.putAll("2", values);
 		TestHelper.assertSequenceEquals(Arrays.asList("b", "B", "β", "beta"), _aspectMap.get("2"));
 		assertEquals(2, _listener.beforeAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("2", "β"), _listener.beforeAddEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("2", "beta"), _listener.beforeAddEvents.get(1).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "β"), _listener.beforeAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "beta"), _listener.beforeAddEvents.get(1).getItem());
 		assertEquals(2, _listener.afterAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("2", "β"), _listener.afterAddEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("2", "beta"), _listener.afterAddEvents.get(1).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "β"), _listener.afterAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "beta"), _listener.afterAddEvents.get(1).getItem());
 	}
 
 		/**
@@ -485,9 +483,9 @@ public class AspectMultiMapTest
 		assertFalse(_aspectMap.containsValue("1", "a"));
 
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
 		assertEquals(1, _listener.afterRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("1", "a"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("1", "a"), _listener.afterRemoveEvents.get(0).getItem());
 	}
 
 	@Test

@@ -3,26 +3,30 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.io;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividualReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIntersection;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLNominalReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRule;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
@@ -37,12 +41,12 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
+import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
 import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLLiteral;
-import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
 import org.semanticweb.owlapi.model.OWLProperty;
 import org.semanticweb.owlapi.model.SWRLAtom;
@@ -72,16 +76,16 @@ public class OWLAPISWRLStorer {
 	}
 
 
-	public SWRLAtom convertAtom(ISWRLAtomicTerm<OWLObject, OWLClass, OWLProperty<?, ?>> sourceAtom)
+	public SWRLAtom convertAtom(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceAtom)
 	{
 		final Map<String, IRI> varMap = new HashMap<>();
 
 		if (sourceAtom instanceof ISWRLClassAtom) {
-			final ISWRLClassAtom<OWLObject, OWLClass, OWLProperty<?, ?>> classAtom = (ISWRLClassAtom<OWLObject, OWLClass, OWLProperty<?, ?>>) sourceAtom;
+			final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> classAtom = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceAtom;
 			return _dataFactory.
 				getSWRLClassAtom(classAtom.getKlass(), makeIndividual(varMap, classAtom.getIndividual()));
 		} else if (sourceAtom instanceof ISWRLRoleAtom) {
-			final ISWRLRoleAtom<OWLObject, OWLClass, OWLProperty<?, ?>> roleAtom = (ISWRLRoleAtom<OWLObject, OWLClass, OWLProperty<?, ?>>) sourceAtom;
+			final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> roleAtom = (ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceAtom;
 			roleAtom.getRole();
 
 			if (roleAtom.getRole() instanceof OWLObjectProperty) {
@@ -104,10 +108,10 @@ public class OWLAPISWRLStorer {
 
 
 	public Set<SWRLAtom> convertAtoms(
-		final Collection<? extends ISWRLAtomicTerm<OWLObject, OWLClass, OWLProperty<?, ?>>> sourceAtoms)
+		final Collection<? extends ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> sourceAtoms)
 	{
 		SortedSet<SWRLAtom> atoms = new TreeSet<>();
-		for (ISWRLAtomicTerm<OWLObject, OWLClass, OWLProperty<?, ?>> sourceAtom : sourceAtoms) {
+		for (ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceAtom : sourceAtoms) {
 			final SWRLAtom convertedAtom = convertAtom(sourceAtom);
 			atoms.add(convertedAtom);
 		}
@@ -115,21 +119,51 @@ public class OWLAPISWRLStorer {
 	}
 
 
-	public SWRLRule convertRule(final ISWRLRule<OWLObject, OWLClass, OWLProperty<?, ?>> sourceRule)
+	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceRule,
+								final Set<OWLAnnotation> annotations)
 	{
 		final Set<SWRLAtom> headTerms;
 		if (sourceRule.getHead() instanceof ISWRLIntersection) {
-			headTerms = convertAtoms((ISWRLIntersection<OWLObject, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead());
+			headTerms = convertAtoms(
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead());
 		} else {
 			headTerms = Collections.
-				singleton(convertAtom((ISWRLAtomicTerm<OWLObject, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead()));
+				singleton(convertAtom(
+				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead()));
 		}
 		final Set<SWRLAtom> bodyTerms;
 		if (sourceRule.getBody() instanceof ISWRLIntersection) {
-			bodyTerms = convertAtoms((ISWRLIntersection<OWLObject, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody());
+			bodyTerms = convertAtoms(
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody());
 		} else {
 			bodyTerms = Collections.
-				singleton(convertAtom((ISWRLAtomicTerm<OWLObject, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody()));
+				singleton(convertAtom(
+				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody()));
+		}
+		final SWRLRule rule = _dataFactory.getSWRLRule(bodyTerms, headTerms, annotations);
+		return rule;
+	}
+
+
+	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceRule)
+	{
+		final Set<SWRLAtom> headTerms;
+		if (sourceRule.getHead() instanceof ISWRLIntersection) {
+			headTerms = convertAtoms(
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead());
+		} else {
+			headTerms = Collections.
+				singleton(convertAtom(
+				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead()));
+		}
+		final Set<SWRLAtom> bodyTerms;
+		if (sourceRule.getBody() instanceof ISWRLIntersection) {
+			bodyTerms = convertAtoms(
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody());
+		} else {
+			bodyTerms = Collections.
+				singleton(convertAtom(
+				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody()));
 		}
 		final SWRLRule rule = _dataFactory.getSWRLRule(bodyTerms, headTerms);
 		return rule;
@@ -137,19 +171,19 @@ public class OWLAPISWRLStorer {
 
 
 	private SWRLIArgument makeIndividual(final Map<String, IRI> varMap,
-										 final ISWRLIndividual<OWLObject, OWLClass, OWLProperty<?, ?>> indRef)
+										 final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> indRef)
 	{
-		if (indRef instanceof ISWRLNominalReference) {
-			final ISWRLNominalReference<OWLObject, OWLClass, OWLProperty<?, ?>> nomRef = (ISWRLNominalReference<OWLObject, OWLClass, OWLProperty<?, ?>>) indRef;
-			if (nomRef.getNominal() instanceof OWLIndividual) {
-				return _dataFactory.getSWRLIndividualArgument((OWLIndividual) nomRef.getNominal());
+		if (indRef instanceof ISWRLIndividualReference) {
+			final ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nomRef = (ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
+			if (nomRef.getIndividual() instanceof OWLIndividual) {
+				return _dataFactory.getSWRLIndividualArgument((OWLIndividual) nomRef.getIndividual());
 			} else {
 				throw new IllegalArgumentException(String.format("Unsupported nominal type `%s'",
-																 nomRef.getNominal().
+																 nomRef.getIndividual().
 					getClass()));
 			}
 		} else if (indRef instanceof ISWRLVariable) {
-			final ISWRLVariable<OWLObject, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLObject, OWLClass, OWLProperty<?, ?>>) indRef;
+			final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
 
 			final String varName = var.getVariableName();
 			IRI varIRI = varMap.get(varName);
@@ -171,20 +205,13 @@ public class OWLAPISWRLStorer {
 
 
 	private SWRLDArgument makeDataLiteral(final Map<String, IRI> varMap,
-										  final ISWRLIndividual<OWLObject, OWLClass, OWLProperty<?, ?>> indRef)
+										  final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> indRef)
 	{
-		if (indRef instanceof ISWRLNominalReference) {
-			final ISWRLNominalReference<OWLObject, OWLClass, OWLProperty<?, ?>> nomRef = (ISWRLNominalReference<OWLObject, OWLClass, OWLProperty<?, ?>>) indRef;
-			final SWRLIArgument arg;
-			if (nomRef.getNominal() instanceof OWLLiteral) {
-				return _dataFactory.getSWRLLiteralArgument((OWLLiteral) nomRef.getNominal());
-			} else {
-				throw new IllegalArgumentException(String.format("Unsupported literal type `%s'",
-																 nomRef.getNominal().
-					getClass()));
-			}
+		if (indRef instanceof ISWRLLiteralReference) {
+			final ISWRLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> litRef = (ISWRLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
+			return _dataFactory.getSWRLLiteralArgument(litRef.getObject());
 		} else if (indRef instanceof ISWRLVariable) {
-			final ISWRLVariable<OWLObject, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLObject, OWLClass, OWLProperty<?, ?>>) indRef;
+			final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
 
 			final String varName = var.getVariableName();
 			IRI varIRI = varMap.get(varName);

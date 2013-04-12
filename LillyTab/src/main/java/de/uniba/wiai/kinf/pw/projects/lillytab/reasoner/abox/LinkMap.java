@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.Pair;
@@ -38,34 +43,34 @@ import org.apache.commons.collections15.MultiMap;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class LinkMap<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AspectMultiMap<Role, NodeID, MultiMap<Role, NodeID>>
-	implements ILinkMap<Name, Klass, Role>, Cloneable {
+public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends AspectMultiMap<R, NodeID, MultiMap<R, NodeID>>
+	implements ILinkMap<I, L, K, R>, Cloneable {
 
 	public LinkMap(
-		final IABoxNode<Name, Klass, Role> node,
+		final IABoxNode<I, L, K, R> node,
 		boolean always_empty)
 	{
-		super(new EmptyMultiMap<Role, NodeID>(), node);
+		super(new EmptyMultiMap<R, NodeID>(), node);
 	}
 
 
 	public LinkMap(
-		final IABoxNode<Name, Klass, Role> node)
+		final IABoxNode<I, L, K, R> node)
 	{
-		super(CopyOnWriteMultiMap.decorate(new MultiTreeSetHashMap<Role, NodeID>(),
-										   new MultiTreeSetHashMapFactory<Role, NodeID>()), node);
+		super(CopyOnWriteMultiMap.decorate(new MultiTreeSetHashMap<R, NodeID>(),
+										   new MultiTreeSetHashMapFactory<R, NodeID>()), node);
 	}
 
 
 	protected LinkMap(
-		final IABoxNode<Name, Klass, Role> node,
-		final CopyOnWriteMultiMap<Role, NodeID> baseMap)
+		final IABoxNode<I, L, K, R> node,
+		final CopyOnWriteMultiMap<R, NodeID> baseMap)
 	{
 		super(baseMap, node);
 	}
@@ -73,23 +78,25 @@ public class LinkMap<Name extends Comparable<? super Name>, Klass extends Compar
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public IABoxNode<Name, Klass, Role> getNode()
+	public IABoxNode<I, L, K, R> getNode()
 	{
-		return (IABoxNode<Name, Klass, Role>) getSender();
+		return (IABoxNode<I, L, K, R>) getSender();
 	}
 
 
-	public NodeID put(final Role role, final IABoxNode<Name, Klass, Role> node)
+	@Override
+	public NodeID put(final R role, final IABoxNode<I, L, K, R> node)
 	{
 		return put(role, node.getNodeID());
 	}
 
 
-	public boolean putAll(Role key,
-						  Collection<? extends IABoxNode<Name, Klass, Role>> values)
+	@Override
+	public boolean putAll(R key,
+						  Collection<? extends IABoxNode<I, L, K, R>> values)
 	{
 		boolean added = false;
-		for (IABoxNode<Name, Klass, Role> node : values) {
+		for (IABoxNode<I, L, K, R> node : values) {
 			if (put(key, node.getNodeID()) != null) {
 				added = true;
 			}
@@ -99,14 +106,14 @@ public class LinkMap<Name extends Comparable<? super Name>, Klass extends Compar
 
 
 	@Override
-	protected void notifyAfterElementAdded(CollectionItemEvent<Entry<Role, NodeID>, MultiMap<Role, NodeID>> ev)
+	protected void notifyAfterElementAdded(CollectionItemEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> ev)
 	{
 		super.notifyAfterElementAdded(ev);
-		final IABoxNode<Name, Klass, Role> source = getNode();
-		final IABox<Name, Klass, Role> abox = source.getABox();
+		final IABoxNode<I, L, K, R> source = getNode();
+		final IABox<I, L, K, R> abox = source.getABox();
 		assert abox != null;
-		final Map.Entry<Role, NodeID> entry = ev.getItem();
-		final IABoxNode<Name, Klass, Role> target = abox.getNode(entry.getValue());
+		final Map.Entry<R, NodeID> entry = ev.getItem();
+		final IABoxNode<I, L, K, R> target = abox.getNode(entry.getValue());
 		assert target != null;
 		if (isSuccessorMap(source, ev.getCollection())) {
 			if (!target.getRABox().getAssertedPredecessors().containsValue(entry.getKey(), source.getNodeID())) {
@@ -125,13 +132,13 @@ public class LinkMap<Name extends Comparable<? super Name>, Klass extends Compar
 
 
 	@Override
-	public void notifyAfterElementRemoved(final CollectionItemEvent<Entry<Role, NodeID>, MultiMap<Role, NodeID>> e)
+	public void notifyAfterElementRemoved(final CollectionItemEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> e)
 	{
-		final IABoxNode<Name, Klass, Role> source = getNode();
-		final IABox<Name, Klass, Role> abox = source.getABox();
+		final IABoxNode<I, L, K, R> source = getNode();
+		final IABox<I, L, K, R> abox = source.getABox();
 		if (abox != null) {
-			final Map.Entry<Role, NodeID> entry = e.getItem();
-			final IABoxNode<Name, Klass, Role> target = abox.getNode(entry.getValue());
+			final Map.Entry<R, NodeID> entry = e.getItem();
+			final IABoxNode<I, L, K, R> target = abox.getNode(entry.getValue());
 
 			if (target != null) {
 				if (isSuccessorMap(source, e.getCollection())) {
@@ -156,19 +163,19 @@ public class LinkMap<Name extends Comparable<? super Name>, Klass extends Compar
 
 
 	@Override
-	public void notifyBeforeCollectionCleared(CollectionEvent<Entry<Role, NodeID>, MultiMap<Role, NodeID>> e)
+	public void notifyBeforeCollectionCleared(CollectionEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> e)
 	{
-		final IABoxNode<Name, Klass, Role> source = getNode();
-		final IABox<Name, Klass, Role> abox = source.getABox();
+		final IABoxNode<I, L, K, R> source = getNode();
+		final IABox<I, L, K, R> abox = source.getABox();
 
 		if (abox != null) {
 			if (isPredecessorMap(source, e.getCollection())) {
 				/* we cannot iterate through the map, because it gets modified by the remove() callbacks */
-				final Collection<Pair<Role, IABoxNode<Name, Klass, Role>>> predEntries = getAllEntries(abox, e.
+				final Collection<Pair<R, IABoxNode<I, L, K, R>>> predEntries = getAllEntries(abox, e.
 					getCollection());
 
 				final NodeID sourceID = source.getNodeID();
-				for (Pair<Role, IABoxNode<Name, Klass, Role>> predEntry : predEntries) {
+				for (Pair<R, IABoxNode<I, L, K, R>> predEntry : predEntries) {
 					final NodeID removedID = predEntry.getSecond().getRABox().getAssertedSuccessors().
 						remove(predEntry.getFirst(),
 							   sourceID);
@@ -177,11 +184,11 @@ public class LinkMap<Name extends Comparable<? super Name>, Klass extends Compar
 				assert source.getRABox().getAssertedPredecessors().isEmpty();
 			} else if (isSuccessorMap(source, e.getCollection())) {
 				/* we cannot iterate through the map, because it gets modified by the remove() callbacks */
-				final Collection<Pair<Role, IABoxNode<Name, Klass, Role>>> succEntries = getAllEntries(abox, e.
+				final Collection<Pair<R, IABoxNode<I, L, K, R>>> succEntries = getAllEntries(abox, e.
 					getCollection());
 
 				final NodeID sourceID = source.getNodeID();
-				for (Pair<Role, IABoxNode<Name, Klass, Role>> succEntry : succEntries) {
+				for (Pair<R, IABoxNode<I, L, K, R>> succEntry : succEntries) {
 					final NodeID removedID = succEntry.getSecond().getRABox().getAssertedPredecessors().
 						remove(succEntry.getFirst(),
 							   sourceID);
@@ -197,39 +204,39 @@ public class LinkMap<Name extends Comparable<? super Name>, Klass extends Compar
 	}
 
 
-	private boolean isSuccessorMap(final IABoxNode<Name, Klass, Role> node, final MultiMap<Role, NodeID> map)
+	private boolean isSuccessorMap(final IABoxNode<I, L, K, R> node, final MultiMap<R, NodeID> map)
 	{
 		return map == node.getRABox().getAssertedSuccessors();
 	}
 
 
-	private boolean isPredecessorMap(final IABoxNode<Name, Klass, Role> node,
-									 final MultiMap<Role, NodeID> map)
+	private boolean isPredecessorMap(final IABoxNode<I, L, K, R> node,
+									 final MultiMap<R, NodeID> map)
 	{
 		return map == node.getRABox().getAssertedPredecessors();
 	}
 
 
-	private Collection<Pair<Role, IABoxNode<Name, Klass, Role>>> getAllEntries(
-		final IABox<Name, Klass, Role> abox,
-		final MultiMap<Role, NodeID> map)
+	private Collection<Pair<R, IABoxNode<I, L, K, R>>> getAllEntries(
+		final IABox<I, L, K, R> abox,
+		final MultiMap<R, NodeID> map)
 	{
-		final List<Pair<Role, IABoxNode<Name, Klass, Role>>> list = new ArrayList<>(map.
+		final List<Pair<R, IABoxNode<I, L, K, R>>> list = new ArrayList<>(map.
 			size());
-		for (Map.Entry<Role, NodeID> mapEntry : MultiMapEntryIterable.decorate(map.entrySet())) {
+		for (Map.Entry<R, NodeID> mapEntry : MultiMapEntryIterable.decorate(map.entrySet())) {
 			list.add(Pair.wrap(mapEntry.getKey(), abox.getNode(mapEntry.getValue())));
 		}
 		return list;
 	}
 
 
-	public LinkMap<Name, Klass, Role> clone(final IABoxNode<Name, Klass, Role> newNode)
+	public LinkMap<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode)
 	{
-		final LinkMap<Name, Klass, Role> newMap;
+		final LinkMap<I, L, K, R> newMap;
 		if (getDecoratee() instanceof EmptyMultiMap) {
 			newMap = new LinkMap<>(newNode, true);
 		} else if (getDecoratee() instanceof CopyOnWriteMultiMap) {
-			final CopyOnWriteMultiMap<Role, NodeID> baseMap = (CopyOnWriteMultiMap<Role, NodeID>) getDecoratee();
+			final CopyOnWriteMultiMap<R, NodeID> baseMap = (CopyOnWriteMultiMap<R, NodeID>) getDecoratee();
 			newMap = new LinkMap<>(newNode, baseMap.clone());
 		} else {
 			throw new IllegalStateException(String.format("base map of LinkMap is of unsupported type: '%s'",

@@ -51,7 +51,7 @@ public class SortedListSetTest
 	@Before
 	public void setUp()
 	{
-		_set = new SortedListSet<String>();
+		_set = new SortedListSet<>();
 	}
 	
 	@After

@@ -20,8 +20,8 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ISWRLVariable<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends ISWRLIndividual<Name, Klass, Role> {
+public interface ISWRLVariable<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends ISWRLArgument<I, L, K, R>, ISWRLDArgument<I, L, K, R>, ISWRLIArgument<I, L, K, R> {
 
 	public String getVariableName();
 }

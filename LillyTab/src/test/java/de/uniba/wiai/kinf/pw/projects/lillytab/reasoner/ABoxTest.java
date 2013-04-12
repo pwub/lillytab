@@ -3,34 +3,38 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * XXX, TODO: Fill in other ABox tests.
@@ -43,16 +47,6 @@ import static org.junit.Assert.*;
  */
 public class ABoxTest {
 
-	private final IDLTermFactory<String, String, String> _termFactory = new SimpleStringDLTermFactory();
-	private final IABoxFactory<String, String, String> _aboxFactory = new ABoxFactory<String, String, String>(
-		_termFactory);
-	private IABox<String, String, String> _abox;
-
-
-	public ABoxTest()
-	{
-	}
-
 
 	@BeforeClass
 	public static void setUpClass()
@@ -64,6 +58,16 @@ public class ABoxTest {
 	@AfterClass
 	public static void tearDownClass()
 		throws Exception
+	{
+	}
+
+	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
+	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
+		_termFactory);
+	private IABox<String, String, String, String> _abox;
+
+
+	public ABoxTest()
 	{
 	}
 
@@ -104,22 +108,21 @@ public class ABoxTest {
 	 * Test of mergeNodes method, of class ABox.
 	 */
 	@Test
-	public void testMergeNodes()
-		throws EInconsistentABoxException
+	public void testMergeNodes() throws EInconsistentABoxException
 	{
-		IABoxNode<String, String, String> node0 = _abox.createNode(false);
-		node0.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		IABoxNode<String, String, String, String> node0 = _abox.createNode(false);
+		node0.addTerm(_termFactory.getDLClassReference("A"));
 
-		IABoxNode<String, String, String> node1 = _abox.createNode(false);
-		node1.addUnfoldedDescription(_termFactory.getDLClassReference("B"));
+		IABoxNode<String, String, String, String> node1 = _abox.createNode(false);
+		node1.addTerm(_termFactory.getDLClassReference("B"));
 
-		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("C"));
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		node2.addTerm(_termFactory.getDLClassReference("C"));
 
 		node1.getRABox().getAssertedSuccessors().put("r", node2.getNodeID());
 		node0.getRABox().getAssertedSuccessors().put("r", node2.getNodeID());
 
-		NodeMergeInfo<String, String, String> mergeInfo = _abox.mergeNodes(node0, node2);
+		NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(node0, node2);
 		assertEquals(node0, mergeInfo.getCurrentNode());
 		assertEquals(node2, mergeInfo.getInitialNode());
 		assertTrue(mergeInfo.getMergedNodes().contains(node2));
@@ -462,24 +465,23 @@ public class ABoxTest {
 	 * Test of deepHashCode method, of class ABox.
 	 */
 	@Test
-	public void testDeepHashCode()
-		throws EInconsistentABoxException
+	public void testDeepHashCode() throws EInconsistentABoxException
 	{
-		final IABox<String, String, String> abox2 = _aboxFactory.createABox();
+		final IABox<String, String, String, String> abox2 = _aboxFactory.createABox();
 		assertEquals(_abox.deepHashCode(), abox2.deepHashCode());
 
 		/* not necessarily */
-		final IABoxNode<String, String, String> node1 = _abox.createNode(false);
+		final IABoxNode<String, String, String, String> node1 = _abox.createNode(false);
 		assertTrue(_abox.deepHashCode() != abox2.deepHashCode());
 
-		final IABoxNode<String, String, String> node2 = abox2.createNode(false);
+		final IABoxNode<String, String, String, String> node2 = abox2.createNode(false);
 		assertEquals(_abox.deepHashCode(), abox2.deepHashCode());
 
 		/* not necessarily */
-		node1.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		node1.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_abox.deepHashCode() != abox2.deepHashCode());
 
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertEquals(_abox.deepHashCode(), abox2.deepHashCode());
 	}
 
@@ -488,24 +490,23 @@ public class ABoxTest {
 	 * Test of deepEquals method, of class ABox.
 	 */
 	@Test
-	public void testDeepEquals()
-		throws EInconsistentABoxException
+	public void testDeepEquals() throws EInconsistentABoxException
 	{
-		final IABox<String, String, String> abox2 = _aboxFactory.createABox();
+		final IABox<String, String, String, String> abox2 = _aboxFactory.createABox();
 		assertTrue(_abox.deepEquals(abox2));
 
 		/* not necessarily */
-		final IABoxNode<String, String, String> node1 = _abox.createNode(false);
+		final IABoxNode<String, String, String, String> node1 = _abox.createNode(false);
 		assertFalse(_abox.deepEquals(abox2));
 
-		final IABoxNode<String, String, String> node2 = abox2.createNode(false);
+		final IABoxNode<String, String, String, String> node2 = abox2.createNode(false);
 		assertTrue(_abox.deepEquals(abox2));
 
 		/* not necessarily */
-		node1.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		node1.addTerm(_termFactory.getDLClassReference("A"));
 		assertFalse(_abox.deepEquals(abox2));
 
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_abox.deepEquals(abox2));
 	}
 }

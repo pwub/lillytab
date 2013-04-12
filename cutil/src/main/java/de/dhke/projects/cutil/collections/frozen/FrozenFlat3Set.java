@@ -21,11 +21,9 @@
  **/
 package de.dhke.projects.cutil.collections.frozen;
 
-import de.dhke.projects.cutil.collections.CollectionUtil;
 import de.dhke.projects.cutil.collections.set.Flat3Set;
 import java.util.Collection;
 import java.util.Iterator;
-import javax.swing.text.AbstractDocument;
 import org.apache.commons.collections15.SetUtils;
 
 /**

@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;
@@ -21,21 +26,19 @@ import de.dhke.projects.cutil.collections.tree.IDecisionTree;
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasonerResult;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.SubsetBlockingStrategy;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.DoubleBlockingStrategy;
-import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IIndividualABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
-import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxUtil;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.IntersectionCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.DoubleBlockingStrategy;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.SubsetBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.ForAllCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.FunctionalRoleMergeCompleter;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.ICompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.IntersectionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.InverseRoleAssertionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.RoleRestrictionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SemanticUnionCompleter;
@@ -43,8 +46,11 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SomeCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SymmetricRoleCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.TransitiveRoleCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.UnionCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
@@ -55,32 +61,32 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * <p> An implementation of an SHOIF(D) satisfiability tester. </p><p> This class serves as a consistency checker for
+ * An implementation of an SHOIF(D) satisfiability tester. <p /> This class serves as a consistency checker for
  * description logic {@link ABox}es. It employs a tablaux-method to expand the the ABox node graph and check for
- * possible inconsistencies. </p><p> The reasoners main method is
+ * possible inconsistencies. <p /> The reasoners main method is
  * {@link #checkConsistency(de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox)}. It will take a single ABox node as
  * input and perform completion on the ABox. Completion is performed by applying certain completion rules, which
  * generate new concept terms ({@link IABoxNode#getTerms()}) for nodes, propagate concept terms between nodes and may
  * potentially even create new nodes in the ABox. After the tableaux completion, it is possible to detect
- * inconsistencies locally by comparing and individual node's concept terms for clashes. </p><p>
+ * inconsistencies locally by comparing and individual node's concept terms for clashes. <p />
  * Some completion rules are non-deterministic and thus multiple different ABox-completions may result from the tablaux
- * expansion.. The reasoner will return all clash-free completitions of a particular ABox. </p>
+ * expansion.. The reasoner will return all clash-free completitions of a particular ABox.
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class Reasoner<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractReasoner<Name, Klass, Role> {
-	// private ABox<Name, Klass, Role> _initialAbox;
+public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AbstractReasoner<I, L, K, R> {
+	// private ABox<I, L, K, R> _initialAbox;
 
-	private final ReasonerOptions _reasonerOptions;
-	private INodeConsistencyChecker<Name, Klass, Role> _nodeConsistencyChecker;
+	private ReasonerOptions _reasonerOptions;
+	private INodeConsistencyChecker<I, L, K, R> _nodeConsistencyChecker;
 
 
 	public Reasoner(
-		final INodeConsistencyChecker<Name, Klass, Role> cChecker,
+		final INodeConsistencyChecker<I, L, K, R> cChecker,
 		final ReasonerOptions reasonerOptions)
 	{
 		_nodeConsistencyChecker = cChecker;
@@ -89,7 +95,7 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	public Reasoner(
-		final INodeConsistencyChecker<Name, Klass, Role> cChecker)
+		final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		this(cChecker, new ReasonerOptions());
 	}
@@ -97,7 +103,7 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 	public Reasoner(final ReasonerOptions options)
 	{
-		_nodeConsistencyChecker = new NodeConsistencyChecker<>(options.TRACE);
+		_nodeConsistencyChecker = new NodeConsistencyChecker<>(options.isTracing());
 		_reasonerOptions = options;
 	}
 
@@ -109,63 +115,62 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	/**
-	 * <p> Setup suitable non-generating completers to perform consistency checking on {@literal abox}.
-	 * </p><p>
+	 * Setup suitable non-generating completers to perform consistency checking on {@literal abox}.
+	 * <p />
 	 * This only adds those completers required to handle the supplied {@literal abox}
-	 * </p><p>
+	 * <p />
 	 * You can override this in derived classes to customize reasoner operation.
-	 * </p>
+	 *
 	 *
 	 * @param abox The ABox to generate the completer list for
 	 * @return The list of generating (non-node creating) completers for the reasoner.
 	 */
-	protected List<ICompleter<Name, Klass, Role>> getNonGeneratingCompleters(
-		final IABox<Name, Klass, Role> abox)
+	protected List<ICompleter<I, L, K, R>> getNonGeneratingCompleters(
+		final IABox<I, L, K, R> abox)
 	{
-		final IRBox<Name, Klass, Role> rbox = abox.getTBox().getRBox();
+		final IRBox<I, L, K, R> rbox = abox.getTBox().getRBox();
 
-		final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters = new ArrayList<>();
+		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = new ArrayList<>();
 
 		if ((!rbox.getAssertedRBox().getRoleDomains().isEmpty()) || (!rbox.getAssertedRBox().getRoleRanges().isEmpty())) {
 			nonGeneratingCompleters.
-				add(new RoleRestrictionCompleter<>(getNodeConsistencyChecker(),
-												   getReasonerOptions().TRACE));
+				add(new RoleRestrictionCompleter<>(getNodeConsistencyChecker(), getReasonerOptions().isTracing()));
 		}
 
-		nonGeneratingCompleters.add(new IntersectionCompleter<>(getNodeConsistencyChecker(),
-																getReasonerOptions().TRACE));
-		nonGeneratingCompleters.add(new ForAllCompleter<>(getNodeConsistencyChecker(),
-														  getReasonerOptions().TRACE));
+		nonGeneratingCompleters.add(new IntersectionCompleter<>(getNodeConsistencyChecker(), getReasonerOptions().
+			isTracing()));
+		nonGeneratingCompleters.
+			add(new ForAllCompleter<>(getNodeConsistencyChecker(), getReasonerOptions().isTracing()));
 
 		if (!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.TRANSITIVE))) {
-			nonGeneratingCompleters.add(new TransitiveRoleCompleter<>(_nodeConsistencyChecker,
-																	  getReasonerOptions().TRACE));
+			nonGeneratingCompleters.add(new TransitiveRoleCompleter<>(_nodeConsistencyChecker, getReasonerOptions().
+				isTracing()));
 		}
 		if (!CollectionUtil.isNullOrEmpty((rbox.getRoles(RoleProperty.SYMMETRIC)))) {
-			nonGeneratingCompleters.add(new SymmetricRoleCompleter<>(_nodeConsistencyChecker,
-																	 getReasonerOptions().TRACE));
+			nonGeneratingCompleters.add(new SymmetricRoleCompleter<>(_nodeConsistencyChecker, getReasonerOptions().
+				isTracing()));
 		}
 
 
-		if (_reasonerOptions.SEMANTIC_BRANCHING) {
-			nonGeneratingCompleters.add(new SemanticUnionCompleter<>(getNodeConsistencyChecker(),
-																	 getReasonerOptions().TRACE));
+		if (_reasonerOptions.isSemanticBranching()) {
+			nonGeneratingCompleters.add(new SemanticUnionCompleter<>(getNodeConsistencyChecker(), getReasonerOptions().
+				isTracing()));
 		} else {
-			nonGeneratingCompleters.add(new UnionCompleter<>(getNodeConsistencyChecker(),
-															 getReasonerOptions().TRACE));
+			nonGeneratingCompleters.add(new UnionCompleter<>(getNodeConsistencyChecker(), getReasonerOptions().
+				isTracing()));
 		}
 
 		if (rbox.hasInverseRoles()) {
 			nonGeneratingCompleters.
-				add(new InverseRoleAssertionCompleter<>(_nodeConsistencyChecker,
-														getReasonerOptions().TRACE));
+				add(new InverseRoleAssertionCompleter<>(_nodeConsistencyChecker, getReasonerOptions().isTracing()));
 		}
 
 
 		if ((!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.FUNCTIONAL))
 			|| (!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.INVERSE_FUNCTIONAL))))) {
 			nonGeneratingCompleters.add(new FunctionalRoleMergeCompleter<>(_nodeConsistencyChecker,
-																		   getReasonerOptions().TRACE));
+																		   getReasonerOptions().
+				isTracing()));
 		}
 
 		return nonGeneratingCompleters;
@@ -173,24 +178,24 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	/**
-	 * <p>
+	 *
 	 * Create the list of generating completers for the reasoner.
-	 * </p><p>
+	 * <p />
 	 * This only adds those completers required to handle the supplied {@literal abox}
-	 * </p><p>
+	 * <p />
 	 * You can override this in derived classes to customize reasoner operation.
-	 * </p>
+	 *
 	 *
 	 * @param abox The ABox to generate the completer list for
 	 * @return The list of generating (node creating) completers for the reasoner.
 	 *
 	 */
-	protected List<ICompleter<Name, Klass, Role>> getGeneratingCompleters(
-		final IABox<Name, Klass, Role> abox)
+	protected List<ICompleter<I, L, K, R>> getGeneratingCompleters(
+		final IABox<I, L, K, R> abox)
 	{
-		final List<ICompleter<Name, Klass, Role>> generatingCompleters = new ArrayList<>();
+		final List<ICompleter<I, L, K, R>> generatingCompleters = new ArrayList<>();
 
-		final IBlockingStrategy<Name, Klass, Role> blockingStrategy;
+		final IBlockingStrategy<I, L, K, R> blockingStrategy;
 		if (isNeedDoubleBlocking(abox)) {
 			blockingStrategy = new DoubleBlockingStrategy<>();
 		} else {
@@ -199,33 +204,31 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 		generatingCompleters.add(new SomeCompleter<>(getNodeConsistencyChecker(),
-													 blockingStrategy,
-													 getReasonerOptions().TRACE));
+													 blockingStrategy, getReasonerOptions().isTracing()));
 		return generatingCompleters;
 	}
 
 
 	/**
-	 * <p>
+	 *
 	 * Set the node consistency checker for reasoning.
-	 * </p><p>
+	 * <p />
 	 * You can override this in derived classes to customize reasoner operation.
-	 * </p>
+	 *
 	 *
 	 */
 	protected void setupNodeConsistencyChecker()
 	{
-		setNodeConsistencyChecker(new NodeConsistencyChecker<Name, Klass, Role>(getReasonerOptions().TRACE));
+		setNodeConsistencyChecker(new NodeConsistencyChecker<I, L, K, R>(getReasonerOptions().isTracing()));
 	}
 
 	/// <editor-fold defaultstate="collapsed" desc="Prepare functions">
 
 	/**
-	 * <p> Update the {@literal abox} for expansion. All global concepts that cannot be undolfded lazily are propagated
-	 * into the existing nodes.
-	 * <p></p> Scan the node for unfoldable concepts and unfoled them recursively. </p>
+	 * Update the {@literal abox} for expansion. All global concepts that cannot be undolfded lazily are propagated into
+	 * the existing nodes. Scan the node for unfoldable concepts and unfoled them recursively.
 	 *
-	 * @see IABoxNode#addUnfoldedDescription(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression)
+	 * @see IABoxNode#addClassTerm(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression)
 	 * @param abox
 	 */
 	/**
@@ -234,45 +237,47 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	 * @param abox The ABox to start with. A copy is made.
 	 * @return An empty, freshly created branch for the supplied ABox.
 	 */
-	private Branch<Name, Klass, Role> prepareInitialBranch(final IABox<Name, Klass, Role> abox)
+	private Branch<I, L, K, R> prepareInitialBranch(final IABox<I, L, K, R> abox)
 		throws ENodeMergeException, EInconsistentRBoxException
 	{
 		/*
 		 * start with a copy of the initial abox
 		 */
-		final Branch<Name, Klass, Role> initialBranch = new Branch<>(abox.clone(),
-																	 _reasonerOptions.MERGE_TRACKING);
+		final Branch<I, L, K, R> initialBranch = new Branch<>(abox.clone(), _reasonerOptions.isMergeTracking());
 
 		/**
 		 * Make sure, existing terms have been considered for lazy unfolding. This is no longer needed.
 		 */
 		// initialBranch.getABox().unfoldAll();
-		Iterator<IABoxNode<Name, Klass, Role>> nodeIter = initialBranch.getABox().iterator();
+		Iterator<IABoxNode<I, L, K, R>> nodeIter = initialBranch.getABox().iterator();
 
 		/* add global descriptions to all nodes */
 		while (nodeIter.hasNext()) {
-			final IABoxNode<Name, Klass, Role> node = nodeIter.next();
-			final NodeMergeInfo<Name, Klass, Role> mergeInfo = node.addUnfoldedDescriptions(
-				initialBranch.getABox().getTBox().getGlobalDescriptions());
-			if (!mergeInfo.getMergedNodes().isEmpty()) {
-				nodeIter = initialBranch.getABox().iterator();
+			final IABoxNode<I, L, K, R> node = nodeIter.next();
+			if (node instanceof IIndividualABoxNode) {
+				final IIndividualABoxNode<I, L, K, R> iNode = (IIndividualABoxNode<I, L, K, R>) node;
+				final NodeMergeInfo<I, L, K, R> mergeInfo = iNode.addTerms(
+					initialBranch.getABox().getTBox().getGlobalDescriptions());
+				if (!mergeInfo.getMergedNodes().isEmpty()) {
+					nodeIter = initialBranch.getABox().iterator();
+				}
 			}
 		}
 
 		return initialBranch;
 	}
 
-//	private Queue<Branch<Name, Klass, Role>> prepareInitialBranchQueue(final Branch<Name, Klass, Role> initialBranch)
+//	private Queue<Branch<I, L, K, R>> prepareInitialBranchQueue(final Branch<I, L, K, R> initialBranch)
 //	{
-//		Queue<Branch<Name, Klass, Role>> branchQueue = new StackQueue<Branch<Name, Klass, Role>>();
-//		// new Stac<Branch<Name, Klass, Role>>();
+//		Queue<Branch<I, L, K, R>> branchQueue = new StackQueue<Branch<I, L, K, R>>();
+//		// new Stac<Branch<I, L, K, R>>();
 //		branchQueue.add(initialBranch);
 //		return branchQueue;
 //	}
 
-	private BranchTree<Name, Klass, Role> prepareBranchTree(final Branch<Name, Klass, Role> initialBranch)
+	private BranchTree<I, L, K, R> prepareBranchTree(final Branch<I, L, K, R> initialBranch)
 	{
-		final BranchTree<Name, Klass, Role> branchTree = new BranchTree<>();
+		final BranchTree<I, L, K, R> branchTree = new BranchTree<>();
 		branchTree.fork(branchTree.getRoot(), initialBranch);
 		return branchTree;
 	}
@@ -280,29 +285,29 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	/// </editor-fold>
 
 	@Override
-	public Collection<? extends IReasonerResult<Name, Klass, Role>> checkConsistency(final IABox<Name, Klass, Role> abox,
-																					 final IDLRestriction<Name, Klass, Role> concept,
-																					 final boolean stopAtFirstModel)
+	public Collection<? extends IReasonerResult<I, L, K, R>> checkConsistency(final IABox<I, L, K, R> abox,
+																			  final IDLClassExpression<I, L, K, R> concept,
+																			  final boolean stopAtFirstModel)
 		throws EReasonerException, EInconsistencyException
 	{
 		// logInfo("REASONER CALL TO isInRange(%s, %s, %s)", abox.getID(), concept, stopAtFirstModel);
 
-		Branch<Name, Klass, Role> initialBranch;
+		Branch<I, L, K, R> initialBranch;
 		try {
 			initialBranch = prepareInitialBranch(abox);
-			final IABoxNode<Name, Klass, Role> conceptNode = initialBranch.getABox().createNode(false);
-			conceptNode.addUnfoldedDescription(concept);
+			final IIndividualABoxNode<I, L, K, R> conceptNode = initialBranch.getABox().createIndividualNode();
+			conceptNode.addClassTerm(concept);
 		} catch (ENodeMergeException ex) {
 			// XXX - better exception */
 			throw new EInconsistentABoxException(abox, "Node merge problem");
 		}
 
-		final List<ICompleter<Name, Klass, Role>> generatingCompleters = getGeneratingCompleters(
+		final List<ICompleter<I, L, K, R>> generatingCompleters = getGeneratingCompleters(
 			initialBranch.getABox());
-		final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters = getNonGeneratingCompleters(
+		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 			initialBranch.getABox());
 
-		final BranchTree<Name, Klass, Role> branchTree = new BranchTree<>();
+		final BranchTree<I, L, K, R> branchTree = new BranchTree<>();
 		branchTree.fork(branchTree.getRoot(), initialBranch);
 
 		return complete(branchTree, nonGeneratingCompleters, generatingCompleters, stopAtFirstModel);
@@ -310,20 +315,27 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	@Override
-	public Collection<? extends IReasonerResult<Name, Klass, Role>> checkConsistency(final IABox<Name, Klass, Role> abox,
-																					 final boolean stopAtFirstModel)
+	public Collection<? extends IReasonerResult<I, L, K, R>> checkConsistency(final IABox<I, L, K, R> abox,
+																			  final boolean stopAtFirstModel)
 		throws EReasonerException, EInconsistencyException
 	{
 		// logInfo("REASONER CALL TO checkConsistency(%s, %s)", abox.getID(), stopAtFirstModel);
 		try {
-			final Branch<Name, Klass, Role> initialBranch = prepareInitialBranch(abox);
+			final Branch<I, L, K, R> initialBranch = prepareInitialBranch(abox);
 
-			final List<ICompleter<Name, Klass, Role>> generatingCompleters = getGeneratingCompleters(
+			final List<ICompleter<I, L, K, R>> generatingCompleters = getGeneratingCompleters(
 				initialBranch.getABox());
-			final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters = getNonGeneratingCompleters(
+			final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 				initialBranch.getABox());
 
-			return complete(initialBranch, nonGeneratingCompleters, generatingCompleters, stopAtFirstModel);
+			final Collection<? extends IReasonerResult<I, L, K, R>> results = complete(initialBranch,
+																					   nonGeneratingCompleters,
+																					   generatingCompleters,
+																					   stopAtFirstModel);
+			if (results.isEmpty())
+				throw new EInconsistentABoxException(abox);
+			else
+				return results;
 		} catch (ENodeMergeException ex) {
 			throw new EInconsistentABoxNodeException(ex.getSourceNode());
 		}
@@ -332,9 +344,9 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 	@Override
 	public boolean isSubClassOf(
-		final IABox<Name, Klass, Role> abox,
-		final IDLRestriction<Name, Klass, Role> presumedSub,
-		final IDLRestriction<Name, Klass, Role> presumedSuper)
+		final IABox<I, L, K, R> abox,
+		final IDLClassExpression<I, L, K, R> presumedSub,
+		final IDLClassExpression<I, L, K, R> presumedSuper)
 		throws EReasonerException, EInconsistencyException
 	{
 		// logInfo("REASONER CALL TO isSubClassOf(%s, %s, %s)", abox.getID(), presumedSub, presumedSuper);
@@ -344,24 +356,24 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 			if (TermUtil.isSyntacticSubClass(presumedSub, presumedSuper, abox.getDLTermFactory())) {
 				return true;
 			} else {
-				final Branch<Name, Klass, Role> initialBranch = prepareInitialBranch(abox);
-				IABoxNode<Name, Klass, Role> node = initialBranch.getABox().createNode(false);
-				final IDLTermFactory<Name, Klass, Role> termFactory = initialBranch.getABox().getDLTermFactory();
-				final IDLRestriction<Name, Klass, Role> sub = TermUtil.toNNF(presumedSub, termFactory);
-				IDLRestriction<Name, Klass, Role> negSuper = termFactory.getDLNegation(presumedSuper);
+				final Branch<I, L, K, R> initialBranch = prepareInitialBranch(abox);
+				IIndividualABoxNode<I, L, K, R> node = initialBranch.getABox().createIndividualNode();
+				final IDLTermFactory<I, L, K, R> termFactory = initialBranch.getABox().getDLTermFactory();
+				final IDLClassExpression<I, L, K, R> sub = TermUtil.toNNF(presumedSub, termFactory);
+				IDLClassExpression<I, L, K, R> negSuper = termFactory.getDLObjectNegation(presumedSuper);
 				negSuper = TermUtil.toNNF(negSuper, termFactory);
 
 				/**
 				 * track node merges
 				 */
-				node = node.addUnfoldedDescription(sub).getCurrentNode();
-				/* node = */ node.addUnfoldedDescription(negSuper).getCurrentNode();
-				final List<ICompleter<Name, Klass, Role>> generatingCompleters = getGeneratingCompleters(
+				node = (IIndividualABoxNode<I, L, K, R>) node.addClassTerm(sub).getCurrentNode();
+				/* node = */ node.addClassTerm(negSuper).getCurrentNode();
+				final List<ICompleter<I, L, K, R>> generatingCompleters = getGeneratingCompleters(
 					initialBranch.getABox());
-				final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters = getNonGeneratingCompleters(
+				final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 					initialBranch.getABox());
 
-				final Collection<? extends IReasonerResult<Name, Klass, Role>> results =
+				final Collection<? extends IReasonerResult<I, L, K, R>> results =
 					complete(initialBranch, nonGeneratingCompleters, generatingCompleters, true);
 
 				return results.isEmpty();
@@ -372,26 +384,26 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 
-	private boolean isConsistent(Branch<Name, Klass, Role> initialBranch,
-								 final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters,
-								 final List<ICompleter<Name, Klass, Role>> generatingCompleters)
+	private boolean isConsistent(Branch<I, L, K, R> initialBranch,
+								 final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
+								 final List<ICompleter<I, L, K, R>> generatingCompleters)
 		throws EReasonerException, EInconsistencyException
 	{
-		Collection<? extends IReasonerResult<Name, Klass, Role>> results = complete(initialBranch,
-																					nonGeneratingCompleters,
-																					generatingCompleters, true);
+		Collection<? extends IReasonerResult<I, L, K, R>> results = complete(initialBranch,
+																			 nonGeneratingCompleters,
+																			 generatingCompleters, true);
 		return !results.isEmpty();
 	}
 
 
 	@Override
-	public boolean isInDomain(final IABox<Name, Klass, Role> abox, final IDLRestriction<Name, Klass, Role> desc,
-							  final Role role)
+	public boolean isInDomain(final IABox<I, L, K, R> abox, final IDLClassExpression<I, L, K, R> desc,
+							  final R role)
 		throws EReasonerException, EInconsistencyException
 	{
 		// logInfo("REASONER CALL TO isInDomain(%s, %s, %s)", abox.getID(), desc, role);
 		try {
-			final Collection<IDLRestriction<Name, Klass, Role>> roleDomains = abox.getTBox().getRBox().getRoleDomains(
+			final Collection<IDLClassExpression<I, L, K, R>> roleDomains = abox.getTBox().getRBox().getRoleDomains(
 				role);
 
 			/*
@@ -400,20 +412,20 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 			if ((roleDomains != null) && roleDomains.contains(desc)) {
 				return true;
 			} else {
-				final Branch<Name, Klass, Role> initialBranch = prepareInitialBranch(abox);
+				final Branch<I, L, K, R> initialBranch = prepareInitialBranch(abox);
 
 				/*
 				 * remember to use createNode from branch here!
 				 */
-				final IABoxNode<Name, Klass, Role> node = initialBranch.getABox().createNode(false);
-				node.addUnfoldedDescription(desc);
+				final IIndividualABoxNode<I, L, K, R> node = initialBranch.getABox().createIndividualNode();
+				node.addClassTerm(desc);
 				final boolean isDataTypeRole = abox.getTBox().getRBox().hasRoleType(role, RoleType.DATA_PROPERTY);
-				final IABoxNode<Name, Klass, Role> succ = initialBranch.getABox().createNode(isDataTypeRole);
+				final IABoxNode<I, L, K, R> succ = initialBranch.getABox().createNode(isDataTypeRole);
 				node.getRABox().getAssertedSuccessors().put(role, succ.getNodeID());
 
-				final List<ICompleter<Name, Klass, Role>> generatingCompleters = getGeneratingCompleters(
+				final List<ICompleter<I, L, K, R>> generatingCompleters = getGeneratingCompleters(
 					initialBranch.getABox());
-				final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters = getNonGeneratingCompleters(
+				final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 					initialBranch.getABox());
 
 				return isConsistent(initialBranch, nonGeneratingCompleters, generatingCompleters);
@@ -425,13 +437,13 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	@Override
-	public boolean isInRange(final IABox<Name, Klass, Role> abox, final IDLRestriction<Name, Klass, Role> desc,
-							 final Role role)
+	public boolean isInRange(final IABox<I, L, K, R> abox, final IDLClassExpression<I, L, K, R> desc,
+							 final R role)
 		throws EReasonerException, EInconsistencyException
 	{
 		// logInfo("REASONER CALL TO isInRange(%s, %s, %s)", abox.getID(), desc, role);
 		try {
-			final Collection<IDLRestriction<Name, Klass, Role>> roleDomains = abox.getTBox().getRBox().getRoleRanges(
+			final Collection<IDLRestriction<I, L, K, R>> roleDomains = abox.getTBox().getRBox().getRoleRanges(
 				role);
 			/*
 			 * shortcut check first, avoid reasoning
@@ -440,17 +452,17 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 				return true;
 			}
 			{
-				final Branch<Name, Klass, Role> initialBranch = prepareInitialBranch(abox);
+				final Branch<I, L, K, R> initialBranch = prepareInitialBranch(abox);
 
-				final IABoxNode<Name, Klass, Role> node = initialBranch.getABox().createNode(false);
-				node.addUnfoldedDescription(desc);
+				final IIndividualABoxNode<I, L, K, R> node = initialBranch.getABox().createIndividualNode();
+				node.addClassTerm(desc);
 				final boolean isDataTypeRole = abox.getTBox().getRBox().hasRoleType(role, RoleType.DATA_PROPERTY);
-				final IABoxNode<Name, Klass, Role> succ = initialBranch.getABox().createNode(isDataTypeRole);
+				final IABoxNode<I, L, K, R> succ = initialBranch.getABox().createNode(isDataTypeRole);
 				succ.getRABox().getAssertedSuccessors().put(role, node.getNodeID());
 
-				final List<ICompleter<Name, Klass, Role>> generatingCompleters = getGeneratingCompleters(
+				final List<ICompleter<I, L, K, R>> generatingCompleters = getGeneratingCompleters(
 					initialBranch.getABox());
-				final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters = getNonGeneratingCompleters(
+				final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 					initialBranch.getABox());
 
 				return isConsistent(initialBranch, nonGeneratingCompleters, generatingCompleters);
@@ -463,9 +475,9 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 	@Override
 	public boolean isDisjoint(
-		final IABox<Name, Klass, Role> abox,
-		final IDLRestriction<Name, Klass, Role> desc1,
-		final IDLRestriction<Name, Klass, Role> desc2)
+		final IABox<I, L, K, R> abox,
+		final IDLClassExpression<I, L, K, R> desc1,
+		final IDLClassExpression<I, L, K, R> desc2)
 		throws EReasonerException, EInconsistencyException
 	{
 		// logInfo("REASONER CALL TO isDisjoint(%s, %s, %s)", abox.getID(), desc1, desc2);
@@ -479,19 +491,19 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 			 */ {
 				return true;
 			} else {
-				final Branch<Name, Klass, Role> initialBranch = prepareInitialBranch(abox);
-				IABoxNode<Name, Klass, Role> node = initialBranch.getABox().createNode(false);
+				final Branch<I, L, K, R> initialBranch = prepareInitialBranch(abox);
+				IIndividualABoxNode<I, L, K, R> node = initialBranch.getABox().createIndividualNode();
 				/**
 				 * Add both descriptions to the same node. If the resulting ABox is inconsistent, the concepts are
 				 * disjoint
 				 *
 				 */
-				node = node.addUnfoldedDescription(desc1).getCurrentNode();
-				node.addUnfoldedDescription(desc2);
+				node = (IIndividualABoxNode<I, L, K, R>) node.addClassTerm(desc1).getCurrentNode();
+				node.addClassTerm(desc2);
 
-				final List<ICompleter<Name, Klass, Role>> generatingCompleters = getGeneratingCompleters(
+				final List<ICompleter<I, L, K, R>> generatingCompleters = getGeneratingCompleters(
 					initialBranch.getABox());
-				final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters = getNonGeneratingCompleters(
+				final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 					initialBranch.getABox());
 
 				return !isConsistent(initialBranch, generatingCompleters, nonGeneratingCompleters);
@@ -502,15 +514,22 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 
-	private Collection<? extends ReasonerResult<Name, Klass, Role>> complete(
-		final Branch<Name, Klass, Role> initialBranch,
-		final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters,
-		final List<ICompleter<Name, Klass, Role>> generatingCompleters,
+	private Collection<? extends ReasonerResult<I, L, K, R>> complete(
+		final Branch<I, L, K, R> initialBranch,
+		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
+		final List<ICompleter<I, L, K, R>> generatingCompleters,
 		final boolean stopAtFirstModel)
-		throws EReasonerException, EInconsistencyException
+		throws EReasonerException
 	{
-		BranchTree<Name, Klass, Role> branchTree = prepareBranchTree(initialBranch);
-		return complete(branchTree, nonGeneratingCompleters, generatingCompleters, stopAtFirstModel);
+
+
+		BranchTree<I, L, K, R> branchTree = prepareBranchTree(initialBranch);
+
+		final Collection<? extends ReasonerResult<I, L, K, R>> reasonerResults = complete(branchTree,
+																						  nonGeneratingCompleters,
+																						  generatingCompleters,
+																						  stopAtFirstModel);
+		return reasonerResults;
 	}
 
 
@@ -523,16 +542,16 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	 * @throws EInconsistentOntologyException No consistent ABox was found.
 	 * @throws EReasonerException A reasoner error occured
 	 */
-	private Collection<? extends ReasonerResult<Name, Klass, Role>> complete(
-		final BranchTree<Name, Klass, Role> branchTree,
-		final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters,
-		final List<ICompleter<Name, Klass, Role>> generatingCompleters,
+	private Collection<? extends ReasonerResult<I, L, K, R>> complete(
+		final BranchTree<I, L, K, R> branchTree,
+		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
+		final List<ICompleter<I, L, K, R>> generatingCompleters,
 		final boolean stopAtFirstModel)
-		throws EReasonerException, EInconsistencyException
+		throws EReasonerException
 	{
-		final Collection<ReasonerResult<Name, Klass, Role>> reasonerResults = new HashSet<>();
+		final Collection<ReasonerResult<I, L, K, R>> reasonerResults = new HashSet<>();
 
-		IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode = pickBranch(branchTree);
+		IDecisionTree.Node<Branch<I, L, K, R>> branchNode = pickBranch(branchTree);
 		while ((branchNode != null) && ((!stopAtFirstModel) || reasonerResults.isEmpty())) {
 			final ReasonerContinuationState contState = completeBranch(branchNode,
 																	   nonGeneratingCompleters,
@@ -544,20 +563,24 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 				}
 				branchNode.remove();
 			} else {
-				/* prune branch tree according to the culprits recorded for the current branch */
+				if (contState == ReasonerContinuationState.INCONSISTENT) {
+					/* prune branch tree according to the culprits recorded for the current branch */
+					logFinest("Inconsistent branch found: %s", branchNode.getData());
+					logFinest("Clash info: %s", branchNode.getData().getConsistencyInfo());
+				}
 				pruneBranchTree(branchTree, branchNode);
 			}
 
 			branchNode = pickBranch(branchTree);
 		}
 
-		if (getReasonerOptions().TRACE) {
+		if (getReasonerOptions().isTracing()) {
 			logFine("Reasoning complete");
 			if (reasonerResults.isEmpty()) {
 				logFiner("No models found");
 			} else {
 				logFinest("The following models were found:");
-				for (ReasonerResult<Name, Klass, Role> result : reasonerResults) {
+				for (ReasonerResult<I, L, K, R> result : reasonerResults) {
 					logFinest(result);
 				}
 			}
@@ -568,7 +591,7 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	/**
-	 * <p> Pick the first branch from {@literal branchQueue} and perform ABox completion on its {@link IABox}. </p><p>
+	 * Pick the first branch from {@literal branchQueue} and perform ABox completion on its {@link IABox}. <p />
 	 * Completition rules are applied according to the following algorithm. <ul>
 	 * <li> A node is picked from the first branch's {@link Branch#getNonGeneratingQueue()
 	 * }. </li><li> The list of {@link ICompleter}s from the {@link #_nonGeneratingCompleters} collection is traversed.
@@ -587,26 +610,26 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	 * </li><li> If non-generating completer returned {@literal false}, this indicates a new node was generated. In this
 	 * case, the algorithm returns to apply non-generating rules. </li><li> If no generating rule was applied, the next
 	 * node is picked from the generating queue. </li><li> The process repeats until the generating queues is empty.
-	 * </li> </ul> </p><p>
+	 * </li> </ul> <p />
 	 * Due to queue sorting, the current branch may change multiple times during the completion process. The function
-	 * will return the first branch from the branch queue where no completion rules are applicable any more. </p>
+	 * will return the first branch from the branch queue where no completion rules are applicable any more.
 	 *
 	 * @param bt The {@link BranchTree}.
 	 * @return A completed branch
 	 * @throws EReasonerException, EInconsistentOntologyException
 	 */
 	private ReasonerContinuationState completeBranch(
-		final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode,
-		final List<ICompleter<Name, Klass, Role>> nonGeneratingCompleters,
-		final List<ICompleter<Name, Klass, Role>> generatingCompleters)
+		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
+		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
+		final List<ICompleter<I, L, K, R>> generatingCompleters)
 		throws EReasonerException
 	{
 		int nLoops = 0;
 
 		assert branchNode != null;
-		final Branch<Name, Klass, Role> branch = branchNode.getData();
+		final Branch<I, L, K, R> branch = branchNode.getData();
 		assert branch != null;
-		if (getReasonerOptions().TRACE) {
+		if (getReasonerOptions().isTracing()) {
 			logFine("Before completion: %s", branch);
 		}
 
@@ -617,8 +640,8 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 		 */
 		while (branch.hasMoreNonGeneratingNodes() || branch.hasMoreGeneratingNodes()) {
 			while (branch.hasMoreNonGeneratingNodes()) {
-				final IABoxNode<Name, Klass, Role> nextNonGenNode = branch.nextNonGeneratingNode();
-				final ConsistencyInfo<Name, Klass, Role> cInfo = getNodeConsistencyChecker().
+				final IABoxNode<I, L, K, R> nextNonGenNode = branch.nextNonGeneratingNode();
+				final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().
 					isConsistent(nextNonGenNode);
 				if (cInfo.isFinallyInconsistent()) {
 					branch.upgradeConsistencyInfo(cInfo);
@@ -628,9 +651,9 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 					 * Run any non-generating completers until one of them signals that we have to recheck to node queue
 					 * or branch tree, or we run out of nodes on the non-generating queue.
 					 */
-					for (ICompleter<Name, Klass, Role> nonGenCompleter : nonGeneratingCompleters) {
+					for (ICompleter<I, L, K, R> nonGenCompleter : nonGeneratingCompleters) {
 						final ReasonerContinuationState contState = nonGenCompleter.completeNode(
-							nextNonGenNode, branchNode);
+							branchNode, nextNonGenNode);
 						if ((contState == ReasonerContinuationState.RECHECK_BRANCH) || (contState == ReasonerContinuationState.INCONSISTENT)) {
 							return contState;
 						} else if (contState == ReasonerContinuationState.RECHECK_NODE) {
@@ -639,7 +662,7 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 					}
 				}
 			}
-			if (getReasonerOptions().TRACE) {
+			if (getReasonerOptions().isTracing()) {
 				logFiner("After non-generating steps: %s", branch);
 			}
 
@@ -647,12 +670,12 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 			 * Pick the next node from the generating queue until at least one generating step took place or we run out
 			 * of nodes.
 			 */
-			IABoxNode<Name, Klass, Role> nextGenNode;
+			IABoxNode<I, L, K, R> nextGenNode;
 			boolean wasGenerated = false;
 			do {
 				nextGenNode = branch.nextGeneratingNode();
 				if (nextGenNode != null) {
-					final ConsistencyInfo<Name, Klass, Role> cInfo = getNodeConsistencyChecker().isConsistent(
+					final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().isConsistent(
 						nextGenNode);
 					if (cInfo.isFinallyInconsistent()) {
 						branch.upgradeConsistencyInfo(cInfo);
@@ -663,9 +686,9 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 						 * or branch tree, or we run out of nodes on the non-generating queue.
 						 *
 						 */
-						for (ICompleter<Name, Klass, Role> genCompleter : generatingCompleters) {
-							final ReasonerContinuationState contState = genCompleter.completeNode(nextGenNode,
-																								  branchNode);
+						for (ICompleter<I, L, K, R> genCompleter : generatingCompleters) {
+							final ReasonerContinuationState contState = genCompleter.completeNode(branchNode,
+																								  nextGenNode);
 
 							if ((contState == ReasonerContinuationState.RECHECK_BRANCH) || (contState == ReasonerContinuationState.INCONSISTENT)) {
 								return contState;
@@ -677,12 +700,12 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 					}
 				}
 			} while ((nextGenNode != null) && (!wasGenerated));
-			if ((getReasonerOptions().LOG_PROGRESS) && (nLoops % 100 == 0)) {
+			if ((getReasonerOptions().isProgressLogging()) && (nLoops % 100 == 0)) {
 				logFine("Branch %s: %d iterations, %d nodes on queue", branch.getABox().getID(), nLoops,
 						branch.getGeneratingQueue().size() + branch.getNonGeneratingQueue().size());
 				++nLoops;
 			}
-			if (getReasonerOptions().TRACE) {
+			if (getReasonerOptions().isTracing()) {
 				logFiner("After generating step: %s", branch);
 			}
 		}
@@ -691,7 +714,7 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	}
 
 
-	private IDecisionTree.Node<Branch<Name, Klass, Role>> pickBranch(final BranchTree<Name, Klass, Role> branchTree)
+	private IDecisionTree.Node<Branch<I, L, K, R>> pickBranch(final BranchTree<I, L, K, R> branchTree)
 	{
 		/*
 		 * descend to leaf
@@ -701,20 +724,20 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 
 
 	private void pruneBranchTree(
-		final BranchTree<Name, Klass, Role> branchTree,
-		final IDecisionTree.Node<Branch<Name, Klass, Role>> clashNode)
+		final BranchTree<I, L, K, R> branchTree,
+		final IDecisionTree.Node<Branch<I, L, K, R>> clashNode)
 	{
 		/**
 		 * implement dependency directed backtracking: remove braches when the contain the culprit terms for current
 		 * clash. (as determined by the clash information
 		 */
 		if ((clashNode != null) && (clashNode.getData() != null)) {
-			final ConsistencyInfo<Name, Klass, Role> cInfo = clashNode.getData().getConsistencyInfo();
-			IDecisionTree.Node<Branch<Name, Klass, Role>> nextNode = pickBranch(branchTree);
+			final ConsistencyInfo<I, L, K, R> cInfo = clashNode.getData().getConsistencyInfo();
+			IDecisionTree.Node<Branch<I, L, K, R>> nextNode = pickBranch(branchTree);
 			int pruneCount = 0;
 			while ((nextNode != null) && cInfo.hasClashingTerms(nextNode.getData().getABox())) {
 				++pruneCount;
-				if ((_reasonerOptions.TRACE) && (pruneCount > 1)) {
+				if ((_reasonerOptions.isTracing()) && (pruneCount > 1)) {
 					logFiner("DDB-pruning performed for, removed `%s'", nextNode);
 				}
 				nextNode.remove();
@@ -727,7 +750,7 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	/**
 	 * @return the _nodeConsistencyChecker
 	 */
-	public INodeConsistencyChecker<Name, Klass, Role> getNodeConsistencyChecker()
+	public INodeConsistencyChecker<I, L, K, R> getNodeConsistencyChecker()
 	{
 		return _nodeConsistencyChecker;
 	}
@@ -736,7 +759,7 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	/**
 	 * @param nodeConsistencyChecker the _nodeConsistencyChecker to set
 	 */
-	public void setNodeConsistencyChecker(INodeConsistencyChecker<Name, Klass, Role> nodeConsistencyChecker)
+	public void setNodeConsistencyChecker(INodeConsistencyChecker<I, L, K, R> nodeConsistencyChecker)
 	{
 		this._nodeConsistencyChecker = nodeConsistencyChecker;
 	}
@@ -749,10 +772,16 @@ public class Reasoner<Name extends Comparable<? super Name>, Klass extends Compa
 	{
 		return _reasonerOptions;
 	}
+
+
+	public void setReasonerOptions(ReasonerOptions reasonerOptions)
+	{
+		this._reasonerOptions = reasonerOptions;
+	}
+
 /// </editor-fold>
 
-
-	protected boolean isNeedDoubleBlocking(final IABox<Name, Klass, Role> abox)
+	protected boolean isNeedDoubleBlocking(final IABox<I, L, K, R> abox)
 	{
 		return abox.getTBox().getRBox().hasInverseRoles();
 	}

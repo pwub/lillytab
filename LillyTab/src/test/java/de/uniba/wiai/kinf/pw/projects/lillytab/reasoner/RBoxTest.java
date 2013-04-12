@@ -3,27 +3,31 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.AssertedRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.TBox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -33,15 +37,6 @@ import static org.junit.Assert.*;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class RBoxTest {
-
-	private IDLTermFactory<String, String, String> _termFactory;
-	private ITBox<String, String, String> _tbox;
-	private AssertedRBox<String, String, String> _assertedRBox;
-
-
-	public RBoxTest()
-	{
-	}
 
 
 	@BeforeClass
@@ -57,13 +52,22 @@ public class RBoxTest {
 	{
 	}
 
+	private IDLTermFactory<String, String, String, String> _termFactory;
+	private ITBox<String, String, String, String> _tbox;
+	private AssertedRBox<String, String, String, String> _assertedRBox;
+
+
+	public RBoxTest()
+	{
+	}
+
 
 	@Before
 	public void setUp()
 	{
 		_termFactory = new SimpleStringDLTermFactory();
-		_tbox = new TBox<String, String, String>(_termFactory);
-		_assertedRBox = new AssertedRBox<String, String, String>(_tbox);
+		_tbox = new TBox<>(_termFactory);
+		_assertedRBox = new AssertedRBox<>(_tbox);
 	}
 
 
@@ -77,8 +81,7 @@ public class RBoxTest {
 
 
 	@Test
-	public void testDataPropertySubRole()
-		throws EInconsistentRBoxException
+	public void testDataPropertySubRole() throws EInconsistentRBoxException
 	{
 		_assertedRBox.addRole("r1", RoleType.DATA_PROPERTY);
 		_assertedRBox.addRole("r2", RoleType.DATA_PROPERTY);
@@ -92,8 +95,7 @@ public class RBoxTest {
 
 
 	@Test
-	public void testObjectPropertySubRole()
-		throws EInconsistentRBoxException
+	public void testObjectPropertySubRole() throws EInconsistentRBoxException
 	{
 		_assertedRBox.addRole("r1", RoleType.OBJECT_PROPERTY);
 		_assertedRBox.addRole("r2", RoleType.OBJECT_PROPERTY);
@@ -161,7 +163,7 @@ public class RBoxTest {
 	}
 
 
-	public void testInvertEqualityChain()
+		public void testInvertEqualityChain()
 		throws EInconsistentRBoxException
 	{
 		_assertedRBox.addRole("a", RoleType.OBJECT_PROPERTY);

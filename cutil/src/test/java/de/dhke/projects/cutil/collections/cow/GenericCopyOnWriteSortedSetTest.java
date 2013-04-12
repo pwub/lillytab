@@ -27,10 +27,10 @@ import java.util.Arrays;
 import java.util.SortedSet;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -39,7 +39,7 @@ import static org.junit.Assert.*;
  */
 public class GenericCopyOnWriteSortedSetTest
 {
-	private final ICollectionFactory<String, SortedSet<String>> _factory = new TreeSortedSetFactory<String>();
+	private final ICollectionFactory<String, SortedSet<String>> _factory = new TreeSortedSetFactory<>();
 	private SortedSet<String> _baseMap;
 	private CopyOnWriteSortedSet<String> _cowSet;
 
@@ -62,7 +62,7 @@ public class GenericCopyOnWriteSortedSetTest
 	{
 		_baseMap = _factory.getInstance();
 		_baseMap.addAll(Arrays.asList("2", "3", "4"));
-		_cowSet = new CopyOnWriteSortedSet<String>(_baseMap);
+		_cowSet = new CopyOnWriteSortedSet<>(_baseMap);
 	}
 
 	@After

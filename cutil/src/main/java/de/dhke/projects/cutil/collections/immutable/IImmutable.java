@@ -22,14 +22,14 @@
 package de.dhke.projects.cutil.collections.immutable;
 
 /**
- * <p>
+ * 
  * Interface to an object that supports to be converted into a 
  * an immutable proxy.
- * </p><p>
+ * <p />
  * Call {@link #getImmutable() } for an object implementing
  * {@link IImmutable} should create a proxy object that prevents
  * direct modifications to the initial object.
- * </p><p>
+ * <p />
  * Implementations may choose between three types of dynamic behaviour models:
  * <dl>
  *   <dd>Unmodifiable Proxy with unmodifiable source</dd>
@@ -54,14 +54,14 @@ package de.dhke.projects.cutil.collections.immutable;
  *	   the state of the immutable object. This is usually implemented by
  *     creating an internal copy of the initial object.
  *   </dt>
- * </p><p>
+ * <p />
  * The interface contract specifies that direct modifications to the initial object
  * are prevented by the immutable proxy. How this also applies to related objects
  * is up the actual implementation.
- * </p><p>
+ * <p />
  * Note that an immutable object that implements the {@link Cloneable} interface
  * should return mutable clones unless otherwise noted.
- * </p>
+ * 
  *
  * @author Peter Wullinger <java@dhke.de>
  */

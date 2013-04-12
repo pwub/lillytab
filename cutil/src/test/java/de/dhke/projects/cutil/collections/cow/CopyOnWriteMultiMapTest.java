@@ -33,10 +33,10 @@ import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -45,7 +45,7 @@ import static org.junit.Assert.*;
  */
 public class CopyOnWriteMultiMapTest
 {
-	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<String, String>();
+	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<>();
 	private MultiMap<String, String> _baseMap;
 	private CopyOnWriteMultiMap<String, String> _cowMap;
 
@@ -73,7 +73,7 @@ public class CopyOnWriteMultiMapTest
 		_baseMap.put("2", "B");
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
-		_cowMap = new CopyOnWriteMultiMap<String, String>(_baseMap, _factory);
+		_cowMap = new CopyOnWriteMultiMap<>(_baseMap, _factory);
 	}
 
 	@After
@@ -263,7 +263,7 @@ public class CopyOnWriteMultiMapTest
 	@Test
 	public void testPutAll_Map()
 	{
-		Map<String, String> newEntries = new HashMap<String, String>();
+		Map<String, String> newEntries = new HashMap<>();
 		newEntries.put("1", "α");
 		newEntries.put("2", "β");
 		newEntries.put("3", "γ");

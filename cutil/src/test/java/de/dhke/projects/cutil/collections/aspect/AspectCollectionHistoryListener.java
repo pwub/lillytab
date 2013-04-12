@@ -22,7 +22,6 @@
 package de.dhke.projects.cutil.collections.aspect;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 /**

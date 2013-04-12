@@ -21,8 +21,6 @@
  **/
 package de.dhke.projects.cutil.collections.eqaware;
 
-import de.dhke.projects.cutil.collections.eqaware.DefaultEqualityAwareComparator;
-import de.dhke.projects.cutil.collections.eqaware.EqualityAwareComparator;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.SortedMap;

@@ -22,7 +22,6 @@
 package de.dhke.projects.cutil.collections.cow;
 
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
-import java.util.ArrayList;
 import java.util.Queue;
 
 /**

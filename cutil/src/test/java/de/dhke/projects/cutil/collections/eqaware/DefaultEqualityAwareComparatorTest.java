@@ -23,10 +23,10 @@ package de.dhke.projects.cutil.collections.eqaware;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -98,7 +98,7 @@ public class DefaultEqualityAwareComparatorTest {
 	@Test
 	public void testCompare()
 	{
-		final DefaultEqualityAwareComparator<SampleComparable> comparator = new DefaultEqualityAwareComparator<DefaultEqualityAwareComparatorTest.SampleComparable>();
+		final DefaultEqualityAwareComparator<SampleComparable> comparator = new DefaultEqualityAwareComparator<>();
 		final SampleComparable c1_0 = new SampleComparable(1, 0);
 		final SampleComparable c2_0 = new SampleComparable(2, 0);
 		final SampleComparable c1_1 = new SampleComparable(1, 1);

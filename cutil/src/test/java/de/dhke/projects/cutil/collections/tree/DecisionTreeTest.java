@@ -22,15 +22,15 @@
 package de.dhke.projects.cutil.collections.tree;
 
 import de.dhke.projects.cutil.collections.tree.IDecisionTree.Node;
-import java.util.NoSuchElementException;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -57,7 +57,7 @@ public class DecisionTreeTest {
 	@Before
 	public void setUp()
 	{
-		_decisionTree = new DecisionTree<String>();
+		_decisionTree = new DecisionTree<>();
 	}
 
 	@After

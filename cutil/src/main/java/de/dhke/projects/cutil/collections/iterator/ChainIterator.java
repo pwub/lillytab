@@ -63,6 +63,8 @@ public class ChainIterator<E>
 	@Override
 	public boolean hasNext()
 	{
+		while (! _iterList.isEmpty() && (! _iterList.element().hasNext()))
+			_iterList.remove();
 		return (! _iterList.isEmpty()) && _iterList.element().hasNext();
 	}
 

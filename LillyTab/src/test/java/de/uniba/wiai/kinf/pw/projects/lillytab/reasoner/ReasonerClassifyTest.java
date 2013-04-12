@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
@@ -33,28 +38,16 @@ import java.util.logging.LogManager;
 import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author peter
  */
 public class ReasonerClassifyTest {
-
-	private final IDLTermFactory<String, String, String> _termFactory = new SimpleStringDLTermFactory();
-	private final IABoxFactory<String, String, String> _aboxFactory = new ABoxFactory<>(
-		_termFactory);
-	private IABox<String, String, String> _abox;
-	private Reasoner<String, String, String> _reasoner;
-	private SimpleKRSSParser _parser;
-
-
-	public ReasonerClassifyTest()
-	{
-	}
 
 
 	@BeforeClass
@@ -73,15 +66,27 @@ public class ReasonerClassifyTest {
 	{
 	}
 
+	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
+	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
+		_termFactory);
+	private IABox<String, String, String, String> _abox;
+	private Reasoner<String, String, String, String> _reasoner;
+	private SimpleKRSSParser _parser;
+
+
+	public ReasonerClassifyTest()
+	{
+	}
+
 
 	@Before
 	public void setUp()
 	{
 		final ReasonerOptions reasonerOptions = new ReasonerOptions();
-		reasonerOptions.TRACE = false;
-		// reasonerOptions.TRACE = true;
-		reasonerOptions.MERGE_TRACKING = true;
-		_reasoner = new Reasoner<String, String, String>(reasonerOptions);
+		reasonerOptions.setTracing(false);;
+		// reasonerOptions._tracing = true;
+		reasonerOptions.setMergeTracking(true);
+		_reasoner = new Reasoner<>(reasonerOptions);
 		_parser = new SimpleKRSSParser(_termFactory);
 		_abox = _aboxFactory.createABox();
 	}
@@ -97,13 +102,21 @@ public class ReasonerClassifyTest {
 
 
 	@Test
-	public void someRSubClassPropagationTest()
-		throws ParseException, EReasonerException, EInconsistencyException
+	public void inconsistentClassify() throws ParseException, EReasonerException, EInconsistencyException
+	{
+		_abox.getTBox().add(_parser.parse("(implies A (not B))"));
+		_abox.getTBox().add(_parser.parse("(implies B A)"));
+		Collection<IDLImplies<String, String, String, String>> clsTerms = _reasoner.classify(_abox);
+	}
+
+
+	@Test
+	public void someRSubClassPropagationTest() throws ParseException, EReasonerException, EInconsistencyException
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		_abox.getTBox().add(_parser.parse("(implies A (some r _Thing_))"));
 		_abox.getTBox().add(_parser.parse("(implies (some r _Thing_) B)"));
-		Collection<IDLImplies<String, String, String>> clsTerms = _reasoner.classify(_abox);
+		Collection<IDLImplies<String, String, String, String>> clsTerms = _reasoner.classify(_abox);
 		assertTrue(clsTerms.contains(_parser.parse("(implies A B)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies A A)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies B B)")));
@@ -117,7 +130,7 @@ public class ReasonerClassifyTest {
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		_abox.getTBox().add(_parser.parse("(implies A (only r C))"));
 		_abox.getTBox().add(_parser.parse("(implies (only r C) B)"));
-		Collection<IDLImplies<String, String, String>> clsTerms = _reasoner.classify(_abox);
+		Collection<IDLImplies<String, String, String, String>> clsTerms = _reasoner.classify(_abox);
 		assertTrue(clsTerms.contains(_parser.parse("(implies A B)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies A C)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies B C)")));
@@ -133,7 +146,7 @@ public class ReasonerClassifyTest {
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		_abox.getTBox().add(_parser.parse("(implies A (or (some r D) C))"));
 		_abox.getTBox().add(_parser.parse("(implies (not (and (only r (not D)) (not C))) B)"));
-		Collection<IDLImplies<String, String, String>> clsTerms = _reasoner.classify(_abox);
+		Collection<IDLImplies<String, String, String, String>> clsTerms = _reasoner.classify(_abox);
 		assertTrue(clsTerms.contains(_parser.parse("(implies A B)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies A C)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies A D)")));

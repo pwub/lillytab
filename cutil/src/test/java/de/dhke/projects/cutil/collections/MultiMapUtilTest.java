@@ -22,7 +22,6 @@
 package de.dhke.projects.cutil.collections;
 
 import java.util.Collection;
-import java.util.Map.Entry;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.junit.*;

@@ -3,23 +3,31 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.collections.aspect.CollectionEvent;
 import de.dhke.projects.cutil.collections.aspect.CollectionItemEvent;
 import de.dhke.projects.cutil.collections.cow.CopyOnWriteSortedSet;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNominalReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIndividualReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Collection;
 import java.util.SortedSet;
@@ -27,47 +35,64 @@ import java.util.TreeSet;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ABoxNodeTermSet<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends TermSet<Name, Klass, Role> {
+public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends TermSet<I, L, K, R> {
 
-	public ABoxNodeTermSet(final ABoxNode<Name, Klass, Role> sender)
+	public ABoxNodeTermSet(final ABoxNode<?, I, L, K, R> sender)
 	{
-		this(CopyOnWriteSortedSet.decorate(new TreeSet<IDLTerm<Name, Klass, Role>>()), sender);
+		this(CopyOnWriteSortedSet.decorate(new TreeSet<IDLTerm<I, L, K, R>>()), sender);
 	}
 
 
-	public ABoxNodeTermSet(final SortedSet<IDLTerm<Name, Klass, Role>> baseSet, final ABoxNode<Name, Klass, Role> sender)
+	public ABoxNodeTermSet(final SortedSet<IDLTerm<I, L, K, R>> baseSet, final ABoxNode<?, I, L, K, R> sender)
 	{
-		super(baseSet, sender);
+		super(TermTypes.ANY, baseSet, sender);
 	}
 
 
-	public ABoxNodeTermSet<Name, Klass, Role> clone(final ABoxNode<Name, Klass, Role> newNode)
+	@SuppressWarnings("unchecked")
+	ABoxNode<?, I, L, K, R> getNode()
 	{
-		final CopyOnWriteSortedSet<IDLTerm<Name, Klass, Role>> klonedSet =
-			((CopyOnWriteSortedSet<IDLTerm<Name, Klass, Role>>) getDecoratee()).clone();
+		return (ABoxNode<?, I, L, K, R>) getSender();
+	}
+
+
+	public ABoxNodeTermSet<I, L, K, R> clone(final ABoxNode<?, I, L, K, R> newNode)
+	{
+		final CopyOnWriteSortedSet<IDLTerm<I, L, K, R>> klonedSet =
+			((CopyOnWriteSortedSet<IDLTerm<I, L, K, R>>) getDecoratee()).clone();
 		return new ABoxNodeTermSet<>(klonedSet, newNode);
 	}
 
 
 	@Override
 	protected void notifyBeforeElementAdded(
-		CollectionItemEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> ev)
+		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> ev)
 	{
 		super.notifyBeforeElementAdded(ev);
-		final ABoxNode<Name, Klass, Role> node = getNode();
-		final ABox<Name, Klass, Role> abox = node.getABox();
-		if ((abox != null) && (ev.getItem() instanceof IDLNominalReference)) {
-			IDLNominalReference<Name, Klass, Role> nRef = (IDLNominalReference<Name, Klass, Role>) ev.getItem();
-			if ((abox.getNode(nRef.getIndividual()) != null)
-				&& (!abox.getNode(nRef.getIndividual()).equals(node))) {
-				throw new IllegalArgumentException(
-					"Different node with name " + nRef.getIndividual() + " already in node map.");
+		final IABoxNode<I, L, K, R> node = getNode();
+		final IABox<I, L, K, R> abox = node.getABox();
+		if (abox != null) {
+			if (ev.getItem() instanceof IDLIndividualReference) {
+				final IDLIndividualReference<I, L, K, R> indRef = (IDLIndividualReference<I, L, K, R>) ev.getItem();
+				if ((abox.getIndividualNode(indRef.getIndividual()) != null)
+					&& (!abox.getIndividualNode(indRef.getIndividual()).equals(node))) {
+					throw new IllegalArgumentException(
+						"Different node with name " + indRef.getIndividual() + " already in node map.");
+				} else if (ev.getItem() instanceof IDLLiteralReference) {
+					final IDLLiteralReference<I, L, K, R> litRef = (IDLLiteralReference<I, L, K, R>) ev.getItem();
+					if ((abox.getDatatypeNode(litRef.getLiteral()) != null)
+						&& (!abox.getDatatypeNode(litRef.getLiteral()).equals(node))) {
+						throw new IllegalArgumentException(
+							"Different node with value " + litRef.getLiteral() + " already in node map.");
+					}
+				}
 			}
 		}
 	}
@@ -75,17 +100,29 @@ public class ABoxNodeTermSet<Name extends Comparable<? super Name>, Klass extend
 
 	@Override
 	public void notifyAfterElementAdded(
-		final CollectionItemEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> e)
+		final CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
 	{
-		final ABoxNode<Name, Klass, Role> source = getNode();
-		final ABox<Name, Klass, Role> abox = source.getABox();
+		final ABoxNode<?, I, L, K, R> source = getNode();
+		final ABox<I, L, K, R> abox = source.getABox();
 
 		if (abox != null) {
-			if (e.getItem() instanceof IDLNominalReference) {
-				final IDLNominalReference<Name, Klass, Role> nRef = (IDLNominalReference<Name, Klass, Role>) e.getItem();
+			if (e.getItem() instanceof IDLIndividualReference) {
+				final IDLIndividualReference<I, L, K, R> iRef = (IDLIndividualReference<I, L, K, R>) e.getItem();
+				assert source instanceof IndividualABoxNode;
+				@SuppressWarnings("unchecked")
+				final IndividualABoxNode<I, L, K, R> iNode = (IndividualABoxNode<I, L, K, R>) source;
 
 				abox.removeNoUnlink(source);
-				source._names.add(nRef.getIndividual());
+				iNode._names.add(iRef.getIndividual());
+				abox.addNoUnlink(source);
+			} else if (e.getItem() instanceof IDLLiteralReference) {
+				final IDLLiteralReference<I, L, K, R> lRef = (IDLLiteralReference<I, L, K, R>) e.getItem();
+				assert source instanceof LiteralABoxNode;
+				@SuppressWarnings("unchecked")
+				final LiteralABoxNode<I, L, K, R> iNode = (LiteralABoxNode<I, L, K, R>) source;
+
+				abox.removeNoUnlink(source);
+				iNode._names.add(lRef.getLiteral());
 				abox.addNoUnlink(source);
 			}
 			abox.notifyTermAdded(source, e.getItem());
@@ -96,14 +133,14 @@ public class ABoxNodeTermSet<Name extends Comparable<? super Name>, Klass extend
 
 	@Override
 	protected void notifyAfterElementRemoved(
-		CollectionItemEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> ev)
+		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> ev)
 	{
-		final ABoxNode<Name, Klass, Role> node = getNode();
-		final ABox<Name, Klass, Role> abox = node.getABox();
+		final ABoxNode<?, I, L, K, R> node = getNode();
+		final ABox<I, L, K, R> abox = node.getABox();
 
 		if (abox != null) {
-			if (ev.getItem() instanceof IDLNominalReference) {
-				final IDLNominalReference<Name, Klass, Role> nRef = (IDLNominalReference<Name, Klass, Role>) ev.getItem();
+			if (ev.getItem() instanceof IDLIndividualReference) {
+				final IDLIndividualReference<I, L, K, R> nRef = (IDLIndividualReference<I, L, K, R>) ev.getItem();
 
 				abox.removeNoUnlink(node);
 				node._names.remove(nRef.getIndividual());
@@ -117,10 +154,10 @@ public class ABoxNodeTermSet<Name extends Comparable<? super Name>, Klass extend
 
 	@Override
 	protected void notifyAfterCollectionCleared(
-		CollectionEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> ev)
+		CollectionEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> ev)
 	{
-		final ABoxNode<Name, Klass, Role> node = getNode();
-		final ABox<Name, Klass, Role> abox = node.getABox();
+		final ABoxNode<?, I, L, K, R> node = getNode();
+		final ABox<I, L, K, R> abox = node.getABox();
 
 		boolean isAnonNode = node.isAnonymous();
 		if ((abox != null) && (!isAnonNode)) {

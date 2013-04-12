@@ -24,7 +24,6 @@ package de.dhke.projects.cutil.collections.map;
 import de.dhke.projects.cutil.collections.set.SortedListSet;
 import java.util.Collection;
 import java.util.Map;
-import java.util.TreeSet;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 

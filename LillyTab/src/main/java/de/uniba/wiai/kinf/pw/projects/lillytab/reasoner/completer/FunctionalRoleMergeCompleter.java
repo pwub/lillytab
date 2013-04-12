@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.dhke.projects.cutil.collections.tree.IDecisionTree.Node;
@@ -26,6 +31,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import java.util.Iterator;
@@ -34,28 +40,27 @@ import java.util.Iterator;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class FunctionalRoleMergeCompleter<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractCompleter<Name, Klass, Role> {
+public class FunctionalRoleMergeCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends AbstractCompleter<I, L, K, R> {
 
-	public FunctionalRoleMergeCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker, final boolean trace)
+	public FunctionalRoleMergeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
 
 
-	public FunctionalRoleMergeCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker)
+	public FunctionalRoleMergeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		this(cChecker, false);
 	}
 
 
 	@Override
-	public ReasonerContinuationState completeNode(IABoxNode<Name, Klass, Role> node,
-												  Node<Branch<Name, Klass, Role>> branchNode)
+	public ReasonerContinuationState completeNode(Node<Branch<I, L, K, R>> branchNode, IABoxNode<I, L, K, R> node)
 		throws EReasonerException
 	{
 		try {
-			final IABox<Name, Klass, Role> abox = node.getABox();
+			final IABox<I, L, K, R> abox = node.getABox();
 			if (abox == null) {
 				logInfo("Expected ABox, got null: %s", branchNode.getData().getABox());
 				logInfo("For Node %s", node);
@@ -66,16 +71,16 @@ public class FunctionalRoleMergeCompleter<Name extends Comparable<? super Name>,
 			
 			boolean changed = false;
 
-			final IRBox<Name, Klass, Role> rbox = abox.getTBox().getRBox();
-			final IRABox<Name, Klass, Role> raBox = node.getRABox();
-			for (final Role outRole : raBox.getOutgoingRoles()) {
+			final IRBox<I, L, K, R> rbox = abox.getTBox().getRBox();
+			final IRABox<I, L, K, R> raBox = node.getRABox();
+			for (final R outRole : raBox.getOutgoingRoles()) {
 				if (rbox.hasRoleProperty(outRole, RoleProperty.FUNCTIONAL)) {
-					Iterator<IABoxNode<Name, Klass, Role>> succIter = raBox.getSuccessorNodes(outRole).iterator();
+					Iterator<IABoxNode<I, L, K, R>> succIter = raBox.getSuccessorNodes(outRole).iterator();
 					assert succIter.hasNext();
-					IABoxNode<Name, Klass, Role> firstNode = succIter.next();
+					IABoxNode<I, L, K, R> firstNode = succIter.next();
 					while (succIter.hasNext()) {
-						final IABoxNode<Name, Klass, Role> nextNode = succIter.next();
-						final NodeMergeInfo<Name, Klass, Role> mergeInfo = abox.mergeNodes(nextNode, firstNode);
+						final IABoxNode<I, L, K, R> nextNode = succIter.next();
+						final NodeMergeInfo<I, L, K, R> mergeInfo = abox.mergeNodes(nextNode, firstNode);
 						branchNode.getData().touchNode(mergeInfo.getCurrentNode());
 
 						succIter = raBox.getSuccessorNodes(outRole).iterator();
@@ -86,14 +91,14 @@ public class FunctionalRoleMergeCompleter<Name extends Comparable<? super Name>,
 				}
 			}
 
-			for (final Role inRole : raBox.getIncomingRoles()) {
+			for (final R inRole : raBox.getIncomingRoles()) {
 				if (rbox.hasRoleProperty(inRole, RoleProperty.INVERSE_FUNCTIONAL)) {
-					Iterator<IABoxNode<Name, Klass, Role>> predIter = raBox.getPredecessorNodes(inRole).iterator();
+					Iterator<IABoxNode<I, L, K, R>> predIter = raBox.getPredecessorNodes(inRole).iterator();
 					assert predIter.hasNext();
-					IABoxNode<Name, Klass, Role> firstNode = predIter.next();
+					IABoxNode<I, L, K, R> firstNode = predIter.next();
 					while (predIter.hasNext()) {
-						final IABoxNode<Name, Klass, Role> nextNode = predIter.next();
-						final NodeMergeInfo<Name, Klass, Role> mergeInfo = abox.mergeNodes(nextNode, firstNode);
+						final IABoxNode<I, L, K, R> nextNode = predIter.next();
+						final NodeMergeInfo<I, L, K, R> mergeInfo = abox.mergeNodes(nextNode, firstNode);
 
 						branchNode.getData().touchNode(mergeInfo.getCurrentNode());
 

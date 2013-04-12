@@ -21,9 +21,6 @@
  **/
 package de.dhke.projects.cutil.collections.map;
 
-import de.dhke.projects.cutil.ComparablePair;
-import java.util.SortedMap;
-
 /**
  *
  * @author Peter Wullinger <java@dhke.de>

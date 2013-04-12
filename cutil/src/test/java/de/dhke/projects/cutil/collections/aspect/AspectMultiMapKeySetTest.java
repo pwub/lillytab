@@ -33,10 +33,10 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -67,7 +67,7 @@ public class AspectMultiMapKeySetTest
 	@Before
 	public void setUp()
 	{
-		_baseMap = new MultiHashMap<String, String>();
+		_baseMap = new MultiHashMap<>();
 		_baseMap.put("1", "a");
 		_baseMap.put("1", "A");
 		_baseMap.put("2", "b");
@@ -75,7 +75,7 @@ public class AspectMultiMapKeySetTest
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
 		_aspectMap = AspectMultiMap.decorate(_baseMap,  this);
-		_listener = new AspectCollectionHistoryListener<Map.Entry<String, String>, MultiMap<String, String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectMap.getListeners().add(_listener);
 		_keySet = _aspectMap.keySet();
 	}
@@ -129,7 +129,7 @@ public class AspectMultiMapKeySetTest
 	@Test
 	public void testIterator()
 	{
-		List<String> keys = new ArrayList<String>();
+		List<String> keys = new ArrayList<>();
 		keys.add("1");
 		keys.add("2");
 		keys.add("3");
@@ -150,18 +150,18 @@ public class AspectMultiMapKeySetTest
 		iter.next();
 		String key = iter.next();
 		/* we need to create a copy, as the removal drops the values from the returned collection */
-		Collection<String> values = new ArrayList<String>(_aspectMap.get(key));
+		Collection<String> values = new ArrayList<>(_aspectMap.get(key));
 		iter.remove();
 
 		assertFalse(_aspectMap.containsKey(key));
 
 		assertEquals(2, _listener.beforeRemoveEvents.size());
 		for (String value : values)
-			assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>(key, value),
+			assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>(key, value),
 													_listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
 		for (String value : values)
-			assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>(key, value),
+			assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>(key, value),
 													_listener.afterRemoveEvents));
 	}
 
@@ -175,7 +175,7 @@ public class AspectMultiMapKeySetTest
 		Iterator<String> iter = _keySet.iterator();
 		iter.next();
 		String key = iter.next();
-		Collection<String> values = new ArrayList<String>(_aspectMap.get(key));
+		Collection<String> values = new ArrayList<>(_aspectMap.get(key));
 		try {
 			iter.remove();
 			fail("Remove veto not raised");
@@ -226,14 +226,14 @@ public class AspectMultiMapKeySetTest
 		assertFalse(_aspectMap.containsKey("1"));
 
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"),
 												_listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"),
 												_listener.afterRemoveEvents));
 	}
 
@@ -289,14 +289,14 @@ public class AspectMultiMapKeySetTest
 		assertTrue(_keySet.retainAll(Arrays.asList("1", "3")));
 		assertFalse(_aspectMap.containsKey("2"));
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"),
 												_listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"),
 												_listener.afterRemoveEvents));
 	}
 
@@ -329,14 +329,14 @@ public class AspectMultiMapKeySetTest
 		assertTrue(_keySet.removeAll(Arrays.asList("2", "4")));
 		assertFalse(_aspectMap.containsKey("2"));
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"),
 												_listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"),
 												_listener.afterRemoveEvents));
 	}
 

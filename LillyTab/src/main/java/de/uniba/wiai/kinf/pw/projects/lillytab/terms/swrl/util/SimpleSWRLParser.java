@@ -16,9 +16,10 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.util;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIntersection;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDArgument;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRule;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTermFactory;
@@ -33,15 +34,6 @@ import java.util.List;
  */
 public class SimpleSWRLParser {
 
-	final ISWRLTermFactory<String, String, String> _swrlFactory;
-
-
-	public SimpleSWRLParser(final ISWRLTermFactory<String, String, String> swrlFactory)
-	{
-		_swrlFactory = swrlFactory;
-	}
-
-
 	private static void checkNextToken(final TokenIterator tokenIter, final String expected)
 		throws ParseException
 	{
@@ -52,9 +44,16 @@ public class SimpleSWRLParser {
 									 (int) tokenIter.getPosition());
 		}
 	}
+	final ISWRLTermFactory<String, String, String, String> _swrlFactory;
 
 
-	private ISWRLIndividual<String, String, String> parseIndividual(final TokenIterator tokenIter)
+	public SimpleSWRLParser(final ISWRLTermFactory<String, String, String, String> swrlFactory)
+	{
+		_swrlFactory = swrlFactory;
+	}
+
+
+	private ISWRLArgument<String, String, String, String> parseIndividual(final TokenIterator tokenIter)
 		throws ParseException
 	{
 		String token = tokenIter.next();
@@ -63,48 +62,71 @@ public class SimpleSWRLParser {
 			final String varName = tokenIter.next();
 			return _swrlFactory.getSWRLVariable(varName);
 		} else if (token.equals("{")) {
-			final String nomName = tokenIter.next();
+			final String indName;
+			String next = tokenIter.next();
+			final boolean isDataLiteral;
+			if (next.equals("\"")) {
+				isDataLiteral = true;
+				indName = tokenIter.next();
+				checkNextToken(tokenIter, "\"");
+			} else {
+				isDataLiteral = false;
+				indName = next;
+			}
 			checkNextToken(tokenIter, "}");
-			return _swrlFactory.getSWRLNominalReference(nomName);
+			if (isDataLiteral)
+				return _swrlFactory.getSWRLLiteralReference(indName);
+			else
+				return _swrlFactory.getSWRLIndividualReference(indName);
+
 		} else {
 			throw new ParseException("Expected individual", (int) tokenIter.getPosition());
 		}
 	}
 
 
-	public ISWRLAtomicTerm<String, String, String> parseAtom(final String input)
+	public ISWRLAtomicTerm<String, String, String, String> parseAtom(final String input)
 		throws ParseException
 	{
 		return parseAtom(new TokenIterator(input));
 	}
 
 
-	public ISWRLAtomicTerm<String, String, String> parseAtom(final TokenIterator tokenIter)
+	public ISWRLAtomicTerm<String, String, String, String> parseAtom(final TokenIterator tokenIter)
 		throws ParseException
 	{
 		checkNextToken(tokenIter, "(");
 		final String element = tokenIter.next();
-		final ISWRLIndividual<String, String, String> ind1 = parseIndividual(tokenIter);
+		final ISWRLArgument<String, String, String, String> ind1 = parseIndividual(tokenIter);
 		final String nextToken = tokenIter.next();
 		if (nextToken.equalsIgnoreCase(")")) {
-			return _swrlFactory.getSWRLClassAtom(element, ind1);
+			return _swrlFactory.getSWRLClassAtom(element, (ISWRLIArgument<String, String, String, String>) ind1);
 		} else {
 			tokenIter.pushBack(nextToken);
-			final ISWRLIndividual<String, String, String> ind2 = parseIndividual(tokenIter);
+			final ISWRLArgument<String, String, String, String> ind2 = parseIndividual(tokenIter);
 			checkNextToken(tokenIter, ")");
-			return _swrlFactory.getSWRLRoleAtom(element, ind1, ind2);
+			if (ind2 instanceof ISWRLIArgument) {
+				/* XXX - this makes variables ALWAYS be object references */
+				return _swrlFactory.getSWRLObjectRoleAtom(element, (ISWRLIArgument<String, String, String, String>) ind1,
+														  (ISWRLIArgument<String, String, String, String>) ind2);
+			} else if (ind2 instanceof ISWRLDArgument) {
+				return _swrlFactory.getSWRLDataRoleAtom(element, (ISWRLIArgument<String, String, String, String>) ind1,
+														(ISWRLDArgument<String, String, String, String>) ind2);
+
+			} else
+				throw new ParseException("Unknown role object type: " + ind2.getClass(), (int) tokenIter.getPosition());
 		}
 	}
 
 
-	public ISWRLTerm<String, String, String> parseTermList(final TokenIterator tokenIter)
+	public ISWRLTerm<String, String, String, String> parseTermList(final TokenIterator tokenIter)
 		throws ParseException
 	{
-		List<ISWRLAtomicTerm<String, String, String>> list = new ArrayList<>();
+		List<ISWRLAtomicTerm<String, String, String, String>> list = new ArrayList<>();
 		String nextToken = ",";
 
 		while (nextToken.equalsIgnoreCase(",")) {
-			ISWRLAtomicTerm<String, String, String> atom = parseAtom(tokenIter);
+			ISWRLAtomicTerm<String, String, String, String> atom = parseAtom(tokenIter);
 			list.add(atom);
 			if (!tokenIter.hasNext()) {
 				nextToken = "";
@@ -125,26 +147,26 @@ public class SimpleSWRLParser {
 	}
 
 
-	public ISWRLTerm<String, String, String> parseTermList(final String input)
+	public ISWRLTerm<String, String, String, String> parseTermList(final String input)
 		throws ParseException
 	{
 		return parseTermList(new TokenIterator(input));
 	}
 
 
-	public ISWRLRule<String, String, String> parseRule(final TokenIterator tokenIter)
+	public ISWRLRule<String, String, String, String> parseRule(final TokenIterator tokenIter)
 		throws ParseException
 	{
-		ISWRLTerm<String, String, String> head = parseTermList(tokenIter);
+		ISWRLTerm<String, String, String, String> head = parseTermList(tokenIter);
 		checkNextToken(tokenIter, ":");
 		checkNextToken(tokenIter, "-");
-		ISWRLTerm<String, String, String> body = parseTermList(tokenIter);
+		ISWRLTerm<String, String, String, String> body = parseTermList(tokenIter);
 		checkNextToken(tokenIter, ".");
 		return _swrlFactory.getSWRLRule(head, body);
 	}
 
 
-	public ISWRLRule<String, String, String> parseRule(final String input)
+	public ISWRLRule<String, String, String, String> parseRule(final String input)
 		throws ParseException
 	{
 		return parseRule(new TokenIterator(input));

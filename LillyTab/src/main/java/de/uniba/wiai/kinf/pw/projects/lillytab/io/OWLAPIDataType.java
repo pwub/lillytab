@@ -3,24 +3,29 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.io;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import com.sun.msv.datatype.xsd.*;
 import de.dhke.projects.cutil.collections.set.Flat3Set;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.*;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datatype.IDLDatatype;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDatatype;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,28 +35,24 @@ import org.apache.commons.collections15.bidimap.DualHashBidiMap;
 import org.relaxng.datatype.ValidationContext;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
+import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLLiteral;
-import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLProperty;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
 /**
- * A wrapper that implments datatypes for the {@link OWLAPILoader} and forwards validation to a
- * {@link StringLiteralValidator}.
+ * A wrapper that implments datatypes for the {@link OWLAPILoader} and forwards validation to a back to
+ * {@link XSDatatypeImpl}.
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class OWLAPIDataType
-	implements IDLDatatype<OWLObject, OWLClass, OWLProperty<?, ?>> {
+	implements IDLDatatype<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> {
 
-	private final IRI _datatypeIRI;
-	private final XSDatatypeImpl _dataTypeImpl;
-	private final ValidationContext _validationCtx = new SimpleValidationContext();
 	private static final BidiMap<IRI, XSDatatypeImpl> _dataTypeMap = new DualHashBidiMap<>();
 
 
 	static {
-		/* XXX: fill */
 		_dataTypeMap.put(XSDVocabulary.ANY_URI.getIRI(), AnyURIType.theInstance);
 		_dataTypeMap.put(XSDVocabulary.BASE_64_BINARY.getIRI(), Base64BinaryType.theInstance);
 		_dataTypeMap.put(XSDVocabulary.BOOLEAN.getIRI(), BooleanType.theInstance);
@@ -92,12 +93,9 @@ public class OWLAPIDataType
 		_dataTypeMap.put(XSDVocabulary.UNSIGNED_LONG.getIRI(), UnsignedLongType.theInstance);
 		_dataTypeMap.put(XSDVocabulary.UNSIGNED_SHORT.getIRI(), UnsignedShortType.theInstance);
 	}
-
-
-	public IRI getDatatypeIRI()
-	{
-		return _datatypeIRI;
-	}
+	private final IRI _datatypeIRI;
+	private final XSDatatypeImpl _dataTypeImpl;
+	private final ValidationContext _validationCtx = new SimpleValidationContext();
 
 
 	public OWLAPIDataType(final IRI datatypeIRI)
@@ -111,33 +109,36 @@ public class OWLAPIDataType
 	}
 
 
-	public boolean isValidValue(OWLObject individual)
+	public IRI getDatatypeIRI()
 	{
-		String literal = getStringLiteral(individual);
-		return (literal != null) && _dataTypeImpl.isValid(literal, _validationCtx);
+		return _datatypeIRI;
 	}
 
 
-	public String getStringLiteral(OWLObject individual)
+	@Override
+	public boolean isValidValue(OWLLiteral literal)
 	{
-		if (individual instanceof OWLLiteral) {
-			final OWLLiteral literal = (OWLLiteral) individual;
-			return literal.getLiteral();
-		} else {
-			return null;
-		}
+		final String stringLit = getStringLiteral(literal);
+		return (stringLit != null) && _dataTypeImpl.isValid(stringLit, _validationCtx);
 	}
 
 
-	public boolean isCompatibleValue(final OWLObject ind1, final OWLObject ind2, final OWLObject... otherInds)
+	public String getStringLiteral(OWLLiteral literal)
 	{
-		final String lit1 = getStringLiteral(ind1);
-		final String lit2 = getStringLiteral(ind2);
-		final Object firstValue = _dataTypeImpl.createValue(lit1, _validationCtx);
-		final Object secondValue = _dataTypeImpl.createValue(lit2, _validationCtx);
+		return literal.getLiteral();
+	}
+
+
+	@Override
+	public boolean isCompatibleValue(final OWLLiteral lit1, final OWLLiteral lit2, final OWLLiteral... otherLits)
+	{
+		final String stringLit1 = getStringLiteral(lit1);
+		final String stringLit2 = getStringLiteral(lit2);
+		final Object firstValue = _dataTypeImpl.createValue(stringLit1, _validationCtx);
+		final Object secondValue = _dataTypeImpl.createValue(stringLit2, _validationCtx);
 		if (_dataTypeImpl.sameValue(firstValue, secondValue)) {
-			for (int i = 0; i < otherInds.length; ++i) {
-				final String literal = getStringLiteral(otherInds[i]);
+			for (int i = 0; i < otherLits.length; ++i) {
+				final String literal = getStringLiteral(otherLits[i]);
 				if (literal == null) {
 					return false;
 				}
@@ -153,12 +154,12 @@ public class OWLAPIDataType
 	}
 
 
-	public boolean isCompatibleValue(final Collection<? extends OWLObject> individuals)
+	public boolean isCompatibleValue(final Collection<? extends OWLLiteral> literals)
 	{
-		if (individuals.isEmpty()) {
+		if (literals.isEmpty()) {
 			return true;
 		} else {
-			final Iterator<? extends OWLObject> iter = individuals.iterator();
+			final Iterator<? extends OWLLiteral> iter = literals.iterator();
 			final String firstLiteral = getStringLiteral(iter.next());
 			final Object firstValue = _dataTypeImpl.createValue(firstLiteral, _validationCtx);
 			while (iter.hasNext()) {
@@ -174,13 +175,13 @@ public class OWLAPIDataType
 
 
 	@Override
-	public Set<Set<OWLObject>> getIncompatibleValues(Collection<? extends OWLObject> individuals)
+	public Set<Set<OWLLiteral>> getIncompatibleValues(Collection<? extends OWLLiteral> literals)
 	{
-		final Set<Set<OWLObject>> incompatibles = new HashSet<>();
-		for (OWLObject thisObject : individuals) {
+		final Set<Set<OWLLiteral>> incompatibles = new HashSet<>();
+		for (OWLLiteral thisObject : literals) {
 			final String thisLiteral = getStringLiteral(thisObject);
 			final Object thisValue = _dataTypeImpl.createValue(thisLiteral, _validationCtx);
-			for (OWLObject otherObject : individuals) {
+			for (OWLLiteral otherObject : literals) {
 				if ((thisObject != otherObject) && (!thisObject.equals(otherObject))) {
 					final String otherLiteral = getStringLiteral(otherObject);
 					final Object otherValue = _dataTypeImpl.createValue(otherLiteral, _validationCtx);
@@ -195,16 +196,16 @@ public class OWLAPIDataType
 
 
 	@Override
-	public IDLRestriction<OWLObject, OWLClass, OWLProperty<?, ?>> getBefore()
+	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getBefore()
 	{
-		return new DLDummyDescription<>(DLTermOrder.DL_BEFORE_DATATYPE_EXPRESSION);
+		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_DATATYPE_EXPRESSION);
 	}
 
 
 	@Override
-	public IDLRestriction<OWLObject, OWLClass, OWLProperty<?, ?>> getAfter()
+	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getAfter()
 	{
-		return new DLDummyDescription<>(DLTermOrder.DL_AFTER_DATATYPE_EXPRESSION);
+		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_DATATYPE_EXPRESSION);
 	}
 
 
@@ -223,16 +224,19 @@ public class OWLAPIDataType
 
 
 	@Override
-	public int compareTo(IDLTerm<OWLObject, OWLClass, OWLProperty<?, ?>> o)
+	public int compareTo(IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> o)
 	{
 		int compare = getDLTermOrder().compareTo(o);
 		if (compare == 0) {
-			if (!(o instanceof OWLAPIDataType)) {
+			if (o instanceof AnyURIType)
+				/* any sorts before all other datatypes */
+				return 1;
+			else if (!(o instanceof OWLAPIDataType)) {
 				throw new EInvalidTermException("Mixing OWLAPIDatatype with other datatypes is not supported");
+			} else {
+				OWLAPIDataType other = (OWLAPIDataType) o;
+				compare = getDatatypeIRI().compareTo(other.getDatatypeIRI());
 			}
-			@SuppressWarnings("unchecked")
-			OWLAPIDataType other = (OWLAPIDataType) o;
-			compare = getDatatypeIRI().compareTo(other.getDatatypeIRI());
 		}
 		return compare;
 	}
@@ -241,8 +245,13 @@ public class OWLAPIDataType
 	@Override
 	public String toString()
 	{
-		/// TODO: this needs to be changed
-		return "Datatype: " + _datatypeIRI;
+		final StringBuilder sb = new StringBuilder(10);
+		if (_dataTypeImpl.getName() != null) {
+			sb.append("xsd:");
+			sb.append(_dataTypeImpl.getName());
+		} else
+			sb.append("<anonymous>");
+		return sb.toString();
 	}
 
 

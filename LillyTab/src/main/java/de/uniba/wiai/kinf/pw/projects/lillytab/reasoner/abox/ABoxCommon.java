@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.collections.factories.HashMapFactory;
@@ -35,13 +40,19 @@ import java.util.SortedSet;
  *
  * This is not copied, but referenced during cloning, conserving memory.
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  */
-public final class ABoxCommon<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> {
+public final class ABoxCommon<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  {
+	private final LinearSequenceNumberGenerator _aboxIDFactory = new LinearSequenceNumberGenerator();
+	private final IDLTermFactory<I, L, K, R> _termFactory;
+	private final ICollectionFactory<NodeID, Set<NodeID>> _nodeIDSetFactory = new TreeSetFactory<>();
+	private final ICollectionFactory<IABoxNode<I, L, K, R>, SortedSet<IABoxNode<I, L, K, R>>> _nodeSetFactory = new TreeSortedSetFactory<>();
+	private final IMapFactory<Object, IABoxNode<I, L, K, R>, Map<Object, IABoxNode<I, L, K, R>>> _nodeMapFactory = new HashMapFactory<>();
+	private final TermEntryFactory<I, L, K, R> _termEntryFactory = new TermEntryFactory<>();
 
-	public ABoxCommon(IDLTermFactory<Name, Klass, Role> termFactory)
+	public ABoxCommon(IDLTermFactory<I, L, K, R> termFactory)
 	{
 		this._termFactory = termFactory;
 	}
@@ -59,7 +70,7 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 	/**
 	 * @return the termFactory
 	 */
-	public IDLTermFactory<Name, Klass, Role> getTermFactory()
+	public IDLTermFactory<I, L, K, R> getTermFactory()
 	{
 		return _termFactory;
 	}
@@ -77,7 +88,7 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 	/**
 	 * @return the nodeSetFactory
 	 */
-	public ICollectionFactory<IABoxNode<Name, Klass, Role>, SortedSet<IABoxNode<Name, Klass, Role>>> getNodeSetFactory()
+	public ICollectionFactory<IABoxNode<I, L, K, R>, SortedSet<IABoxNode<I, L, K, R>>> getNodeSetFactory()
 	{
 		return _nodeSetFactory;
 	}
@@ -86,20 +97,14 @@ public final class ABoxCommon<Name extends Comparable<? super Name>, Klass exten
 	/**
 	 * @return the nodeMapFactory
 	 */
-	public IMapFactory<Object, IABoxNode<Name, Klass, Role>, Map<Object, IABoxNode<Name, Klass, Role>>> getNodeMapFactory()
+	public IMapFactory<Object, IABoxNode<I, L, K, R>, Map<Object, IABoxNode<I, L, K, R>>> getNodeMapFactory()
 	{
 		return _nodeMapFactory;
 	}
 
 
-	public TermEntryFactory<Name, Klass, Role> getTermEntryFactory()
+	public TermEntryFactory<I, L, K, R> getTermEntryFactory()
 	{
 		return _termEntryFactory;
 	}
-	private final LinearSequenceNumberGenerator _aboxIDFactory = new LinearSequenceNumberGenerator();
-	private final IDLTermFactory<Name, Klass, Role> _termFactory;
-	private final ICollectionFactory<NodeID, Set<NodeID>> _nodeIDSetFactory = new TreeSetFactory<>();
-	private final ICollectionFactory<IABoxNode<Name, Klass, Role>, SortedSet<IABoxNode<Name, Klass, Role>>> _nodeSetFactory = new TreeSortedSetFactory<>();
-	private final IMapFactory<Object, IABoxNode<Name, Klass, Role>, Map<Object, IABoxNode<Name, Klass, Role>>> _nodeMapFactory = new HashMapFactory<>();
-	private final TermEntryFactory<Name, Klass, Role> _termEntryFactory = new TermEntryFactory<>();
 }

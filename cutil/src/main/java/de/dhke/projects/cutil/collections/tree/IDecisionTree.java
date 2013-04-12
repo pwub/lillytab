@@ -45,14 +45,14 @@ public interface IDecisionTree<Data>
 	Data getData(final Node<Data> node);
 
 	/**
-	 * <p>
+	 * 
 	 * Create a new leaf node as a sibling of {@literal sibling}.
-	 * </p><p>
+	 * <p />
 	 * The node that {@literal data} is now attached to is returned.
 	 * This node reference is only guaranteed to be valid until
 	 * the next modification of the decision tree. The parent node
 	 * reference remains valid through {@link #fork(null, data)}-operations.
-	 * </p>
+	 * 
 	 *
 	 * @param sibling The sibling of the new node
 	 * @param data Datum for the leaf node. May not be {@literal null}.
@@ -61,16 +61,16 @@ public interface IDecisionTree<Data>
 	Node<Data> fork(final Node<Data> sibling, final Data data);
 
 	/**
-	 * <p>
+	 * 
 	 * Create a new leaf node as a sibling of {@literal sibling}
 	 * making sure that the new node and its {@literal sibling} are
 	 * the only child nodes of their parent.
-	 * </p><p>
+	 * <p />
 	 * This differs from {@link #fork(final Node, final Object)}
 	 * in that it will create a new parent node, if necessary to
 	 * ensure that {@literal sibling} and the new node reside on their
 	 * own branch.
-	 * </p>
+	 * 
 	 * @param sibling The sibling of the new node
 	 * @param data Datum for the leaf node. May not be {@literal null}.
 	 * @return The leaf node {@literal data} is now attached to.
@@ -79,25 +79,25 @@ public interface IDecisionTree<Data>
 
 
 	/**
-	 * <p>
+	 * 
 	 * Remove the decision at {@literal node}.
-	 * </p><p>
+	 * <p />
 	 * This is equivalent to calling {@link #remove(de.dhke.projects.cutil.collections.tree.IDecisionTree.Node, boolean) }
 	 * with {@literal pullChildren = true}.
-	 * </p>
+	 * 
 	 *
 	 * @param node The node to remove.
 	 */
 	void remove(final Node<Data> node);
 
 	/**
-	 * <p>
+	 * 
 	 * Remove the decision at {@literal node}.
-	 * </p><p>
+	 * <p />
 	 * If {@literal pullChildren} is {@literal false}, all children of {@literal node} are simply removed.
 	 * If {@literal pullChildren} is passed as {@literal true} and {@literal node} has children,
 	 * the children are pulled down and attached to the parent, instead.
-	 * </p>
+	 * 
 	 * @param node The node to remove.
 	 * @param pullChildren {@literal true} indicates that all children of {@literal node} should also be removed.
 	 **/

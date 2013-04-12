@@ -65,12 +65,12 @@ public class CopyOnWriteSortedSubSet<E, S extends SortedSet<E>>
 		}
 
 		/**
-		 * <p>
+		 * 
 		 * Remove the current item from the collection.
-		 * </p><p>
+		 * <p />
 		 * Removing from an uncopied (and thus untouched)
 		 * {@link GenericCopyOnWriteCollection} is not supported.
-		 * </p>
+		 * 
 		 */
 		@Override
 		public void remove()

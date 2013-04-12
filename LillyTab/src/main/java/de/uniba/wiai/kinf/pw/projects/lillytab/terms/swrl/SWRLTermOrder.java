@@ -3,32 +3,43 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
+
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
+
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public enum SWRLTermOrder {
-
+public enum SWRLTermOrder
+{
 	SWRL_BEFORE(null),
 	SWRL_BEFORE_CLASS_ATOM(null),
 	SWRL_CLASS_ATOM(ISWRLClassAtom.class),
 	SWRL_AFTER_CLASS_ATOM(null),
-	SWRL_BEFORE_ROLE_ATOM(null),
-	SWRL_ROLE_ATOM(ISWRLRoleAtom.class),
-	SWRL_AFTER_ROLE_ATOM(null),
+	SWRL_BEFORE_OBJECT_ROLE_ATOM(null),
+	SWRL_OBJECT_ROLE_ATOM(ISWRLObjectRoleAtom.class),
+	SWRL_AFTER_OBJECT_ROLE_ATOM(null),
+	SWRL_BEFORE_DATA_ROLE_ATOM(null),
+	SWRL_DATA_ROLE_ATOM(ISWRLDataRoleAtom.class),
+	SWRL_AFTER_DATA_ROLE_ATOM(null),
 	SWRL_BEFORE_INTERSECTION(null),
 	SWRL_INTERSECTION(ISWRLIntersection.class),
 	SWRL_AFTER_INTERSECTION(null),
@@ -39,7 +50,6 @@ public enum SWRLTermOrder {
 	 */
 	private final Class<? extends ISWRLTerm> _swrlTermClass;
 
-
 	/**
 	 * Create a new enumeration item wrapping the specified class.
 	 *
@@ -49,7 +59,6 @@ public enum SWRLTermOrder {
 	{
 		_swrlTermClass = klass;
 	}
-
 
 	/**
 	 * Compare the term orders of two {@link ISWRLTerm}s.
@@ -65,7 +74,6 @@ public enum SWRLTermOrder {
 		return t0.getSWRLTermOrder().compareTo(t1);
 	}
 
-
 	/**
 	 * Compare this term order to the term order of a {@link ISWRLTerm}.
 	 *
@@ -78,7 +86,6 @@ public enum SWRLTermOrder {
 	{
 		return compareTo(formula.getSWRLTermOrder());
 	}
-
 
 	/**
 	 * Get the {@link IDLTerm} interface class wrapped by this enumeration item.

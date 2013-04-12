@@ -3,81 +3,89 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
+import de.dhke.projects.cutil.collections.iterator.ChainIterator;
 import de.dhke.projects.cutil.collections.tree.IDecisionTree;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractGeneratingCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IAtom;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataSomeRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectSomeRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLSomeRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
-import java.util.Set;
+
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractGeneratingCompleter<Name, Klass, Role>
-	implements ICompleter<Name, Klass, Role> {
-
-	public SomeCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker,
-						 final IBlockingStrategy<Name, Klass, Role> blockingStrategy,
+public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AbstractGeneratingCompleter<I, L, K, R>
+	implements ICompleter<I, L, K, R>
+{
+	public SomeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker,
+						 final IBlockingStrategy<I, L, K, R> blockingStrategy,
 						 final boolean trace)
 	{
 		super(cChecker, blockingStrategy, trace);
 	}
 
-
-	public SomeCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker,
-						 final IBlockingStrategy<Name, Klass, Role> blockingStrategy)
+	public SomeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker,
+						 final IBlockingStrategy<I, L, K, R> blockingStrategy)
 	{
 		this(cChecker, blockingStrategy, false);
 	}
 
-
 	protected ReasonerContinuationState completeFunctionalRole(
-		final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode,
-		final IABoxNode<Name, Klass, Role> node,
-		final IDLSomeRestriction<Name, Klass, Role> someRestriction)
+		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
+		final IABoxNode<I, L, K, R> node,
+		final IDLSomeRestriction<I, L, K, R> someRestriction)
 		throws EReasonerException
 	{
-		final Role role = someRestriction.getRole();
-		final Branch<Name, Klass, Role> branch = branchNode.getData();
-		final IABox<Name, Klass, Role> abox = branch.getABox();
-		final IDLRestriction<Name, Klass, Role> someTerm = someRestriction.getTerm();
-		IABoxNode<Name, Klass, Role> succ;
+		final R role = someRestriction.getRole();
+		final Branch<I, L, K, R> branch = branchNode.getData();
+		final IABox<I, L, K, R> abox = branch.getABox();
+		final IDLRestriction<I, L, K, R> subTerm = someRestriction.getTerm();
+		IABoxNode<I, L, K, R> succ;
 		boolean haveGenerated;
 
-		if (node.isDatatypeNode()) {
+		if (node instanceof IDatatypeABoxNode) {
 			branch.getConsistencyInfo().addCulprits(node, someRestriction);
 			branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
 			return ReasonerContinuationState.INCONSISTENT;
@@ -92,6 +100,16 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 			} else {
 				final boolean isDataProperty = abox.getTBox().getRBox().hasRoleType(role, RoleType.DATA_PROPERTY);
 				succ = abox.createNode(isDataProperty);
+
+				if (abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().getEntry(node,
+																										   someRestriction))) {
+					abox.getDependencyMap().addGoverningTerm(node, abox.getDLTermFactory().getDLThing());
+
+				}
+
+				/* the target term becomes a governing term if and only if we generated a new node */
+				abox.getDependencyMap().addGoverningTerm(succ, subTerm);
+
 				node.getRABox().getAssertedSuccessors().put(role, succ.getNodeID());
 				branch.touchNode(node);
 				haveGenerated = true;
@@ -99,11 +117,12 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 			/*
 			 * update dependency map
 			 */
-			if (!abox.getDependencyMap().containsKey(succ, someTerm)) {
-				abox.getDependencyMap().addParent(succ, someTerm, node, someRestriction);
+			if (!abox.getDependencyMap().containsKey(succ, subTerm)) {
+				abox.getDependencyMap().addParent(succ, subTerm, node, someRestriction);
 			}
-			/* final NodeMergeInfo<Name, Klass, Role> mergeInfo = */ succ.addUnfoldedDescription(someTerm);
-		} catch (ENodeMergeException ex) {
+
+			/* final NodeMergeInfo<I, L, K, R> mergeInfo = */ succ.addTerm(subTerm);
+		} catch (ENodeMergeException | EIllegalTermTypeException ex) {
 			branch.getConsistencyInfo().addCulprits(node, someRestriction);
 			branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
 			return ReasonerContinuationState.INCONSISTENT;
@@ -116,7 +135,6 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 		}
 	}
 
-
 	/**
 	 *
 	 * @param branchNode The current branch node
@@ -126,18 +144,18 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 	 * @throws EReasonerException
 	 */
 	protected ReasonerContinuationState completeNonFunctionalRole(
-		final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode,
-		final IABoxNode<Name, Klass, Role> node,
-		final IDLSomeRestriction<Name, Klass, Role> someRestriction)
+		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
+		final IABoxNode<I, L, K, R> node,
+		final IDLSomeRestriction<I, L, K, R> someRestriction)
 		throws EReasonerException
 	{
-		final Branch<Name, Klass, Role> branch = branchNode.getData();
-		final IABox<Name, Klass, Role> abox = branch.getABox();
-		final Role role = someRestriction.getRole();
-		final IDLRestriction<Name, Klass, Role> subTerm = someRestriction.getTerm();
+		final Branch<I, L, K, R> branch = branchNode.getData();
+		final IABox<I, L, K, R> abox = branch.getABox();
+		final R role = someRestriction.getRole();
+		final IDLRestriction<I, L, K, R> subTerm = someRestriction.getTerm();
 		boolean haveMatchingSuccessor = false;
 
-		if (node.isDatatypeNode()) {
+		if (node instanceof IDatatypeABoxNode) {
 			branch.getConsistencyInfo().addCulprits(node, someRestriction);
 			branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
 			return ReasonerContinuationState.INCONSISTENT;
@@ -148,8 +166,8 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 		 *
 		 */
 		if (node.getRABox().hasSuccessor(role)) {
-			final Iterable<IABoxNode<Name, Klass, Role>> successors = node.getRABox().getSuccessorNodes(role);
-			for (IABoxNode<Name, Klass, Role> successor : successors) {
+			final Iterable<IABoxNode<I, L, K, R>> successors = node.getRABox().getSuccessorNodes(role);
+			for (IABoxNode<I, L, K, R> successor : successors) {
 				if (successor.getTerms().contains(subTerm)) {
 					haveMatchingSuccessor = true;
 					break;
@@ -171,24 +189,26 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 			final boolean isDataProperty = abox.getRBox().hasRoleType(role, RoleType.DATA_PROPERTY);
 
 			try {
-				IABoxNode<Name, Klass, Role> newNode = abox.createNode(isDataProperty);
+				IABoxNode<I, L, K, R> newNode = abox.createNode(isDataProperty);
 				/**
 				 * update dependency map
-				 *
 				 */
 				if (!abox.getDependencyMap().containsKey(newNode, subTerm)) {
 					abox.getDependencyMap().addParent(newNode, subTerm, node, someRestriction);
 					/**
-					 * The governing term is not the initial "(∃ . term)", but the actual subterm "term" if this one is
-					 * atomic.
-					 *
-					 */
-					if (subTerm instanceof IAtom) {
-						abox.getDependencyMap().addGoverningTerm(newNode, subTerm);
+					 * The governing term is not the initial some restriction "(∃ . term)", 
+					 * but the actual subterm "term".
+					 * If the some restriction was a governing term, delete it.
+					 **/
+					if (abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().getEntry(node,
+																											   someRestriction))) {
+						abox.getDependencyMap().addGoverningTerm(node, abox.getDLTermFactory().getDLThing());
+
 					}
+					abox.getDependencyMap().addGoverningTerm(newNode, subTerm);
 				}
 
-				final NodeMergeInfo<Name, Klass, Role> unfoldResult = newNode.addUnfoldedDescription(subTerm);
+				final NodeMergeInfo<I, L, K, R> unfoldResult = newNode.addTerm(subTerm);
 				newNode = unfoldResult.getCurrentNode();
 				assert branch.getABox().contains(newNode);
 				/*
@@ -206,7 +226,7 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 				 * apply only ONE generating rule at a time
 				 */
 				return ReasonerContinuationState.RECHECK_NODE;
-			} catch (ENodeMergeException ex) {
+			} catch (ENodeMergeException | EIllegalTermTypeException ex) {
 				branch.getConsistencyInfo().addCulprits(node, someRestriction);
 				branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
 				return ReasonerContinuationState.INCONSISTENT;
@@ -215,22 +235,21 @@ public class SomeCompleter<Name extends Comparable<? super Name>, Klass extends 
 		return ReasonerContinuationState.CONTINUE;
 	}
 
-
 	@Override
-	public ReasonerContinuationState completeNode(IABoxNode<Name, Klass, Role> node,
-												  IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode)
+	public ReasonerContinuationState completeNode(IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
+												  IABoxNode<I, L, K, R> node)
 		throws EReasonerException
 	{
 		if (!getBlockingStrategy().isBlocked(node)) {
-			final Set<IDLTerm<Name, Klass, Role>> conceptTerms = node.getTerms().subSet(
-				DLTermOrder.DL_SOME_RESTRICTION);
-
-			final Iterator<IDLTerm<Name, Klass, Role>> iter = conceptTerms.iterator();
+			@SuppressWarnings("unchecked")
+			final Iterator<IDLTerm<I, L, K, R>> iter = ChainIterator.decorate(
+				node.getTerms().iterator(IDLObjectSomeRestriction.class),
+				node.getTerms().iterator(IDLDataSomeRestriction.class));
 			while (iter.hasNext()) {
-				final IDLTerm<Name, Klass, Role> term = iter.next();
+				final IDLTerm<I, L, K, R> term = iter.next();
 				if (term instanceof IDLSomeRestriction) {
-					final IDLSomeRestriction<Name, Klass, Role> someRestriction = (IDLSomeRestriction<Name, Klass, Role>) term;
-					final Role role = someRestriction.getRole();
+					final IDLSomeRestriction<I, L, K, R> someRestriction = (IDLSomeRestriction<I, L, K, R>) term;
+					final R role = someRestriction.getRole();
 
 					ReasonerContinuationState cState;
 					if (node.getABox().getTBox().getRBox().hasRoleProperty(role, RoleProperty.FUNCTIONAL)) {

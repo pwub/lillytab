@@ -29,10 +29,10 @@ import java.util.TreeMap;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -63,14 +63,14 @@ public class AspectMapValueCollectionTest
 	@Before
 	public void setUp()
 	{
-		_baseMap = new TreeMap<String, String>();
+		_baseMap = new TreeMap<>();
 		_baseMap.put("A", "1");
 		_baseMap.put("B", "2");
 		_baseMap.put("C", "3");
 		_baseMap.put("D", "4");
 
 		_aspectMap = AspectMap.decorate(_baseMap, this);
-		_listener = new AspectCollectionHistoryListener<Map.Entry<String, String>, Map<String, String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectMap.getListeners().add(_listener);
 		_values = _aspectMap.values();
 	}
@@ -205,9 +205,9 @@ public class AspectMapValueCollectionTest
 		assertEquals("1", _aspectMap.get("_"));
 
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
 		assertEquals(1, _listener.afterRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
 	}
 
 	/**
@@ -266,13 +266,13 @@ public class AspectMapValueCollectionTest
 		assertFalse(_aspectMap.containsKey("B"));
 		assertFalse(_aspectMap.containsKey("_"));
 		assertEquals(3, _listener.beforeRemoveEvents.size());
-		TestHelper.eventListContains(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeRemoveEvents);
-		TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "1"), _listener.beforeRemoveEvents);
-		TestHelper.eventListContains(new DefaultMapEntry<String, String>("B", "2"), _listener.beforeRemoveEvents);
+		TestHelper.eventListContains(new DefaultMapEntry<>("A", "1"), _listener.beforeRemoveEvents);
+		TestHelper.eventListContains(new DefaultMapEntry<>("_", "1"), _listener.beforeRemoveEvents);
+		TestHelper.eventListContains(new DefaultMapEntry<>("B", "2"), _listener.beforeRemoveEvents);
 		assertEquals(3, _listener.afterRemoveEvents.size());
-		TestHelper.eventListContains(new DefaultMapEntry<String, String>("A", "1"), _listener.afterRemoveEvents);
-		TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "1"), _listener.afterRemoveEvents);
-		TestHelper.eventListContains(new DefaultMapEntry<String, String>("B", "2"), _listener.afterRemoveEvents);
+		TestHelper.eventListContains(new DefaultMapEntry<>("A", "1"), _listener.afterRemoveEvents);
+		TestHelper.eventListContains(new DefaultMapEntry<>("_", "1"), _listener.afterRemoveEvents);
+		TestHelper.eventListContains(new DefaultMapEntry<>("B", "2"), _listener.afterRemoveEvents);
 	}
 
 	/**
@@ -315,14 +315,14 @@ public class AspectMapValueCollectionTest
 		assertTrue(_values.contains("3"));
 		assertTrue(_values.contains("4"));
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("A", "1"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("A", "1"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "1"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "1"),
 												_listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("A", "1"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("A", "1"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "1"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "1"),
 												_listener.afterRemoveEvents));
 	}
 

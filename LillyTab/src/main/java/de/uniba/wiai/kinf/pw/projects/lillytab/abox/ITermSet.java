@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
 import de.dhke.projects.cutil.collections.immutable.IImmutable;
@@ -26,8 +31,8 @@ import java.util.SortedSet;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ITermSet<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends SortedSet<IDLTerm<Name, Klass, Role>>, IImmutable<ITermSet<Name, Klass, Role>> {
+public interface ITermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends SortedSet<IDLTerm<I, L, K, R>>, IImmutable<ITermSet<I, L, K, R>> {
 
 	/**
 	 * Create an iterator over all elements of the current term set which are derivates of {@literal klass}.
@@ -36,7 +41,7 @@ public interface ITermSet<Name extends Comparable<? super Name>, Klass extends C
 	 * @param klass The class of the elements to look for.
 	 * @return An iterator of the filtered elements of type {@literal klass}.
 	 */
-	public <T extends IDLTerm<Name, Klass, Role>> Iterator<T> iterator(final Class<? extends T> klass);
+	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final Class<? extends T> klass);
 
 
 	/**
@@ -49,17 +54,17 @@ public interface ITermSet<Name extends Comparable<? super Name>, Klass extends C
 	 * @param klass The class of the elements to look for.
 	 * @return An iterator of the filtered elements of type {@literal klass}.
 	 */
-	public <T extends IDLTerm<Name, Klass, Role>> Iterator<T> iterator(final DLTermOrder termType,
+	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final DLTermOrder termType,
 																	   final Class<? extends T> klass);
 
 
 	/**
-	 * <p> Return the subset of the current {@link ITermSet} that contains only the terms of the specified type. </p><p>
-	 * Modifications to the subset modify the underlying termset. </p>
+	 *  Return the subset of the current {@link ITermSet} that contains only the terms of the specified type. <p />
+	 * Modifications to the subset modify the underlying termset. 
 	 *
 	 * @param termType The types of the terms to return.
 	 * @return The subset of the current termset containing only terms of the specified term type.
 	 * @see DLTermOrder
 	 */
-	public SortedSet<IDLTerm<Name, Klass, Role>> subSet(final DLTermOrder termType);
+	public SortedSet<IDLTerm<I, L, K, R>> subSet(final DLTermOrder termType);
 }

@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
 import de.dhke.projects.cutil.Pair;
@@ -21,45 +26,45 @@ import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import java.util.Collection;
 
 /**
- * <p>
+ * 
  * The (r)ole (a)ssertion (box) (RABox) contains the role assertions (links) between {@link IABoxNode}s.
- * </p>
+ * 
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IRABox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends IImmutable<IRABox<Name, Klass, Role>> {
+public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends IImmutable<IRABox<I, L, K, R>> {
 
-	IABoxNode<Name, Klass, Role> getNode();
+	IABoxNode<I, L, K, R> getNode();
 
 
 	/**
-	 * <p>
+	 * 
 	 * Get the list of asserted role successors, i.e. those outgoing role links that are present in the actual
 	 * representation of the graph.
-	 * </p><p>
+	 * <p />
 	 * The asserted can but need not include inferred connections, for example because of role inheritance or
 	 * transitivity assertions.
 	 *
 	 * @return The asserted predecessors of the current node.
 	 */
-	ILinkMap<Name, Klass, Role> getAssertedSuccessors();
+	ILinkMap<I, L, K, R> getAssertedSuccessors();
 
 
 	/**
-	 * <p>
+	 * 
 	 * Get the list of asserted role predecessors, i.e. those incoming role links that are present in the actual
 	 * representation of the graph.
-	 * </p><p>
+	 * <p />
 	 * The asserted can but need not include inferred connections, for example because of role inheritance or
 	 * transitivity assertions.
 	 *
 	 * @return The asserted successors of the current node.
 	 */
-	ILinkMap<Name, Klass, Role> getAssertedPredecessors();
+	ILinkMap<I, L, K, R> getAssertedPredecessors();
 
 
 	/**
@@ -70,7 +75,7 @@ public interface IRABox<Name extends Comparable<? super Name>, Klass extends Com
 	 * @return {@literal true} if the current node is connected to {@literal successor} via a {@literal role} link.
 	 *
 	 */
-	boolean hasSuccessor(final Role role, final NodeID successor);
+	boolean hasSuccessor(final R role, final NodeID successor);
 
 
 	/**
@@ -80,7 +85,7 @@ public interface IRABox<Name extends Comparable<? super Name>, Klass extends Com
 	 * @return {@literal true} has a {@literal role} successor.
 	 *
 	 */
-	boolean hasSuccessor(final Role role);
+	boolean hasSuccessor(final R role);
 
 
 	/**
@@ -91,7 +96,7 @@ public interface IRABox<Name extends Comparable<? super Name>, Klass extends Com
 	 * @return {@literal true} if the current node is connected to {@literal successor} via a {@literal role} link.
 	 *
 	 */
-	boolean hasSuccessor(final Role role, final IABoxNode<Name, Klass, Role> successor);
+	boolean hasSuccessor(final R role, final IABoxNode<I, L, K, R> successor);
 
 
 	/**
@@ -102,52 +107,52 @@ public interface IRABox<Name extends Comparable<? super Name>, Klass extends Com
 	 * @return {@literal true} if the current node is connected to {@literal successor} via a {@literal role} link.
 	 *
 	 */
-	boolean hasPredecessor(final Role role, final NodeID predecessor);
+	boolean hasPredecessor(final R role, final NodeID predecessor);
 
 
-	boolean hasPredecessor(final Role role);
+	boolean hasPredecessor(final R role);
 
 
-	boolean hasPredecessor(final Role role, final IABoxNode<Name, Klass, Role> predecessor);
+	boolean hasPredecessor(final R role, final IABoxNode<I, L, K, R> predecessor);
 
 
-	Collection<Role> getOutgoingRoles();
+	Collection<R> getOutgoingRoles();
 
 
-	Collection<Role> getIncomingRoles();
+	Collection<R> getIncomingRoles();
 
 
-	Collection<NodeID> getSuccessors(final Role role);
+	Collection<NodeID> getSuccessors(final R role);
 
 
 	Collection<NodeID> getSuccessors();
 
 
-	Collection<NodeID> getPredecessors(final Role role);
+	Collection<NodeID> getPredecessors(final R role);
 
 
 	Collection<NodeID> getPredecessors();
 
 
-	Iterable<Pair<Role, NodeID>> getPredecessorPairs();
+	Iterable<Pair<R, NodeID>> getPredecessorPairs();
 
 
-	Iterable<Pair<Role, NodeID>> getSuccessorPairs();
+	Iterable<Pair<R, NodeID>> getSuccessorPairs();
 
 
-	Collection<IABoxNode<Name, Klass, Role>> getSuccessorNodes(final Role role);
+	Collection<IABoxNode<I, L, K, R>> getSuccessorNodes(final R role);
 
 
-	Collection<IABoxNode<Name, Klass, Role>> getSuccessorNodes();
+	Collection<IABoxNode<I, L, K, R>> getSuccessorNodes();
 
 
-	Collection<IABoxNode<Name, Klass, Role>> getPredecessorNodes(final Role role);
+	Collection<IABoxNode<I, L, K, R>> getPredecessorNodes(final R role);
 
 
-	Collection<IABoxNode<Name, Klass, Role>> getPredecessorNodes();
+	Collection<IABoxNode<I, L, K, R>> getPredecessorNodes();
 
 
-	IRABox<Name, Klass, Role> clone(final IABoxNode<Name, Klass, Role> newNode);
+	IRABox<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode);
 
 
 	boolean deepEquals(final Object obj);

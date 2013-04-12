@@ -28,9 +28,9 @@ import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 
 /**
- * <p>
+ * 
  *  A {@link MultiHashMap} that uses HashSets for key storage instead of array lists.
- * </p>
+ * 
  *
  * @author Peter Wullinger <java@dhke.de>
  * @param <K> Key type

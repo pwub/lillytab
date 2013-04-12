@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox;
 
 import de.dhke.projects.cutil.collections.aspect.CollectionEvent;
@@ -34,38 +39,38 @@ import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 
 /**
- * <p> Represents an DL TBox. A TBox is a set of global terms that define restrictions on the ABox models, for example
- * role hierachies, domain and range restrictions for properties as well as more complex axioms. </p><p> The current
+ *  Represents an DL TBox. A TBox is a set of global terms that define restrictions on the ABox models, for example
+ * role hierachies, domain and range restrictions for properties as well as more complex axioms. <p /> The current
  * TBox implementation only supports concept restriction axioms, and most importantly concept inclusions and general
  * concept inclusions (GCIs).
- * </p><p> Concept restrictions are a set of axioms that are required to hold globally, i.e. that need to hold for every
- * instance in a tableaux. </p><p>
+ * <p /> Concept restrictions are a set of axioms that are required to hold globally, i.e. that need to hold for every
+ * instance in a tableaux. <p />
  * The global axioms may be split into an unfoldable and a non-unfoldable set. Descriptions of the form
  * {@literal (CN subClassOf C)}, whereas {@literal CN} is a primitive concept name and {@literal C} is an arbitrary
  * concept may be unfolded <emph>lazily</emph>, that is {@literal C} must only be added to a node's term set if
  * {@literal CN} is already present in the node's concept set. Descriptions in other formats need to be added
- * regardlessly. Since unfoldable descriptions are quite common, lazy unfolding significantly improves performance. </p>
+ * regardlessly. Since unfoldable descriptions are quite common, lazy unfolding significantly improves performance. 
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class TBox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends TermSet<Name, Klass, Role>
-	implements ITBox<Name, Klass, Role> {
+public class TBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends TermSet<I, L, K, R>
+	implements ITBox<I, L, K, R> {
 
-	private final IDLTermFactory<Name, Klass, Role> _termFactory;
+	private final IDLTermFactory<I, L, K, R> _termFactory;
 	/**
 	 * The set of non-unfoldable global descriptions
 	 *
 	 */
-	private final Set<IDLRestriction<Name, Klass, Role>> _globalDescriptionSet = new HashSet<>();
+	private final Set<IDLClassExpression<I, L, K, R>> _globalDescriptionSet = new HashSet<>();
 	/**
 	 * A map of unfoldable descriptions. The key is usually a named class reference and the value is the set of
 	 * unfoldings associated with that class. The class reference itself is not included in the mapped set.
 	 */
-	private final MultiMap<IDLRestriction<Name, Klass, Role>, IDLRestriction<Name, Klass, Role>> _unfolding = new MultiHashMap<>();
+	private final MultiMap<IDLClassExpression<I, L, K, R>, IDLClassExpression<I, L, K, R>> _unfolding = new MultiHashMap<>();
 	private boolean _needRecalculate = true;
 	/**
 	 * The generation number of the current TBox. Incremented every time, a recalculation has been performed.
@@ -76,13 +81,13 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	/**
 	 * The RBox associated with this TBox.
 	 */
-	private final IRBox<Name, Klass, Role> _rbox;
+	private final IRBox<I, L, K, R> _rbox;
 
 
-	public TBox(final IDLTermFactory<Name, Klass, Role> termFactory)
+	public TBox(final IDLTermFactory<I, L, K, R> termFactory)
 	{
-		super();
-		final AssertedRBox<Name, Klass, Role> assertedRBox = new AssertedRBox<>(this);
+		super(TermTypes.CLASS_ONLY);
+		final AssertedRBox<I, L, K, R> assertedRBox = new AssertedRBox<>(this);
 		_rbox = assertedRBox.getRBox();
 		_termFactory = termFactory;
 	}
@@ -92,7 +97,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	 * @return The set of non-unfoldable descriptions.
 	 */
 	@Override
-	public Set<IDLRestriction<Name, Klass, Role>> getGlobalDescriptions()
+	public Set<IDLClassExpression<I, L, K, R>> getGlobalDescriptions()
 	{
 		if (isNeedRecalculate()) {
 			recalculate();
@@ -106,7 +111,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	 * @return The unfolding for {@literal unfoldee}.
 	 */
 	@Override
-	public Collection<IDLRestriction<Name, Klass, Role>> getUnfolding(final IDLRestriction<Name, Klass, Role> unfoldee)
+	public Collection<IDLClassExpression<I, L, K, R>> getUnfolding(final IDLClassExpression<I, L, K, R> unfoldee)
 	{
 		if (isNeedRecalculate()) {
 			recalculate();
@@ -126,8 +131,8 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 
 
 	/**
-	 * <p> Recalculate the internal state from the term set. </p><p> Should only be called, when needed, i.e. when the
-	 * term set was changed since the last access. </p>
+	 *  Recalculate the internal state from the term set. <p /> Should only be called, when needed, i.e. when the
+	 * term set was changed since the last access. 
 	 */
 	private void recalculate()
 	{
@@ -135,26 +140,26 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		_globalDescriptionSet.clear();
 
 		/* first, we unfold any top level intersections recursively */
-		Set<IDLTerm<Name, Klass, Role>> termSet = TermUtil.unfoldIntersections(this, _termFactory);
+		Set<IDLTerm<I, L, K, R>> termSet = TermUtil.unfoldIntersections(this, _termFactory);
 
-		Iterator<IDLTerm<Name, Klass, Role>> iter = termSet.iterator();
+		Iterator<IDLTerm<I, L, K, R>> iter = termSet.iterator();
 
 		while (iter.hasNext()) {
-			IDLTerm<Name, Klass, Role> term = iter.next();
-			if (term instanceof IDLRestriction) {
+			IDLTerm<I, L, K, R> term = iter.next();
+			if (term instanceof IDLClassExpression) {
 				/* pick up descriptions only */
-				IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
+				IDLClassExpression<I, L, K, R> desc = (IDLClassExpression<I, L, K, R>) term;
 				/* simplify description */
 				desc = TermUtil.simplify(desc, _termFactory);
 				if (desc instanceof IDLImplies) {
 					handleImplication(desc);
-				} else if (desc instanceof IDLIntersection) {
+				} else if (desc instanceof IDLObjectIntersection) {
 					/**
 					 * if the description is an intersection, look at it's parts and treat them individually.
 					 *
 					 */
-					IDLIntersection<Name, Klass, Role> intersection = (IDLIntersection<Name, Klass, Role>) desc;
-					for (IDLRestriction<Name, Klass, Role> subTerm : intersection) {
+					IDLObjectIntersection<I, L, K, R> intersection = (IDLObjectIntersection<I, L, K, R>) desc;
+					for (IDLClassExpression<I, L, K, R> subTerm : intersection) {
 						if (subTerm instanceof IDLImplies) {
 							handleImplication(subTerm);
 						} else {
@@ -174,7 +179,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	}
 
 
-	private void handleImplication(IDLRestriction<Name, Klass, Role> desc)
+	private void handleImplication(IDLClassExpression<I, L, K, R> desc)
 	{
 		/**
 		 * if description is an implication AND the left hand side is a simple class or nominal reference, update the
@@ -182,10 +187,10 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 		 *
 		 */
 		@SuppressWarnings("unchecked")
-		IDLImplies<Name, Klass, Role> implies = (IDLImplies<Name, Klass, Role>) desc;
-		IDLRestriction<Name, Klass, Role> subDesc = TermUtil.toNNF(implies.getSubDescription(), _termFactory);
+		IDLImplies<I, L, K, R> implies = (IDLImplies<I, L, K, R>) desc;
+		IDLClassExpression<I, L, K, R> subDesc = TermUtil.toNNF(implies.getSubDescription(), _termFactory);
 
-		if ((subDesc instanceof IDLClassReference) || (subDesc instanceof IDLNominalReference)) {
+		if ((subDesc instanceof IDLClassReference) || (subDesc instanceof IDLIndividualReference)) {
 			if (!subDesc.equals(implies.getSuperDescription())) {
 				_unfolding.put(implies.getSubDescription(), TermUtil.toNNF(implies.getSuperDescription(),
 																		   _termFactory));
@@ -197,14 +202,14 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 
 
 	@Override
-	public IRBox<Name, Klass, Role> getRBox()
+	public IRBox<I, L, K, R> getRBox()
 	{
 		return _rbox;
 	}
 
 
 	@Override
-	public IAssertedRBox<Name, Klass, Role> getAssertedRBox()
+	public IAssertedRBox<I, L, K, R> getAssertedRBox()
 	{
 		return _rbox.getAssertedRBox();
 	}
@@ -240,7 +245,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyAfterElementAdded(
-		CollectionItemEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> e)
+		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
 	{
 		setNeedRecalculate();
 		super.notifyAfterElementAdded(e);
@@ -250,7 +255,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyAfterElementRemoved(
-		CollectionItemEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> e)
+		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
 	{
 		setNeedRecalculate();
 		super.notifyAfterElementRemoved(e);
@@ -260,7 +265,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyAfterElementReplaced(
-		CollectionItemReplacedEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> e)
+		CollectionItemReplacedEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
 	{
 		setNeedRecalculate();
 		super.notifyAfterElementReplaced(e);
@@ -270,7 +275,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyAfterCollectionCleared(
-		CollectionEvent<IDLTerm<Name, Klass, Role>, Collection<IDLTerm<Name, Klass, Role>>> e)
+		CollectionEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
 	{
 		setNeedRecalculate();
 		super.notifyAfterCollectionCleared(e);
@@ -278,7 +283,7 @@ public class TBox<Name extends Comparable<? super Name>, Klass extends Comparabl
 
 
 	@Override
-	public TBox<Name, Klass, Role> clone()
+	public TBox<I, L, K, R> clone()
 	{
 		/* XXX - TBox is not cloned, yet */
 		return this;

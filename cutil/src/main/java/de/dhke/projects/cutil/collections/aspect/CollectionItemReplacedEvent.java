@@ -21,8 +21,6 @@
  **/
 package de.dhke.projects.cutil.collections.aspect;
 
-import java.util.Collection;
-
 /**
  *
  * @param <E> The item type

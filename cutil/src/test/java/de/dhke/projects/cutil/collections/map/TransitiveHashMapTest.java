@@ -23,10 +23,10 @@ package de.dhke.projects.cutil.collections.map;
 
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -54,7 +54,7 @@ public class TransitiveHashMapTest
 	@Before
 	public void setUp()
 	{
-		_map = new TransitiveHashMap<String>();
+		_map = new TransitiveHashMap<>();
 	}
 	
 	@After

@@ -25,17 +25,17 @@ import java.util.Collection;
 import java.util.Set;
 
 /**
- * <p>
+ * 
  * {@link AspectSet} is a specialized version of {@link AspectCollection} that
  * makes use of the special unique element property of a set to provide more
  * consistent behaviour with regard to item addition.
- * </p><p>
+ * <p />
  * Wrapping a base collection into an {@link AspectCollection} will cause
  * a call to {@link ICollectionListener#beforeElementAdded(de.dhke.projects.cutil.collections.aspect.CollectionItemEvent) }
  * before every addition, even for already existing elements.
  * {@link AspectSet} modifies this behaviour, so that only elements
  * are added that are not yet already in the underlying set.
- * </p>
+ * 
  *
  * @author Peter Wullinger <java@dhke.de>
  */

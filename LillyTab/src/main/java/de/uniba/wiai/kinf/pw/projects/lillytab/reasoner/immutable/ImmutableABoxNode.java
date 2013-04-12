@@ -3,74 +3,73 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.SortedSet;
 
 /**
- * <p>
+ *
  * A proxy object to an {@link IABoxNode} that forbids changes to the underlying node.
- * </p><p>
+ * <p />
  * If an immutable is first created and the underlying node is modified, afterwards, behaviour of the immutable is
  * undefined.
- * </p>
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ *
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	implements IABoxNode<Name, Klass, Role> {
+public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements IABoxNode<I, L, K, R> {
 
-	private final IABoxNode<Name, Klass, Role> _baseNode;
-	private final IABox<Name, Klass, Role> _abox;
+	private final IABoxNode<I, L, K, R> _baseNode;
+	private final IABox<I, L, K, R> _abox;
+	private int _hashCode = 0;
 
 
-	ImmutableABoxNode(final IABoxNode<Name, Klass, Role> baseNode, final IABox<Name, Klass, Role> abox)
+	ImmutableABoxNode(final IABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
 	{
 		_baseNode = baseNode;
 		_abox = abox;
 	}
 
 
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ImmutableABoxNode<Name, Klass, Role> decorate(
-		final IABoxNode<Name, Klass, Role> baseNode, final IABox<Name, Klass, Role> abox)
-	{
-		return new ImmutableABoxNode<>(baseNode, abox);
-	}
-
-
 	@Override
-	public Collection<TermEntry<Name, Klass, Role>> getTermEntries()
+	public Collection<TermEntry<I, L, K, R>> getTermEntries()
 	{
 		return Collections.unmodifiableCollection(_baseNode.getTermEntries());
 	}
 
 
-	protected IABoxNode<Name, Klass, Role> getBaseNode()
+	protected IABoxNode<I, L, K, R> getBaseNode()
 	{
 		return _baseNode;
 	}
@@ -84,20 +83,6 @@ public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass exte
 
 
 	@Override
-	public SortedSet<Name> getNames()
-	{
-		return _baseNode.getNames();
-	}
-
-
-	@Override
-	public Name getPrimaryName()
-	{
-		return _baseNode.getPrimaryName();
-	}
-
-
-	@Override
 	public boolean isAnonymous()
 	{
 		return _baseNode.isAnonymous();
@@ -105,46 +90,30 @@ public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass exte
 
 
 	@Override
-	public ITermSet<Name, Klass, Role> getTerms()
+	public ITermSet<I, L, K, R> getTerms()
 	{
 		return _baseNode.getTerms().getImmutable();
 	}
 
 
 	@Override
-	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescription(IDLRestriction<Name, Klass, Role> desc)
-	{
-		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
-	}
-
-
-	@Override
-	public NodeMergeInfo<Name, Klass, Role> addUnfoldedDescriptions(
-		Iterable<? extends IDLRestriction<Name, Klass, Role>> descs)
-	{
-		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
-	}
-
-
-	@Override
-	public IABoxNode<Name, Klass, Role> clone(IABox<Name, Klass, Role> newABox)
+	public IABoxNode<I, L, K, R> clone(IABox<I, L, K, R> newABox)
 	{
 		return _baseNode.clone(newABox);
 	}
 
 
 	@Override
-	public IABox<Name, Klass, Role> getABox()
+	public IABox<I, L, K, R> getABox()
 	{
 		return _abox;
 	}
 
 
-	public void setABox(final IABox<Name, Klass, Role> abox)
+	public void setABox(final IABox<I, L, K, R> abox)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
-	private int _hashCode = 0;
 
 
 	@Override
@@ -186,20 +155,40 @@ public class ImmutableABoxNode<Name extends Comparable<? super Name>, Klass exte
 
 
 	@Override
-	public int compareTo(IABoxNode<Name, Klass, Role> o)
+	public int compareTo(IABoxNode<I, L, K, R> o)
 	{
 		return _baseNode.compareTo(o);
 	}
 
 
-	public IABoxNode<Name, Klass, Role> getImmutable()
+	@Override
+	public IABoxNode<I, L, K, R> getImmutable()
 	{
 		return this;
 	}
 
 
-	public IRABox<Name, Klass, Role> getRABox()
+	@Override
+	public IRABox<I, L, K, R> getRABox()
 	{
 		return ImmutableRABox.decorate(_baseNode.getRABox());
+	}
+
+
+	@Override
+	public NodeMergeInfo<I, L, K, R> addTerm(
+		IDLRestriction<I, L, K, R> term)
+		throws ENodeMergeException, EIllegalTermTypeException
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
+	}
+
+
+	@Override
+	public NodeMergeInfo<I, L, K, R> addTerms(
+		Collection<? extends IDLRestriction<I, L, K, R>> terms)
+		throws ENodeMergeException, EIllegalTermTypeException
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
 }

@@ -21,8 +21,8 @@
  **/
 package de.dhke.projects.cutil.collections.map;
 
-import de.dhke.projects.cutil.Pair;
 import de.dhke.projects.cutil.IDecorator;
+import de.dhke.projects.cutil.Pair;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;

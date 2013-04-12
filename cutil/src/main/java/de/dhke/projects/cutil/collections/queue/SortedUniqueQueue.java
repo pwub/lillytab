@@ -21,8 +21,6 @@
  **/
 package de.dhke.projects.cutil.collections.queue;
 
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Queue;
 import java.util.TreeSet;

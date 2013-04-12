@@ -26,10 +26,10 @@ import java.util.Map;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -55,14 +55,14 @@ public class AspectMapTest {
 
     @Before
     public void setUp() {
-		_baseMap = new HashMap<String, String>();
+		_baseMap = new HashMap<>();
 		_baseMap.put("A", "1");
 		_baseMap.put("B", "2");
 		_baseMap.put("C", "3");
 		_baseMap.put("D", "4");
 
 		_aspectMap = AspectMap.decorate(_baseMap, this);
-		_listener = new AspectCollectionHistoryListener<Map.Entry<String, String>, Map<String, String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectMap.getListeners().add(_listener);
     }
 
@@ -153,11 +153,11 @@ public class AspectMapTest {
 		assertEquals("1", _aspectMap.put("A", "1"));
 		assertEquals(4, _aspectMap.size());
 		assertEquals(1, _listener.beforeReplaceEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeReplaceEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeReplaceEvents.get(0).getNewItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.beforeReplaceEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.beforeReplaceEvents.get(0).getNewItem());
 		assertEquals(1, _listener.afterReplaceEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.afterReplaceEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.afterReplaceEvents.get(0).getNewItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.afterReplaceEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.afterReplaceEvents.get(0).getNewItem());
 		_aspectMap.put("E", "5");
 		assertEquals("5", _baseMap.get("E"));
 		/* no replace */
@@ -165,9 +165,9 @@ public class AspectMapTest {
 		assertEquals(1, _listener.afterReplaceEvents.size());
 
 		assertEquals(1, _listener.beforeAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("E", "5"), _listener.beforeAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("E", "5"), _listener.beforeAddEvents.get(0).getItem());
 		assertEquals(1, _listener.afterAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("E", "5"), _listener.afterAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("E", "5"), _listener.afterAddEvents.get(0).getItem());
 
 		assertEquals("5", _aspectMap.get("E"));
 	}
@@ -185,9 +185,9 @@ public class AspectMapTest {
 		assertTrue(_listener.beforeRemoveEvents.isEmpty());
 		assertEquals("1", _aspectMap.remove("A"));
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
 		assertEquals(1, _listener.afterRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
 
 		assertFalse(_aspectMap.containsKey("_"));
 		assertFalse(_aspectMap.containsKey("A"));	
@@ -202,18 +202,18 @@ public class AspectMapTest {
 		assertTrue(_aspectMap.containsKey("A"));
 		assertFalse(_aspectMap.containsKey("E"));
 
-		Map<String, String> addMap = new HashMap<String, String>();
+		Map<String, String> addMap = new HashMap<>();
 		addMap.put("A", "1");
 		addMap.put("E", "5");
 		_aspectMap.putAll(addMap);
 		assertEquals(1, _listener.beforeReplaceEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeReplaceEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.beforeReplaceEvents.get(0).getItem());
 		assertEquals(1, _listener.beforeAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("E", "5"), _listener.beforeAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("E", "5"), _listener.beforeAddEvents.get(0).getItem());
 		assertEquals(1, _listener.afterReplaceEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.afterReplaceEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.afterReplaceEvents.get(0).getItem());
 		assertEquals(1, _listener.afterAddEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("E", "5"), _listener.afterAddEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("E", "5"), _listener.afterAddEvents.get(0).getItem());
 	}
 
 	/**

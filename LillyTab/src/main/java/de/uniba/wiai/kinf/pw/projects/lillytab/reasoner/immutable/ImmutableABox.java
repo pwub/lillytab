@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
 import de.dhke.projects.cutil.collections.aspect.ICollectionListener;
@@ -23,10 +28,11 @@ import de.dhke.projects.cutil.collections.immutable.ImmutableMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDependencyMap;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IIndividualABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.INodeMergeListener;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSetListener;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IUnfoldListener;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
@@ -35,7 +41,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStateCache;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IAssertedRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,37 +53,49 @@ import java.util.SortedSet;
 import org.apache.commons.collections15.Transformer;
 
 /**
- * <p> An immutable proxy object of {@link IABox} that forbids changes to the underlying ABox. </p><p> Note that
- * immutable does not it self create a clone or prevent changes to the underlying ABox. That is the responsibility of
- * the user. {@link ImmutableABox} just provides a proxy object trough changes are not possible. </p><p> If an Immutable
- * is first created and the underlying object is changed afterwards, the behaviour of the immutable is undefined.
- * </p>
+ * An immutable proxy object of {@link IABox} that forbids changes to the underlying ABox. <p /> Note that immutable
+ * does not it self create a clone or prevent changes to the underlying ABox. That is the responsibility of the user.
+ * {@link ImmutableABox} just provides a proxy object trough changes are not possible. <p /> If an Immutable is first
+ * created and the underlying object is changed afterwards, the behaviour of the immutable is undefined.
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ *
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	implements IABox<Name, Klass, Role> {
+public class ImmutableABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements IABox<I, L, K, R> {
 
-	private final IABox<Name, Klass, Role> _baseABox;
-	private final Map<Object, IABoxNode<Name, Klass, Role>> _nodeMap;
-	private final Transformer<IABoxNode<Name, Klass, Role>, IABoxNode<Name, Klass, Role>> _nodeTransformer = new Transformer<IABoxNode<Name, Klass, Role>, IABoxNode<Name, Klass, Role>>() {
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableABox<I, L, K, R> decorate(
+		final IABox<I, L, K, R> baseABox)
+	{
+		return new ImmutableABox<>(baseABox);
+	}
+	private final IABox<I, L, K, R> _baseABox;
+	private final Map<Object, IABoxNode<I, L, K, R>> _nodeMap;
+	private final Transformer<IABoxNode<I, L, K, R>, IABoxNode<I, L, K, R>> _nodeTransformer = new Transformer<IABoxNode<I, L, K, R>, IABoxNode<I, L, K, R>>() {
 		@Override
-		public IABoxNode<Name, Klass, Role> transform(IABoxNode<Name, Klass, Role> input)
+		public IABoxNode<I, L, K, R> transform(IABoxNode<I, L, K, R> input)
 		{
 			if (input != null) {
-				return ImmutableABoxNode.decorate(input, ImmutableABox.this);
+				if (input instanceof IIndividualABoxNode)
+					return ImmutableIndividualABoxNode.decorate((IIndividualABoxNode<I, L, K, R>) input,
+																ImmutableABox.this);
+				else if (input instanceof IDatatypeABoxNode)
+					return ImmutableLiteralABoxNode.decorate((IDatatypeABoxNode<I, L, K, R>) input, ImmutableABox.this);
+				else
+					throw new UnsupportedOperationException("Unknown ABox Node type: " + input.getClass());
 			} else {
 				return null;
 			}
 		}
 	};
-	private final SortedSet<IABoxNode<Name, Klass, Role>> _nodeSet;
+	private final SortedSet<IABoxNode<I, L, K, R>> _nodeSet;
+	private int _hashCode = 0;
 
 
-	protected ImmutableABox(final IABox<Name, Klass, Role> baseABox)
+	protected ImmutableABox(final IABox<I, L, K, R> baseABox)
 	{
 		/* the initial ABox is not cloned, but left as is. Make sure, you do not modify it, afterwards (cloning is okay) */
 		_baseABox = baseABox;
@@ -87,16 +104,9 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 	}
 
 
-	protected IABox<Name, Klass, Role> getBaseABox()
+	protected IABox<I, L, K, R> getBaseABox()
 	{
 		return _baseABox;
-	}
-
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ImmutableABox<Name, Klass, Role> decorate(
-		final IABox<Name, Klass, Role> baseABox)
-	{
-		return new ImmutableABox<>(baseABox);
 	}
 
 
@@ -108,67 +118,87 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public IABoxNode<Name, Klass, Role> createNode(final boolean isDatatypeNode)
+	public IABoxNode<I, L, K, R> createNode(final boolean isDatatypeNode)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABox");
 	}
 
 
 	@Override
-	public IABoxNode<Name, Klass, Role> getOrAddNamedNode(final Name individual, final boolean isDatatypeNode)
+	public IIndividualABoxNode<I, L, K, R> getOrAddIndividualNode(I individual)
+		throws ENodeMergeException
 	{
-		final IABoxNode<Name, Klass, Role> node = _baseABox.getNode(individual);
+		final IIndividualABoxNode<I, L, K, R> node = _baseABox.getIndividualNode(individual);
 		if (node == null) {
 			throw new UnsupportedOperationException("Cannot modify ImmutableABox");
 		}
-		return _nodeTransformer.transform(node);
+		return (IIndividualABoxNode<I, L, K, R>) _nodeTransformer.transform(node);
 	}
 
 
 	@Override
-	public Map<Object, IABoxNode<Name, Klass, Role>> getNodeMap()
+	public IDatatypeABoxNode<I, L, K, R> getOrAddDatatypeNode(L literal)
+		throws ENodeMergeException
 	{
-		return _nodeMap;
+		final IABoxNode<I, L, K, R> node = _baseABox.getDatatypeNode(literal);
+		if (node == null) {
+			throw new UnsupportedOperationException("Cannot modify ImmutableABox");
+		}
+		return (IDatatypeABoxNode<I, L, K, R>) _nodeTransformer.transform(node);
 	}
 
 
 	@Override
-	public IABoxNode<Name, Klass, Role> getNode(final NodeID id)
+	public IIndividualABoxNode<I, L, K, R> getIndividualNode(I individual)
+	{
+		return _baseABox.getIndividualNode(individual);
+	}
+
+
+	@Override
+	public IDatatypeABoxNode<I, L, K, R> getDatatypeNode(L literal)
+	{
+		return _baseABox.getDatatypeNode(literal);
+	}
+
+
+	@Override
+	public Map<Object, IABoxNode<I, L, K, R>> getNodeMap()
+	{
+		return Collections.unmodifiableMap(_nodeMap);
+	}
+
+
+	@Override
+	public IABoxNode<I, L, K, R> getNode(final NodeID id)
 	{
 		return _nodeTransformer.transform(_baseABox.getNode(id));
 	}
 
 
 	@Override
-	public IABoxNode<Name, Klass, Role> getNode(final Name name)
-	{
-		return _nodeTransformer.transform(_baseABox.getNode(name));
-	}
-
-
-	@Override
-	public ITBox<Name, Klass, Role> getTBox()
+	public ITBox<I, L, K, R> getTBox()
 	{
 		return _baseABox.getTBox();
 	}
 
 
 	@Override
-	public IRBox<Name, Klass, Role> getRBox()
+	public IRBox<I, L, K, R> getRBox()
 	{
 		return _baseABox.getRBox();
 	}
 
 
 	@Override
-	public IAssertedRBox<Name, Klass, Role> getAssertedRBox()
+	public IAssertedRBox<I, L, K, R> getAssertedRBox()
 	{
 		return _baseABox.getAssertedRBox();
 	}
 
 
 	@Override
-	public IABox<Name, Klass, Role> clone()
+	public IABox<I, L, K, R> clone()
 	{
 		/* clone of Immtutables are readable */
 		return _baseABox.clone();
@@ -176,7 +206,7 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public IDLTermFactory<Name, Klass, Role> getDLTermFactory()
+	public IDLTermFactory<I, L, K, R> getDLTermFactory()
 	{
 		return _baseABox.getDLTermFactory();
 	}
@@ -190,8 +220,7 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public NodeMergeInfo<Name, Klass, Role> mergeNodes(final IABoxNode<Name, Klass, Role> node1,
-													   final IABoxNode<Name, Klass, Role> node2)
+	public NodeMergeInfo<I, L, K, R> mergeNodes(final IABoxNode<I, L, K, R> node1, final IABoxNode<I, L, K, R> node2)
 		throws ENodeMergeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
@@ -199,18 +228,17 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public List<ICollectionListener<IABoxNode<Name, Klass, Role>, Collection<IABoxNode<Name, Klass, Role>>>> getNodeSetListeners()
+	public List<ICollectionListener<IABoxNode<I, L, K, R>, Collection<IABoxNode<I, L, K, R>>>> getNodeSetListeners()
 	{
 		return Collections.unmodifiableList(_baseABox.getNodeSetListeners());
 	}
 
 
 	@Override
-	public List<INodeMergeListener<Name, Klass, Role>> getNodeMergeListeners()
+	public List<INodeMergeListener<I, L, K, R>> getNodeMergeListeners()
 	{
 		return Collections.unmodifiableList(_baseABox.getNodeMergeListeners());
 	}
-	private int _hashCode = 0;
 
 
 	@Override
@@ -231,14 +259,14 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public Set<Klass> getClassesInSignature()
+	public Set<K> getClassesInSignature()
 	{
 		return _baseABox.getClassesInSignature();
 	}
 
 
 	@Override
-	public Set<Role> getRolesInSignature()
+	public Set<R> getRolesInSignature()
 	{
 		return _baseABox.getRolesInSignature();
 	}
@@ -251,50 +279,50 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 	}
 
 
-	public IABox<Name, Klass, Role> getImmutableABox()
+	public IABox<I, L, K, R> getImmutableABox()
 	{
 		return this;
 	}
 
 
 	@Override
-	public Comparator<? super IABoxNode<Name, Klass, Role>> comparator()
+	public Comparator<? super IABoxNode<I, L, K, R>> comparator()
 	{
 		return _baseABox.comparator();
 	}
 
 
 	@Override
-	public SortedSet<IABoxNode<Name, Klass, Role>> subSet(final IABoxNode<Name, Klass, Role> fromElement,
-														  final IABoxNode<Name, Klass, Role> toElement)
+	public SortedSet<IABoxNode<I, L, K, R>> subSet(final IABoxNode<I, L, K, R> fromElement,
+												   final IABoxNode<I, L, K, R> toElement)
 	{
 		return _nodeSet.subSet(fromElement, toElement);
 	}
 
 
 	@Override
-	public SortedSet<IABoxNode<Name, Klass, Role>> headSet(final IABoxNode<Name, Klass, Role> toElement)
+	public SortedSet<IABoxNode<I, L, K, R>> headSet(final IABoxNode<I, L, K, R> toElement)
 	{
 		return _nodeSet.headSet(toElement);
 	}
 
 
 	@Override
-	public SortedSet<IABoxNode<Name, Klass, Role>> tailSet(final IABoxNode<Name, Klass, Role> fromElement)
+	public SortedSet<IABoxNode<I, L, K, R>> tailSet(final IABoxNode<I, L, K, R> fromElement)
 	{
 		return _nodeSet.tailSet(fromElement);
 	}
 
 
 	@Override
-	public IABoxNode<Name, Klass, Role> first()
+	public IABoxNode<I, L, K, R> first()
 	{
 		return _nodeSet.first();
 	}
 
 
 	@Override
-	public IABoxNode<Name, Klass, Role> last()
+	public IABoxNode<I, L, K, R> last()
 	{
 		return _nodeSet.last();
 	}
@@ -322,7 +350,7 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public Iterator<IABoxNode<Name, Klass, Role>> iterator()
+	public Iterator<IABoxNode<I, L, K, R>> iterator()
 	{
 		return _nodeSet.iterator();
 	}
@@ -344,7 +372,7 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public boolean add(final IABoxNode<Name, Klass, Role> e)
+	public boolean add(final IABoxNode<I, L, K, R> e)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
 	}
@@ -365,7 +393,7 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public boolean addAll(final Collection<? extends IABoxNode<Name, Klass, Role>> c)
+	public boolean addAll(final Collection<? extends IABoxNode<I, L, K, R>> c)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
 	}
@@ -393,27 +421,22 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public IABox<Name, Klass, Role> getImmutable()
+	public IABox<I, L, K, R> getImmutable()
 	{
 		return this;
 	}
-//
-//	@Override
-//	public List<IUnfoldListener<Name, Klass, Role>> getUnfoldListeners()
-//	{
-//		return Collections.unmodifiableList(_baseABox.getUnfoldListeners());
-//	}
+	//
 
 
 	@Override
-	public List<ITermSetListener<Name, Klass, Role>> getTermSetListeners()
+	public List<ITermSetListener<I, L, K, R>> getTermSetListeners()
 	{
 		return Collections.unmodifiableList(_baseABox.getTermSetListeners());
 	}
 
 
 	@Override
-	public IDependencyMap<Name, Klass, Role> getDependencyMap()
+	public IDependencyMap<I, L, K, R> getDependencyMap()
 	{
 		return ImmutableDependencyMap.decorate(_baseABox.getDependencyMap());
 	}
@@ -434,30 +457,44 @@ public class ImmutableABox<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public TermEntryFactory<Name, Klass, Role> getTermEntryFactory()
+	public TermEntryFactory<I, L, K, R> getTermEntryFactory()
 	{
 		return _baseABox.getTermEntryFactory();
 	}
 
 
 	@Override
-	public boolean canMerge(final IABoxNode<Name, Klass, Role> node1,
-							final IABoxNode<Name, Klass, Role> node2)
+	public boolean canMerge(final IABoxNode<I, L, K, R> node1, final IABoxNode<I, L, K, R> node2)
 	{
 		return _baseABox.canMerge(node1, node2);
 	}
 
 
 	@Override
-	public boolean containsAllTermEntries(Collection<TermEntry<Name, Klass, Role>> entries)
+	public boolean containsAllTermEntries(Collection<TermEntry<I, L, K, R>> entries)
 	{
 		return _baseABox.containsAllTermEntries(entries);
 	}
 
 
 	@Override
-	public boolean containsTermEntry(TermEntry<Name, Klass, Role> entry)
+	public boolean containsTermEntry(TermEntry<I, L, K, R> entry)
 	{
 		return _baseABox.containsTermEntry(entry);
+	}
+
+
+	@Override
+	public IDatatypeABoxNode<I, L, K, R> createDatatypeNode()
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+
+	@Override
+	public IIndividualABoxNode<I, L, K, R> createIndividualNode()
+		throws ENodeMergeException
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
 	}
 }

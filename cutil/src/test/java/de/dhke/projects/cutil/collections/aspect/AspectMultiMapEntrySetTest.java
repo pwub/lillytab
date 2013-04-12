@@ -32,10 +32,10 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -66,7 +66,7 @@ public class AspectMultiMapEntrySetTest
 	@Before
 	public void setUp()
 	{
-		_baseMap = new MultiHashMap<String, String>();
+		_baseMap = new MultiHashMap<>();
 		_baseMap.put("1", "a");
 		_baseMap.put("1", "A");
 		_baseMap.put("2", "b");
@@ -74,7 +74,7 @@ public class AspectMultiMapEntrySetTest
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
 		_aspectMap = AspectMultiMap.decorate(_baseMap, this);
-		_listener = new AspectCollectionHistoryListener<Map.Entry<String, String>, MultiMap<String, String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectMap.getListeners().add(_listener);
 		_entrySet = _aspectMap.entrySet();
 	}
@@ -173,7 +173,7 @@ public class AspectMultiMapEntrySetTest
 	@Test(expected=UnsupportedOperationException.class)
 	public void testAdd()
 	{
-		Collection<Map.Entry<String, Collection<String>>> addList = new ArrayList<Map.Entry<String, Collection<String>>>();
+		Collection<Map.Entry<String, Collection<String>>> addList = new ArrayList<>();
 		addList.add(new DefaultMapEntry<String, Collection<String>>("_", Arrays.asList("a", "A")));
 		addList.add(new DefaultMapEntry<String, Collection<String>>("@", Arrays.asList("b", "B")));
 		_entrySet.addAll(addList);
@@ -191,11 +191,11 @@ public class AspectMultiMapEntrySetTest
 		assertFalse(_aspectMap.containsValue("1", "a"));
 		assertFalse(_aspectMap.containsValue("1", "A"));
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"), _listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"), _listener.beforeRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"), _listener.beforeRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"), _listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"), _listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"), _listener.afterRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"), _listener.afterRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"), _listener.afterRemoveEvents));
 	}
 
 	/**
@@ -225,7 +225,7 @@ public class AspectMultiMapEntrySetTest
 	@Test
 	public void testContainsAll()
 	{
-		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<Map.Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<>();
 		assertTrue(_entrySet.containsAll(targetList));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		assertTrue(_entrySet.containsAll(targetList));
@@ -245,7 +245,7 @@ public class AspectMultiMapEntrySetTest
 	@Test(expected=UnsupportedOperationException.class)
 	public void testAddAll()
 	{
-		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<Map.Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<>();
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		_entrySet.addAll(targetList);
@@ -257,7 +257,7 @@ public class AspectMultiMapEntrySetTest
 	@Test
 	public void testRetainAll()
 	{
-		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<Map.Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<>();
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("3", Arrays.asList("c", "C")));
@@ -271,11 +271,11 @@ public class AspectMultiMapEntrySetTest
 		assertFalse(_aspectMap.containsValue("2", "B"));
 
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"), _listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"), _listener.beforeRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"), _listener.beforeRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"), _listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"), _listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"), _listener.afterRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"), _listener.afterRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"), _listener.afterRemoveEvents));
 	}
 
 	/**
@@ -285,7 +285,7 @@ public class AspectMultiMapEntrySetTest
 	public void testRetainAll_veto()
 	{
 		_listener.vetoRemove = true;
-		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<Map.Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<>();
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("3", Arrays.asList("c", "C")));
@@ -312,7 +312,7 @@ public class AspectMultiMapEntrySetTest
 	@Test
 	public void testRemoveAll()
 	{
-		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<Map.Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<>();
 		assertFalse(_entrySet.removeAll(targetList));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("4", Arrays.asList("d", "D")));
 		assertFalse(_entrySet.removeAll(targetList));
@@ -323,11 +323,11 @@ public class AspectMultiMapEntrySetTest
 		assertFalse(_aspectMap.containsValue("2", "B"));
 
 		assertEquals(2, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"), _listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"), _listener.beforeRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"), _listener.beforeRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"), _listener.beforeRemoveEvents));
 		assertEquals(2, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "b"), _listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("2", "B"), _listener.afterRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "b"), _listener.afterRemoveEvents));
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("2", "B"), _listener.afterRemoveEvents));
 	}
 
 	/**
@@ -337,7 +337,7 @@ public class AspectMultiMapEntrySetTest
 	public void testRemoveAll_veto()
 	{
 		_listener.vetoRemove = true;
-		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<Map.Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> targetList = new ArrayList<>();
 		assertFalse(_entrySet.removeAll(targetList));
 		targetList.add(new DefaultMapEntry<String, Collection<String>>("4", Arrays.asList("d", "D")));
 		assertFalse(_entrySet.removeAll(targetList));

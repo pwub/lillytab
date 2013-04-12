@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.cache;
 
 import de.dhke.projects.cutil.IDecorator;
@@ -24,48 +29,41 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.AbstractReasoner;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import java.util.Collection;
 import java.util.WeakHashMap;
 import org.apache.commons.collections15.MultiMap;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ReasonerCache<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractReasoner<Name, Klass, Role>
-	implements IReasoner<Name, Klass, Role>, IDecorator<IReasoner<Name, Klass, Role>> {
-
-	class Cache {
-
-		MultiMap<IDLRestriction<Name, Klass, Role>, IDLRestriction<Name, Klass, Role>> _subClassCache = new MultiTreeSetHashMap<>();
-		MultiMap<IDLRestriction<Name, Klass, Role>, IDLRestriction<Name, Klass, Role>> _negSubClassCache = new MultiTreeSetHashMap<>();
-		MultiMap<IDLRestriction<Name, Klass, Role>, IDLRestriction<Name, Klass, Role>> _disjointCache = new MultiTreeSetHashMap<>();
-	}
-	private IReasoner<Name, Klass, Role> _baseReasoner;
-	private WeakHashMap<IABox<Name, Klass, Role>, Cache> _cacheMap = new WeakHashMap<>();
+public class ReasonerCache<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends AbstractReasoner<I, L, K, R>
+	implements IReasoner<I, L, K, R>, IDecorator<IReasoner<I, L, K, R>> {
+	private IReasoner<I, L, K, R> _baseReasoner;
+	private WeakHashMap<IABox<I, L, K, R>, Cache> _cacheMap = new WeakHashMap<>();
 
 
-	@Override
-	public IReasoner<Name, Klass, Role> getDecoratee()
-	{
-		return _baseReasoner;
-	}
-
-
-	public ReasonerCache(final IReasoner<Name, Klass, Role> reasoner)
+		public ReasonerCache(final IReasoner<I, L, K, R> reasoner)
 	{
 		_baseReasoner = reasoner;
 	}
 
 
 	@Override
-	public Collection<? extends IReasonerResult<Name, Klass, Role>> checkConsistency(IABox<Name, Klass, Role> abox,
-																					 IDLRestriction<Name, Klass, Role> concept,
+	public IReasoner<I, L, K, R> getDecoratee()
+	{
+		return _baseReasoner;
+	}
+
+
+	@Override
+	public Collection<? extends IReasonerResult<I, L, K, R>> checkConsistency(IABox<I, L, K, R> abox,
+																					 IDLClassExpression<I, L, K, R> concept,
 																					 boolean stopAtFirstModel)
 		throws EReasonerException, EInconsistencyException
 	{
@@ -74,7 +72,7 @@ public class ReasonerCache<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public Collection<? extends IReasonerResult<Name, Klass, Role>> checkConsistency(IABox<Name, Klass, Role> abox,
+	public Collection<? extends IReasonerResult<I, L, K, R>> checkConsistency(IABox<I, L, K, R> abox,
 																					 boolean stopAtFirstModel)
 		throws EReasonerException, EInconsistencyException
 	{
@@ -83,9 +81,9 @@ public class ReasonerCache<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public boolean isSubClassOf(IABox<Name, Klass, Role> abox,
-								IDLRestriction<Name, Klass, Role> presumedSub,
-								IDLRestriction<Name, Klass, Role> presumedSuper)
+	public boolean isSubClassOf(IABox<I, L, K, R> abox,
+								IDLClassExpression<I, L, K, R> presumedSub,
+								IDLClassExpression<I, L, K, R> presumedSuper)
 		throws EReasonerException, EInconsistencyException
 	{
 		Cache cache = _cacheMap.get(abox);
@@ -114,8 +112,8 @@ public class ReasonerCache<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public boolean isInDomain(IABox<Name, Klass, Role> abox,
-							  IDLRestriction<Name, Klass, Role> desc, Role role)
+	public boolean isInDomain(IABox<I, L, K, R> abox,
+							  IDLClassExpression<I, L, K, R> desc, R role)
 		throws EReasonerException, EInconsistencyException
 	{
 		return _baseReasoner.isInDomain(abox, desc, role);
@@ -123,8 +121,8 @@ public class ReasonerCache<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public boolean isInRange(IABox<Name, Klass, Role> abox,
-							 IDLRestriction<Name, Klass, Role> desc, Role role)
+	public boolean isInRange(IABox<I, L, K, R> abox,
+							 IDLClassExpression<I, L, K, R> desc, R role)
 		throws EReasonerException, EInconsistencyException
 	{
 		return _baseReasoner.isInRange(abox, desc, role);
@@ -132,9 +130,9 @@ public class ReasonerCache<Name extends Comparable<? super Name>, Klass extends 
 
 
 	@Override
-	public boolean isDisjoint(IABox<Name, Klass, Role> abox,
-							  IDLRestriction<Name, Klass, Role> desc1,
-							  IDLRestriction<Name, Klass, Role> desc2)
+	public boolean isDisjoint(IABox<I, L, K, R> abox,
+							  IDLClassExpression<I, L, K, R> desc1,
+							  IDLClassExpression<I, L, K, R> desc2)
 		throws EReasonerException, EInconsistencyException
 	{
 		Cache cache = _cacheMap.get(abox);
@@ -152,5 +150,12 @@ public class ReasonerCache<Name extends Comparable<? super Name>, Klass extends 
 			}
 			return isDisjoint;
 		}
+	}
+
+	class Cache {
+
+		MultiMap<IDLClassExpression<I, L, K, R>, IDLClassExpression<I, L, K, R>> _subClassCache = new MultiTreeSetHashMap<>();
+		MultiMap<IDLClassExpression<I, L, K, R>, IDLClassExpression<I, L, K, R>> _negSubClassCache = new MultiTreeSetHashMap<>();
+		MultiMap<IDLClassExpression<I, L, K, R>, IDLClassExpression<I, L, K, R>> _disjointCache = new MultiTreeSetHashMap<>();
 	}
 }

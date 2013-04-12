@@ -21,11 +21,9 @@
  **/
 package de.dhke.projects.cutil.collections.aspect;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 
 
 /**

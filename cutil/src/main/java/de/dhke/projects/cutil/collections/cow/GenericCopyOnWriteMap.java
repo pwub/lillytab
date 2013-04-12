@@ -30,9 +30,9 @@ import java.util.Set;
 
 
 /**
- * <p>
+ * 
  *   A copy on write map is used
- * </p>
+ * 
  *
  * @param <K> The map's key type
  * @param <V> The map's value type.

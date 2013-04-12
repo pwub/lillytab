@@ -21,7 +21,6 @@
  **/
 package de.dhke.projects.cutil.collections.aspect;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
@@ -29,10 +28,10 @@ import java.util.Iterator;
 import java.util.Set;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -64,7 +63,7 @@ public class AspectSetTest {
 	@Before
 	public void setUp()
 	{
-		_baseSet = new HashSet<Integer>();
+		_baseSet = new HashSet<>();
 		_aspectSet = AspectSet.decorate(_baseSet, this);
 
 		_baseSet.add(1);
@@ -72,7 +71,7 @@ public class AspectSetTest {
 		_baseSet.add(3);
 		_baseSet.add(4);
 
-		_listener = new AspectCollectionHistoryListener<Integer, Collection<Integer>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectSet.getListeners().add(_listener);
 	}
 

@@ -3,66 +3,71 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;
+import java.util.Collections;
 import java.util.SortedSet;
 import java.util.TreeSet;
-import org.apache.commons.collections15.Transformer;
 
 /**
- * <p>
+ * 
  * Helper class contains information about one or multiple node merge chains. The node merge chain starts at a single
  * node (the initial node) and ends at a final node (the current node).
- * </p>
- * <p>
+ * 
+ * 
  * If multiple nodes were modified, either a collection of {@link NodeMergeInfo}s should be returned or --by
  * convention-- the node merge info of the smallest modified node according to the natural order of nodes.
- * </p>
+ * 
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> {
+public final class NodeMergeInfo<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  {
 
 	/**
 	 * The set of nodes that were "merged" away during the operation. Nodes in this set are no longer part of an ABox
 	 * and should be handled with care.
 	 *
 	 */
-	private final SortedSet<IABoxNode<Name, Klass, Role>> _mergedNodes = new TreeSet<>();
+	private final SortedSet<IABoxNode<I, L, K, R>> _mergedNodes = new TreeSet<>();
 	/**
 	 * The set of nodes whose concept, successor set or predecessor set was modified during the merge operation. Nodes
 	 * in the modified set are still valid, i.e. the intersection of the set of merged nodes and the set of modified
 	 * nodes is empty.
 	 *
 	 */
-	private final SortedSet<IABoxNode<Name, Klass, Role>> _modifiedNodes = new TreeSet<>();
+	private final SortedSet<IABoxNode<I, L, K, R>> _modifiedNodes = new TreeSet<>();
 	/**
 	 * The initial node the merge operation was started from.
 	 *
 	 */
-	private final IABoxNode<Name, Klass, Role> _initialNode;
+	private final IABoxNode<I, L, K, R> _initialNode;
 	/**
 	 * The current target node of the merge chain.
 	 */
-	private IABoxNode<Name, Klass, Role> _currentNode;
+	private IABoxNode<I, L, K, R> _currentNode;
 
 
-	public NodeMergeInfo(final IABoxNode<Name, Klass, Role> initialNode, final boolean wasModified)
+	public NodeMergeInfo(final IABoxNode<I, L, K, R> initialNode, final boolean wasModified)
 	{
 		_currentNode = initialNode;
 		if (wasModified) {
@@ -77,7 +82,7 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 	 *
 	 * @return The current (= only valid) node in the merge chain.
 	 */
-	public IABoxNode<Name, Klass, Role> getCurrentNode()
+	public IABoxNode<I, L, K, R> getCurrentNode()
 	{
 		/* return last node */
 		return _currentNode;
@@ -87,18 +92,18 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 	/**
 	 * @return The set of nodes merged away during the merge operation.
 	 */
-	public SortedSet<IABoxNode<Name, Klass, Role>> getMergedNodes()
+	public SortedSet<IABoxNode<I, L, K, R>> getMergedNodes()
 	{
-		return _mergedNodes;
+		return Collections.unmodifiableSortedSet(_mergedNodes);
 	}
 
 
 	/**
 	 * @return The set of nodes modified during the merge operation.
 	 */
-	public SortedSet<IABoxNode<Name, Klass, Role>> getModifiedNodes()
+	public SortedSet<IABoxNode<I, L, K, R>> getModifiedNodes()
 	{
-		return _modifiedNodes;
+		return Collections.unmodifiableSortedSet(_modifiedNodes);
 	}
 
 
@@ -107,7 +112,7 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 	 *
 	 * @return The initial node of the node merge chain.
 	 */
-	public IABoxNode<Name, Klass, Role> getInitialNode()
+	public IABoxNode<I, L, K, R> getInitialNode()
 	{
 		return _initialNode;
 	}
@@ -116,7 +121,7 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 	/**
 	 * @return If the {@literal node} was modified during this merge operation.
 	 */
-	public boolean isModified(final IABoxNode<Name, Klass, Role> node)
+	public boolean isModified(final IABoxNode<I, L, K, R> node)
 	{
 		return _modifiedNodes.contains(node);
 	}
@@ -127,7 +132,7 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 	 *
 	 * @param node The node to mark as modified.
 	 */
-	public void setModified(final IABoxNode<Name, Klass, Role> node)
+	public void setModified(final IABoxNode<I, L, K, R> node)
 	{
 		if (!_mergedNodes.contains(node)) {
 			_modifiedNodes.add(node);
@@ -136,14 +141,14 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 
 
 	/**
-	 * <p>
+	 * 
 	 * Record, that the {@link #getCurrentNode() } has been merged unto {@literal targetNode}.
-	 * </p>
+	 * 
 	 *
 	 * @param targetNode The new curent node, i.e. the target node of the merge.
 	 * @param wasModified {@literal true}, if the term set of the target node was modified.
 	 */
-	public void recordMerge(final IABoxNode<Name, Klass, Role> targetNode, final boolean wasModified)
+	public void recordMerge(final IABoxNode<I, L, K, R> targetNode, final boolean wasModified)
 	{
 		/* a merge only happens, if the target node is different from the current node */
 		assert !_mergedNodes.contains(_currentNode);
@@ -158,15 +163,15 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 
 
 	/**
-	 * <p>
+	 * 
 	 * Record, that the {@link #getCurrentNode() } has been merged unto {@literal targetNode}. Call only, if the term
 	 * set of {@literal targetNode} was not modified.
-	 * </p>
+	 * 
 	 *
 	 * @param targetNode The new curent node, i.e. the target node of the merge.
 	 *
 	 */
-	public void recordMerge(final IABoxNode<Name, Klass, Role> targetNode)
+	public void recordMerge(final IABoxNode<I, L, K, R> targetNode)
 	{
 		recordMerge(targetNode, false);
 	}
@@ -177,7 +182,7 @@ public final class NodeMergeInfo<Name extends Comparable<? super Name>, Klass ex
 	 *
 	 * @param next The merge info to append to the current merge info.
 	 */
-	public void append(final NodeMergeInfo<Name, Klass, Role> next)
+	public void append(final NodeMergeInfo<I, L, K, R> next)
 	{
 		/**
 		 * paranoia check: next must either (1) have matching current nodes (2) have our current node as initial node or

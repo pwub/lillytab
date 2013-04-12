@@ -23,17 +23,15 @@ package de.dhke.projects.cutil.collections.map;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
-import org.omg.CORBA.MARSHAL;
 
 /**
- * <p>
+ * 
  * An implementation of a {@link Map#entrySet()}
  * making use of the {@link Map#keySet() } as well
  * as {@link Map#put(java.lang.Object, java.lang.Object) }
  * and {@link Map#remove(java.lang.Object) } for its implementation.
- * </p><p>
+ * <p />
  * This is reversed from {@link AbstractMap} in {@link java.util},
  * which requires and {@link  Map#entrySet()} entryset
  * implementation.

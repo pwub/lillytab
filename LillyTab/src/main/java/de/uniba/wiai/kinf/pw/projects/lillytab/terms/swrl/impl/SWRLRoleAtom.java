@@ -17,27 +17,27 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTermList;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLRoleAtom<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractFixedTermList<ISWRLIndividual<Name, Klass, Role>>
-	implements ISWRLRoleAtom<Name, Klass, Role> {
+public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AbstractFixedTermList<ISWRLArgument<I, L, K, R>>
+	implements ISWRLRoleAtom<I, L, K, R> {
 
-	private final Role _role;
+	private final R _role;
 
 
-	protected SWRLRoleAtom(Role role, ISWRLIndividual<Name, Klass, Role> first,
-						   ISWRLIndividual<Name, Klass, Role> second)
+	protected SWRLRoleAtom(R role, ISWRLIArgument<I, L, K, R> first,
+						   ISWRLArgument<I, L, K, R> second)
 	{
 		super(2);
 		_role = role;
@@ -46,27 +46,24 @@ public class SWRLRoleAtom<Name extends Comparable<? super Name>, Klass extends C
 	}
 
 
-	public Role getRole()
+	@Override
+	public R getRole()
 	{
 		return _role;
 	}
 
 
-	public ISWRLIndividual<Name, Klass, Role> getFirstIndividual()
+	@Override
+	public ISWRLIArgument<I, L, K, R> getFirstIndividual()
 	{
-		return get(0);
+		return (ISWRLIArgument<I, L, K, R>) get(0);
 	}
 
 
-	public ISWRLIndividual<Name, Klass, Role> getSecondIndividual()
+	@Override
+	public ISWRLArgument<I, L, K, R> getSecondIndividual()
 	{
 		return get(1);
-	}
-
-
-	public SWRLTermOrder getSWRLTermOrder()
-	{
-		return SWRLTermOrder.SWRL_ROLE_ATOM;
 	}
 
 
@@ -77,12 +74,25 @@ public class SWRLRoleAtom<Name extends Comparable<? super Name>, Klass extends C
 	}
 
 
-	public int compareTo(ISWRLTerm<Name, Klass, Role> o)
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (obj instanceof ISWRLRoleAtom) {
+			final ISWRLRoleAtom<?, ?, ?, ?> other = (ISWRLRoleAtom<?, ?, ?, ?>) obj;
+			return getSWRLTermOrder().equals(other.getSWRLTermOrder()) && getRole().equals(other.getRole()) && super.equals(
+				obj);
+		} else
+			return false;
+	}
+
+
+	@Override
+	public int compareTo(ISWRLTerm<I, L, K, R> o)
 	{
 		int compare = getSWRLTermOrder().compareTo(o);
 		if (compare == 0) {
 			assert o instanceof ISWRLRoleAtom;
-			final ISWRLRoleAtom<Name, Klass, Role> other = (ISWRLRoleAtom<Name, Klass, Role>) o;
+			final ISWRLRoleAtom<I, L, K, R> other = (ISWRLRoleAtom<I, L, K, R>) o;
 			compare = TermUtil.compareTermList(this, other);
 		}
 		return compare;
@@ -97,7 +107,7 @@ public class SWRLRoleAtom<Name extends Comparable<? super Name>, Klass extends C
 
 		sb.append(getRole());
 
-		for (ISWRLIndividual<Name, Klass, Role> individual : this) {
+		for (ISWRLArgument<I, L, K, R> individual : this) {
 			sb.append(" ");
 			sb.append(individual.toString());
 		}
@@ -106,6 +116,7 @@ public class SWRLRoleAtom<Name extends Comparable<? super Name>, Klass extends C
 	}
 
 
+	@Override
 	public String toString(IToStringFormatter formatter)
 	{
 		final StringBuilder sb = new StringBuilder();
@@ -114,7 +125,7 @@ public class SWRLRoleAtom<Name extends Comparable<? super Name>, Klass extends C
 		/* workaround hack around OWLapis 3.0s new behaviour to output full IRIs for OWLNamedObjects */
 		/* Cast: netbeans/compiler workaround */
 		sb.append(formatter.toString(getRole()));
-		for (ISWRLIndividual<Name, Klass, Role> individual : this) {
+		for (ISWRLArgument<I, L, K, R> individual : this) {
 			sb.append(" ");
 			sb.append(individual);
 		}

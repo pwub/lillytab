@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 /**
@@ -32,39 +37,27 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
  * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
  */
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.SubsetBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SubsetBlockingStrategyTest {
-
-	private final IDLTermFactory<String, String, String> _termFactory = new SimpleStringDLTermFactory();
-	private final IABoxFactory<String, String, String> _aboxFactory = new ABoxFactory<String, String, String>(
-		_termFactory);
-	private IABox<String, String, String> _abox;
-	private IABoxNode<String, String, String> _aboxNode;
-	private SubsetBlockingStrategy<String, String, String> _blockingStrategy;
-
-
-	public SubsetBlockingStrategyTest()
-	{
-	}
 
 
 	@BeforeClass
@@ -80,15 +73,27 @@ public class SubsetBlockingStrategyTest {
 	{
 	}
 
+	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
+	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
+		_termFactory);
+	private IABox<String, String, String, String> _abox;
+	private IABoxNode<String, String, String, String> _aboxNode;
+	private SubsetBlockingStrategy<String, String, String, String> _blockingStrategy;
+
+
+	public SubsetBlockingStrategyTest()
+	{
+	}
+
 
 	@Before
 	public void setUp()
 		throws EInconsistencyException
 	{
 		_abox = _aboxFactory.createABox();
-		_aboxNode = _abox.getOrAddNamedNode("Node", false);
-		_aboxNode.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
-		_blockingStrategy = new SubsetBlockingStrategy<String, String, String>();
+		_aboxNode = _abox.getOrAddIndividualNode("Node");
+		_aboxNode.addTerm(_termFactory.getDLClassReference("A"));
+		_blockingStrategy = new SubsetBlockingStrategy<>();
 	}
 
 
@@ -106,8 +111,8 @@ public class SubsetBlockingStrategyTest {
 		throws EInconsistentABoxException
 	{
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_blockingStrategy.isBlocked(node2));
 		assertEquals(_aboxNode, _blockingStrategy.getBlocker(node2));
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).contains(node2.getNodeID()));
@@ -115,51 +120,35 @@ public class SubsetBlockingStrategyTest {
 
 
 	@Test
-	public void testCloneBlock()
-		throws EInconsistentABoxException
+	public void testCloneBlock() throws EInconsistentABoxException
 	{
-		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
-		Branch<String, String, String> branch = new Branch<String, String, String>(_abox, true);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		node2.addTerm(_termFactory.getDLClassReference("A"));
+		Branch<String, String, String, String> branch = new Branch<>(_abox, true);
 		assertTrue(_blockingStrategy.isBlocked(node2));
 		assertEquals(_aboxNode, _blockingStrategy.getBlocker(node2));
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).contains(node2.getNodeID()));
 
-		IABox<String, String, String> clonedBox = _abox.clone();
-		IABoxNode<String, String, String> klone = clonedBox.getNode(_aboxNode.getNodeID());;
+		IABox<String, String, String, String> clonedBox = _abox.clone();
+		IABoxNode<String, String, String, String> klone = clonedBox.getNode(_aboxNode.getNodeID());;
 
 		assertNotSame(_aboxNode, klone);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(klone).contains(node2.getNodeID()));
 
 	}
 
-// This is an old test. Needs to be refactored.
-//	/**
-//	 * Test of isPotentialBlocker method, of class IABoxNode.
-//	 */
-//	@Test
-//	public void testIsPotentialBlocker()
-//	{
-//		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-//		assertTrue(node2 instanceof IABoxNode);
-//		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
-//		_blockingStrategy.
-//		assertTrue(((IABoxNode<String, String, String>) _aboxNode).isPotentialBlocker(node2));
-//		node2.addUnfoldedDescription(_termFactory.getDLClassReference("B"));
-//		assertFalse(((IABoxNode<String, String, String>) _aboxNode).isPotentialBlocker(node2));
-//	}
 
-	/**
-	 * Test of isBlocked method, of class IABoxNode.
-	 */
+	// This is an old test. Needs to be refactored.
+
+	//	/**
 	@Test
 	public void testIsBlocked()
 		throws EInconsistentABoxException
 	{
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
-		Branch<String, String, String> branch = new Branch<String, String, String>(_abox, true);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		node2.addTerm(_termFactory.getDLClassReference("A"));
+		Branch<String, String, String, String> branch = new Branch<>(_abox, true);
 		assertTrue(_blockingStrategy.isBlocked(node2));
 	}
 
@@ -172,10 +161,10 @@ public class SubsetBlockingStrategyTest {
 		throws EInconsistentABoxException
 	{
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_blockingStrategy.isBlocked(node2));
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("B"));
+		node2.addTerm(_termFactory.getDLClassReference("B"));
 
 		_blockingStrategy.validateBlocks(_aboxNode);
 		assertFalse(_blockingStrategy.getBlockedNodeIDs(_aboxNode).contains(node2.getNodeID()));
@@ -183,12 +172,11 @@ public class SubsetBlockingStrategyTest {
 		assertFalse(_blockingStrategy.getBlockedNodeIDs(node2).contains(node2.getNodeID()));
 
 		/* add nominal, block should go away */
-		node2.addUnfoldedDescription(_termFactory.getDLNominalReference("a0"));
+		node2.addTerm(_termFactory.getDLIndividualReference("a0"));
 		assertFalse(_blockingStrategy.isBlocked(node2));
 	}
 
-
-	/**
+/**
 	 * Test of getBlocker method, of class IABoxNode.
 	 */
 	@Test
@@ -196,9 +184,9 @@ public class SubsetBlockingStrategyTest {
 		throws EInconsistentABoxException
 	{
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String> node2 = _abox.createNode(false);
-		node2.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
-		// Branch<String, String, String> branch = new Branch<String, String, String>(_abox);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		node2.addTerm(_termFactory.getDLClassReference("A"));
+		// Branch<String, String, String, String> branch = new Branch<String, String, String, String>(_abox);
 		assertTrue(_blockingStrategy.isBlocked(node2));
 		assertEquals(_aboxNode, _blockingStrategy.getBlocker(node2));
 	}

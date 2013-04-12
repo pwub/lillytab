@@ -16,22 +16,20 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
-import java.util.Collection;
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ISWRLRoleAtom<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends ISWRLAtomicTerm<Name, Klass, Role>, ITermList<ISWRLIndividual<Name, Klass, Role>> {
+public interface ISWRLRoleAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends ISWRLAtomicTerm<I, L, K, R>, ITermList<ISWRLArgument<I, L, K, R>> {
 
-	public ISWRLIndividual<Name, Klass, Role> getFirstIndividual();
-
-
-	public ISWRLIndividual<Name, Klass, Role> getSecondIndividual();
+	public ISWRLIArgument<I, L, K, R> getFirstIndividual();
 
 
-	public Role getRole();
+	public ISWRLArgument<I, L, K, R> getSecondIndividual();
+
+
+	public R getRole();
 }

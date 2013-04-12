@@ -24,17 +24,15 @@ package de.dhke.projects.cutil.collections.iterator;
 import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
-import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -63,7 +61,7 @@ public class MultiMapItemIteratorTest {
 	@Before
 	public void setUp()
 	{
-		_map = new MultiTreeSetHashMap<String, String>();
+		_map = new MultiTreeSetHashMap<>();
 	}
 	
 
@@ -89,7 +87,7 @@ public class MultiMapItemIteratorTest {
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
 		assertTrue(iter.hasNext());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
 		assertFalse(iter.hasNext());		
 	}
 
@@ -102,9 +100,9 @@ public class MultiMapItemIteratorTest {
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
 		assertTrue(iter.hasNext());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
 		assertTrue(iter.hasNext());		
-		assertEquals(new DefaultMapEntry<String, String>("B", "2"), iter.next());
+		assertEquals(new DefaultMapEntry<>("B", "2"), iter.next());
 		assertFalse(iter.hasNext());		
 	}
 
@@ -117,9 +115,9 @@ public class MultiMapItemIteratorTest {
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
 		assertTrue(iter.hasNext());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
 		assertTrue(iter.hasNext());		
-		assertEquals(new DefaultMapEntry<String, String>("A", "2"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "2"), iter.next());
 		assertFalse(iter.hasNext());		
 	}
 	
@@ -134,13 +132,13 @@ public class MultiMapItemIteratorTest {
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
 		assertTrue(iter.hasNext());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
 		assertTrue(iter.hasNext());		
-		assertEquals(new DefaultMapEntry<String, String>("A", "2"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "2"), iter.next());
 		assertTrue(iter.hasNext());		
-		assertEquals(new DefaultMapEntry<String, String>("B", "3"), iter.next());
+		assertEquals(new DefaultMapEntry<>("B", "3"), iter.next());
 		assertTrue(iter.hasNext());		
-		assertEquals(new DefaultMapEntry<String, String>("B", "4"), iter.next());
+		assertEquals(new DefaultMapEntry<>("B", "4"), iter.next());
 		assertFalse(iter.hasNext());
 	}	
 	
@@ -159,7 +157,7 @@ public class MultiMapItemIteratorTest {
 		
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
 		try {
 			iter.next();
 			assertTrue("Iterating past single entry iter", false);
@@ -176,8 +174,8 @@ public class MultiMapItemIteratorTest {
 		
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
-		assertEquals(new DefaultMapEntry<String, String>("B", "2"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("B", "2"), iter.next());
 		try {
 			iter.next();
 			assertTrue("Iterating past dual entry iter", false);
@@ -194,8 +192,8 @@ public class MultiMapItemIteratorTest {
 		
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
-		assertEquals(new DefaultMapEntry<String, String>("A", "2"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "2"), iter.next());
 		try {
 			iter.next();
 			assertTrue("Iterating past double entry iter", false);
@@ -214,10 +212,10 @@ public class MultiMapItemIteratorTest {
 		
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
-		assertEquals(new DefaultMapEntry<String, String>("A", "2"), iter.next());
-		assertEquals(new DefaultMapEntry<String, String>("B", "3"), iter.next());
-		assertEquals(new DefaultMapEntry<String, String>("B", "4"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "2"), iter.next());
+		assertEquals(new DefaultMapEntry<>("B", "3"), iter.next());
+		assertEquals(new DefaultMapEntry<>("B", "4"), iter.next());
 		try {
 			iter.next();
 			assertTrue("Iterating past double entry iter", false);
@@ -234,7 +232,7 @@ public class MultiMapItemIteratorTest {
 		
 		final Iterator<Map.Entry<String, String>> iter =
 			MultiMapEntryIterator.decorate(_map);
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), iter.next());
+		assertEquals(new DefaultMapEntry<>("A", "1"), iter.next());
 		iter.remove();
 	}
 }

@@ -20,18 +20,20 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.IReasoner;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDArgument;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRoleAtom;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIntersection;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLNominalReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLObjectRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl.SWRLTermFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -42,46 +44,35 @@ import java.util.SortedSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
+
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLTermUtil {
-
-	private SWRLTermUtil()
+public class SWRLTermUtil
+{
+	SWRLTermUtil()
 	{
 	}
 
-
-	@Deprecated
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ISWRLTerm<Name, Klass, Role> joinIntoIntersection(
-		Collection<? extends ISWRLTerm<Name, Klass, Role>> sourceTerms)
-	{
-		final ISWRLTermFactory<Name, Klass, Role> termFactory = new SWRLTermFactory<>();
-		return joinIntoIntersection(sourceTerms, termFactory);
-	}
-
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ISWRLTerm<Name, Klass, Role> joinIntoIntersection(
-		Collection<? extends ISWRLTerm<Name, Klass, Role>> sourceTerms, ISWRLTermFactory<Name, Klass, Role> termFactory)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLTerm<I, L, K, R> joinIntoIntersection(
+		Collection<? extends ISWRLTerm<I, L, K, R>> sourceTerms, ISWRLTermFactory<I, L, K, R> termFactory)
 	{
 		/**
 		 * XXX - this should be done more elegantly
-		 *
-		 *
 		 */
 		/* create union of terms, join up */
-		Set<ISWRLAtomicTerm<Name, Klass, Role>> terms = new TreeSet<>();
+		Set<ISWRLAtomicTerm<I, L, K, R>> terms = new TreeSet<>();
 		if (sourceTerms.isEmpty()) {
 			return null;
 		} else if (sourceTerms.size() > 1) {
-			for (ISWRLTerm<Name, Klass, Role> sourceTerm : sourceTerms) {
+			for (ISWRLTerm<I, L, K, R> sourceTerm : sourceTerms) {
 				if (sourceTerm == null) {
 					/* skip */
 				} else if (sourceTerm instanceof ISWRLIntersection) {
-					terms.addAll((ISWRLIntersection<Name, Klass, Role>) sourceTerm);
+					terms.addAll((ISWRLIntersection<I, L, K, R>) sourceTerm);
 				} else if (sourceTerm instanceof ISWRLAtomicTerm) {
-					terms.add((ISWRLAtomicTerm<Name, Klass, Role>) sourceTerm);
+					terms.add((ISWRLAtomicTerm<I, L, K, R>) sourceTerm);
 				} else {
 					throw new IllegalArgumentException("Unsupported term type: " + sourceTerm.getClass());
 				}
@@ -90,7 +81,7 @@ public class SWRLTermUtil {
 			if (terms.size() == 1) {
 				return terms.iterator().next();
 			} else if (!terms.isEmpty()) {
-				final ISWRLIntersection<Name, Klass, Role> intersection = termFactory.getSWRLIntersection(terms);
+				final ISWRLIntersection<I, L, K, R> intersection = termFactory.getSWRLIntersection(terms);
 				return intersection;
 			} else {
 				return null;
@@ -100,18 +91,16 @@ public class SWRLTermUtil {
 		}
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ISWRLTerm<Name, Klass, Role> joinIntoIntersection(
-		final ISWRLTerm<Name, Klass, Role> first,
-		final ISWRLTerm<Name, Klass, Role> second,
-		final ISWRLTermFactory<Name, Klass, Role> termFactory)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLTerm<I, L, K, R> joinIntoIntersection(
+		final ISWRLTerm<I, L, K, R> first, final ISWRLTerm<I, L, K, R> second,
+		final ISWRLTermFactory<I, L, K, R> termFactory)
 	{
 		if (first == null) {
 			return second;
 		} else if (second == null) {
 			return first;
 		} else {
-			ArrayList<ISWRLTerm<Name, Klass, Role>> list = new ArrayList<>(2);
+			ArrayList<ISWRLTerm<I, L, K, R>> list = new ArrayList<>(2);
 			list.add(first);
 			list.add(second);
 			list.trimToSize();
@@ -119,79 +108,90 @@ public class SWRLTermUtil {
 		}
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ISWRLTerm<Name, Klass, Role> replaceVariables(
-		final ISWRLTerm<Name, Klass, Role> term,
-		final Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> varMap)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLTerm<I, L, K, R> replaceIndividuals(
+		final ISWRLTerm<I, L, K, R> term,
+		final Map<? extends ISWRLArgument<I, L, K, R>, ? extends ISWRLArgument<I, L, K, R>> varMap,
+		final ISWRLTermFactory<I, L, K, R> swrlTermFactory)
 	{
-		final ISWRLTermFactory<Name, Klass, Role> termFactory = new SWRLTermFactory<>();
-
 		if (term instanceof ISWRLClassAtom) {
-			final ISWRLClassAtom<Name, Klass, Role> clsAtom = (ISWRLClassAtom<Name, Klass, Role>) term;
-			return termFactory.getSWRLClassAtom(clsAtom.getKlass(), getMappedIndividual(clsAtom.getIndividual(), varMap));
-		} else if (term instanceof ISWRLRoleAtom) {
-			final ISWRLRoleAtom<Name, Klass, Role> roleAtom = (ISWRLRoleAtom<Name, Klass, Role>) term;
-			return termFactory.getSWRLRoleAtom(roleAtom.getRole(), getMappedIndividual(roleAtom.getFirstIndividual(),
-																					   varMap),
-											   getMappedIndividual(roleAtom.
-				getSecondIndividual(), varMap));
+			final ISWRLClassAtom<I, L, K, R> clsAtom = (ISWRLClassAtom<I, L, K, R>) term;
+			return swrlTermFactory.getSWRLClassAtom(clsAtom.getKlass(),
+													getMappedIndividual(clsAtom.getIndividual(),
+																		varMap));
+		} else if (term instanceof ISWRLDataRoleAtom) {
+			final ISWRLDataRoleAtom<I, L, K, R> dataRole = (ISWRLDataRoleAtom<I, L, K, R>) term;
+
+			return swrlTermFactory.getSWRLDataRoleAtom(dataRole.getRole(),
+													   getMappedIndividual(dataRole.getFirstIndividual(), varMap),
+													   getMappedIndividual(dataRole.getSecondIndividual(), varMap));
+		} else if (term instanceof ISWRLObjectRoleAtom) {
+			final ISWRLObjectRoleAtom<I, L, K, R> objRole = (ISWRLObjectRoleAtom<I, L, K, R>) term;
+
+			return swrlTermFactory.getSWRLObjectRoleAtom(objRole.getRole(),
+														 getMappedIndividual(objRole.getFirstIndividual(), varMap),
+														 getMappedIndividual(objRole.getSecondIndividual(), varMap));
 		} else if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")
-			final ITermList<ISWRLAtomicTerm<Name, Klass, Role>> list = (ITermList<ISWRLAtomicTerm<Name, Klass, Role>>) term;
-			final Set<ISWRLTerm<Name, Klass, Role>> terms = new TreeSet<>();
-			for (ISWRLTerm<Name, Klass, Role> subTerm : list) {
-				terms.add(replaceVariables(subTerm, varMap));
+			final ITermList<ISWRLAtomicTerm<I, L, K, R>> list = (ITermList<ISWRLAtomicTerm<I, L, K, R>>) term;
+			final Set<ISWRLTerm<I, L, K, R>> terms = new TreeSet<>();
+			for (ISWRLTerm<I, L, K, R> subTerm : list) {
+				terms.add(replaceIndividuals(subTerm, varMap, swrlTermFactory));
 			}
-			return joinIntoIntersection(terms);
+			return joinIntoIntersection(terms, swrlTermFactory);
 		} else {
 			throw new IllegalArgumentException("Unknown SWRL Term type: " + term.getClass());
 		}
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ISWRLIndividual<Name, Klass, Role> getMappedIndividual(
-		final ISWRLIndividual<Name, Klass, Role> ind,
-		final Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> varMap)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLArgument<I, L, K, R> getMappedIndividual(
+		final ISWRLArgument<I, L, K, R> ind,
+		final Map<? extends ISWRLArgument<I, L, K, R>, ? extends ISWRLArgument<I, L, K, R>> varMap)
 	{
-		if (ind instanceof ISWRLVariable) {
-			final ISWRLVariable<Name, Klass, Role> var = (ISWRLVariable<Name, Klass, Role>) ind;
-			if (varMap.containsKey(var)) {
-				return varMap.get(var);
-			} else {
-				return ind;
-			}
+		if (varMap.containsKey(ind)) {
+			return varMap.get(ind);
 		} else {
 			return ind;
 		}
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Collection<ISWRLIndividual<Name, Klass, Role>> getIndividuals(
-		final Collection<? extends ISWRLTerm<Name, Klass, Role>> terms,
-		Collection<ISWRLIndividual<Name, Klass, Role>> targetColl)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLDArgument<I, L, K, R> getMappedIndividual(
+		final ISWRLDArgument<I, L, K, R> ind,
+		final Map<? extends ISWRLArgument<I, L, K, R>, ? extends ISWRLArgument<I, L, K, R>> varMap)
 	{
-		for (ISWRLTerm<Name, Klass, Role> term : terms) {
-			getIndividuals(term, targetColl);
+		return (ISWRLDArgument<I, L, K, R>) getMappedIndividual((ISWRLArgument<I, L, K, R>) ind, varMap);
+	}
+
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLIArgument<I, L, K, R> getMappedIndividual(
+		final ISWRLIArgument<I, L, K, R> ind,
+		final Map<? extends ISWRLArgument<I, L, K, R>, ? extends ISWRLArgument<I, L, K, R>> varMap)
+	{
+		return (ISWRLIArgument<I, L, K, R>) getMappedIndividual((ISWRLArgument<I, L, K, R>) ind, varMap);
+	}
+
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, C extends Collection<? super ISWRLArgument<I, L, K, R>>> C getArguments(
+		final Collection<? extends ISWRLTerm<I, L, K, R>> terms, final C targetColl)
+	{
+		for (ISWRLTerm<I, L, K, R> term : terms) {
+			getArguments(term, targetColl);
 		}
 		return targetColl;
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Collection<ISWRLIndividual<Name, Klass, Role>> getIndividuals(
-		final ISWRLTerm<Name, Klass, Role> term, Collection<ISWRLIndividual<Name, Klass, Role>> targetColl)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, C extends Collection<? super ISWRLArgument<I, L, K, R>>> C getArguments(
+		final ISWRLTerm<I, L, K, R> term, final C targetColl)
 	{
 		if (term instanceof ISWRLClassAtom) {
-			final ISWRLClassAtom<Name, Klass, Role> classAtom = (ISWRLClassAtom<Name, Klass, Role>) term;
+			final ISWRLClassAtom<I, L, K, R> classAtom = (ISWRLClassAtom<I, L, K, R>) term;
 			targetColl.add(classAtom.getIndividual());
 		} else if (term instanceof ISWRLRoleAtom) {
-			final ISWRLRoleAtom<Name, Klass, Role> roleAtom = (ISWRLRoleAtom<Name, Klass, Role>) term;
+			final ISWRLRoleAtom<I, L, K, R> roleAtom = (ISWRLRoleAtom<I, L, K, R>) term;
 			targetColl.add(roleAtom.getFirstIndividual());
 			targetColl.add(roleAtom.getSecondIndividual());
 		} else if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")
-			final ITermList<ISWRLAtomicTerm<Name, Klass, Role>> list = (ITermList<ISWRLAtomicTerm<Name, Klass, Role>>) term;
-			for (ISWRLAtomicTerm<Name, Klass, Role> subTerm : list) {
-				getIndividuals(subTerm, targetColl);
+			final ITermList<ISWRLAtomicTerm<I, L, K, R>> list = (ITermList<ISWRLAtomicTerm<I, L, K, R>>) term;
+			for (ISWRLAtomicTerm<I, L, K, R> subTerm : list) {
+				getArguments(subTerm, targetColl);
 			}
 		} else {
 			throw new IllegalArgumentException("Unknown SWRL Term type: " + term.getClass());
@@ -199,27 +199,26 @@ public class SWRLTermUtil {
 		return targetColl;
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Collection<ISWRLVariable<Name, Klass, Role>> getVariables(
-		final ISWRLTerm<Name, Klass, Role> term, Collection<ISWRLVariable<Name, Klass, Role>> targetColl)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, C extends Collection<? super ISWRLVariable<I, L, K, R>>> C getVariables(
+		final ISWRLTerm<I, L, K, R> term, final C targetColl)
 	{
 		if (term instanceof ISWRLClassAtom) {
-			final ISWRLClassAtom<Name, Klass, Role> classAtom = (ISWRLClassAtom<Name, Klass, Role>) term;
+			final ISWRLClassAtom<I, L, K, R> classAtom = (ISWRLClassAtom<I, L, K, R>) term;
 			if (classAtom.getIndividual() instanceof ISWRLVariable) {
-				targetColl.add((ISWRLVariable<Name, Klass, Role>) classAtom.getIndividual());
+				targetColl.add((ISWRLVariable<I, L, K, R>) classAtom.getIndividual());
 			}
 		} else if (term instanceof ISWRLRoleAtom) {
-			final ISWRLRoleAtom<Name, Klass, Role> roleAtom = (ISWRLRoleAtom<Name, Klass, Role>) term;
+			final ISWRLRoleAtom<I, L, K, R> roleAtom = (ISWRLRoleAtom<I, L, K, R>) term;
 			if (roleAtom.getFirstIndividual() instanceof ISWRLVariable) {
-				targetColl.add((ISWRLVariable<Name, Klass, Role>) roleAtom.getFirstIndividual());
+				targetColl.add((ISWRLVariable<I, L, K, R>) roleAtom.getFirstIndividual());
 			}
 			if (roleAtom.getSecondIndividual() instanceof ISWRLVariable) {
-				targetColl.add((ISWRLVariable<Name, Klass, Role>) roleAtom.getSecondIndividual());
+				targetColl.add((ISWRLVariable<I, L, K, R>) roleAtom.getSecondIndividual());
 			}
 		} else if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")
-			final ITermList<ISWRLAtomicTerm<Name, Klass, Role>> list = (ITermList<ISWRLAtomicTerm<Name, Klass, Role>>) term;
-			for (ISWRLAtomicTerm<Name, Klass, Role> subTerm : list) {
+			final ITermList<ISWRLAtomicTerm<I, L, K, R>> list = (ITermList<ISWRLAtomicTerm<I, L, K, R>>) term;
+			for (ISWRLAtomicTerm<I, L, K, R> subTerm : list) {
 				getVariables(subTerm, targetColl);
 			}
 		} else {
@@ -228,73 +227,30 @@ public class SWRLTermUtil {
 		return targetColl;
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Collection<ISWRLVariable<Name, Klass, Role>> getVariables(
-		final Collection<? extends ISWRLTerm<Name, Klass, Role>> terms,
-		Collection<ISWRLVariable<Name, Klass, Role>> targetColl)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, C extends Collection<? super ISWRLVariable<I, L, K, R>>> C getVariables(
+		final Collection<? extends ISWRLTerm<I, L, K, R>> terms, final C targetColl)
 	{
-		for (ISWRLTerm<Name, Klass, Role> term : terms) {
+		for (ISWRLTerm<I, L, K, R> term : terms) {
 			getVariables(term, targetColl);
 		}
 		return targetColl;
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Collection<ISWRLNominalReference<Name, Klass, Role>> getNominals(
-		final ISWRLTerm<Name, Klass, Role> term, Collection<ISWRLNominalReference<Name, Klass, Role>> targetColl)
+	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> compareIndividuals(
+		final ISWRLArgument<I, L, K, R> ind1, final ISWRLArgument<I, L, K, R> ind2,
+		final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap)
 	{
-		if (term instanceof ISWRLClassAtom) {
-			final ISWRLClassAtom<Name, Klass, Role> classAtom = (ISWRLClassAtom<Name, Klass, Role>) term;
-			if (classAtom.getIndividual() instanceof ISWRLNominalReference) {
-				targetColl.add((ISWRLNominalReference<Name, Klass, Role>) classAtom.getIndividual());
-			}
-		} else if (term instanceof ISWRLRoleAtom) {
-			final ISWRLRoleAtom<Name, Klass, Role> roleAtom = (ISWRLRoleAtom<Name, Klass, Role>) term;
-			if (roleAtom.getFirstIndividual() instanceof ISWRLNominalReference) {
-				targetColl.add((ISWRLNominalReference<Name, Klass, Role>) roleAtom.getFirstIndividual());
-			}
-			if (roleAtom.getSecondIndividual() instanceof ISWRLNominalReference) {
-				targetColl.add((ISWRLNominalReference<Name, Klass, Role>) roleAtom.getSecondIndividual());
-			}
-		} else if (term instanceof ITermList) {
-			@SuppressWarnings("unchecked")
-			final ITermList<ISWRLAtomicTerm<Name, Klass, Role>> list = (ITermList<ISWRLAtomicTerm<Name, Klass, Role>>) term;
-			for (ISWRLAtomicTerm<Name, Klass, Role> subTerm : list) {
-				getNominals(subTerm, targetColl);
-			}
-		} else {
-			throw new IllegalArgumentException("Unknown SWRL Term type: " + term.getClass());
-		}
-		return targetColl;
-	}
-
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Collection<ISWRLNominalReference<Name, Klass, Role>> getNominals(
-		final Collection<? extends ISWRLTerm<Name, Klass, Role>> terms,
-		Collection<ISWRLNominalReference<Name, Klass, Role>> targetColl)
-	{
-		for (ISWRLTerm<Name, Klass, Role> term : terms) {
-			getNominals(term, targetColl);
-		}
-		return targetColl;
-	}
-
-
-	private static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> compareIndividuals(
-		final ISWRLIndividual<Name, Klass, Role> ind1, final ISWRLIndividual<Name, Klass, Role> ind2,
-		final Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> varMap)
-	{
-		final ISWRLIndividual<Name, Klass, Role> mappedInd1 = getMappedIndividual(ind1, varMap);
-		final ISWRLIndividual<Name, Klass, Role> mappedInd2 = getMappedIndividual(ind2, varMap);
+		final ISWRLArgument<I, L, K, R> mappedInd1 = getMappedIndividual(ind1, varMap);
+		final ISWRLArgument<I, L, K, R> mappedInd2 = getMappedIndividual(ind2, varMap);
 
 		if (mappedInd1.equals(mappedInd2)) /* already equal? */ {
 			return varMap;
 		} else if (mappedInd1 instanceof ISWRLVariable) {
-			final ISWRLVariable<Name, Klass, Role> var1 = (ISWRLVariable<Name, Klass, Role>) mappedInd1;
+			final ISWRLVariable<I, L, K, R> var1 = (ISWRLVariable<I, L, K, R>) mappedInd1;
 			varMap.put(var1, mappedInd2);
 			return varMap;
 		} else if (mappedInd2 instanceof ISWRLVariable) {
-			final ISWRLVariable<Name, Klass, Role> var2 = (ISWRLVariable<Name, Klass, Role>) mappedInd2;
+			final ISWRLVariable<I, L, K, R> var2 = (ISWRLVariable<I, L, K, R>) mappedInd2;
 			varMap.put(var2, mappedInd1);
 			return varMap;
 		} else {
@@ -302,31 +258,23 @@ public class SWRLTermUtil {
 		}
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> compareTerms(
-		final ISWRLTerm<Name, Klass, Role> term1, final ISWRLTerm<Name, Klass, Role> term2)
-	{
-		final Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> varMap = new TreeMap<>();
-		return compareTerms(term1, term2, varMap);
-	}
-
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> compareTerms(
-		final ISWRLTerm<Name, Klass, Role> term1, final ISWRLTerm<Name, Klass, Role> term2,
-		final Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> varMap)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> compareTerms(
+		final ISWRLTerm<I, L, K, R> term1, final ISWRLTerm<I, L, K, R> term2,
+		final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap,
+		final IDLTermFactory<I, L, K, R> termFactory, final ISWRLTermFactory<I, L, K, R> swrlTermFactory)
 	{
 		if (term1 instanceof ISWRLClassAtom) {
 			if (term2 instanceof ISWRLClassAtom) {
-				final ISWRLClassAtom<Name, Klass, Role> clsAtom1 = (ISWRLClassAtom<Name, Klass, Role>) term1;
-				final ISWRLClassAtom<Name, Klass, Role> clsAtom2 = (ISWRLClassAtom<Name, Klass, Role>) term2;
+				final ISWRLClassAtom<I, L, K, R> clsAtom1 = (ISWRLClassAtom<I, L, K, R>) term1;
+				final ISWRLClassAtom<I, L, K, R> clsAtom2 = (ISWRLClassAtom<I, L, K, R>) term2;
 				if (clsAtom1.getKlass().equals(clsAtom2.getKlass())) {
 					return compareIndividuals(clsAtom1.getIndividual(), clsAtom2.getIndividual(), varMap);
 				}
 			}
 		} else if (term1 instanceof ISWRLRoleAtom) {
 			if (term2 instanceof ISWRLRoleAtom) {
-				final ISWRLRoleAtom<Name, Klass, Role> roleAtom1 = (ISWRLRoleAtom<Name, Klass, Role>) term1;
-				final ISWRLRoleAtom<Name, Klass, Role> roleAtom2 = (ISWRLRoleAtom<Name, Klass, Role>) term2;
+				final ISWRLRoleAtom<I, L, K, R> roleAtom1 = (ISWRLRoleAtom<I, L, K, R>) term1;
+				final ISWRLRoleAtom<I, L, K, R> roleAtom2 = (ISWRLRoleAtom<I, L, K, R>) term2;
 				if (roleAtom1.getRole().equals(roleAtom2.getRole())) {
 					if (compareIndividuals(roleAtom1.getFirstIndividual(), roleAtom2.getFirstIndividual(), varMap) != null) {
 						return compareIndividuals(roleAtom1.getSecondIndividual(), roleAtom2.getSecondIndividual(),
@@ -336,31 +284,31 @@ public class SWRLTermUtil {
 			}
 		} else if (term1 instanceof ISWRLIntersection) {
 			if (term2 instanceof ISWRLIntersection) {
-				final ISWRLIntersection<Name, Klass, Role> intersection1 = (ISWRLIntersection<Name, Klass, Role>) term1;
-				final ISWRLIntersection<Name, Klass, Role> intersection2 = (ISWRLIntersection<Name, Klass, Role>) term2;
-				for (ISWRLAtomicTerm<Name, Klass, Role> subTerm1 : intersection1) {
-					final SortedSet<ISWRLAtomicTerm<Name, Klass, Role>> termSet1 = new TreeSet<>(
+				final ISWRLIntersection<I, L, K, R> intersection1 = (ISWRLIntersection<I, L, K, R>) term1;
+				final ISWRLIntersection<I, L, K, R> intersection2 = (ISWRLIntersection<I, L, K, R>) term2;
+				for (ISWRLAtomicTerm<I, L, K, R> subTerm1 : intersection1) {
+					final SortedSet<ISWRLAtomicTerm<I, L, K, R>> termSet1 = new TreeSet<>(
 						intersection1);
 					termSet1.remove(subTerm1);
-					for (ISWRLAtomicTerm<Name, Klass, Role> subTerm2 : intersection2) {
-						final SortedSet<ISWRLAtomicTerm<Name, Klass, Role>> termSet2 = new TreeSet<>(
+					for (ISWRLAtomicTerm<I, L, K, R> subTerm2 : intersection2) {
+						final SortedSet<ISWRLAtomicTerm<I, L, K, R>> termSet2 = new TreeSet<>(
 							intersection2);
 						termSet2.remove(subTerm2);
-						final Map<ISWRLVariable<Name, Klass, Role>, ISWRLIndividual<Name, Klass, Role>> subVarMap = new TreeMap<>(
+						final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> subVarMap = new TreeMap<>(
 							varMap);
 						boolean doCompare = false;
 						try {
-							compareTerms(subTerm1, subTerm2, subVarMap);
+							compareTerms(subTerm1, subTerm2, subVarMap, termFactory, swrlTermFactory);
 							doCompare = true;
 						} catch (IllegalArgumentException ex) {
 							/* ignore */
 						}
 						if (doCompare) {
-							final ISWRLTerm<Name, Klass, Role> prunedIs1 = replaceVariables(joinIntoIntersection(
-								termSet1), subVarMap);
-							final ISWRLTerm<Name, Klass, Role> prunedIs2 = replaceVariables(joinIntoIntersection(
-								termSet2), subVarMap);
-							return compareTerms(prunedIs1, prunedIs2, subVarMap);
+							final ISWRLTerm<I, L, K, R> prunedIs1 = replaceIndividuals(joinIntoIntersection(
+								termSet1, swrlTermFactory), subVarMap, swrlTermFactory);
+							final ISWRLTerm<I, L, K, R> prunedIs2 = replaceIndividuals(joinIntoIntersection(
+								termSet2, swrlTermFactory), subVarMap, swrlTermFactory);
+							return compareTerms(prunedIs1, prunedIs2, subVarMap, termFactory, swrlTermFactory);
 						}
 					}
 					throw new IllegalArgumentException(String.format("No matching term for %s (in %s)", subTerm1,
@@ -372,54 +320,52 @@ public class SWRLTermUtil {
 		throw new IllegalArgumentException(String.format("Incompatible terms: %s<->%s", term1, term2));
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> Set<ISWRLAtomicTerm<Name, Klass, Role>> splitIntersection(
-		final ISWRLTerm<Name, Klass, Role> sourceTerm)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<ISWRLAtomicTerm<I, L, K, R>> splitIntersection(
+		final ISWRLTerm<I, L, K, R> sourceTerm)
 	{
 		if (sourceTerm instanceof ISWRLAtomicTerm) {
-			return Collections.singleton((ISWRLAtomicTerm<Name, Klass, Role>) sourceTerm);
+			return Collections.singleton((ISWRLAtomicTerm<I, L, K, R>) sourceTerm);
 		} else if (sourceTerm instanceof ISWRLIntersection) {
-			return new TreeSet<>((ISWRLIntersection<Name, Klass, Role>) sourceTerm);
+			return new TreeSet<>((ISWRLIntersection<I, L, K, R>) sourceTerm);
 		} else {
 			throw new IllegalArgumentException(String.format("Unsupported SWRL term type: %s", sourceTerm.getClass()));
 		}
 	}
 
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ISWRLTerm<Name, Klass, Role> simplify(
-		final ISWRLTerm<Name, Klass, Role> inTerm,
-		final IABox<Name, Klass, Role> abox,
-		final IReasoner<Name, Klass, Role> reasoner,
-		final ISWRLTermFactory<Name, Klass, Role> swrlFactory)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLTerm<I, L, K, R> simplify(
+		final ISWRLTerm<I, L, K, R> inTerm, final IABox<I, L, K, R> abox, final IReasoner<I, L, K, R> reasoner,
+		final ISWRLTermFactory<I, L, K, R> swrlFactory)
 		throws EReasonerException, EInconsistencyException
 	{
-		if (inTerm instanceof ISWRLAtomicTerm) {
+		if (inTerm == null)
+			return null;
+		else if (inTerm instanceof ISWRLAtomicTerm) {
 			return inTerm;
 		} else if (inTerm instanceof ISWRLIntersection) {
-			final ISWRLIntersection<Name, Klass, Role> intersection = (ISWRLIntersection<Name, Klass, Role>) inTerm;
-			final SortedSet<ISWRLAtomicTerm<Name, Klass, Role>> subTerms = new TreeSet<>(intersection);
-			Iterator<ISWRLAtomicTerm<Name, Klass, Role>> subTermIter = subTerms.iterator();
+			final ISWRLIntersection<I, L, K, R> intersection = (ISWRLIntersection<I, L, K, R>) inTerm;
+			final SortedSet<ISWRLAtomicTerm<I, L, K, R>> subTerms = new TreeSet<>(intersection);
+			Iterator<ISWRLAtomicTerm<I, L, K, R>> subTermIter = subTerms.iterator();
 			while (subTermIter.hasNext()) {
-				final ISWRLAtomicTerm<Name, Klass, Role> subTerm = subTermIter.next();
-				for (ISWRLAtomicTerm<Name, Klass, Role> otherTerm : subTerms) {
+				final ISWRLAtomicTerm<I, L, K, R> subTerm = subTermIter.next();
+				for (ISWRLAtomicTerm<I, L, K, R> otherTerm : subTerms) {
 					if (!subTerm.equals(otherTerm)) {
 						if ((subTerm instanceof ISWRLClassAtom) && (otherTerm instanceof ISWRLClassAtom)) {
-							final ISWRLClassAtom<Name, Klass, Role> subAtom = (ISWRLClassAtom<Name, Klass, Role>) subTerm;
-							final ISWRLClassAtom<Name, Klass, Role> otherAtom = (ISWRLClassAtom<Name, Klass, Role>) otherTerm;
+							final ISWRLClassAtom<I, L, K, R> subAtom = (ISWRLClassAtom<I, L, K, R>) subTerm;
+							final ISWRLClassAtom<I, L, K, R> otherAtom = (ISWRLClassAtom<I, L, K, R>) otherTerm;
 
 							if ((subAtom.getIndividual().equals(otherAtom.getIndividual())
-								&& reasoner.isSubClassOf(abox, subAtom.getKlass(), otherAtom.getKlass()))) {
+								&& reasoner.isSubClassOf(abox, otherAtom.getKlass(), subAtom.getKlass()))) {
 								subTermIter.remove();
 								/* stop iterating over other subterms */
 								break;
 							}
 						} else if ((subTerm instanceof ISWRLRoleAtom) && (otherTerm instanceof ISWRLRoleAtom)) {
-							final ISWRLRoleAtom<Name, Klass, Role> subAtom = (ISWRLRoleAtom<Name, Klass, Role>) subTerm;
-							final ISWRLRoleAtom<Name, Klass, Role> otherAtom = (ISWRLRoleAtom<Name, Klass, Role>) otherTerm;
+							final ISWRLRoleAtom<I, L, K, R> subAtom = (ISWRLRoleAtom<I, L, K, R>) subTerm;
+							final ISWRLRoleAtom<I, L, K, R> otherAtom = (ISWRLRoleAtom<I, L, K, R>) otherTerm;
 
 							if (subAtom.getFirstIndividual().equals(otherAtom.getFirstIndividual())
 								&& subAtom.getSecondIndividual().equals(otherAtom.getSecondIndividual())
-								&& abox.getRBox().isSubRole(subAtom.getRole(), otherAtom.getRole())) {
+								&& abox.getRBox().isSubRole(otherAtom.getRole(), subAtom.getRole())) {
 								subTermIter.remove();
 								/* stop iterating over other subterms */
 								break;
@@ -433,5 +379,24 @@ public class SWRLTermUtil {
 		} else {
 			throw new IllegalArgumentException(String.format("Unsupported SWRL term type `%s'", inTerm.getClass()));
 		}
+	}
+
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> boolean isSyntacticSubTerm(
+		final ISWRLTerm<I, L, K, R> presumedSub, final ISWRLTerm<I, L, K, R> presumedSuper)
+	{
+		if (presumedSub.equals(presumedSuper)) {
+			return true;
+		} else if (presumedSuper instanceof ISWRLIntersection) {
+			final ISWRLIntersection<I, L, K, R> superIntersection = (ISWRLIntersection<I, L, K, R>) presumedSuper;
+			if (presumedSub instanceof ISWRLIntersection) {
+				final ISWRLIntersection<I, L, K, R> subIntersection = (ISWRLIntersection<I, L, K, R>) presumedSub;
+				return superIntersection.containsAll(subIntersection);
+
+			} else if (presumedSub instanceof ISWRLAtomicTerm) {
+				return superIntersection.contains((ISWRLAtomicTerm<I, L, K, R>) presumedSub);
+			} else
+				throw new IllegalArgumentException("Unsupported SWRL argument type: " + presumedSub.getClass());
+		} else
+			return false;
 	}
 }

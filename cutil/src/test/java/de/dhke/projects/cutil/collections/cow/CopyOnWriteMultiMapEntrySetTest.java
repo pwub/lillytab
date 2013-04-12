@@ -29,16 +29,15 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -47,7 +46,7 @@ import static org.junit.Assert.*;
  */
 public class CopyOnWriteMultiMapEntrySetTest
 {
-	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<String, String>();
+	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<>();
 	private MultiMap<String, String> _baseMap;
 	private CopyOnWriteMultiMap<String, String> _cowMap;
 	private Set<Map.Entry<String, Collection<String>>> _entrySet;
@@ -76,7 +75,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 		_baseMap.put("2", "B");
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
-		_cowMap = new CopyOnWriteMultiMap<String, String>(_baseMap, _factory);
+		_cowMap = new CopyOnWriteMultiMap<>(_baseMap, _factory);
 		_entrySet = _cowMap.entrySet();
 	}
 
@@ -125,7 +124,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 	@Test
 	public void testIterator()
 	{
-		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<>();
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("3", Arrays.asList("c", "C")));
@@ -146,7 +145,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 	@Test
 	public void testToArray_0args()
 	{
-		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<>();
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("3", Arrays.asList("c", "C")));
@@ -161,7 +160,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 	@Test
 	public void testToArray_null()
 	{
-		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<>();
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("3", Arrays.asList("c", "C")));
@@ -208,7 +207,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 	@Test
 	public void testContainsAll()
 	{
-		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<>();
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("1", Arrays.asList("a", "A")));
 		assertTrue(_entrySet.containsAll(referenceList));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
@@ -227,7 +226,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 	@Test(expected=UnsupportedOperationException.class)
 	public void testAddAll()
 	{
-		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<>();
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("4", Arrays.asList("d", "D")));
 		assertTrue(_entrySet.addAll(referenceList));
 		assertTrue(_cowMap.containsValue("4", "d"));
@@ -242,7 +241,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 	@Test
 	public void testRetainAll()
 	{
-		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<>();
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("3", Arrays.asList("c", "C")));
 		_entrySet.retainAll(referenceList);
@@ -266,7 +265,7 @@ public class CopyOnWriteMultiMapEntrySetTest
 	@Test
 	public void testRemoveAll()
 	{
-		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<Entry<String, Collection<String>>>();
+		List<Map.Entry<String, Collection<String>>> referenceList = new ArrayList<>();
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("2", Arrays.asList("b", "B")));
 		referenceList.add(new DefaultMapEntry<String, Collection<String>>("3", Arrays.asList("c", "C")));
 		_entrySet.removeAll(referenceList);

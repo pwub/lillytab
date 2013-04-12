@@ -24,9 +24,9 @@ package de.dhke.projects.cutil;
 import org.apache.commons.collections15.Predicate;
 
 /**
- * <p>
+ * 
  * Binary version of {@link Predicate}
- * </p>
+ * 
  * 
  * @param <First> Type of the first parameter
  * @param <Second> Type of the second parameter
@@ -34,9 +34,9 @@ import org.apache.commons.collections15.Predicate;
  */
 public interface BinaryPredicate<First, Second> {
 	/**
-	 * <p>
+	 * 
 	 * Perform an evaluation using two parameters.
-	 * </p>
+	 * 
 	 * @param first The first parameter
 	 * @param second The second parameter.
 	 * @return {@literal true} if the evaluation was successful, {@literal false} otherwise.

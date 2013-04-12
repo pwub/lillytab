@@ -3,33 +3,39 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividual;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLNominalReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividualReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLVariable<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	implements ISWRLVariable<Name, Klass, Role> {
+public class SWRLVariable<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	implements ISWRLVariable<I, L, K, R> {
 
 	private final String _name;
 
@@ -40,20 +46,21 @@ public class SWRLVariable<Name extends Comparable<? super Name>, Klass extends C
 	}
 
 
+	@Override
 	public String getVariableName()
 	{
 		return _name;
 	}
 
 
-	public String getIndividual()
+	public String getObject()
 	{
 		return getVariableName();
 	}
 
 
 	@Override
-	public ISWRLVariable<Name, Klass, Role> clone()
+	public ISWRLVariable<I, L, K, R> clone()
 	{
 		return this;
 	}
@@ -67,7 +74,7 @@ public class SWRLVariable<Name extends Comparable<? super Name>, Klass extends C
 		}
 		if (obj instanceof ISWRLVariable) {
 			@SuppressWarnings("unchecked")
-			final ISWRLVariable<Name, Klass, Role> variable = (ISWRLVariable<Name, Klass, Role>) obj;
+			final ISWRLVariable<I, L, K, R> variable = (ISWRLVariable<I, L, K, R>) obj;
 			return _name.equals(variable.getVariableName());
 		} else {
 			return false;
@@ -82,14 +89,18 @@ public class SWRLVariable<Name extends Comparable<? super Name>, Klass extends C
 	}
 
 
-	public int compareTo(final ISWRLIndividual<Name, Klass, Role> o)
+	@Override
+	public int compareTo(final ISWRLArgument<I, L, K, R> o)
 	{
 		if (o instanceof ISWRLVariable) {
-			final ISWRLVariable<Name, Klass, Role> other = (ISWRLVariable<Name, Klass, Role>) o;
+			final ISWRLVariable<I, L, K, R> other = (ISWRLVariable<I, L, K, R>) o;
 			return _name.compareTo(other.getVariableName());
-		} else if (o instanceof ISWRLNominalReference) {
-			/* Order is: Nominals -> Variables */
+		} else if (o instanceof ISWRLIndividualReference) {
+			/* Order is: Literals -> Individuals -> Variables */
 			return -1;
+		} else if (o instanceof ISWRLLiteralReference) {
+			return -1;
+			/* Order is: Literals -> Individuals -> Variables */
 		} else {
 			throw new IllegalArgumentException("Unknown SWRL individual type: " + o.getClass());
 		}
@@ -103,6 +114,7 @@ public class SWRLVariable<Name extends Comparable<? super Name>, Klass extends C
 	}
 
 
+	@Override
 	public String toString(IToStringFormatter formatter)
 	{
 		final StringBuilder sb = new StringBuilder();

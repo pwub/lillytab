@@ -26,12 +26,12 @@ import java.util.Map;
 
 
 /**
- * <p>
+ * 
  * A {@link HashMap}, that automatically add transitive links.
- * </p><p>
+ * <p />
  * This means, that if (B, C) a key-value-pair within the map and
  * (A, B) is stored, the pair (A, C) is added automatically.
- * </p>
+ * 
  * 
  * @param <T> 
  * @author Peter Wullinger <java@dhke.de>

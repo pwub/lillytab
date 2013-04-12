@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
@@ -25,56 +30,19 @@ import java.util.Iterator;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractCollection<TermEntry<Name, Klass, Role>>
-	implements Collection<TermEntry<Name, Klass, Role>> {
+public class ABoxNodeTermEntryCollection<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends AbstractCollection<TermEntry<I, L, K, R>>
+	implements Collection<TermEntry<I, L, K, R>> {
 
-	private final IABoxNode<Name, Klass, Role> _node;
-
-	/// <editor-fold defaultstate="collapsed" desc="class Itr">
-	class Itr
-		implements Iterator<TermEntry<Name, Klass, Role>> {
-
-		private final Iterator<IDLTerm<Name, Klass, Role>> _baseIter;
+	private final IABoxNode<I, L, K, R> _node;
 
 
-		Itr()
-		{
-			_baseIter = _node.getTerms().iterator();
-		}
-
-
-		@Override
-		public boolean hasNext()
-		{
-			return _baseIter.hasNext();
-		}
-
-
-		@Override
-		public TermEntry<Name, Klass, Role> next()
-		{
-			final IDLTerm<Name, Klass, Role> term = _baseIter.next();
-			final TermEntry<Name, Klass, Role> entry = _node.getABox().getTermEntryFactory().getEntry(_node, term);
-			return entry;
-		}
-
-
-		@Override
-		public void remove()
-		{
-			_baseIter.remove();
-		}
-	}
-	/// </editor-fold>
-
-
-	public ABoxNodeTermEntryCollection(final IABoxNode<Name, Klass, Role> node)
+	public ABoxNodeTermEntryCollection(final IABoxNode<I, L, K, R> node)
 	{
 		assert node.getABox() != null;
 		_node = node;
@@ -82,7 +50,7 @@ public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, 
 
 
 	@Override
-	public Iterator<TermEntry<Name, Klass, Role>> iterator()
+	public Iterator<TermEntry<I, L, K, R>> iterator()
 	{
 		return new Itr();
 	}
@@ -101,7 +69,7 @@ public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, 
 		if (o == null) {
 			return false;
 		} else if (o instanceof TermEntry) {
-			final TermEntry<?, ?, ?> other = (TermEntry<?, ?, ?>) o;
+			final TermEntry<?, ?, ?, ?> other = (TermEntry<?, ?, ?, ?>) o;
 			return _node.getNodeID().equals(other.getNodeID()) && _node.getTerms().contains(other.getTerm());
 		} else {
 			return false;
@@ -113,7 +81,7 @@ public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, 
 	public boolean remove(Object o)
 	{
 		if ((o != null) && (o instanceof TermEntry)) {
-			final TermEntry<?, ?, ?> other = (TermEntry<?, ?, ?>) o;
+			final TermEntry<?, ?, ?, ?> other = (TermEntry<?, ?, ?, ?>) o;
 			if (_node.getNodeID().equals(other.getNodeID())) {
 				return _node.getTerms().remove(other.getTerm());
 			} else {
@@ -126,7 +94,7 @@ public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, 
 
 
 	@Override
-	public boolean add(TermEntry<Name, Klass, Role> e)
+	public boolean add(TermEntry<I, L, K, R> e)
 	{
 		if (_node.getNodeID().equals(e.getNodeID())) {
 			return _node.getTerms().add(e.getTerm());
@@ -143,4 +111,41 @@ public class ABoxNodeTermEntryCollection<Name extends Comparable<? super Name>, 
 	{
 		_node.getTerms().clear();
 	}
+
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
+	class Itr
+		implements Iterator<TermEntry<I, L, K, R>> {
+
+		private final Iterator<IDLTerm<I, L, K, R>> _baseIter;
+
+
+		Itr()
+		{
+			_baseIter = _node.getTerms().iterator();
+		}
+
+
+		@Override
+		public boolean hasNext()
+		{
+			return _baseIter.hasNext();
+		}
+
+
+		@Override
+		public TermEntry<I, L, K, R> next()
+		{
+			final IDLTerm<I, L, K, R> term = _baseIter.next();
+			final TermEntry<I, L, K, R> entry = _node.getABox().getTermEntryFactory().getEntry(_node, term);
+			return entry;
+		}
+
+
+		@Override
+		public void remove()
+		{
+			_baseIter.remove();
+		}
+	}
+	/// </editor-fold>
 }

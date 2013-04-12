@@ -3,52 +3,48 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class NodeMergeInfoTest {
 
-	private static IDLTermFactory<String, String, String> _termFactory;
-	private static IABoxFactory<String, String, String> _aboxFactory;
-	private IABox<String, String, String> _abox;
-	private IABoxNode<String, String, String> _targetNode;
-	private IABoxNode<String, String, String> _mergedNode;
-
-
-	public NodeMergeInfoTest()
-	{
-	}
+	private static IDLTermFactory<String, String, String, String> _termFactory;
+	private static IABoxFactory<String, String, String, String> _aboxFactory;
 
 
 	@BeforeClass
@@ -66,6 +62,14 @@ public class NodeMergeInfoTest {
 	{
 		_aboxFactory = null;
 		_termFactory = null;
+	}
+	private IABox<String, String, String, String> _abox;
+	private IABoxNode<String, String, String, String> _targetNode;
+	private IABoxNode<String, String, String, String> _mergedNode;
+
+
+	public NodeMergeInfoTest()
+	{
 	}
 
 
@@ -97,7 +101,7 @@ public class NodeMergeInfoTest {
 	public void testGetCurrentNode()
 		throws EReasonerException, ENodeMergeException
 	{
-		final NodeMergeInfo<String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
+		final NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
 		assertSame(_targetNode, mergeInfo.getCurrentNode());
 	}
 
@@ -106,10 +110,9 @@ public class NodeMergeInfoTest {
 	 * Test of getMergedNodes method, of class NodeMergeInfo.
 	 */
 	@Test
-	public void testGetMergedNodes()
-		throws EReasonerException, ENodeMergeException
+	public void testGetMergedNodes() throws EReasonerException, ENodeMergeException
 	{
-		final NodeMergeInfo<String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
+		final NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
 		assertTrue(mergeInfo.getMergedNodes().contains(_mergedNode));
 	}
 
@@ -121,7 +124,7 @@ public class NodeMergeInfoTest {
 	public void testGetModifiedNodesNoModify()
 		throws EReasonerException, ENodeMergeException
 	{
-		final NodeMergeInfo<String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
+		final NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
 		assertTrue(mergeInfo.getModifiedNodes().isEmpty());
 	}
 
@@ -133,9 +136,9 @@ public class NodeMergeInfoTest {
 	public void testGetModifiedNodes()
 		throws EReasonerException, ENodeMergeException
 	{
-		_mergedNode.addUnfoldedDescription(_termFactory.getDLClassReference("A"));
+		_mergedNode.addTerm(_termFactory.getDLClassReference("A"));
 
-		final NodeMergeInfo<String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
+		final NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
 		assertTrue(mergeInfo.getModifiedNodes().contains(_targetNode));
 	}
 
@@ -147,7 +150,7 @@ public class NodeMergeInfoTest {
 	public void testGetInitialNode()
 		throws EReasonerException, ENodeMergeException
 	{
-		final NodeMergeInfo<String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
+		final NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
 		assertSame(mergeInfo.getInitialNode(), _mergedNode);
 	}
 

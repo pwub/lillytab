@@ -32,10 +32,10 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -66,7 +66,7 @@ public class AspectMultiMapValueCollectionTest
 	@Before
 	public void setUp()
 	{
-		_baseMap = new MultiHashMap<String, String>();
+		_baseMap = new MultiHashMap<>();
 		_baseMap.put("1", "a");
 		_baseMap.put("1", "A");
 		_baseMap.put("2", "b");
@@ -74,7 +74,7 @@ public class AspectMultiMapValueCollectionTest
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
 		_aspectMap = AspectMultiMap.decorate(_baseMap, this);
-		_listener = new AspectCollectionHistoryListener<Map.Entry<String, String>, MultiMap<String, String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectMap.getListeners().add(_listener);
 		_values = _aspectMap.values();
 	}
@@ -139,7 +139,7 @@ public class AspectMultiMapValueCollectionTest
 	public void testIterator()
 	{
 		_aspectMap.put("_", "a");
-		Bag<String> values = new HashBag<String>();
+		Bag<String> values = new HashBag<>();
 		Iterator<String> iter = _values.iterator();
 		while (iter.hasNext())
 			values.add(iter.next());
@@ -168,9 +168,9 @@ public class AspectMultiMapValueCollectionTest
 		assertFalse(_aspectMap.containsValue("2", "b"));
 
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("2", "b"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "b"), _listener.beforeRemoveEvents.get(0).getItem());
 		assertEquals(1, _listener.afterRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("2", "b"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("2", "b"), _listener.afterRemoveEvents.get(0).getItem());
 	}
 
 	/**
@@ -244,11 +244,11 @@ public class AspectMultiMapValueCollectionTest
 		assertEquals(1, _listener.beforeRemoveEvents.size());
 		assertEquals(1, _listener.afterRemoveEvents.size());
 		if (_aspectMap.containsValue("_", "a")) {
-			assertEquals(new DefaultMapEntry<String, String>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
-			assertEquals(new DefaultMapEntry<String, String>("1", "a"), _listener.afterRemoveEvents.get(0).getItem());
+			assertEquals(new DefaultMapEntry<>("1", "a"), _listener.beforeRemoveEvents.get(0).getItem());
+			assertEquals(new DefaultMapEntry<>("1", "a"), _listener.afterRemoveEvents.get(0).getItem());
 		} else {
-			assertEquals(new DefaultMapEntry<String, String>("_", "a"), _listener.beforeRemoveEvents.get(0).getItem());
-			assertEquals(new DefaultMapEntry<String, String>("_", "a"), _listener.afterRemoveEvents.get(0).getItem());
+			assertEquals(new DefaultMapEntry<>("_", "a"), _listener.beforeRemoveEvents.get(0).getItem());
+			assertEquals(new DefaultMapEntry<>("_", "a"), _listener.afterRemoveEvents.get(0).getItem());
 		}
 	}
 
@@ -313,22 +313,22 @@ public class AspectMultiMapValueCollectionTest
 		assertFalse(_aspectMap.containsValue("_", "A"));
 		assertFalse(_aspectMap.containsValue("1", "A"));
 		assertEquals(4, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "a"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "A"),
 												_listener.beforeRemoveEvents));
 		assertEquals(4, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "a"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "A"),
 												_listener.afterRemoveEvents));
 	}
 
@@ -370,22 +370,22 @@ public class AspectMultiMapValueCollectionTest
 		assertFalse(_aspectMap.containsValue("_", "A"));
 		assertFalse(_aspectMap.containsValue("1", "A"));
 		assertEquals(4, _listener.beforeRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "a"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"),
 												_listener.beforeRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "A"),
 												_listener.beforeRemoveEvents));
 		assertEquals(4, _listener.afterRemoveEvents.size());
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "a"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "a"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "a"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("1", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("1", "A"),
 												_listener.afterRemoveEvents));
-		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<String, String>("_", "A"),
+		assertTrue(TestHelper.eventListContains(new DefaultMapEntry<>("_", "A"),
 												_listener.afterRemoveEvents));
 	}
 

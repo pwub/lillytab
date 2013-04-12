@@ -24,17 +24,17 @@ package de.dhke.projects.cutil.collections.eqaware;
 import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
  * @author Peter Wullinger <java@dhke.de>
  */
 public class MultiTreeSetHashMapTest {
-	private MultiTreeSetHashMap<String, String> _map = new MultiTreeSetHashMap<String, String>();
+	private MultiTreeSetHashMap<String, String> _map = new MultiTreeSetHashMap<>();
 
     public MultiTreeSetHashMapTest() {
     }

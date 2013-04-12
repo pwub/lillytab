@@ -32,12 +32,12 @@ import java.util.Set;
 
 
 /**
- * <p>
+ * 
  * An implementation of a set type that
  * uses an array for sets of small size (default: up to three)
  * and defaults back to using a {@link HashSet} for
  * larger arrays.
- * </p>
+ * 
  *
  * @param <T> The set element type.
  * @author Peter Wullinger <java@dhke.de>

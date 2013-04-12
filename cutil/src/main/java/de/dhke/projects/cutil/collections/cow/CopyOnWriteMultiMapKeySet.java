@@ -21,11 +21,10 @@
  **/
 package de.dhke.projects.cutil.collections.cow;
 
-import org.apache.commons.collections15.MultiMap;
-
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
+import org.apache.commons.collections15.MultiMap;
 
 
 /**

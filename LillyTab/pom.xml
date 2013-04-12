@@ -4,7 +4,7 @@
 	<groupId>de.uniba.wiai.kinf.pw.projects.lillytab</groupId>
 	<artifactId>LillyTab</artifactId>
 	<packaging>jar</packaging>
-	<version>1.6-SNAPSHOT</version>
+	<version>1.8-SNAPSHOT</version>
 	<name>LillyTab</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -67,12 +67,12 @@
 		<dependency>
 			<groupId>de.dhke.projects.lutil</groupId>
 			<artifactId>lutil</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>de.dhke.projects.cutil</groupId>
 			<artifactId>cutil</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.8-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 	<reporting>

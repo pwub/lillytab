@@ -27,10 +27,10 @@ import java.util.Iterator;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -63,7 +63,7 @@ public class AspectListTest
 	@Before
 	public void setUp()
 	{
-		_baseList = new ArrayList<String>();
+		_baseList = new ArrayList<>();
 		_aspectList = AspectList.decorate(_baseList, this);
 
 		_baseList.add("1");
@@ -71,7 +71,7 @@ public class AspectListTest
 		_baseList.add("3");
 		_baseList.add("4");
 
-		_listener = new AspectCollectionHistoryListener<String, List<String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectList.getListeners().add(_listener);
 	}
 

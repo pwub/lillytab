@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab;
 
 import de.dhke.projects.lutil.LoggingClass;
@@ -21,14 +26,13 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPILoader;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Reasoner;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerOptions;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLImplies;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import java.util.Collection;
 import java.util.logging.ConsoleHandler;
@@ -39,7 +43,7 @@ import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLIndividual;
-import org.semanticweb.owlapi.model.OWLObject;
+import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
@@ -54,9 +58,19 @@ public class Main
 	extends LoggingClass
 	implements Runnable {
 
-	private final IDLTermFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _termFactory;
-	private final IABoxFactory<OWLObject, OWLClass, OWLProperty<?, ?>> _aboxFactory;
-	private final Reasoner<OWLObject, OWLClass, OWLProperty<?, ?>> _reasoner;
+
+	/**
+	 * @param args the command line arguments
+	 */
+	public static void main(final String[] args)
+	{
+		Main main = new Main();
+		main.run();
+	}
+
+	private final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory;
+	private final IABoxFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _aboxFactory;
+	private final Reasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _reasoner;
 
 
 	public Main()
@@ -66,8 +80,8 @@ public class Main
 		_termFactory = new OWLAPIDLTermFactory(OWLManager.getOWLDataFactory());
 		_aboxFactory = new ABoxFactory<>(_termFactory);
 		ReasonerOptions options = new ReasonerOptions();
-//		options.TRACE = true;
-		options.TRACE = false;
+//		options._tracing = true;
+		options.setTracing(true);
 		_reasoner = new Reasoner<>(options);
 	}
 
@@ -78,7 +92,7 @@ public class Main
 		Logger.getLogger("").
 			setLevel(Level.ALL);
 		ConsoleHandler handler = new ConsoleHandler();
-		handler.setLevel(Level.ALL);
+		handler.setLevel(Level.FINER);
 		Logger.getLogger("").addHandler(handler);
 	}
 
@@ -89,14 +103,12 @@ public class Main
 		try {
 			final OWLOntologyManager ontMan = OWLManager.createOWLOntologyManager();
 
-			//final OWLOntology ontology = ontMan.loadOntology(URI.create(
-			//	"http://webrum.uni-mannheim.de/math/lski/anatomy09/mouse_anatomy_2008.owl"));
-			// final OWLOntology ontology = ontMan.loadOntology(URI.create(
-			//	"http://nb.vse.cz/~svabo/oaei2009/data/sigkdd.owl"));
-
+//			final IRI loadIRI = IRI.create(
+//				"http://seals-test.sti2.at/tdrs-web/testdata/persistent/ca1cddfe-c728-4207-b33d-ca245642f4c9/712477b7-e1f9-4633-8d52-17d2b25af008/suite/anatomy-track1/component/target");
 			final IRI loadIRI = IRI.create(
-				"http://seals-test.sti2.at/tdrs-web/testdata/persistent/ca1cddfe-c728-4207-b33d-ca245642f4c9/712477b7-e1f9-4633-8d52-17d2b25af008/suite/anatomy-track1/component/target");
+				"https://database.riken.jp/sw/download/ria94i~archives~semantics~ontology_def.owl-rdf.xml");
 
+			
 			logInfo("Loading ontology from %s", loadIRI);
 			final OWLOntology ontology = ontMan.loadOntology(loadIRI);
 			logInfo("Ontology loaded.");
@@ -105,31 +117,13 @@ public class Main
 
 			final OWLAPILoader loader = new OWLAPILoader();
 			logInfo("Filling ABox from OWLAPI ontology...");
-			final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> initialABox = loader.fillABox(ontology,
+			final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> initialABox = loader.fillABox(ontology,
 																							  _aboxFactory.createABox());
 			// System.out.println(abox.toString());
 
-			logInfo("Adding individuals...");
-			int individualNumber = 0;
-			for (OWLClass klass : ontology.getClassesInSignature()) {
-				final IDLClassReference<OWLObject, OWLClass, OWLProperty<?, ?>> klassRef = _termFactory.getDLClassReference(
-					klass);
-				OWLIndividual individual = ontMan.getOWLDataFactory().getOWLNamedIndividual(IRI.create(
-					"http://www.example.org/#" + individualNumber));
-				++individualNumber;
-				IABoxNode<OWLObject, OWLClass, OWLProperty<?, ?>> node = initialABox.getOrAddNamedNode(individual, false);
-				node.addUnfoldedDescription(klassRef);
-				initialABox.add(node);
-			}
-
-			logInfo("Starting consistency check...");
-			final Collection<? extends IReasonerResult<OWLObject, OWLClass, OWLProperty<?, ?>>> aboxes = _reasoner.checkConsistency(
-				initialABox);
-			logInfo("Found consistent ABox...");
-			for (IReasonerResult<OWLObject, OWLClass, OWLProperty<?, ?>> result : aboxes) {
-				final IABox<OWLObject, OWLClass, OWLProperty<?, ?>> abox = result.getABox();
-				logInfo(abox.toString());
-			}
+			logInfo("Starting classification ...");
+			final Collection<IDLImplies<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> classifications = _reasoner.classify(initialABox);
+			logInfo("Classification result: %s", classifications);
 
 		} catch (ENodeMergeException ex) {
 			getLogger().log(Level.SEVERE, "", ex);
@@ -139,15 +133,5 @@ public class Main
 			getLogger().log(Level.SEVERE, "", ex);
 		}
 
-	}
-
-
-	/**
-	 * @param args the command line arguments
-	 */
-	public static void main(final String[] args)
-	{
-		Main main = new Main();
-		main.run();
 	}
 }

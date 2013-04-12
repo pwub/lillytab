@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.dhke.projects.cutil.collections.tree.DecisionTree;
@@ -25,26 +30,26 @@ import java.util.List;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class BranchTree<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends DecisionTree<Branch<Name, Klass, Role>> {
+public class BranchTree<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends DecisionTree<Branch<I, L, K, R>> {
 
 	private static final long serialVersionUID = 3820019753050796191L;
 
 
-	public String getBranchID(final Node<Branch<Name, Klass, Role>> node)
+	public String getBranchID(final Node<Branch<I, L, K, R>> node)
 	{
 		final String separator = ".";
 		final StringBuilder branchID = new StringBuilder();
-		final List<? extends Node<Branch<Name, Klass, Role>>> branchPath = getPath(node);
+		final List<? extends Node<Branch<I, L, K, R>>> branchPath = getPath(node);
 		Collections.reverse(branchPath);
 
-		final Node<Branch<Name, Klass, Role>> root = getRoot();
-		final Iterator<? extends Node<Branch<Name, Klass, Role>>> iter = branchPath.iterator();
+		final Node<Branch<I, L, K, R>> root = getRoot();
+		final Iterator<? extends Node<Branch<I, L, K, R>>> iter = branchPath.iterator();
 
-		Node<Branch<Name, Klass, Role>> parent = iter.next();
+		Node<Branch<I, L, K, R>> parent = iter.next();
 		assert parent == root;
 		while (iter.hasNext()) {
-			final Node<Branch<Name, Klass, Role>> currentNode = iter.next();
+			final Node<Branch<I, L, K, R>> currentNode = iter.next();
 			assert currentNode.getParent() == parent;
 
 			final int branchIndex = parent.getChildren().indexOf(currentNode);
@@ -62,9 +67,9 @@ public class BranchTree<Name extends Comparable<? super Name>, Klass extends Com
 	}
 
 
-	public Node<Branch<Name, Klass, Role>> firstLeaf()
+	public Node<Branch<I, L, K, R>> firstLeaf()
 	{
-		Node<Branch<Name, Klass, Role>> node = getRoot();
+		Node<Branch<I, L, K, R>> node = getRoot();
 		if (node.hasChildren()) {
 			while (node.hasChildren()) {
 				node = node.getChildren().get(0);

@@ -21,9 +21,8 @@
  **/
 package de.dhke.projects.cutil.collections.cow;
 
-import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
-import de.dhke.projects.cutil.collections.*;
 import de.dhke.projects.cutil.IDecorator;
+import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -66,12 +65,12 @@ public class GenericCopyOnWriteCollection<E, C extends Collection<E>>
 		}
 
 		/**
-		 * <p>
+		 * 
 		 * Remove the current item from the collection.
-		 * </p><p>
+		 * <p />
 		 * Removing from an uncopied (and thus untouched)
 		 * {@link GenericCopyOnWriteCollection} is not supported.
-		 * </p>
+		 * 
 		 */
 		@Override
 		public void remove()

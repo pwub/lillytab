@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
 import de.dhke.projects.cutil.collections.immutable.ImmutableMultiMap;
@@ -21,53 +26,51 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ILinkMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import java.util.Collection;
-import org.omg.CosNaming._BindingIteratorImplBase;
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  *
  */
-public class ImmutableLinkMap<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends ImmutableMultiMap<Role, NodeID>
-	implements ILinkMap<Name, Klass, Role> {
+public class ImmutableLinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends ImmutableMultiMap<R, NodeID>
+	implements ILinkMap<I, L, K, R> {
 
-	protected ImmutableLinkMap(final ILinkMap<Name, Klass, Role> baseMap)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableLinkMap<I, L, K, R> decorate(final ILinkMap<I, L, K, R> baseMap)
+	{
+		return new ImmutableLinkMap<>(baseMap);
+	}
+
+ ImmutableLinkMap(
+		final ILinkMap<I, L, K, R> baseMap)
 	{
 		super(baseMap, null, null);
 	}
 
 
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ImmutableLinkMap<Name, Klass, Role> decorate(
-		final ILinkMap<Name, Klass, Role> baseMap)
-	{
-		return new ImmutableLinkMap<>(baseMap);
-	}
-
-
 	@Override
 	@SuppressWarnings("unchecked")
-	public IABoxNode<Name, Klass, Role> getNode()
+	public IABoxNode<I, L, K, R> getNode()
 	{
 		/* XXX - this maybe a loophole */
-		return ((ILinkMap<Name, Klass, Role>) getDecoratee()).getNode().getImmutable();
+		return ((ILinkMap<I, L, K, R>) getDecoratee()).getNode().getImmutable();
 	}
 
 
 	@Override
-	public NodeID put(Role role,
-					  IABoxNode<Name, Klass, Role> node)
+	public NodeID put(R role,
+					  IABoxNode<I, L, K, R> node)
 	{
 		throw new UnsupportedOperationException("Cannot modify Immutable link map");
 	}
 
 
 	@Override
-	public boolean putAll(Role key,
-						  Collection<? extends IABoxNode<Name, Klass, Role>> values)
+	public boolean putAll(R key,
+						  Collection<? extends IABoxNode<I, L, K, R>> values)
 	{
 		throw new UnsupportedOperationException("Cannot modify Immutable link map");
 	}

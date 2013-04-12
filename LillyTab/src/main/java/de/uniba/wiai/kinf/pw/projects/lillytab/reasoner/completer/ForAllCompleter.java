@@ -3,53 +3,65 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.dhke.projects.cutil.collections.iterator.ChainIterator;
+import de.dhke.projects.cutil.collections.tree.IDecisionTree;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IIndividualABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
-import de.dhke.projects.cutil.collections.tree.IDecisionTree;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLAllRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.Iterator;
-import java.util.SortedSet;
+
 
 /**
  *
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ForAllCompleter<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractCompleter<Name, Klass, Role>
-	implements ICompleter<Name, Klass, Role> {
-
-	public ForAllCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker, final boolean trace)
+public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AbstractCompleter<I, L, K, R>
+	implements ICompleter<I, L, K, R>
+{
+	public ForAllCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
-
 
 	/**
 	 * Search the concept set of {@literal node} for forAll-descriptions ({@link IDLAllRestriction},
@@ -63,13 +75,16 @@ public class ForAllCompleter<Name extends Comparable<? super Name>, Klass extend
 	 * node queue needs to be checked again before applying new rules.
 	 * @throws EReasonerException
 	 */
-	public ReasonerContinuationState completeNode(final IABoxNode<Name, Klass, Role> node,
-												  final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode)
+	@Override
+	@SuppressWarnings("unchecked")
+	public ReasonerContinuationState completeNode(final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
+												  final IABoxNode<I, L, K, R> node)
 		throws EReasonerException
 	{
-		final Branch<Name, Klass, Role> branch = branchNode.getData();
-		SortedSet<IDLTerm<Name, Klass, Role>> conceptTerms = node.getTerms().subSet(DLTermOrder.DL_ALL_RESTRICTION);
-		Iterator<IDLTerm<Name, Klass, Role>> termIter = conceptTerms.iterator();
+		@SuppressWarnings("unchecked")
+		Iterator<IDLTerm<I, L, K, R>> termIter = ChainIterator.decorate(
+			node.getTerms().iterator(IDLObjectAllRestriction.class),
+			node.getTerms().iterator(IDLDataAllRestriction.class));
 		/**
 		 * The proper order of rule application is not enforced, here, as the forAll-rules potentially make alterations
 		 * all across the abox.
@@ -80,27 +95,68 @@ public class ForAllCompleter<Name extends Comparable<? super Name>, Klass extend
 		 * We thus apply forAll-completion to a single node and also follow this node across any merge operations.
 		 */
 		while (termIter.hasNext()) {
-			final IDLTerm<Name, Klass, Role> term = termIter.next();
-			if (term instanceof IDLRestriction) {
-				IDLRestriction<Name, Klass, Role> desc = (IDLRestriction<Name, Klass, Role>) term;
-				if (desc instanceof IDLAllRestriction) {
-					final IDLAllRestriction<Name, Klass, Role> allRestriction = (IDLAllRestriction<Name, Klass, Role>) desc;
-					final Role role = allRestriction.getRole();
-					final IDLRestriction<Name, Klass, Role> forAllTerm = allRestriction.getTerm();
+			final IDLTerm<I, L, K, R> term = termIter.next();
+			/* remember governing term state */
+			final Branch<I, L, K, R> branch = branchNode.getData();
+			final IABox<I, L, K, R> abox = branch.getABox();
+			final boolean wasGovTerm = abox.getDependencyMap().hasGoverningTerm(node, term);
+			abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().getEntry(node, term));
+			
+			/**
+			 * This causes _Thing_ to be inserted after a term was moved.
+			 * This is only necessary, if the node has no other governing term.
+			 * Since adding _Thing_ does not hurt, do it, here.
+			 **/
+			if (wasGovTerm)
+				abox.getDependencyMap().addGoverningTerm(node, abox.getDLTermFactory().getDLThing());
 
-					final IABox<Name, Klass, Role> abox = branch.getABox();
+			if (term instanceof IDLClassExpression) {
+				IDLClassExpression<I, L, K, R> desc = (IDLClassExpression<I, L, K, R>) term;
+				if (desc instanceof IDLAllRestriction) {
+					final IDLAllRestriction<I, L, K, R> allRestriction = (IDLAllRestriction<I, L, K, R>) desc;
+					final R role = allRestriction.getRole();
+					final IDLRestriction<I, L, K, R> forAllTerm = allRestriction.getTerm();
+
 					Iterator<NodeID> successorIter = node.getRABox().getSuccessors(role).iterator();
 					while ((successorIter != null) && successorIter.hasNext()) {
 						final NodeID succID = successorIter.next();
-						IABoxNode<Name, Klass, Role> succ = abox.getNode(succID);
+						IABoxNode<I, L, K, R> succ = abox.getNode(succID);
 						assert succ != null;
 						/* update dependency map */
 						if (!abox.getDependencyMap().containsKey(succ, forAllTerm)) {
-							abox.getDependencyMap().addParent(succ, forAllTerm, node, term);
+							abox.getDependencyMap().addParent(succ, forAllTerm, node, desc);
 						}
 
 						try {
-							NodeMergeInfo<Name, Klass, Role> modInfo = succ.addUnfoldedDescription(forAllTerm);
+							NodeMergeInfo<I, L, K, R> mergeInfo;
+							if (succ instanceof IDatatypeABoxNode) {
+								if (forAllTerm instanceof IDLDataRange) {
+									mergeInfo = ((IDatatypeABoxNode<I, L, K, R>) succ).addDataTerm(
+										(IDLDataRange<I, L, K, R>) forAllTerm);
+								} else {
+									final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>(
+										ConsistencyInfo.ClashType.FINAL);
+									cInfo.addCulprits(node, desc);
+									branch.upgradeConsistencyInfo(cInfo);
+									return ReasonerContinuationState.INCONSISTENT;
+								}
+							} else {
+								if (forAllTerm instanceof IDLClassExpression) {
+									mergeInfo = ((IIndividualABoxNode<I, L, K, R>) succ).addClassTerm(
+										(IDLClassExpression<I, L, K, R>) forAllTerm);
+								} else {
+									final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>(
+										ConsistencyInfo.ClashType.FINAL);
+									cInfo.addCulprits(node, desc);
+									branch.upgradeConsistencyInfo(cInfo);
+									return ReasonerContinuationState.INCONSISTENT;
+								}
+							}
+
+							/* eventually move governing term description */
+							if (wasGovTerm) {
+								abox.getDependencyMap().addGoverningTerm(succ, forAllTerm);
+							}
 
 							if (isTracing()) {
 								logFinest("ForAll-propagation of %s from node %s to %s", forAllTerm, node.getNodeID(),
@@ -108,23 +164,25 @@ public class ForAllCompleter<Name extends Comparable<? super Name>, Klass extend
 							}
 
 							/* track eventual merge */
-							succ = modInfo.getCurrentNode();
-							final ConsistencyInfo<Name, Klass, Role> cInfo = getNodeConsistencyChecker().isConsistent(
+							succ = mergeInfo.getCurrentNode();
+							final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().isConsistent(
 								succ);
 							if (cInfo.isFinallyInconsistent()) {
 								branch.upgradeConsistencyInfo(cInfo);
 								return ReasonerContinuationState.INCONSISTENT;
 							}
 
-							if (modInfo.getMergedNodes().contains(node)) /**
-							 * The current node was merged with another node: Stop processing, recheck queues.
-							 */
-							{
+							if (mergeInfo.getMergedNodes().contains(node)) {
+								/**
+								 * The current node was merged with another node: Stop processing, recheck queues.
+								 *
+								 */
 								return ReasonerContinuationState.RECHECK_NODE;
-							} else if (modInfo.isModified(node)) {
+							} else if (mergeInfo.isModified(node)) {
 								/* if the local concept set was modified, we have to restart both iterators */
-								conceptTerms = node.getTerms().subSet(DLTermOrder.DL_ALL_RESTRICTION);
-								termIter = conceptTerms.iterator();
+								termIter = ChainIterator.decorate(
+									node.getTerms().iterator(IDLObjectAllRestriction.class),
+									node.getTerms().iterator(IDLDataAllRestriction.class));
 								successorIter = node.getRABox().getSuccessors(role).iterator();
 							}
 						} catch (ENodeMergeException ex) {
@@ -141,6 +199,7 @@ public class ForAllCompleter<Name extends Comparable<? super Name>, Klass extend
 				}
 			}
 		}
+
 		return ReasonerContinuationState.CONTINUE;
 	}
 }

@@ -23,7 +23,6 @@ package de.dhke.projects.cutil.collections.factories;
 
 import de.dhke.projects.cutil.collections.set.SortedListSet;
 import java.util.Set;
-import java.util.SortedSet;
 
 /**
  *

@@ -3,43 +3,37 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.util;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.text.ParseException;
+
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SimpleKRSSParser {
-
-	private final IDLTermFactory<String, String, String> _termFactory;
-
-
-	public SimpleKRSSParser(final IDLTermFactory<String, String, String> termFactory)
-	{
-		_termFactory = termFactory;
-	}
-
-
-	public SimpleKRSSParser()
-	{
-		this(new SimpleStringDLTermFactory());
-	}
-
+public class SimpleKRSSParser
+{
 
 	private static void checkNextToken(final TokenIterator tokenIter, final String expected)
 		throws ParseException
@@ -51,57 +45,115 @@ public class SimpleKRSSParser {
 									 (int) tokenIter.getPosition());
 		}
 	}
+	private final IDLTermFactory<String, String, String, String> _termFactory;
 
+	public SimpleKRSSParser(final IDLTermFactory<String, String, String, String> termFactory)
+	{
+		_termFactory = termFactory;
+	}
 
-	public IDLRestriction<String, String, String> parse(final TokenIterator tokenIter)
+	public SimpleKRSSParser()
+	{
+		this(new SimpleStringDLTermFactory());
+	}
+
+	public IDLRestriction<String, String, String, String> parseRestriction(final String input)
+		throws ParseException
+	{
+		return parseRestriction(new TokenIterator(input));
+	}
+
+	public IDLRestriction<String, String, String, String> parseRestriction(final TokenIterator tokenIter)
+		throws ParseException
+	{
+		String next1 = tokenIter.next();
+		if (next1.equals("{")) {
+			String next2 = tokenIter.next();
+			if (next2.equals("\"")) {
+				String literal = tokenIter.next();
+				checkNextToken(tokenIter, "\"");
+				checkNextToken(tokenIter, "}");
+				return _termFactory.getDLLiteralReference(literal);
+			} else {
+				tokenIter.pushBack(next2);
+			}
+		}
+		tokenIter.pushBack(next1);
+		return parse(tokenIter);
+	}
+
+	public IDLClassExpression<String, String, String, String> parse(final TokenIterator tokenIter)
 		throws ParseException
 	{
 		String token = tokenIter.next();
-		if (token.equals("(")) {
-			/* subterm */
-			final String operator = tokenIter.next();
-			if (operator.equalsIgnoreCase("not")) {
-				final IDLRestriction<String, String, String> t = parse(tokenIter);
-				checkNextToken(tokenIter, ")");
-				return _termFactory.getDLNegation(t);
-			} else if (operator.equalsIgnoreCase("or")) {
-				final IDLRestriction<String, String, String> t0 = parse(tokenIter);
-				final IDLRestriction<String, String, String> t1 = parse(tokenIter);
-				checkNextToken(tokenIter, ")");
-				return _termFactory.getDLUnion(t0, t1);
-			} else if (operator.equalsIgnoreCase("and")) {
-				final IDLRestriction<String, String, String> t0 = parse(tokenIter);
-				final IDLRestriction<String, String, String> t1 = parse(tokenIter);
-				checkNextToken(tokenIter, ")");
-				return _termFactory.getDLIntersection(t0, t1);
-			} else if (operator.equalsIgnoreCase("implies")) {
-				final IDLRestriction<String, String, String> t0 = parse(tokenIter);
-				final IDLRestriction<String, String, String> t1 = parse(tokenIter);
-				checkNextToken(tokenIter, ")");
-				return _termFactory.getDLImplies(t0, t1);
-			} else if (operator.equalsIgnoreCase("some")) {
-				final String role = tokenIter.next();
-				final IDLRestriction<String, String, String> t = parse(tokenIter);
-				checkNextToken(tokenIter, ")");
-				return _termFactory.getDLSomeRestriction(role, t);
-			} else if (operator.equalsIgnoreCase("only")) {
-				final String role = tokenIter.next();
-				final IDLRestriction<String, String, String> t = parse(tokenIter);
-				checkNextToken(tokenIter, ")");
-				return _termFactory.getDLAllRestriction(role, t);
-			}
-			throw new ParseException(String.format("Unknown operator: %s", operator), (int) tokenIter.getPosition());
-		} else if (token.equals("{")) {
-			final String nominal = tokenIter.next();
-			checkNextToken(tokenIter, "}");
-			return _termFactory.getDLNominalReference(nominal);
-		} else {
-			return _termFactory.getDLClassReference(token);
+		switch (token) {
+			case "(":
+				/* subterm */
+				final String operator = tokenIter.next().toLowerCase();
+				switch (operator) {
+					case "not": {
+						final IDLClassExpression<String, String, String, String> t = parse(tokenIter);
+						checkNextToken(tokenIter, ")");
+						return _termFactory.getDLObjectNegation(t);
+					}
+					case "or": {
+						final IDLClassExpression<String, String, String, String> t0 = parse(tokenIter);
+						final IDLClassExpression<String, String, String, String> t1 = parse(tokenIter);
+						checkNextToken(tokenIter, ")");
+						return _termFactory.getDLObjectUnion(t0, t1);
+					}
+					case "and": {
+						final IDLClassExpression<String, String, String, String> t0 = parse(tokenIter);
+						final IDLClassExpression<String, String, String, String> t1 = parse(tokenIter);
+						checkNextToken(tokenIter, ")");
+						return _termFactory.getDLObjectIntersection(t0, t1);
+					}
+					case "implies": {
+						final IDLClassExpression<String, String, String, String> t0 = parse(tokenIter);
+						final IDLClassExpression<String, String, String, String> t1 = parse(tokenIter);
+						checkNextToken(tokenIter, ")");
+						return _termFactory.getDLImplies(t0, t1);
+					}
+					case "some": {
+						final String role = tokenIter.next();
+						final IDLRestriction<String, String, String, String> t = parseRestriction(tokenIter);
+						checkNextToken(tokenIter, ")");
+						if (t instanceof IDLDataRange) {
+							return _termFactory.getDLDataSomeRestriction(role,
+																		 (IDLDataRange<String, String, String, String>) t);
+						} else if (t instanceof IDLClassExpression) {
+							return _termFactory.getDLObjectSomeRestriction(role,
+																		   (IDLClassExpression<String, String, String, String>) t);
+						} else {
+							throw new ParseException("Unknown restriction term: " + t, (int) tokenIter.getPosition());
+						}
+					}
+					case "only": {
+						final String role = tokenIter.next();
+						final IDLRestriction<String, String, String, String> t = parseRestriction(tokenIter);
+						checkNextToken(tokenIter, ")");
+						if (t instanceof IDLDataRange) {
+							return _termFactory.getDLDataAllRestriction(role,
+																		(IDLDataRange<String, String, String, String>) t);
+						} else if (t instanceof IDLClassExpression) {
+							return _termFactory.getDLObjectAllRestriction(role,
+																		  (IDLClassExpression<String, String, String, String>) t);
+						} else {
+							throw new ParseException("Unknown restriction term: " + t, (int) tokenIter.getPosition());
+						}
+					}
+				}
+				throw new ParseException(String.format("Unknown operator: %s", operator), (int) tokenIter.getPosition());
+			case "{":
+				final String individual = tokenIter.next();
+				checkNextToken(tokenIter, "}");
+				return _termFactory.getDLIndividualReference(individual);
+			default:
+				return _termFactory.getDLClassReference(token);
 		}
 	}
 
-
-	public IDLRestriction<String, String, String> parse(final String input)
+	public IDLClassExpression<String, String, String, String> parse(final String input)
 		throws ParseException
 	{
 		return parse(new TokenIterator(input));

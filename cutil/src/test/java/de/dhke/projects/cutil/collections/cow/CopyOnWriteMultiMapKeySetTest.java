@@ -29,10 +29,10 @@ import java.util.Set;
 import org.apache.commons.collections15.MultiMap;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
  */
 public class CopyOnWriteMultiMapKeySetTest
 {
-	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<String, String>();
+	private final IMultiMapFactory<String, String, MultiMap<String, String>> _factory = new MultiHashMapFactory<>();
 	private MultiMap<String, String> _baseMap;
 	private CopyOnWriteMultiMap<String, String> _cowMap;
 	private Set<String> _keySet;
@@ -70,7 +70,7 @@ public class CopyOnWriteMultiMapKeySetTest
 		_baseMap.put("2", "B");
 		_baseMap.put("3", "c");
 		_baseMap.put("3", "C");
-		_cowMap = new CopyOnWriteMultiMap<String, String>(_baseMap, _factory);
+		_cowMap = new CopyOnWriteMultiMap<>(_baseMap, _factory);
 		_keySet = _cowMap.keySet();
 	}
 

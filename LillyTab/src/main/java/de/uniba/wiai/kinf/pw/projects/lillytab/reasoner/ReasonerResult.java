@@ -3,60 +3,64 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasonerResult;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
+import java.util.Collections;
 import java.util.Map;
 
 /**
- * @param <Name> The type for nominals and values
- * @param <Klass> The type for DL classes
- * @param <Role> The type for properties (roles)
+ * @param <I> The type for nominals and values
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ReasonerResult<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	implements IReasonerResult<Name, Klass, Role> {
+public class ReasonerResult<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements IReasonerResult<I, L, K, R> {
 
-	private final IABox<Name, Klass, Role> _abox;
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ReasonerResult<I, L, K, R> create(
+		final IABox<I, L, K, R> abox, final Map<NodeID, NodeID> mergeMap)
+	{
+		return new ReasonerResult<>(abox, mergeMap);
+	}
+
+
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ReasonerResult<I, L, K, R> create(
+		final IABox<I, L, K, R> abox)
+	{
+		return new ReasonerResult<>(abox, null);
+	}
+	private final IABox<I, L, K, R> _abox;
 	private final Map<NodeID, NodeID> _mergeMap;
 
 
-	protected ReasonerResult(final IABox<Name, Klass, Role> abox, final Map<NodeID, NodeID> mergeMap)
+	protected ReasonerResult(final IABox<I, L, K, R> abox, final Map<NodeID, NodeID> mergeMap)
 	{
 		_abox = abox;
 		_mergeMap = mergeMap;
 	}
 
 
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ReasonerResult<Name, Klass, Role> create(
-		final IABox<Name, Klass, Role> abox, final Map<NodeID, NodeID> mergeMap)
-	{
-		return new ReasonerResult<>(abox, mergeMap);
-	}
-
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> ReasonerResult<Name, Klass, Role> create(
-		final IABox<Name, Klass, Role> abox)
-	{
-		return new ReasonerResult<>(abox, null);
-	}
-
-
 	@Override
-	public IABox<Name, Klass, Role> getABox()
+	public IABox<I, L, K, R> getABox()
 	{
 		return _abox;
 	}
@@ -65,7 +69,7 @@ public class ReasonerResult<Name extends Comparable<? super Name>, Klass extends
 	@Override
 	public Map<NodeID, NodeID> getMergeMap()
 	{
-		return _mergeMap;
+		return Collections.unmodifiableMap(_mergeMap);
 	}
 
 
@@ -75,7 +79,7 @@ public class ReasonerResult<Name extends Comparable<? super Name>, Klass extends
 		if (this == obj) {
 			return true;
 		} else if (obj instanceof IReasonerResult) {
-			final IReasonerResult<?, ?, ?> other = (IReasonerResult<?, ?, ?>) obj;
+			final IReasonerResult<?, ?, ?, ?> other = (IReasonerResult<?, ?, ?, ?>) obj;
 			return _abox.equals(other.getABox());
 		} else {
 			return false;
@@ -104,7 +108,7 @@ public class ReasonerResult<Name extends Comparable<? super Name>, Klass extends
 		if (this == obj) {
 			return true;
 		} else if (obj instanceof IReasonerResult) {
-			final IReasonerResult<?, ?, ?> other = (IReasonerResult<?, ?, ?>) obj;
+			final IReasonerResult<?, ?, ?, ?> other = (IReasonerResult<?, ?, ?, ?>) obj;
 			return _abox.deepEquals(other.getABox());
 		} else {
 			return false;

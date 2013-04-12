@@ -31,10 +31,10 @@ import java.util.Set;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.junit.After;
 import org.junit.AfterClass;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 
 /**
@@ -65,14 +65,14 @@ public class AspectMapKeySetTest
 	@Before
 	public void setUp()
 	{
-		_baseMap = new HashMap<String, String>();
+		_baseMap = new HashMap<>();
 		_baseMap.put("A", "1");
 		_baseMap.put("B", "2");
 		_baseMap.put("C", "3");
 		_baseMap.put("D", "4");
 
 		_aspectMap = AspectMap.decorate(_baseMap, this);
-		_listener = new AspectCollectionHistoryListener<Map.Entry<String, String>, Map<String, String>>();
+		_listener = new AspectCollectionHistoryListener<>();
 		_aspectMap.getListeners().add(_listener);
 		_keySet = _aspectMap.keySet();
 	}
@@ -128,7 +128,7 @@ public class AspectMapKeySetTest
 	@Test
 	public void testIterator()
 	{
-		final List<String> testList = new ArrayList<String>(Arrays.asList("A", "B", "C", "D"));
+		final List<String> testList = new ArrayList<>(Arrays.asList("A", "B", "C", "D"));
 		Iterator<String> iter = _keySet.iterator();
 		while (iter.hasNext())
 			assertTrue(testList.remove(iter.next()));
@@ -138,7 +138,7 @@ public class AspectMapKeySetTest
 	@Test
 	public void testIteratorRemove()
 	{
-		final List<String> testList = new ArrayList<String>(Arrays.asList("A", "B", "C", "D"));
+		final List<String> testList = new ArrayList<>(Arrays.asList("A", "B", "C", "D"));
 		Iterator<String> iter = _keySet.iterator();
 		iter.next();
 		String key = iter.next();
@@ -149,9 +149,9 @@ public class AspectMapKeySetTest
 		assertTrue(testList.contains(key));
 
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
 		assertEquals(1, _listener.afterRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
 	}
 
 	@Test
@@ -212,8 +212,8 @@ public class AspectMapKeySetTest
 		assertTrue(_listener.afterRemoveEvents.isEmpty());
 		assertTrue(_keySet.remove("A"));
 		assertEquals(1, _listener.beforeRemoveEvents.size());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
-		assertEquals(new DefaultMapEntry<String, String>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.beforeRemoveEvents.get(0).getItem());
+		assertEquals(new DefaultMapEntry<>("A", "1"), _listener.afterRemoveEvents.get(0).getItem());
 	}
 
 	/**
@@ -272,9 +272,9 @@ public class AspectMapKeySetTest
 		assertEquals(2, _aspectMap.size());
 
 
-		List<Map.Entry<String, String>> targetEntries = new ArrayList<Map.Entry<String, String>>();
-		targetEntries.add(new DefaultMapEntry<String, String>("A", "1"));
-		targetEntries.add(new DefaultMapEntry<String, String>("D", "4"));
+		List<Map.Entry<String, String>> targetEntries = new ArrayList<>();
+		targetEntries.add(new DefaultMapEntry<>("A", "1"));
+		targetEntries.add(new DefaultMapEntry<>("D", "4"));
 		assertEquals(2, _listener.beforeRemoveEvents.size());
 		assertTrue(targetEntries.contains(_listener.beforeRemoveEvents.get(0).getItem()));
 		assertTrue(targetEntries.contains(_listener.beforeRemoveEvents.get(1).getItem()));

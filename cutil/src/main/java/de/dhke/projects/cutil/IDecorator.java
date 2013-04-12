@@ -23,9 +23,9 @@ package de.dhke.projects.cutil;
 
 
 /**
- * <p>
+ * 
  *   Simple interface to signal that an object decorates another object.
- * </p>
+ * 
  * @author Peter Wullinger <java@dhke.de>
  * @param <Decoratee> The type of the decorated object.
  */

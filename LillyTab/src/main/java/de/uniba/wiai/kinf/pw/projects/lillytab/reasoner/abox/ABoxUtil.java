@@ -3,17 +3,22 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.collections.iterator.MultiMapEntryIterable;
@@ -29,18 +34,12 @@ import java.util.Map;
  */
 public class ABoxUtil {
 
-	private ABoxUtil()
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> boolean isLinkConsistent(final IABox<I, L, K, R> abox)
 	{
-	}
-
-
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> boolean isLinkConsistent(
-		final IABox<Name, Klass, Role> abox)
-	{
-		for (final IABoxNode<Name, Klass, Role> node : abox) {
-			for (final Map.Entry<Role, NodeID> predEntry : MultiMapEntryIterable.decorate(node.getRABox().
+		for (final IABoxNode<I, L, K, R> node : abox) {
+			for (final Map.Entry<R, NodeID> predEntry : MultiMapEntryIterable.decorate(node.getRABox().
 				getAssertedPredecessors())) {
-				final IABoxNode<Name, Klass, Role> pred = abox.getNode(predEntry.getValue());
+				final IABoxNode<I, L, K, R> pred = abox.getNode(predEntry.getValue());
 				if (pred == null) {
 					return false;
 				}
@@ -49,9 +48,9 @@ public class ABoxUtil {
 				}
 			}
 
-			for (final Map.Entry<Role, NodeID> succEntry : MultiMapEntryIterable.decorate(node.getRABox().
+			for (final Map.Entry<R, NodeID> succEntry : MultiMapEntryIterable.decorate(node.getRABox().
 				getAssertedSuccessors())) {
-				final IABoxNode<Name, Klass, Role> succ = abox.getNode(succEntry.getValue());
+				final IABoxNode<I, L, K, R> succ = abox.getNode(succEntry.getValue());
 				if (succ == null) {
 					return false;
 				}
@@ -64,15 +63,14 @@ public class ABoxUtil {
 	}
 
 
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> void checkLinkConsistency(
-		final IABox<Name, Klass, Role> abox)
-		throws EInconsistentABoxException
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  void checkLinkConsistency(
+		final IABox<I, L, K, R> abox) throws EInconsistentABoxException
 	{
-		for (final IABoxNode<Name, Klass, Role> node : abox) {
+		for (final IABoxNode<I, L, K, R> node : abox) {
 			final NodeID nodeID = node.getNodeID();
-			for (final Map.Entry<Role, NodeID> predEntry : MultiMapEntryIterable.decorate(node.getRABox().
+			for (final Map.Entry<R, NodeID> predEntry : MultiMapEntryIterable.decorate(node.getRABox().
 				getAssertedPredecessors())) {
-				final IABoxNode<Name, Klass, Role> pred = abox.getNode(predEntry.getValue());
+				final IABoxNode<I, L, K, R> pred = abox.getNode(predEntry.getValue());
 				if (pred == null) {
 					throw new EInconsistentABoxException(abox, String.format("node with ID `%s' not part of abox",
 																			 nodeID));
@@ -84,9 +82,9 @@ public class ABoxUtil {
 				}
 			}
 
-			for (final Map.Entry<Role, NodeID> succEntry : MultiMapEntryIterable.decorate(node.getRABox().
+			for (final Map.Entry<R, NodeID> succEntry : MultiMapEntryIterable.decorate(node.getRABox().
 				getAssertedSuccessors())) {
-				final IABoxNode<Name, Klass, Role> succ = abox.getNode(succEntry.getValue());
+				final IABoxNode<I, L, K, R> succ = abox.getNode(succEntry.getValue());
 				if (succ == null) {
 					throw new EInconsistentABoxException(abox, String.format("node with ID `%s' not part of abox",
 																			 nodeID));
@@ -102,13 +100,13 @@ public class ABoxUtil {
 	}
 
 
-	public static <Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>> void checkNodeMapConsistency(
-		final IABox<Name, Klass, Role> abox)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  void checkNodeMapConsistency(
+		final IABox<I, L, K, R> abox)
 		throws EInconsistentABoxException
 	{
 
-		for (Map.Entry<Object, IABoxNode<Name, Klass, Role>> me : abox.getNodeMap().entrySet()) {
-			final IABoxNode<Name, Klass, Role> node = me.getValue();
+		for (Map.Entry<Object, IABoxNode<I, L, K, R>> me : abox.getNodeMap().entrySet()) {
+			final IABoxNode<I, L, K, R> node = me.getValue();
 			if (!abox.equals(node.getABox())) {
 				throw new EInconsistentABoxException(abox, String.format(
 					"Node map entry %s links node outside of ABox: %s", me.getKey(), node));
@@ -123,5 +121,10 @@ public class ABoxUtil {
 					"NodeID name %s does not link back to node with same name: %s", me.getKey(), node));
 			}
 		}
+	}
+
+ ABoxUtil(
+		)
+	{
 	}
 }

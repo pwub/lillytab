@@ -3,23 +3,28 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.dhke.projects.cutil.Pair;
+import de.dhke.projects.cutil.collections.iterator.PairIterable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
-import de.dhke.projects.cutil.collections.iterator.PairIterable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,9 +36,9 @@ import org.apache.commons.collections15.list.FixedSizeList;
 import org.apache.commons.collections15.list.TransformedList;
 
 /**
- * <p>
+ *
  * Basic implmementation {@link ITerm} list with a fixed number of subterms.
- * </p>
+ *
  *
  * @param <Term> The type of the terms
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
@@ -44,13 +49,18 @@ public class AbstractFixedTermList<Term extends ITerm>
 	private static final long serialVersionUID = 7141058164156591514L;
 	private final List<Term> _modifiableBackend;
 	private final List<Term> _backend;
+	/**
+	 * Hashcode is cached for term lists, this should improve performance.
+	 *
+	 */
+	private int _hashCode = 0;
 
 
 	/**
-	 * <p>
+	 *
 	 * Construct a new {@link AbstractFixedTermList} using {@literal backend} as the backend list.
-	 * </p><p> {@literal backend} Must already be of the desired size.
-	 * </p>
+	 * <p /> {@literal backend} Must already be of the desired size.
+	 *
 	 *
 	 * @param backend The backend list to use. Must be of the desired size.
 	 */
@@ -62,10 +72,10 @@ public class AbstractFixedTermList<Term extends ITerm>
 
 
 	/**
-	 * <p>
+	 *
 	 * Construct a new {@link AbstractFixedTermList} using an {@link ArrayList} for backend storage. The list will be
 	 * filled with {@literal null}s up to the desired number of elements.
-	 * </p>
+	 *
 	 *
 	 * @param size The desired size of the term list.
 	 */
@@ -88,11 +98,180 @@ public class AbstractFixedTermList<Term extends ITerm>
 		}
 		return equals(this, obj);
 	}
-	/**
-	 * Hashcode is cached for term lists, this should improve performance.
-	 *
-	 */
-	private int _hashCode = 0;
+
+	/// <editor-fold defaultstate="collapsed" desc="ITermList<Term>">
+
+	@Override
+	public List<ITerm> getTermList()
+	{
+		return TransformedList.decorate(this, new Transformer<Term, ITerm>() {
+			@Override
+			public ITerm transform(Term input)
+			{
+				return input;
+			}
+		});
+	}
+
+
+	public List<Term> getModifiableTermList()
+	{
+		return _modifiableBackend;
+	}
+
+
+	@Override
+	public int size()
+	{
+		return _backend.size();
+	}
+
+
+	@Override
+	public boolean isEmpty()
+	{
+		return _backend.isEmpty();
+	}
+
+
+	@Override
+	public boolean contains(final Object o)
+	{
+		return _backend.contains(o);
+	}
+
+
+	@Override
+	public Iterator<Term> iterator()
+	{
+		return _backend.iterator();
+	}
+
+
+	@Override
+	public Object[] toArray()
+	{
+		return _backend.toArray();
+	}
+
+
+	@Override
+	public <T> T[] toArray(final T[] a)
+	{
+		return _backend.toArray(a);
+	}
+
+
+	@Override
+	public boolean add(final Term e)
+	{
+		return _backend.add(e);
+	}
+
+
+	@Override
+	public boolean remove(final Object o)
+	{
+		return _backend.remove(o);
+	}
+
+
+	@Override
+	public boolean containsAll(final Collection<?> c)
+	{
+		return _backend.containsAll(c);
+	}
+
+
+	@Override
+	public boolean addAll(final Collection<? extends Term> c)
+	{
+		return _backend.addAll(c);
+	}
+
+
+	@Override
+	public boolean addAll(final int index, final Collection<? extends Term> c)
+	{
+		return _backend.addAll(index, c);
+	}
+
+
+	@Override
+	public boolean removeAll(final Collection<?> c)
+	{
+		return _backend.removeAll(c);
+	}
+
+
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		return _backend.retainAll(c);
+	}
+
+
+	@Override
+	public void clear()
+	{
+		_backend.clear();
+	}
+
+
+	@Override
+	public Term get(final int index)
+	{
+		return _backend.get(index);
+	}
+
+
+	@Override
+	public Term set(final int index, final Term element)
+	{
+		return _backend.set(index, element);
+	}
+
+
+	@Override
+	public void add(final int index, final Term element)
+	{
+		_backend.add(index, element);
+	}
+
+
+	@Override
+	public Term remove(final int index)
+	{
+		return _backend.remove(index);
+	}
+
+
+	@Override
+	public int indexOf(final Object o)
+	{
+		return _backend.indexOf(o);
+	}
+
+
+	@Override
+	public int lastIndexOf(final Object o)
+	{
+		return _backend.lastIndexOf(o);
+	}
+
+
+	@Override
+	public ListIterator<Term> listIterator()
+	{
+		return _backend.listIterator();
+	}
+
+
+	@Override
+	public ListIterator<Term> listIterator(final int index)
+	{
+		return _backend.listIterator(index);
+	}
 
 
 	@Override
@@ -111,9 +290,9 @@ public class AbstractFixedTermList<Term extends ITerm>
 
 
 	/**
-	 * <p>
+	 *
 	 * Compare the the {@link ITermList} {@literal tl0} to the object {@literal o1}.
-	 * </p>
+	 *
 	 *
 	 * @param <T> The type of the {@link ITermList}'s elements.
 	 * @param tl0 The {@link ITermList} to compare.
@@ -141,166 +320,8 @@ public class AbstractFixedTermList<Term extends ITerm>
 		}
 	}
 
-	/// <editor-fold defaultstate="collapsed" desc="ITermList<Term>">
 
-	/**
-	 * <p>
-	 * Retreive a proper list of {@link ITerm}s.
-	 * </p>
-	 *
-	 * @return A list of {@link ITerm} wrapping the current list.
-	 */
-	public List<ITerm> getTermList()
-	{
-		return TransformedList.decorate(this,
-										new Transformer<Term, ITerm>() {
-			public ITerm transform(Term input)
-			{
-				return input;
-			}
-		});
-	}
-
-
-	public List<Term> getModifiableTermList()
-	{
-		return _modifiableBackend;
-	}
-
-
-	public int size()
-	{
-		return _backend.size();
-	}
-
-
-	public boolean isEmpty()
-	{
-		return _backend.isEmpty();
-	}
-
-
-	public boolean contains(final Object o)
-	{
-		return _backend.contains(o);
-	}
-
-
-	public Iterator<Term> iterator()
-	{
-		return _backend.iterator();
-	}
-
-
-	public Object[] toArray()
-	{
-		return _backend.toArray();
-	}
-
-
-	public <T> T[] toArray(final T[] a)
-	{
-		return _backend.toArray(a);
-	}
-
-
-	public boolean add(final Term e)
-	{
-		return _backend.add(e);
-	}
-
-
-	public boolean remove(final Object o)
-	{
-		return _backend.remove(o);
-	}
-
-
-	public boolean containsAll(final Collection<?> c)
-	{
-		return _backend.containsAll(c);
-	}
-
-
-	public boolean addAll(final Collection<? extends Term> c)
-	{
-		return _backend.addAll(c);
-	}
-
-
-	public boolean addAll(final int index,
-						  final Collection<? extends Term> c)
-	{
-		return _backend.addAll(index, c);
-	}
-
-
-	public boolean removeAll(final Collection<?> c)
-	{
-		return _backend.removeAll(c);
-	}
-
-
-	public boolean retainAll(final Collection<?> c)
-	{
-		return _backend.retainAll(c);
-	}
-
-
-	public void clear()
-	{
-		_backend.clear();
-	}
-
-
-	public Term get(final int index)
-	{
-		return _backend.get(index);
-	}
-
-
-	public Term set(final int index, final Term element)
-	{
-		return _backend.set(index, element);
-	}
-
-
-	public void add(final int index, final Term element)
-	{
-		_backend.add(index, element);
-	}
-
-
-	public Term remove(final int index)
-	{
-		return _backend.remove(index);
-	}
-
-
-	public int indexOf(final Object o)
-	{
-		return _backend.indexOf(o);
-	}
-
-
-	public int lastIndexOf(final Object o)
-	{
-		return _backend.lastIndexOf(o);
-	}
-
-
-	public ListIterator<Term> listIterator()
-	{
-		return _backend.listIterator();
-	}
-
-
-	public ListIterator<Term> listIterator(final int index)
-	{
-		return _backend.listIterator(index);
-	}
-
-
+	@Override
 	public List<Term> subList(final int fromIndex, final int toIndex)
 	{
 		return _backend.subList(fromIndex, toIndex);

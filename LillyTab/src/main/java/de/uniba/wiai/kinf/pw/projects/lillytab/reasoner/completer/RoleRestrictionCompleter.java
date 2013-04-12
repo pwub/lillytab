@@ -3,33 +3,38 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
- * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
- * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
- * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
- * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- *
- */
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.dhke.projects.cutil.Pair;
 import de.dhke.projects.cutil.collections.tree.IDecisionTree;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EInconsistentABoxNodeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import java.util.Collection;
 
@@ -37,16 +42,16 @@ import java.util.Collection;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class RoleRestrictionCompleter<Name extends Comparable<? super Name>, Klass extends Comparable<? super Klass>, Role extends Comparable<? super Role>>
-	extends AbstractCompleter<Name, Klass, Role> {
+public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+	extends AbstractCompleter<I, L, K, R> {
 
-	public RoleRestrictionCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker)
+	public RoleRestrictionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		super(cChecker);
 	}
 
 
-	public RoleRestrictionCompleter(final INodeConsistencyChecker<Name, Klass, Role> cChecker, final boolean trace)
+	public RoleRestrictionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
@@ -62,17 +67,16 @@ public class RoleRestrictionCompleter<Name extends Comparable<? super Name>, Kla
 	 * @throws EReasonerException
 	 */
 	@Override
-	public ReasonerContinuationState completeNode(final IABoxNode<Name, Klass, Role> node,
-												  final IDecisionTree.Node<Branch<Name, Klass, Role>> branchNode)
+	public ReasonerContinuationState completeNode(final IDecisionTree.Node<Branch<I, L, K, R>> branchNode, final IABoxNode<I, L, K, R> node)
 		throws EReasonerException
 	{
-		final Branch<Name, Klass, Role> branch = branchNode.getData();
-		for (Pair<Role, NodeID> incoming : node.getRABox().getPredecessorPairs()) {
-			final Collection<IDLRestriction<Name, Klass, Role>> range = branch.getABox().getTBox().getRBox().
+		final Branch<I, L, K, R> branch = branchNode.getData();
+		for (Pair<R, NodeID> incoming : node.getRABox().getPredecessorPairs()) {
+			final Collection<IDLRestriction<I, L, K, R>> range = branch.getABox().getTBox().getRBox().
 				getRoleRanges(incoming.getFirst());
 			if ((range != null) && (!node.getTerms().containsAll(range))) {
 				try {
-					final NodeMergeInfo<Name, Klass, Role> mergeInfo = node.addUnfoldedDescriptions(range);
+					final NodeMergeInfo<I, L, K, R> mergeInfo = node.addTerms(range);
 					if (mergeInfo.isModified(node)) {
 						/**
 						 * the current node was merged away, stop processing, recheck queues
@@ -81,18 +85,19 @@ public class RoleRestrictionCompleter<Name extends Comparable<? super Name>, Kla
 						return ReasonerContinuationState.RECHECK_NODE;
 					}
 				} catch (ENodeMergeException ex) {
+					/* XXX - this be narrowed down to an individual term */
 					branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
 					branch.getConsistencyInfo().addCulprits(node, range);
 					return ReasonerContinuationState.INCONSISTENT;
 				}
 			}
 		}
-		for (Pair<Role, NodeID> outgoing : node.getRABox().getSuccessorPairs()) {
-			final Collection<IDLRestriction<Name, Klass, Role>> domain = branch.getABox().getTBox().getRBox().
+		for (Pair<R, NodeID> outgoing : node.getRABox().getSuccessorPairs()) {
+			final Collection<IDLClassExpression<I, L, K, R>> domain = branch.getABox().getTBox().getRBox().
 				getRoleDomains(outgoing.getFirst());
 			try {
 				if ((domain != null) && (!node.getTerms().containsAll(domain))) {
-					final NodeMergeInfo<Name, Klass, Role> mergeInfo = node.addUnfoldedDescriptions(domain);
+					final NodeMergeInfo<I, L, K, R> mergeInfo = node.addTerms(domain);
 					if (mergeInfo.isModified(node)) {
 						/**
 						 * the current node was merged away, stop processing, recheck queues
@@ -101,7 +106,8 @@ public class RoleRestrictionCompleter<Name extends Comparable<? super Name>, Kla
 						return ReasonerContinuationState.RECHECK_NODE;
 					}
 				}
-			} catch (ENodeMergeException ex) {
+			} catch (ENodeMergeException | EIllegalTermTypeException ex) {
+				/* XXX - this be narrowed down to an individual term */
 				branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
 				branch.getConsistencyInfo().addCulprits(node, domain);
 				return ReasonerContinuationState.INCONSISTENT;

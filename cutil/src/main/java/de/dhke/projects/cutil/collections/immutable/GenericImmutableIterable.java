@@ -22,7 +22,6 @@
 package de.dhke.projects.cutil.collections.immutable;
 
 import de.dhke.projects.cutil.IDecorator;
-import java.util.Collection;
 import java.util.Iterator;
 import org.apache.commons.collections15.Transformer;
 
