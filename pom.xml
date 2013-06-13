@@ -29,4 +29,8 @@
       </plugin>
     </plugins>
   </build>
+  <scm>
+	  <connection>scm:hg:https://hg.code.sf.net/p/lillytab/code</connection>
+	  <developerConnection>scm:hg:ssh://pwub@hg.code.sf.net/p/lillytab/code</developerConnection>
+  </scm>
 </project>
