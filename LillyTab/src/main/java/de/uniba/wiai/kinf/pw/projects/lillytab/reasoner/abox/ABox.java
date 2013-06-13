@@ -67,6 +67,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+
 /**
  * In-memory copy-on-write implementation of the {@link IABox} interface.
  * <p />
@@ -77,8 +78,8 @@ import java.util.TreeSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IABox<I, L, K, R> {
-
+	implements IABox<I, L, K, R>
+{
 	private static final long serialVersionUID = 3990522176232016954L;
 	private static final boolean TO_STRING_ID_ONLY = false;
 	/**
@@ -136,7 +137,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	private final List<INodeMergeListener<I, L, K, R>> _nodeMergeListeners = new ArrayList<>();
 
 	/// <editor-fold defaultstate="collapsed" desc="constructors">
-
 	public ABox(
 		final ABoxCommon<I, L, K, R> commons)
 	{
@@ -154,7 +154,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		_tbox = new TBox<>(_common.getTermFactory());
 		_tboxGeneration = _tbox.getGeneration();
 	}
-
 
 	/**
 	 * Create a new ABox, kloning from another ABox.
@@ -182,12 +181,10 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 	/// </editor-fold>	
 
-
 	ABoxCommon<I, L, K, R> getCommon()
 	{
 		return _common;
 	}
-
 
 	@Override
 	public TBox<I, L, K, R> getTBox()
@@ -195,13 +192,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _tbox;
 	}
 
-
 	@Override
 	public IAssertedRBox<I, L, K, R> getAssertedRBox()
 	{
 		return _tbox.getAssertedRBox();
 	}
-
 
 	@Override
 	public IRBox<I, L, K, R> getRBox()
@@ -209,13 +204,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _tbox.getRBox();
 	}
 
-
 	@Override
 	public IBlockingStateCache getBlockingStateCache()
 	{
 		return _blockingStateCache;
 	}
-
 
 	@Override
 	public NodeID getID()
@@ -225,7 +218,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 	/// </editor-fold>
 	/// <editor-fold defaultstate="collapsed" desc="Cloneable">
-
 	/**
 	 * Create a writable clone of the current ABox.
 	 *
@@ -240,7 +232,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="node merging">
-
 	private void moveSuccessors(final IABoxNode<I, L, K, R> source,
 								final IABoxNode<I, L, K, R> target,
 								NodeMergeInfo<I, L, K, R> mergeInfo)
@@ -309,7 +300,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	private void movePredecessors(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target,
 								  NodeMergeInfo<I, L, K, R> mergeInfo)
 	{
@@ -352,7 +342,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 			}
 		}
 	}
-
 
 	private void updateDependencyMap(IABoxNode<I, L, K, R> source,
 									 IABoxNode<I, L, K, R> target)
@@ -422,13 +411,12 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 				newGovTerms.add(newTerm);
 			}
 		}
-		
+
 		/* update dependency map with new temrs */
-		for (TermEntry<I, L, K, R> govTerm: newGovTerms) {
+		for (TermEntry<I, L, K, R> govTerm : newGovTerms) {
 			dependencyMap.addGoverningTerm(govTerm);
 		}
 	}
-
 
 	@Override
 	public boolean canMerge(IABoxNode<I, L, K, R> node1,
@@ -445,7 +433,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 			return true;
 		}
 	}
-
 
 	/**
 	 * Join the two nodes {@literal node1} and {@literal node2} into a single node. The result of the join is a single
@@ -563,7 +550,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	/**
 	 * Notify all node merge listeners of an immanent node merge.
 	 *
@@ -582,7 +568,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public List<INodeMergeListener<I, L, K, R>> getNodeMergeListeners()
 	{
@@ -591,20 +576,17 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="Collection factories">
-
 	@Override
 	public ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory()
 	{
 		return _common.getNodeIDSetFactory();
 	}
 
-
 	@Override
 	public IDLTermFactory<I, L, K, R> getDLTermFactory()
 	{
 		return _common.getTermFactory();
 	}
-
 
 	@Override
 	public TermEntryFactory<I, L, K, R> getTermEntryFactory()
@@ -614,13 +596,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="toString()">
-
 	@Override
 	public String toString()
 	{
 		return toString("");
 	}
-
 
 	public String toString(final int indent)
 	{
@@ -628,7 +608,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		Arrays.fill(fill, ' ');
 		return new String(fill);
 	}
-
 
 	@Override
 	public String toString(final String prefix)
@@ -639,7 +618,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 			int capacity = 0;
 			if (!isEmpty()) {
-				capacity = size() * first().toString().length();
+				capacity = size() * iterator().next().toString().length();
 			}
 			StringBuilder sb = new StringBuilder(capacity);
 
@@ -676,14 +655,12 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="Node set and node map">
-
 	@Override
 	public Map<Object, IABoxNode<I, L, K, R>> getNodeMap()
 	{
 		/* XXX - returns a modifiable node map */
 		return Collections.unmodifiableMap(_nodeMap);
 	}
-
 
 	@Override
 	public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode)
@@ -696,7 +673,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public IIndividualABoxNode<I, L, K, R> createIndividualNode()
 		throws ENodeMergeException
@@ -708,7 +684,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return (IndividualABoxNode<I, L, K, R>) mergeInfo.getCurrentNode();
 	}
 
-
 	@Override
 	public IDatatypeABoxNode<I, L, K, R> createDatatypeNode()
 	{
@@ -717,7 +692,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		add(newNode);
 		return newNode;
 	}
-
 
 	@Override
 	public IDatatypeABoxNode<I, L, K, R> getOrAddDatatypeNode(L literal)
@@ -737,7 +711,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public IIndividualABoxNode<I, L, K, R> getOrAddIndividualNode(final I individual)
 		throws ENodeMergeException
@@ -756,13 +729,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public IABoxNode<I, L, K, R> getNode(final NodeID id)
 	{
 		return _nodeMap.get(id);
 	}
-
 
 	@Override
 	public IDatatypeABoxNode<I, L, K, R> getDatatypeNode(L literal)
@@ -770,13 +741,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return (IDatatypeABoxNode<I, L, K, R>) _nodeMap.get(literal);
 	}
 
-
 	@Override
 	public IIndividualABoxNode<I, L, K, R> getIndividualNode(I individual)
 	{
 		return (IIndividualABoxNode<I, L, K, R>) _nodeMap.get(individual);
 	}
-
 
 	@Override
 	public List<ICollectionListener<IABoxNode<I, L, K, R>, Collection<IABoxNode<I, L, K, R>>>> getNodeSetListeners()
@@ -786,56 +755,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 	/// </editor-fold>
 	/// <editor-fold defaultstate="collapsed" desc="SortedSet<ABoxNode<I, L, K, R>>">
-
-	@Override
-	public Comparator<? super IABoxNode<I, L, K, R>> comparator()
-	{
-		return null;
-	}
-
-
-	@Override
-	public SortedSet<IABoxNode<I, L, K, R>> subSet(final IABoxNode<I, L, K, R> fromElement,
-												   final IABoxNode<I, L, K, R> toElement)
-	{
-		return _nodes.subSet(fromElement, toElement);
-	}
-
-
-	@Override
-	public SortedSet<IABoxNode<I, L, K, R>> headSet(final IABoxNode<I, L, K, R> toElement)
-	{
-		return _nodes.headSet(toElement);
-	}
-
-
-	@Override
-	public SortedSet<IABoxNode<I, L, K, R>> tailSet(final IABoxNode<I, L, K, R> fromElement)
-	{
-		return _nodes.tailSet(fromElement);
-	}
-
-
-	@Override
-	public IABoxNode<I, L, K, R> first()
-	{
-		return _nodes.first();
-	}
-
-
-	@Override
-	public IABoxNode<I, L, K, R> last()
-	{
-		return _nodes.last();
-	}
-
-
 	@Override
 	public int size()
 	{
 		return _nodes.size();
 	}
-
 
 	@Override
 	public boolean isEmpty()
@@ -843,13 +767,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _nodes.isEmpty();
 	}
 
-
 	@Override
 	public boolean contains(final Object o)
 	{
 		return _nodes.contains(o);
 	}
-
 
 	@Override
 	public Iterator<IABoxNode<I, L, K, R>> iterator()
@@ -859,13 +781,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return iter;
 	}
 
-
 	@Override
 	public Object[] toArray()
 	{
 		return _nodes.toArray();
 	}
-
 
 	@Override
 	public <T> T[] toArray(final T[] a)
@@ -873,13 +793,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _nodes.toArray(a);
 	}
 
-
 	@Override
 	public boolean add(final IABoxNode<I, L, K, R> e)
 	{
 		return _nodes.add(e);
 	}
-
 
 	@Override
 	public boolean remove(final Object o)
@@ -887,13 +805,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _nodes.remove(o);
 	}
 
-
 	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return _nodes.containsAll(c);
 	}
-
 
 	@Override
 	public boolean addAll(final Collection<? extends IABoxNode<I, L, K, R>> c)
@@ -901,20 +817,17 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _nodes.addAll(c);
 	}
 
-
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		return _nodes.retainAll(c);
 	}
 
-
 	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		return _nodes.removeAll(c);
 	}
-
 
 	@Override
 	public void clear()
@@ -924,7 +837,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 	/// </editor-fold>
 	/// <editor-fold defaultstate="collapsed" desc="deep compare">
-
 	@Override
 	public int deepHashCode()
 	{
@@ -935,7 +847,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		hashCode += 5 * getBlockingStateCache().hashCode();
 		return hashCode;
 	}
-
 
 	@Override
 	public boolean deepEquals(Object obj)
@@ -970,7 +881,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="element collection">
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Set<K> getClassesInSignature()
@@ -998,7 +908,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 		return classes;
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -1030,18 +939,23 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="node set listener">
-
 	@Override
 	public List<ITermSetListener<I, L, K, R>> getTermSetListeners()
 	{
 		return _termSetListeners;
 	}
 
-
 	protected TermChangeEvent<I, L, K, R> notifyTermAdded(final IABoxNode<I, L, K, R> node,
 														  final IDLTerm<I, L, K, R> term)
 	{
+		if (term instanceof IDLIndividualReference) {
+			_nodeMap.put(((IDLIndividualReference<I, L, K, R>) term).getIndividual(), node);
+		} else if (term instanceof IDLLiteralReference) {
+			_nodeMap.put(((IDLLiteralReference<I, L, K, R>) term).getLiteral(), node);
+		}
+
 		final TermChangeEvent<I, L, K, R> ev = new TermChangeEvent<>(this, node, term);
+
 		if (!_termSetListeners.isEmpty()) {
 			for (ITermSetListener<I, L, K, R> listener : _termSetListeners) {
 				listener.termAdded(ev);
@@ -1050,10 +964,15 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return ev;
 	}
 
-
 	public TermChangeEvent<I, L, K, R> notifyTermRemoved(final IABoxNode<I, L, K, R> node,
 														 final IDLTerm<I, L, K, R> term)
 	{
+		if (term instanceof IDLIndividualReference) {
+			_nodeMap.remove(((IDLIndividualReference<I, L, K, R>) term).getIndividual());
+		} else if (term instanceof IDLLiteralReference) {
+			_nodeMap.remove(((IDLLiteralReference<I, L, K, R>) term).getLiteral());
+		}
+
 		final TermChangeEvent<I, L, K, R> ev = new TermChangeEvent<>(this, node, term);
 		if (!_termSetListeners.isEmpty()) {
 			for (ITermSetListener<I, L, K, R> listener : _termSetListeners) {
@@ -1062,7 +981,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return ev;
 	}
-
 
 	public ABoxNodeEvent<I, L, K, R> notifyTermSetCleared(final IABoxNode<I, L, K, R> node)
 	{
@@ -1090,7 +1008,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="IImmutable">
-
 	@Override
 	public IABox<I, L, K, R> getImmutable()
 	{
@@ -1137,7 +1054,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 //			_tboxGeneration = tbox.getGeneration();
 //		}
 //	}
-
 	@Override
 	public boolean containsAllTermEntries(Collection<TermEntry<I, L, K, R>> entries)
 	{
@@ -1149,7 +1065,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return true;
 	}
 
-
 	@Override
 	public boolean containsTermEntry(TermEntry<I, L, K, R> entry)
 	{
@@ -1158,23 +1073,10 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 	/// <editor-fold defaultstate="collapsed" desc="DependencyMap">
 
-
 	@Override
 	public DependencyMap<I, L, K, R> getDependencyMap()
 	{
 		return _dependencyMap;
-	}
-
-
-	protected boolean removeNoUnlink(final ABoxNode<?, I, L, K, R> node)
-	{
-		return _nodes.removeNoUnlink(node);
-	}
-
-
-	protected boolean addNoUnlink(final ABoxNode<?, I, L, K, R> node)
-	{
-		return _nodes.addNoUnlink(node);
 	}
 	/// </editor-fold>
 }

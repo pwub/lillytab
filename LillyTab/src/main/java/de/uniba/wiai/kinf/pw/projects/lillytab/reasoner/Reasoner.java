@@ -34,17 +34,15 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IIndividualABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.DoubleBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.SubsetBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.ForAllCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.FunctionalRoleMergeCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.IntersectionCompleter;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.InverseRoleAssertionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.RoleRestrictionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SemanticUnionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SomeCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SymmetricRoleCompleter;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.TransitiveRoleCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.TransitiveCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.UnionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
@@ -59,6 +57,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+
 
 /**
  * An implementation of an SHOIF(D) satisfiability tester. <p /> This class serves as a consistency checker for
@@ -78,12 +77,11 @@ import java.util.List;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractReasoner<I, L, K, R> {
+	extends AbstractReasoner<I, L, K, R>
+{
 	// private ABox<I, L, K, R> _initialAbox;
-
 	private ReasonerOptions _reasonerOptions;
 	private INodeConsistencyChecker<I, L, K, R> _nodeConsistencyChecker;
-
 
 	public Reasoner(
 		final INodeConsistencyChecker<I, L, K, R> cChecker,
@@ -93,13 +91,11 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		_reasonerOptions = reasonerOptions;
 	}
 
-
 	public Reasoner(
 		final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		this(cChecker, new ReasonerOptions());
 	}
-
 
 	public Reasoner(final ReasonerOptions options)
 	{
@@ -107,12 +103,10 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		_reasonerOptions = options;
 	}
 
-
 	public Reasoner()
 	{
 		this(new ReasonerOptions());
 	}
-
 
 	/**
 	 * Setup suitable non-generating completers to perform consistency checking on {@literal abox}.
@@ -143,12 +137,13 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			add(new ForAllCompleter<>(getNodeConsistencyChecker(), getReasonerOptions().isTracing()));
 
 		if (!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.TRANSITIVE))) {
-			nonGeneratingCompleters.add(new TransitiveRoleCompleter<>(_nodeConsistencyChecker, getReasonerOptions().
+			nonGeneratingCompleters.add(new TransitiveCompleter<>(_nodeConsistencyChecker, getReasonerOptions().
 				isTracing()));
 		}
 		if (!CollectionUtil.isNullOrEmpty((rbox.getRoles(RoleProperty.SYMMETRIC)))) {
-			nonGeneratingCompleters.add(new SymmetricRoleCompleter<>(_nodeConsistencyChecker, getReasonerOptions().
-				isTracing()));
+			throw new IllegalArgumentException("Symmetric roles are not supported, yet");
+//			nonGeneratingCompleters.add(new SymmetricRoleCompleter<>(_nodeConsistencyChecker, getReasonerOptions().
+//				isTracing()));		
 		}
 
 
@@ -161,13 +156,14 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 
 		if (rbox.hasInverseRoles()) {
-			nonGeneratingCompleters.
-				add(new InverseRoleAssertionCompleter<>(_nodeConsistencyChecker, getReasonerOptions().isTracing()));
+			throw new IllegalArgumentException("Inverse roles are not supported, yet");
 		}
 
 
-		if ((!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.FUNCTIONAL))
-			|| (!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.INVERSE_FUNCTIONAL))))) {
+		if (!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.INVERSE_FUNCTIONAL))) {
+			throw new IllegalArgumentException("Inverse functional roles are not supported, yet");
+		}
+		if (!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.FUNCTIONAL))) {
 			nonGeneratingCompleters.add(new FunctionalRoleMergeCompleter<>(_nodeConsistencyChecker,
 																		   getReasonerOptions().
 				isTracing()));
@@ -175,7 +171,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 
 		return nonGeneratingCompleters;
 	}
-
 
 	/**
 	 *
@@ -195,19 +190,9 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	{
 		final List<ICompleter<I, L, K, R>> generatingCompleters = new ArrayList<>();
 
-		final IBlockingStrategy<I, L, K, R> blockingStrategy;
-		if (isNeedDoubleBlocking(abox)) {
-			blockingStrategy = new DoubleBlockingStrategy<>();
-		} else {
-			blockingStrategy = new SubsetBlockingStrategy<>();
-		}
-
-
-		generatingCompleters.add(new SomeCompleter<>(getNodeConsistencyChecker(),
-													 blockingStrategy, getReasonerOptions().isTracing()));
+		generatingCompleters.add(new SomeCompleter<>(getNodeConsistencyChecker(), getReasonerOptions().isTracing()));
 		return generatingCompleters;
 	}
-
 
 	/**
 	 *
@@ -223,7 +208,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	}
 
 	/// <editor-fold defaultstate="collapsed" desc="Prepare functions">
-
 	/**
 	 * Update the {@literal abox} for expansion. All global concepts that cannot be undolfded lazily are propagated into
 	 * the existing nodes. Scan the node for unfoldable concepts and unfoled them recursively.
@@ -274,7 +258,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 //		branchQueue.add(initialBranch);
 //		return branchQueue;
 //	}
-
 	private BranchTree<I, L, K, R> prepareBranchTree(final Branch<I, L, K, R> initialBranch)
 	{
 		final BranchTree<I, L, K, R> branchTree = new BranchTree<>();
@@ -283,7 +266,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	}
 
 	/// </editor-fold>
-
 	@Override
 	public Collection<? extends IReasonerResult<I, L, K, R>> checkConsistency(final IABox<I, L, K, R> abox,
 																			  final IDLClassExpression<I, L, K, R> concept,
@@ -310,9 +292,9 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		final BranchTree<I, L, K, R> branchTree = new BranchTree<>();
 		branchTree.fork(branchTree.getRoot(), initialBranch);
 
-		return complete(branchTree, nonGeneratingCompleters, generatingCompleters, stopAtFirstModel);
+		final IBlockingStrategy<I, L, K, R> blockingStrategy = new SubsetBlockingStrategy<>();
+		return complete(branchTree, nonGeneratingCompleters, generatingCompleters, blockingStrategy, stopAtFirstModel);
 	}
-
 
 	@Override
 	public Collection<? extends IReasonerResult<I, L, K, R>> checkConsistency(final IABox<I, L, K, R> abox,
@@ -328,9 +310,11 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 				initialBranch.getABox());
 
+			final IBlockingStrategy<I, L, K, R> blockingStrategy = new SubsetBlockingStrategy<>();
 			final Collection<? extends IReasonerResult<I, L, K, R>> results = complete(initialBranch,
 																					   nonGeneratingCompleters,
 																					   generatingCompleters,
+																					   blockingStrategy,
 																					   stopAtFirstModel);
 			if (results.isEmpty())
 				throw new EInconsistentABoxException(abox);
@@ -340,7 +324,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			throw new EInconsistentABoxNodeException(ex.getSourceNode());
 		}
 	}
-
 
 	@Override
 	public boolean isSubClassOf(
@@ -373,8 +356,9 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 				final List<ICompleter<I, L, K, R>> nonGeneratingCompleters = getNonGeneratingCompleters(
 					initialBranch.getABox());
 
+				final IBlockingStrategy<I, L, K, R> blockingStrategy = new SubsetBlockingStrategy<>();
 				final Collection<? extends IReasonerResult<I, L, K, R>> results =
-					complete(initialBranch, nonGeneratingCompleters, generatingCompleters, true);
+					complete(initialBranch, nonGeneratingCompleters, generatingCompleters, blockingStrategy, true);
 
 				return results.isEmpty();
 			}
@@ -383,18 +367,19 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 	}
 
-
 	private boolean isConsistent(Branch<I, L, K, R> initialBranch,
 								 final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
 								 final List<ICompleter<I, L, K, R>> generatingCompleters)
 		throws EReasonerException, EInconsistencyException
 	{
-		Collection<? extends IReasonerResult<I, L, K, R>> results = complete(initialBranch,
-																			 nonGeneratingCompleters,
-																			 generatingCompleters, true);
+		final IBlockingStrategy<I, L, K, R> blockingStrategy = new SubsetBlockingStrategy<>();
+
+		final Collection<? extends IReasonerResult<I, L, K, R>> results = complete(initialBranch,
+																				   nonGeneratingCompleters,
+																				   generatingCompleters,
+																				   blockingStrategy, true);
 		return !results.isEmpty();
 	}
-
 
 	@Override
 	public boolean isInDomain(final IABox<I, L, K, R> abox, final IDLClassExpression<I, L, K, R> desc,
@@ -435,7 +420,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 	}
 
-
 	@Override
 	public boolean isInRange(final IABox<I, L, K, R> abox, final IDLClassExpression<I, L, K, R> desc,
 							 final R role)
@@ -471,7 +455,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			throw new EInconsistentABoxNodeException(ex.getSourceNode());
 		}
 	}
-
 
 	@Override
 	public boolean isDisjoint(
@@ -513,11 +496,11 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 	}
 
-
 	private Collection<? extends ReasonerResult<I, L, K, R>> complete(
 		final Branch<I, L, K, R> initialBranch,
 		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
 		final List<ICompleter<I, L, K, R>> generatingCompleters,
+		final IBlockingStrategy<I, L, K, R> blockingStrategy,
 		final boolean stopAtFirstModel)
 		throws EReasonerException
 	{
@@ -528,10 +511,10 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		final Collection<? extends ReasonerResult<I, L, K, R>> reasonerResults = complete(branchTree,
 																						  nonGeneratingCompleters,
 																						  generatingCompleters,
+																						  blockingStrategy,
 																						  stopAtFirstModel);
 		return reasonerResults;
 	}
-
 
 	/**
 	 * Perform completion on all branches below {@literal branchPoint}.
@@ -546,6 +529,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		final BranchTree<I, L, K, R> branchTree,
 		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
 		final List<ICompleter<I, L, K, R>> generatingCompleters,
+		final IBlockingStrategy<I, L, K, R> blockingStrategy,
 		final boolean stopAtFirstModel)
 		throws EReasonerException
 	{
@@ -555,7 +539,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		while ((branchNode != null) && ((!stopAtFirstModel) || reasonerResults.isEmpty())) {
 			final ReasonerContinuationState contState = completeBranch(branchNode,
 																	   nonGeneratingCompleters,
-																	   generatingCompleters);
+																	   generatingCompleters, blockingStrategy);
 			if (contState == ReasonerContinuationState.DONE) {
 				/* store completed branch, but only if it is consistent. */
 				if (!branchNode.getData().getConsistencyInfo().isInconsistent()) {
@@ -589,7 +573,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		return reasonerResults;
 	}
 
-
 	/**
 	 * Pick the first branch from {@literal branchQueue} and perform ABox completion on its {@link IABox}. <p />
 	 * Completition rules are applied according to the following algorithm. <ul>
@@ -621,7 +604,8 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	private ReasonerContinuationState completeBranch(
 		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
 		final List<ICompleter<I, L, K, R>> nonGeneratingCompleters,
-		final List<ICompleter<I, L, K, R>> generatingCompleters)
+		final List<ICompleter<I, L, K, R>> generatingCompleters,
+		final IBlockingStrategy<I, L, K, R> blockingStrategy)
 		throws EReasonerException
 	{
 		int nLoops = 0;
@@ -641,23 +625,25 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		while (branch.hasMoreNonGeneratingNodes() || branch.hasMoreGeneratingNodes()) {
 			while (branch.hasMoreNonGeneratingNodes()) {
 				final IABoxNode<I, L, K, R> nextNonGenNode = branch.nextNonGeneratingNode();
-				final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().
-					isConsistent(nextNonGenNode);
-				if (cInfo.isFinallyInconsistent()) {
-					branch.upgradeConsistencyInfo(cInfo);
-					return ReasonerContinuationState.INCONSISTENT;
-				} else {
-					/**
-					 * Run any non-generating completers until one of them signals that we have to recheck to node queue
-					 * or branch tree, or we run out of nodes on the non-generating queue.
-					 */
-					for (ICompleter<I, L, K, R> nonGenCompleter : nonGeneratingCompleters) {
-						final ReasonerContinuationState contState = nonGenCompleter.completeNode(
-							branchNode, nextNonGenNode);
-						if ((contState == ReasonerContinuationState.RECHECK_BRANCH) || (contState == ReasonerContinuationState.INCONSISTENT)) {
-							return contState;
-						} else if (contState == ReasonerContinuationState.RECHECK_NODE) {
-							break;
+				if (!blockingStrategy.isBlocked(nextNonGenNode)) {
+					final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().
+						isConsistent(nextNonGenNode);
+					if (cInfo.isFinallyInconsistent()) {
+						branch.upgradeConsistencyInfo(cInfo);
+						return ReasonerContinuationState.INCONSISTENT;
+					} else {
+						/**
+						 * Run any non-generating completers until one of them signals that we have to recheck to node queue
+						 * or branch tree, or we run out of nodes on the non-generating queue.
+						 */
+						for (ICompleter<I, L, K, R> nonGenCompleter : nonGeneratingCompleters) {
+							final ReasonerContinuationState contState = nonGenCompleter.completeNode(
+								branchNode, nextNonGenNode);
+							if ((contState == ReasonerContinuationState.RECHECK_BRANCH) || (contState == ReasonerContinuationState.INCONSISTENT)) {
+								return contState;
+							} else if (contState == ReasonerContinuationState.RECHECK_NODE) {
+								break;
+							}
 						}
 					}
 				}
@@ -674,7 +660,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			boolean wasGenerated = false;
 			do {
 				nextGenNode = branch.nextGeneratingNode();
-				if (nextGenNode != null) {
+				if ((nextGenNode != null) && (!blockingStrategy.isBlocked(nextGenNode))) {
 					final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().isConsistent(
 						nextGenNode);
 					if (cInfo.isFinallyInconsistent()) {
@@ -713,7 +699,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		return ReasonerContinuationState.DONE;
 	}
 
-
 	private IDecisionTree.Node<Branch<I, L, K, R>> pickBranch(final BranchTree<I, L, K, R> branchTree)
 	{
 		/*
@@ -721,7 +706,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		 */
 		return branchTree.firstLeaf();
 	}
-
 
 	private void pruneBranchTree(
 		final BranchTree<I, L, K, R> branchTree,
@@ -746,7 +730,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 	}
 
-
 	/**
 	 * @return the _nodeConsistencyChecker
 	 */
@@ -754,7 +737,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	{
 		return _nodeConsistencyChecker;
 	}
-
 
 	/**
 	 * @param nodeConsistencyChecker the _nodeConsistencyChecker to set
@@ -764,7 +746,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		this._nodeConsistencyChecker = nodeConsistencyChecker;
 	}
 
-
 	/**
 	 * @return the _reasonerOptions
 	 */
@@ -773,14 +754,12 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		return _reasonerOptions;
 	}
 
-
 	public void setReasonerOptions(ReasonerOptions reasonerOptions)
 	{
 		this._reasonerOptions = reasonerOptions;
 	}
 
 /// </editor-fold>
-
 	protected boolean isNeedDoubleBlocking(final IABox<I, L, K, R> abox)
 	{
 		return abox.getTBox().getRBox().hasInverseRoles();

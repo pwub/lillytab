@@ -37,6 +37,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
@@ -100,8 +101,7 @@ public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparab
 			final Branch<I, L, K, R> branch = branchNode.getData();
 			final IABox<I, L, K, R> abox = branch.getABox();
 			final boolean wasGovTerm = abox.getDependencyMap().hasGoverningTerm(node, term);
-			abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().getEntry(node, term));
-			
+
 			/**
 			 * This causes _Thing_ to be inserted after a term was moved.
 			 * This is only necessary, if the node has no other governing term.
@@ -153,9 +153,16 @@ public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparab
 								}
 							}
 
-							/* eventually move governing term description */
-							if (wasGovTerm) {
+							/**
+							 * Governing term handling:
+							 * 
+							 * ForAll terms only loose their governing term
+							 * property if the associated role is functional and a successor
+							 * already exists.
+							 **/
+							if (abox.getRBox().hasRoleProperty(role, RoleProperty.FUNCTIONAL) && wasGovTerm) {
 								abox.getDependencyMap().addGoverningTerm(succ, forAllTerm);
+								abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().getEntry(node, term));
 							}
 
 							if (isTracing()) {
@@ -175,7 +182,6 @@ public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparab
 							if (mergeInfo.getMergedNodes().contains(node)) {
 								/**
 								 * The current node was merged with another node: Stop processing, recheck queues.
-								 *
 								 */
 								return ReasonerContinuationState.RECHECK_NODE;
 							} else if (mergeInfo.isModified(node)) {

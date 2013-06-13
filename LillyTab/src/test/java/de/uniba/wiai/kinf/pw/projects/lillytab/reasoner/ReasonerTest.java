@@ -631,60 +631,7 @@ public class ReasonerTest
 		}
 	}
 
-	@Test
-	public void testTransitiveRole()
-		throws ParseException, EReasonerException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.TRANSITIVE);
-		final IDLClassExpression<String, String, String, String> A = _parser.parse("A");
-		IABoxNode<String, String, String, String> a = _abox.getOrAddIndividualNode("a");
-		a.addTerm(_parser.parse("(only r A)"));
-		IABoxNode<String, String, String, String> b = _abox.getOrAddIndividualNode("b");
-		IABoxNode<String, String, String, String> c = _abox.getOrAddIndividualNode("c");
-		a.getRABox().getAssertedSuccessors().put("r", b.getNodeID());
-		b.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
 
-		Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(_abox);
-		assertEquals(1, results.size());
-		for (IReasonerResult<String, String, String, String> result : results) {
-			final IABox<String, String, String, String> abox = result.getABox();
-			a = abox.getIndividualNode("a");
-			b = abox.getIndividualNode("b");
-			c = abox.getIndividualNode("c");
-			assertTrue(a.getRABox().getAssertedSuccessors().containsValue("r", c.getNodeID()));
-
-			// assertFalse(a.getTerms().contains(A));
-			assertTrue(b.getTerms().contains(A));
-			assertTrue(c.getTerms().contains(A));
-		}
-	}
-
-	@Test
-	public void testSymmetricRole()
-		throws ParseException, EReasonerException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.SYMMETRIC);
-		final IDLClassExpression<String, String, String, String> A = _parser.parse("A");
-		IABoxNode<String, String, String, String> a = _abox.getOrAddIndividualNode("a");
-		IABoxNode<String, String, String, String> b = _abox.getOrAddIndividualNode("b");
-		_abox.getTBox().add(_parser.parse("(only r B)"));
-		a.getRABox().getAssertedSuccessors().put("r", b.getNodeID());
-
-		Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(_abox);
-		assertEquals(1, results.size());
-		for (IReasonerResult<String, String, String, String> result : results) {
-			final IABox<String, String, String, String> abox = result.getABox();
-			a = abox.getIndividualNode("a");
-			b = abox.getIndividualNode("b");
-			assertTrue(a.getRABox().getAssertedSuccessors().containsValue("r", b.getNodeID()));
-			assertTrue(b.getRABox().getAssertedSuccessors().containsValue("r", a.getNodeID()));
-			assertTrue(a.getTerms().contains(_parser.parse("B")));
-		}
-	}
 
 	@Test
 	public void testUnionTermsAlreadyPresent()
@@ -829,103 +776,6 @@ public class ReasonerTest
 	 assertFalse(_reasoner.isDomain(_abox, _parser.parse("D"), "r"));
 	 }
 	 */
-	@Test
-	public void testFunctionalRole()
-		throws ParseException, EReasonerException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
-		final IABoxNode<String, String, String, String> node = _abox.createNode(false);
-		node.addTerm(_parser.parse("(some r A)"));
-		node.addTerm(_parser.parse("(some r B)"));
-		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(
-			_abox);
-		for (IReasonerResult<String, String, String, String> result : results) {
-			final IABox<String, String, String, String> abox = result.getABox();
-			assertEquals(2, abox.size());
-		}
-	}
-
-	@Test
-	public void testFunctionalRoleDualLinks()
-		throws ParseException, EReasonerException, ENodeMergeException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
-		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
-		final IABoxNode<String, String, String, String> b = _abox.createNode(false);
-		final IABoxNode<String, String, String, String> c = _abox.createNode(false);
-		a.getRABox().getAssertedSuccessors().put("r", b.getNodeID());
-		a.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
-		assertTrue(_reasoner.isConsistent(_abox));
-	}
-
-	@Test
-	public void testFunctionalRoleDualLinksInconsistent()
-		throws ParseException, EReasonerException, ENodeMergeException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
-		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
-		final IABoxNode<String, String, String, String> b = _abox.createNode(false);
-		b.addTerm(_parser.parse("C"));
-		final IABoxNode<String, String, String, String> c = _abox.createNode(false);
-		c.addTerm(_parser.parse("(not C)"));
-		a.getRABox().getAssertedSuccessors().put("r", b.getNodeID());
-		a.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
-		assertFalse(_reasoner.isConsistent(_abox));
-	}
-
-	@Test
-	public void testFunctionalRolePropagation()
-		throws ParseException, EReasonerException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
-		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
-		final IABoxNode<String, String, String, String> b = _abox.createNode(false);
-		a.getRABox().getAssertedSuccessors().put("r", b.getNodeID());
-		a.addTerm(_parser.parse("(some r A)"));
-		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(
-			_abox);
-		for (IReasonerResult<String, String, String, String> result : results) {
-			final IABox<String, String, String, String> abox = result.getABox();
-			assertEquals(2, abox.size());
-			assertTrue(abox.getNode(b.getNodeID()).getTerms().contains(_termFactory.getDLClassReference("A")));
-		}
-	}
-
-	@Test
-	public void testInverseFunctionalRoleDualLinks()
-		throws ParseException, EReasonerException, ENodeMergeException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.INVERSE_FUNCTIONAL);
-		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
-		final IABoxNode<String, String, String, String> b = _abox.createNode(false);
-		final IABoxNode<String, String, String, String> c = _abox.createNode(false);
-		a.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
-		b.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
-		assertTrue(_reasoner.isConsistent(_abox));
-	}
-
-	@Test
-	public void testInverseFunctionalInconsistentRoleDualLinks()
-		throws ParseException, EReasonerException, ENodeMergeException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.INVERSE_FUNCTIONAL);
-		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
-		a.addTerm(_parser.parse("A"));
-		final IABoxNode<String, String, String, String> b = _abox.createNode(false);
-		b.addTerm(_parser.parse("(not A)"));
-		final IABoxNode<String, String, String, String> c = _abox.createNode(false);
-		a.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
-		b.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
-		assertFalse(_reasoner.isConsistent(_abox));
-	}
 
 	@Test(expected = EIllegalTermTypeException.class)
 	public void testDatatypeNode()
@@ -933,57 +783,6 @@ public class ReasonerTest
 	{
 		final IABoxNode<String, String, String, String> a = _abox.createNode(true);
 		a.addTerm(_parser.parse("(some r A)"));
-	}
-
-	@Test
-	public void testFunctionalRoleMerge()
-		throws ParseException, EReasonerException, EInconsistencyException
-	{
-		/**
-		 * A node with two ephemeral successors that later get merged into one.
-		 *
-		 * c --r-> a \-r-> b
-		 *
-		 * r is functional, this a and b need to be merged.
-		 *
-		 *
-		 */
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
-		final IABoxNode<String, String, String, String> a = _abox.getOrAddIndividualNode("a");
-		final IABoxNode<String, String, String, String> b = _abox.getOrAddIndividualNode("b");
-		final IABoxNode<String, String, String, String> c = _abox.createNode(false);
-
-		c.getRABox().getAssertedSuccessors().put("r", a.getNodeID());
-		c.addTerm(_parser.parse("(some r {b})"));
-
-		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(
-			_abox);
-		for (IReasonerResult<String, String, String, String> result : results) {
-			assertEquals(2, result.getABox().size());
-		}
-	}
-
-	@Test
-	public void testFunctionalRoleMerge2()
-		throws ParseException, EReasonerException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
-		final IABoxNode<String, String, String, String> a = _abox.getOrAddIndividualNode("a");
-		final IABoxNode<String, String, String, String> b = _abox.createNode(false);
-		final IABoxNode<String, String, String, String> c = _abox.createNode(false);
-
-		a.getRABox().getAssertedSuccessors().put("r", b.getNodeID());
-		a.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
-		a.addTerm(_parser.parse("(only r {b})"));
-		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(
-			_abox);
-		for (IReasonerResult<String, String, String, String> result : results) {
-			assertEquals(2, result.getABox().size());
-		}
 	}
 
 	@Test
@@ -1016,42 +815,6 @@ public class ReasonerTest
 		assertTrue(result.getMergeMap().containsValue(b0.getNodeID()));
 	}
 
-	@Test
-	public void testSubRoleLink()
-		throws EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().addRole("sub", RoleType.OBJECT_PROPERTY);
-		IABoxNode<String, String, String, String> a0 = _abox.getOrAddIndividualNode("a0");
-		IABoxNode<String, String, String, String> a1 = _abox.getOrAddIndividualNode("a1");
-		_abox.getAssertedRBox().addSubRole("r", "sub");
-		a0.getRABox().getAssertedSuccessors().put("sub", a1.getNodeID());
-		assertTrue(a0.getRABox().hasSuccessor("r", a1));
-	}
-
-	@Test
-	public void testSubRoleExistsBlock()
-		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
-	{
-		IABoxNode<String, String, String, String> a0 = _abox.getOrAddIndividualNode("a0");
-		a0.addTerm(_parser.parse("(only r A)"));
-		IABoxNode<String, String, String, String> a1 = _abox.getOrAddIndividualNode("a1");
-		a1.addTerm(_parser.parse("A"));
-
-		_abox.getAssertedRBox().addRole("sub", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().addSubRole("r", "sub");
-		a0.getRABox().getAssertedSuccessors().put("sub", a1.getNodeID());
-
-		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(
-			_abox);
-		assertEquals(1, results.size());
-		final IReasonerResult<String, String, String, String> result = results.iterator().next();
-		for (NodeID succID : result.getABox().getNode(a0.getNodeID()).getRABox().getSuccessors("sub")) {
-			assertEquals(a1.getNodeID(), succID);
-		}
-	}
 
 	@Test
 	public void testSomeNominalMerge()
@@ -1196,42 +959,42 @@ public class ReasonerTest
 		assertTrue(results.isEmpty());
 	}
 
-	@Test
-	public void testInverseRolePropagation()
-		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().addRole("rinv", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().addInverseRole("r", "rinv");
-
-		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
-		a.addTerm(_parser.parse("(some r (only rinv A))"));
-		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(
-			_abox);
-		assertEquals(1, results.size());
-		final IABox<String, String, String, String> abox = results.iterator().next().getABox();
-		abox.getNode(a.getNodeID()).getTerms().contains(_parser.parse("A"));
-	}
-
-	@Test
-	public void testInverseRoleDoubleBlocking()
-		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
-	{
-		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().addRole("rinv", RoleType.OBJECT_PROPERTY);
-		_abox.getAssertedRBox().addInverseRole("r", "rinv");
-
-		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
-		_abox.getTBox().add(_parser.parse("(some r _Thing_)"));
-		_abox.getTBox().add(_parser.parse("(some rinv _Thing_)"));
-		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
-			checkConsistency(
-			_abox);
-		assertEquals(1, results.size());
-		final IABox<String, String, String, String> abox = results.iterator().next().getABox();
-		assertEquals(4, abox.size());
-	}
+//	@Test
+//	public void testInverseRolePropagation()
+//		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+//	{
+//		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
+//		_abox.getAssertedRBox().addRole("rinv", RoleType.OBJECT_PROPERTY);
+//		_abox.getAssertedRBox().addInverseRole("r", "rinv");
+//
+//		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
+//		a.addTerm(_parser.parse("(some r (only rinv A))"));
+//		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
+//			checkConsistency(
+//			_abox);
+//		assertEquals(1, results.size());
+//		final IABox<String, String, String, String> abox = results.iterator().next().getABox();
+//		abox.getNode(a.getNodeID()).getTerms().contains(_parser.parse("A"));
+//	}
+//
+//	@Test
+//	public void testInverseRoleDoubleBlocking()
+//		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+//	{
+//		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
+//		_abox.getAssertedRBox().addRole("rinv", RoleType.OBJECT_PROPERTY);
+//		_abox.getAssertedRBox().addInverseRole("r", "rinv");
+//
+//		final IABoxNode<String, String, String, String> a = _abox.createNode(false);
+//		_abox.getTBox().add(_parser.parse("(some r _Thing_)"));
+//		_abox.getTBox().add(_parser.parse("(some rinv _Thing_)"));
+//		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
+//			checkConsistency(
+//			_abox);
+//		assertEquals(1, results.size());
+//		final IABox<String, String, String, String> abox = results.iterator().next().getABox();
+//		assertEquals(4, abox.size());
+//	}
 
 	@Test
 	public void testDataPropertyWithObjectSuccessor()

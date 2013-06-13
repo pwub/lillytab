@@ -128,7 +128,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		boolean isChanged = false;
 		isChanged |= propagateDown(RoleProperty.FUNCTIONAL);
 		isChanged |= propagateDown(RoleProperty.INVERSE_FUNCTIONAL);
-		isChanged |= propagateDown(RoleProperty.TRANSITIVE);
+		isChanged |= propagateUp(RoleProperty.TRANSITIVE);
 		isChanged |= propagateDown(RoleProperty.SYMMETRIC);
 		return isChanged;
 	}
@@ -609,4 +609,22 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return isChanged;
 	}
+	
+	private boolean propagateUp(final RoleProperty prop)
+	{
+		boolean isChanged = false;
+
+		for (R subRole : _superRoles.keySet()) {
+			if (hasRoleProperty(subRole, prop)) {
+				for (R superRole : _superRoles.get(subRole)) {
+					if (!hasRoleProperty(superRole, prop)) {
+						_rolePropertyMap.put(superRole, prop);
+						_propertyRoleMap.put(prop, superRole);
+						isChanged = true;
+					}
+				}
+			}
+		}
+		return isChanged;
+	}	
 }

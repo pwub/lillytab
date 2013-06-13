@@ -39,11 +39,13 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
  */
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentABoxException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking.SubsetBlockingStrategy;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import org.junit.After;
@@ -53,26 +55,24 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SubsetBlockingStrategyTest {
-
-
+public class SubsetBlockingStrategyTest
+{
 	@BeforeClass
 	public static void setUpClass()
 		throws Exception
 	{
 	}
 
-
 	@AfterClass
 	public static void tearDownClass()
 		throws Exception
 	{
 	}
-
 	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
 		_termFactory);
@@ -80,50 +80,49 @@ public class SubsetBlockingStrategyTest {
 	private IABoxNode<String, String, String, String> _aboxNode;
 	private SubsetBlockingStrategy<String, String, String, String> _blockingStrategy;
 
-
 	public SubsetBlockingStrategyTest()
 	{
 	}
-
 
 	@Before
 	public void setUp()
 		throws EInconsistencyException
 	{
 		_abox = _aboxFactory.createABox();
-		_aboxNode = _abox.getOrAddIndividualNode("Node");
+		_aboxNode = _abox.createIndividualNode();
 		_aboxNode.addTerm(_termFactory.getDLClassReference("A"));
 		_blockingStrategy = new SubsetBlockingStrategy<>();
 	}
-
 
 	@After
 	public void tearDown()
 	{
 	}
 
-
 	/**
 	 * Test of getBlockedNodeIDs method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetBlockedNodes()
-		throws EInconsistentABoxException
+		throws EInconsistentABoxException, EInconsistentRBoxException
 	{
+		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
 		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_blockingStrategy.isBlocked(node2));
 		assertEquals(_aboxNode, _blockingStrategy.getBlocker(node2));
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).contains(node2.getNodeID()));
 	}
 
-
 	@Test
-	public void testCloneBlock() throws EInconsistentABoxException
+	public void testCloneBlock() throws EInconsistentABoxException, EInconsistentRBoxException
 	{
+		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
+		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		Branch<String, String, String, String> branch = new Branch<>(_abox, true);
 		assertTrue(_blockingStrategy.isBlocked(node2));
 		assertEquals(_aboxNode, _blockingStrategy.getBlocker(node2));
@@ -137,31 +136,32 @@ public class SubsetBlockingStrategyTest {
 
 	}
 
-
 	// This is an old test. Needs to be refactored.
-
 	//	/**
 	@Test
 	public void testIsBlocked()
-		throws EInconsistentABoxException
+		throws EInconsistentABoxException, EInconsistentRBoxException
 	{
+		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
 		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
+		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		Branch<String, String, String, String> branch = new Branch<>(_abox, true);
 		assertTrue(_blockingStrategy.isBlocked(node2));
 	}
-
 
 	/**
 	 * Test of validateBlocks method, of class IABoxNode.
 	 */
 	@Test
 	public void testValidateBlocks_0args()
-		throws EInconsistentABoxException
+		throws EInconsistentABoxException, EInconsistentRBoxException
 	{
+		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
 		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_blockingStrategy.isBlocked(node2));
 		node2.addTerm(_termFactory.getDLClassReference("B"));
@@ -176,15 +176,17 @@ public class SubsetBlockingStrategyTest {
 		assertFalse(_blockingStrategy.isBlocked(node2));
 	}
 
-/**
+	/**
 	 * Test of getBlocker method, of class IABoxNode.
 	 */
 	@Test
 	public void testGetBlocker()
-		throws EInconsistentABoxException
+		throws EInconsistentABoxException, EInconsistentRBoxException
 	{
+		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
 		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		// Branch<String, String, String, String> branch = new Branch<String, String, String, String>(_abox);
 		assertTrue(_blockingStrategy.isBlocked(node2));

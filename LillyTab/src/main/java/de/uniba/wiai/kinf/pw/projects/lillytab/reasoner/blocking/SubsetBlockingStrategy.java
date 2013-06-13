@@ -26,9 +26,13 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.AbstractBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStateCache;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+
 
 /**
  * An implementation of subset blocking as it is sufficient for description logics without inverse roles.
@@ -38,9 +42,9 @@ import java.util.TreeSet;
  * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends AbstractBlockingStrategy<I, L, K, R> {
-
+public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AbstractBlockingStrategy<I, L, K, R>
+{
 	/**
 	 * 
 	 * Determine, if this node is a potential blocker node for {@literal target}.
@@ -57,16 +61,16 @@ public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends C
 										 final IABoxNode<I, L, K, R> target)
 	{
 		/**
-		 * This node is potentially blocking {@literal target}, if target's set of concept terms is a superset of ours
-		 * i.e. if target is less specific that the current node.#
-		 *
-		 * The size check is a very simple performance trick, that helps for some ontologies (
-		 *
+		 * This node is potentially blocking {@literal target}, 
+		 * if 
+		 * - it is an anonymous node
+		 * - if the target's set of concept terms is a superset of the blocker's (i.e. if target is less specific that the current node.)
+		 * 
+		 * The size check is a very simple performance trick, that helps for some ontologies
 		 */
-		return ((blocker.compareTo(target) < 0) && (blocker.getTerms().size() >= target.getTerms().size())
-			&& blocker.getTerms().containsAll(target.getTerms()));
+		return blocker.isAnonymous() && blocker.getTerms().size() >= target.getTerms().size() && blocker.getTerms().
+			containsAll(target.getTerms());
 	}
-
 
 	@Override
 	public Set<NodeID> validateBlocks(IABoxNode<I, L, K, R> blocker)
@@ -81,13 +85,13 @@ public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends C
 			/* node is sometimes null, happens after merges */
 			if ((blockedNode == null) || (!isPotentialBlocker(blocker, blockedNode))) {
 				// logFinest("'%s' is no longer a blocker for '%s'", node, this);
-				stateCache.setBlocker(blockedNode.getNodeID(), null);
+				if (blockedNode != null)
+					stateCache.setBlocker(blockedNode.getNodeID(), null);
 				unblocked.add(blockedID);
 			}
 		}
 		return unblocked;
 	}
-
 
 	@Override
 	public IABoxNode<I, L, K, R> findBlocker(IABoxNode<I, L, K, R> targetNode)
@@ -96,17 +100,24 @@ public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends C
 		assert abox != null;
 		final IBlockingStateCache stateCache = abox.getBlockingStateCache();
 		/* search for potential blockers */
-		for (IABoxNode<I, L, K, R> testNode : abox.headSet(targetNode)) {
-			/* stop if we hit the current node */
-			if (targetNode.compareTo(testNode) <= 0) {
-				break;
+		final Queue<IABoxNode<I, L, K, R>> candidates = new LinkedList<>();
+		candidates.addAll(targetNode.getRABox().getPredecessorNodes());
+		final Set<IABoxNode<I, L, K, R>> visited = new HashSet<>();
+		visited.add(targetNode);
+		while (!candidates.isEmpty()) {
+			final IABoxNode<I, L, K, R> candidate = candidates.remove();
+			visited.add(candidate);
+			for (IABoxNode<I, L, K, R> pred : candidate.getRABox().getPredecessorNodes()) {
+				if (!visited.contains(pred)) {
+					candidates.add(pred);
+				}
 			}
-			final IABoxNode<I, L, K, R> blocker = testNode;
-			if (isPotentialBlocker(blocker, targetNode)) {
-				stateCache.setBlocker(targetNode.getNodeID(), blocker.getNodeID());
+
+			if (isPotentialBlocker(candidate, targetNode)) {
+				stateCache.setBlocker(targetNode.getNodeID(), candidate.getNodeID());
 				/* found blocker, stop */
 				// logFinest("node '%s' blocked by '%s'", this, blocker);
-				return blocker;
+				return candidate;
 			}
 		}
 		return null;

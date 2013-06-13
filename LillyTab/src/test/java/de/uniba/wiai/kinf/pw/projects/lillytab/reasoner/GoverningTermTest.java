@@ -3,22 +3,17 @@
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasonerResult;
@@ -47,13 +42,12 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 /**
  *
  * @author Peter Wullinger <java@dhke.de>
  */
-public class GoverningTermTest
-{
+public class GoverningTermTest {
+
 	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
 		_termFactory);
@@ -61,9 +55,11 @@ public class GoverningTermTest
 	private Reasoner<String, String, String, String> _reasoner;
 	private SimpleKRSSParser _parser;
 
+
 	public GoverningTermTest()
 	{
 	}
+
 
 	@BeforeClass
 	public static void setUpClass()
@@ -76,11 +72,13 @@ public class GoverningTermTest
 		Logger.getLogger("").addHandler(handler);
 	}
 
+
 	@AfterClass
 	public static void tearDownClass()
 		throws Exception
 	{
 	}
+
 
 	@Before
 	public void setUp()
@@ -94,6 +92,7 @@ public class GoverningTermTest
 		_abox = _aboxFactory.createABox();
 	}
 
+
 	@After
 	public void tearDown()
 	{
@@ -102,8 +101,10 @@ public class GoverningTermTest
 		_parser = null;
 	}
 
+
 	@Test
-	public void testIntersectionGovTermMove() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testIntersectionGovTermMove()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		node.addClassTerm(_parser.parse("(and A B)"));
@@ -117,8 +118,10 @@ public class GoverningTermTest
 		assertFalse(result.getDependencyMap().hasGoverningTerm(node, _parser.parse("(and A B)")));
 	}
 
+
 	@Test
-	public void testUnionGovTermIntroductionWasGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testUnionGovTermIntroductionWasGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		node.addClassTerm(_parser.parse("(or A B)"));
@@ -136,8 +139,10 @@ public class GoverningTermTest
 		}
 	}
 
+
 	@Test
-	public void testUnionGovTermIntroductionNoGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testUnionGovTermIntroductionNoGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		node.addClassTerm(_parser.parse("(or A B)"));
@@ -156,8 +161,10 @@ public class GoverningTermTest
 		}
 	}
 
+
 	@Test
-	public void testSomeTermWasGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testSomeTermWasGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -181,9 +188,11 @@ public class GoverningTermTest
 			assertFalse(abox.getDependencyMap().hasGoverningTerm(node2, _parser.parse("(some r A)")));
 		}
 	}
-	
+
+
 	@Test
-	public void testFunctionalSomeTermWasGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testFunctionalSomeTermWasGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -207,10 +216,12 @@ public class GoverningTermTest
 			assertTrue(abox.getDependencyMap().hasGoverningTerm(succ, _parser.parse("A")));
 			assertFalse(abox.getDependencyMap().hasGoverningTerm(node2, _parser.parse("(some r A)")));
 		}
-	}	
+	}
+
 
 	@Test
-	public void testFunctionalSomeTermNoGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testFunctionalSomeTermNoGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -234,10 +245,11 @@ public class GoverningTermTest
 			assertFalse(abox.getDependencyMap().hasGoverningTerm(node2, _parser.parse("(some r A)")));
 		}
 	}
-	
-	
+
+
 	@Test
-	public void testSomeTermNoGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testSomeTermNoGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -261,8 +273,10 @@ public class GoverningTermTest
 		}
 	}
 
+
 	@Test
-	public void testForTermNoSuccWasGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testForAllTermNoSuccWasGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -275,11 +289,13 @@ public class GoverningTermTest
 		assertEquals(1, results.size());
 
 		final IABox<String, String, String, String> result = results.iterator().next().getABox();
-		assertFalse(result.getDependencyMap().hasGoverningTerm(node.getNodeID(), _parser.parse("(only r A)")));
+		assertTrue(result.getDependencyMap().hasGoverningTerm(node.getNodeID(), _parser.parse("(only r A)")));
 	}
 
+
 	@Test
-	public void testForAllTermNoSuccNoGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testForAllTermNoSuccNoGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -294,8 +310,34 @@ public class GoverningTermTest
 		assertFalse(result.getDependencyMap().hasGoverningTerm(node.getNodeID(), _parser.parse("(only r A)")));
 	}
 
+
 	@Test
-	public void testForAllTermTwoSuccNoGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testForAllTermFunctionalSuccGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	{
+		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
+		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
+
+		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
+		final IIndividualABoxNode<String, String, String, String> node2 = _abox.createIndividualNode();
+		node.getRABox().getAssertedSuccessors().put("r", node2);
+
+		node.addClassTerm(_parser.parse("(only r A)"));
+		_abox.getDependencyMap().addGoverningTerm(node, _parser.parse("(only r A)"));
+		assertTrue(_abox.getDependencyMap().hasGoverningTerm(node, _parser.parse("(only r A)")));
+		final Collection<? extends IReasonerResult<String, String, String, String>> results = _reasoner.
+			checkConsistency(_abox, false);
+		assertEquals(1, results.size());
+
+		final IABox<String, String, String, String> result = results.iterator().next().getABox();
+		assertFalse(result.getDependencyMap().hasGoverningTerm(node.getNodeID(), _parser.parse("(only r A)")));
+		assertTrue(result.getDependencyMap().hasGoverningTerm(node2.getNodeID(), _parser.parse("A")));
+	}
+
+
+	@Test
+	public void testForAllTermTwoSuccNoGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -315,8 +357,10 @@ public class GoverningTermTest
 		assertFalse(result.getDependencyMap().hasGoverningTerm(node3.getNodeID(), _parser.parse("A")));
 	}
 
+
 	@Test
-	public void testForAllTermTwoSuccWasGovTerm() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testForAllTermTwoSuccWasGovTerm()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
@@ -334,15 +378,19 @@ public class GoverningTermTest
 		assertEquals(1, results.size());
 
 		final IABox<String, String, String, String> result = results.iterator().next().getABox();
-		assertTrue(result.getDependencyMap().hasGoverningTerm(node2.getNodeID(), _parser.parse("A")));
-		assertTrue(result.getDependencyMap().hasGoverningTerm(node3.getNodeID(), _parser.parse("A")));
+		assertTrue(_abox.getDependencyMap().hasGoverningTerm(node, _parser.parse("(only r A)")));
+		assertFalse(result.getDependencyMap().hasGoverningTerm(node2.getNodeID(), _parser.parse("A")));
+		assertFalse(result.getDependencyMap().hasGoverningTerm(node3.getNodeID(), _parser.parse("A")));
 	}
 
+
 	@Test
-	public void testComplexTermPropagation1() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testComplexTermPropagation1()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		final IIndividualABoxNode<String, String, String, String> node = _abox.createIndividualNode();
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
+		_abox.getAssertedRBox().setRoleProperty("r", RoleProperty.FUNCTIONAL);
 		final IIndividualABoxNode<String, String, String, String> node2 = _abox.createIndividualNode();
 		node.getRABox().getAssertedSuccessors().put("r", node2);
 

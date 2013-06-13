@@ -33,6 +33,7 @@ import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+
 /**
  *
  * @param <I> The type for nominals
@@ -42,19 +43,17 @@ import java.util.TreeSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends TermSet<I, L, K, R> {
-
+	extends TermSet<I, L, K, R>
+{
 	public ABoxNodeTermSet(final ABoxNode<?, I, L, K, R> sender)
 	{
 		this(CopyOnWriteSortedSet.decorate(new TreeSet<IDLTerm<I, L, K, R>>()), sender);
 	}
 
-
 	public ABoxNodeTermSet(final SortedSet<IDLTerm<I, L, K, R>> baseSet, final ABoxNode<?, I, L, K, R> sender)
 	{
 		super(TermTypes.ANY, baseSet, sender);
 	}
-
 
 	@SuppressWarnings("unchecked")
 	ABoxNode<?, I, L, K, R> getNode()
@@ -62,14 +61,12 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 		return (ABoxNode<?, I, L, K, R>) getSender();
 	}
 
-
 	public ABoxNodeTermSet<I, L, K, R> clone(final ABoxNode<?, I, L, K, R> newNode)
 	{
 		final CopyOnWriteSortedSet<IDLTerm<I, L, K, R>> klonedSet =
 			((CopyOnWriteSortedSet<IDLTerm<I, L, K, R>>) getDecoratee()).clone();
 		return new ABoxNodeTermSet<>(klonedSet, newNode);
 	}
-
 
 	@Override
 	protected void notifyBeforeElementAdded(
@@ -97,7 +94,6 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 		}
 	}
 
-
 	@Override
 	public void notifyAfterElementAdded(
 		final CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
@@ -112,24 +108,19 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 				@SuppressWarnings("unchecked")
 				final IndividualABoxNode<I, L, K, R> iNode = (IndividualABoxNode<I, L, K, R>) source;
 
-				abox.removeNoUnlink(source);
 				iNode._names.add(iRef.getIndividual());
-				abox.addNoUnlink(source);
 			} else if (e.getItem() instanceof IDLLiteralReference) {
 				final IDLLiteralReference<I, L, K, R> lRef = (IDLLiteralReference<I, L, K, R>) e.getItem();
 				assert source instanceof LiteralABoxNode;
 				@SuppressWarnings("unchecked")
 				final LiteralABoxNode<I, L, K, R> iNode = (LiteralABoxNode<I, L, K, R>) source;
 
-				abox.removeNoUnlink(source);
 				iNode._names.add(lRef.getLiteral());
-				abox.addNoUnlink(source);
 			}
 			abox.notifyTermAdded(source, e.getItem());
 		}
 		super.notifyAfterElementAdded(e);
 	}
-
 
 	@Override
 	protected void notifyAfterElementRemoved(
@@ -142,15 +133,12 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 			if (ev.getItem() instanceof IDLIndividualReference) {
 				final IDLIndividualReference<I, L, K, R> nRef = (IDLIndividualReference<I, L, K, R>) ev.getItem();
 
-				abox.removeNoUnlink(node);
 				node._names.remove(nRef.getIndividual());
-				abox.addNoUnlink(node);
 			}
 			abox.notifyTermRemoved(node, ev.getItem());
 		}
 		super.notifyAfterElementRemoved(ev);
 	}
-
 
 	@Override
 	protected void notifyAfterCollectionCleared(
@@ -160,15 +148,10 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 		final ABox<I, L, K, R> abox = node.getABox();
 
 		boolean isAnonNode = node.isAnonymous();
-		if ((abox != null) && (!isAnonNode)) {
-			boolean removed = abox.removeNoUnlink(node);
-			assert removed;
-		}
 
 		node._names.clear();
 		if (abox != null) {
 			if (!isAnonNode) {
-				abox.addNoUnlink(node);
 			}
 			abox.notifyTermSetCleared(node);
 		}

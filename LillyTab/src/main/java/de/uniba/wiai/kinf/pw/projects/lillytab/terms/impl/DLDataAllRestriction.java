@@ -44,7 +44,7 @@ public class DLDataAllRestriction<I extends Comparable<? super I>, L extends Com
 
 	public DLDataAllRestriction(final R role, final IDLDataRange<I, L, K, R> d)
 	{
-		super(DLTermOrder.DL_OBJECT_ALL_RESTRICTION, OPERATOR_NAME, role, d);
+		super(DLTermOrder.DL_DATA_ALL_RESTRICTION, OPERATOR_NAME, role, d);
 	}
 
 

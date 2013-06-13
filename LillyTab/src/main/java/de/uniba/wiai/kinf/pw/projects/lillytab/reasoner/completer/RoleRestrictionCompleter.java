@@ -29,33 +29,39 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerError;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.Collection;
+
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends AbstractCompleter<I, L, K, R> {
-
+public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AbstractCompleter<I, L, K, R>
+{
 	public RoleRestrictionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		super(cChecker);
 	}
 
-
 	public RoleRestrictionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
-
 
 	/**
 	 *
@@ -67,16 +73,46 @@ public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends
 	 * @throws EReasonerException
 	 */
 	@Override
-	public ReasonerContinuationState completeNode(final IDecisionTree.Node<Branch<I, L, K, R>> branchNode, final IABoxNode<I, L, K, R> node)
+	public ReasonerContinuationState completeNode(final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
+												  final IABoxNode<I, L, K, R> node)
 		throws EReasonerException
 	{
 		final Branch<I, L, K, R> branch = branchNode.getData();
-		for (Pair<R, NodeID> incoming : node.getRABox().getPredecessorPairs()) {
-			final Collection<IDLRestriction<I, L, K, R>> range = branch.getABox().getTBox().getRBox().
-				getRoleRanges(incoming.getFirst());
-			if ((range != null) && (!node.getTerms().containsAll(range))) {
+
+		/**
+		 * 
+		 * We concert role domain restrictions into local forall terms.
+		 * This also makes the transitive propagation work.
+		 */
+		for (R outRole : node.getRABox().getOutgoingRoles()) {
+			final Collection<IDLRestriction<I, L, K, R>> ranges = branch.getABox().getTBox().getRBox().
+				getRoleRanges(outRole);
+			for (IDLRestriction<I, L, K, R> domain : ranges) {
 				try {
-					final NodeMergeInfo<I, L, K, R> mergeInfo = node.addTerms(range);
+					if (node.getABox().getRBox().hasRoleType(outRole, RoleType.DATA_PROPERTY)) {
+						final IDLDataRange<I, L, K, R> dataRange = (IDLDataRange<I, L, K, R>) domain;
+						final IDLDataAllRestriction<I, L, K, R> allRes = branch.getABox().getDLTermFactory().
+							getDLDataAllRestriction(outRole, dataRange);
+						node.addTerm(allRes);
+					} else if (node.getABox().getRBox().hasRoleType(outRole, RoleType.OBJECT_PROPERTY)) {
+						final IDLClassExpression<I, L, K, R> classExp = (IDLClassExpression<I, L, K, R>) domain;
+						final IDLObjectAllRestriction<I, L, K, R> allRes = branch.getABox().getDLTermFactory().
+							getDLObjectAllRestriction(outRole, classExp);
+						node.addTerm(allRes);
+					}
+				} catch (EIllegalTermTypeException ex) {
+					throw new EReasonerError("Internal reasoner error!", ex);
+				} catch (ENodeMergeException ex) {
+					branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
+					branch.getConsistencyInfo().addCulprits(node, domain);
+					return ReasonerContinuationState.INCONSISTENT;
+				}
+			}
+			final Collection<IDLClassExpression<I, L, K, R>> domain = branch.getABox().getTBox().getRBox().
+				getRoleDomains(outRole);
+			if ((domain != null) && (!node.getTerms().containsAll(domain))) {
+				try {
+					final NodeMergeInfo<I, L, K, R> mergeInfo = node.addTerms(domain);
 					if (mergeInfo.isModified(node)) {
 						/**
 						 * the current node was merged away, stop processing, recheck queues
@@ -87,32 +123,10 @@ public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends
 				} catch (ENodeMergeException ex) {
 					/* XXX - this be narrowed down to an individual term */
 					branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
-					branch.getConsistencyInfo().addCulprits(node, range);
+					branch.getConsistencyInfo().addCulprits(node, domain);
 					return ReasonerContinuationState.INCONSISTENT;
 				}
 			}
-		}
-		for (Pair<R, NodeID> outgoing : node.getRABox().getSuccessorPairs()) {
-			final Collection<IDLClassExpression<I, L, K, R>> domain = branch.getABox().getTBox().getRBox().
-				getRoleDomains(outgoing.getFirst());
-			try {
-				if ((domain != null) && (!node.getTerms().containsAll(domain))) {
-					final NodeMergeInfo<I, L, K, R> mergeInfo = node.addTerms(domain);
-					if (mergeInfo.isModified(node)) {
-						/**
-						 * the current node was merged away, stop processing, recheck queues
-						 *
-						 */
-						return ReasonerContinuationState.RECHECK_NODE;
-					}
-				}
-			} catch (ENodeMergeException | EIllegalTermTypeException ex) {
-				/* XXX - this be narrowed down to an individual term */
-				branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
-				branch.getConsistencyInfo().addCulprits(node, domain);
-				return ReasonerContinuationState.INCONSISTENT;
-			}
-
 		}
 		return ReasonerContinuationState.CONTINUE;
 	}

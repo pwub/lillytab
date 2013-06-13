@@ -75,6 +75,6 @@ public abstract class AbstractBlockingStrategy<I extends Comparable<? super I>, 
 		}
 	}
 
-
 	public abstract IABoxNode<I, L, K, R> findBlocker(final IABoxNode<I, L, K, R> targetNode);
+
 }

@@ -330,23 +330,23 @@ public class BranchTest {
 	}
 
 
-	@Test
-	public void testNodeQueueSort()
-		throws EReasonerException, ENodeMergeException
-	{
-		final IABox<String, String, String, String> abox = _aboxFactory.createABox();
-		final Branch<String, String, String, String> branch = new Branch<>(abox, true);
-
-		final IABoxNode<String, String, String, String> n0 = abox.createNode(false);
-		final IABoxNode<String, String, String, String> n1 = abox.createNode(false);
-		assertEquals(2, abox.size());
-		assertSame(abox.first(), n0);
-		assertSame(abox.last(), n1);
-		n1.addTerm(_termFactory.getDLIndividualReference("b"));
-		assertEquals(2, abox.size());
-		assertSame(abox.first(), n1);
-		assertSame(abox.last(), n0);
-	}
+//	@Test
+//	public void testNodeQueueSort()
+//		throws EReasonerException, ENodeMergeException
+//	{
+//		final IABox<String, String, String, String> abox = _aboxFactory.createABox();
+//		final Branch<String, String, String, String> branch = new Branch<>(abox, true);
+//
+//		final IABoxNode<String, String, String, String> n0 = abox.createNode(false);
+//		final IABoxNode<String, String, String, String> n1 = abox.createNode(false);
+//		assertEquals(2, abox.size());
+//		assertSame(abox.first(), n0);
+//		assertSame(abox.last(), n1);
+//		n1.addTerm(_termFactory.getDLIndividualReference("b"));
+//		assertEquals(2, abox.size());
+//		assertSame(abox.first(), n1);
+//		assertSame(abox.last(), n0);
+//	}
 
 
 	@Test

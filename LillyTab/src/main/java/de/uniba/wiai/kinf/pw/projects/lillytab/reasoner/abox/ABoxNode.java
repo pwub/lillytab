@@ -44,6 +44,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.commons.collections15.SetUtils;
 
+
 /**
  * Default in-memory implementation of {@link IABoxNode}.
  *
@@ -55,9 +56,9 @@ import org.apache.commons.collections15.SetUtils;
  */
 public abstract class ABoxNode<N extends Comparable<? super N>, I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends LoggingClass
-	implements IABoxNode<I, L, K, R>, Cloneable {
+	implements IABoxNode<I, L, K, R>, Cloneable
+{
 	// private final Map<DLTermOrder, IDLClassExpression<I, L, K, R>> _smallestTerms;
-
 	/**
 	 * The (unmodifiable) node ID of this node.
 	 *
@@ -92,7 +93,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	 */
 	protected final SortedSet<N> _names = new TreeSet<>();
 
-
 	/**
 	 * Create a new, named ABox node referencing the specified {@literal individual}.
 	 *
@@ -115,7 +115,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		_raBox = new RABox<>(this);
 	}
 
-
 	protected ABoxNode(final ABox<I, L, K, R> newABox,
 					   final ABoxNode<N, I, L, K, R> klonee)
 	{
@@ -132,13 +131,11 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		_raBox = klonee._raBox.clone(this);
 	}
 
-
 	@Override
 	public SortedSet<N> getNames()
 	{
 		return Collections.unmodifiableSortedSet(_names);
 	}
-
 
 	@Override
 	public N getPrimaryName()
@@ -150,7 +147,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		}
 	}
 
-
 	@Override
 	public IRABox<I, L, K, R> getRABox()
 	{
@@ -158,7 +154,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	}
 
 	/// </editor-fold>
-
 	public void setABox(final ABox<I, L, K, R> abox)
 	{
 		if (_abox != abox) {
@@ -173,13 +168,11 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		}
 	}
 
-
 	@Override
 	public ITermSet<I, L, K, R> getTerms()
 	{
 		return _noAddTerms;
 	}
-
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getTermEntries()
@@ -189,7 +182,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		 */
 		return new ABoxNodeTermEntryCollection<>(this);
 	}
-
 
 //	/**
 //	 * 
@@ -240,7 +232,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	public abstract ABoxNode<N, I, L, K, R> clone(final IABox<I, L, K, R> newABox);
 /// </editor-fold>
 
-
 	@Override
 	public ABox<I, L, K, R> getABox()
 	{
@@ -248,13 +239,11 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	}
 
 /// <editor-fold defaultstate="collapsed" desc="toString()">
-
 	@Override
 	public String toString()
 	{
 		return toString("");
 	}
-
 
 	public String toString(
 		final int indent)
@@ -264,7 +253,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		return toString(String.valueOf(fill));
 	}
 
-
 	@Override
 	public int deepHashCode()
 	{
@@ -273,7 +261,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		hashcode += _raBox.deepHashCode();
 		return hashcode;
 	}
-
 
 	@Override
 	public boolean deepEquals(final Object obj)
@@ -294,14 +281,12 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	}
 /// </editor-fold>
 
-
 	@Override
 	public IABoxNode<I, L, K, R> getImmutable()
 	{
 		// XXX - this may cause problems */
 		return getABox().getImmutable().getNode(getNodeID());
 	}
-
 
 	/**
 	 *
@@ -313,7 +298,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		return _id;
 	}
 
-
 	/**
 	 *
 	 * @return {@literal true} if the current node is a datatype node and cannot have successors.
@@ -324,13 +308,11 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		return _isDatatypeNode;
 	}
 
-
 	@Override
 	public boolean isAnonymous()
 	{
 		return _names.isEmpty();
 	}
-
 
 	@Override
 	public boolean equals(final Object obj)
@@ -346,36 +328,18 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		}
 	}
 
-
 	@Override
 	public int hashCode()
 	{
 		return _id.hashCode();
 	}
 
-
 	@Override
 	public int compareTo(final IABoxNode<I, L, K, R> o)
 	{
 		assert o != null;
-		if (isAnonymous()) {
-			/* this is anonymous */
-			if (o.isAnonymous()) {
-				return getNodeID().compareTo(o.getNodeID());
-			} else {
-				return 1;
-			}
-		} else {
-			/* this is named */
-			if (o.isAnonymous()) {
-				return -1;
-			} else {
-				/* Since the primary name is subject to change, we compare by ID here, too */
-				return getNodeID().compareTo(o.getNodeID());
-			}
-		}
+		return getNodeID().compareTo(o.getNodeID());
 	}
-
 
 	@Override
 	public String toString(final String prefix)
@@ -412,7 +376,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	}
 
 	/// <editor-fold defaultstate="collapsed" desc="lazy unfolding">
-
 	/**
 	 * Try to add {@literal desc} to the termset of the current node.
 	 * < p/>
@@ -452,7 +415,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 					desc));
 		}
 	}
-
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addTerms(

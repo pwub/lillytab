@@ -29,14 +29,13 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
-import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ReasonerContinuationState;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractGeneratingCompleter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
@@ -56,20 +55,18 @@ import java.util.Iterator;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractGeneratingCompleter<I, L, K, R>
+	extends AbstractCompleter<I, L, K, R>
 	implements ICompleter<I, L, K, R>
 {
 	public SomeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker,
-						 final IBlockingStrategy<I, L, K, R> blockingStrategy,
 						 final boolean trace)
 	{
-		super(cChecker, blockingStrategy, trace);
+		super(cChecker, trace);
 	}
 
-	public SomeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker,
-						 final IBlockingStrategy<I, L, K, R> blockingStrategy)
+	public SomeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
-		this(cChecker, blockingStrategy, false);
+		this(cChecker, false);
 	}
 
 	protected ReasonerContinuationState completeFunctionalRole(
@@ -240,32 +237,25 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 												  IABoxNode<I, L, K, R> node)
 		throws EReasonerException
 	{
-		if (!getBlockingStrategy().isBlocked(node)) {
-			@SuppressWarnings("unchecked")
-			final Iterator<IDLTerm<I, L, K, R>> iter = ChainIterator.decorate(
-				node.getTerms().iterator(IDLObjectSomeRestriction.class),
-				node.getTerms().iterator(IDLDataSomeRestriction.class));
-			while (iter.hasNext()) {
-				final IDLTerm<I, L, K, R> term = iter.next();
-				if (term instanceof IDLSomeRestriction) {
-					final IDLSomeRestriction<I, L, K, R> someRestriction = (IDLSomeRestriction<I, L, K, R>) term;
-					final R role = someRestriction.getRole();
+		@SuppressWarnings("unchecked")
+		final Iterator<IDLTerm<I, L, K, R>> iter = ChainIterator.decorate(
+			node.getTerms().iterator(IDLObjectSomeRestriction.class),
+			node.getTerms().iterator(IDLDataSomeRestriction.class));
+		while (iter.hasNext()) {
+			final IDLTerm<I, L, K, R> term = iter.next();
+			if (term instanceof IDLSomeRestriction) {
+				final IDLSomeRestriction<I, L, K, R> someRestriction = (IDLSomeRestriction<I, L, K, R>) term;
+				final R role = someRestriction.getRole();
 
-					ReasonerContinuationState cState;
-					if (node.getABox().getTBox().getRBox().hasRoleProperty(role, RoleProperty.FUNCTIONAL)) {
-						cState = completeFunctionalRole(branchNode, node, someRestriction);
-					} else {
-						cState = completeNonFunctionalRole(branchNode, node, someRestriction);
-					}
-					if (cState != ReasonerContinuationState.CONTINUE) {
-						return cState;
-					}
+				ReasonerContinuationState cState;
+				if (node.getABox().getTBox().getRBox().hasRoleProperty(role, RoleProperty.FUNCTIONAL)) {
+					cState = completeFunctionalRole(branchNode, node, someRestriction);
+				} else {
+					cState = completeNonFunctionalRole(branchNode, node, someRestriction);
 				}
-			}
-		} else {
-			if (isTracing()) {
-				logFinest("%s: Node %s blocked by %s", branchNode.getPath(), node, getBlockingStrategy().getBlocker(
-					node));
+				if (cState != ReasonerContinuationState.CONTINUE) {
+					return cState;
+				}
 			}
 		}
 		return ReasonerContinuationState.CONTINUE;

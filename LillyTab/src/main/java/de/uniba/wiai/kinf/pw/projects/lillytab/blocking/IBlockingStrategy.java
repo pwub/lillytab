@@ -26,6 +26,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import java.util.Set;
 
+
 /**
  * 
  * Applying generating {@link ICompleter} without additional termination conditions may potentially generate infinite
@@ -41,25 +42,23 @@ import java.util.Set;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IBlockingStrategy<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  {
-
+public interface IBlockingStrategy<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+{
 	/**
 	 * 
-	 * Retrieve the {@link NodeID} of currently known to be blocked by the current node.
+	 * Retrieve the {@link NodeID}s of nodes blocked by the current node.
 	 * <p />
 	 * This method returns not a complete set, but only the set of nodes that are <emph>currently assumed</emph> to be
 	 * blocked by the current node.
 	 * <p />
 	 * Blocking nodes must be searched inside the ABox. Since this is often a computationally intesive task, blocking
-	 * status may be cached internally. Changes to the ABox that potentially invalidate the blocking condition must call {@link #validateBlocks()
-	 * } afterwards.
-	 * 
+	 * status may be cached internally. Changes to the ABox that potentially invalidate the blocking condition must call 
+	 * {@link #validateBlocks()} afterwards.
 	 *
 	 * @return The set of NodeIDs of nodes that are currently blocked by the current node.
 	 *
 	 */
 	Set<NodeID> getBlockedNodeIDs(final IABoxNode<I, L, K, R> blocker);
-
 
 	/**
 	 * 
@@ -75,25 +74,20 @@ public interface IBlockingStrategy<I extends Comparable<? super I>, L extends Co
 	 */
 	boolean isBlocked(final IABoxNode<I, L, K, R> blockedNode);
 
-
 	/**
-	 *  @return The blocker of the target node or {@literal null} if the current node is not known to be blocked.
+	 * @return The blocker of the target node or {@literal null} if the current node is not blocked.
+	 * 
 	 * <p />
 	 * Blocking nodes must be searched inside the ABox. Since this is often a computationally intesive task, blocking
-	 * status may be cached internally. Changes to the ABox that potentially invalidate the blocking condition must call {@link #validateBlocks()
-	 * } afterwards.
+	 * status may be cached internally. Changes to the ABox that potentially invalidate the blocking condition must call {@link #validateBlocks()} afterwards.
 	 * 
-	 */
+	 **/
 	IABoxNode<I, L, K, R> getBlocker(final IABoxNode<I, L, K, R> blockedNode);
 
-
 	/**
-	 * 
-	 * Check, if the blocking conditions for all nodes in the blocker list ({@link #getBlockedNodeIDs()
-	 * }
+	 * Check, if the blocking conditions for all nodes in the blocker list ({@link #getBlockedNodeIDs()}
 	 * are still met. Return the list of nodes (from {@link #getBlockedNodeIDs()} for which the blocking conditions are
 	 * no more satisfied.
-	 * 
 	 *
 	 * @param targetNode The target node to check
 	 * @return A set of NodeIDs of invalidated blocked nodes.

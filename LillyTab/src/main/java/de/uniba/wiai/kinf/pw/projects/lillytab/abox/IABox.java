@@ -54,7 +54,7 @@ import java.util.SortedSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends SortedSet<IABoxNode<I, L, K, R>>, IImmutable<IABox<I, L, K, R>>, Cloneable {
+	extends Set<IABoxNode<I, L, K, R>>, IImmutable<IABox<I, L, K, R>>, Cloneable {
 
 	/**
 	 *  Retrieve the unique ID of the current ABox. 
