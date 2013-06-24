@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -52,7 +52,12 @@ import java.util.TreeSet;
 
 /**
  *
- * @author Peter Wullinger <java@dhke.de>
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
+ *
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
@@ -151,7 +156,7 @@ public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends C
 						return ReasonerContinuationState.INCONSISTENT;
 					} else {
 						if (isTracing()) {
-							logFiner("Created %d branches", branchCreationInfos.size());
+							logTrace("Created %d branches", branchCreationInfos.size());
 						}
 						final ReasonerContinuationState contState = handleBranchCreation(branchCreationInfos, branchNode,
 																						 node);

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -35,6 +35,8 @@ public class EInconsistentABoxException
 	/**
 	 * Creates a new instance of
 	 * <code>EInconsistentABoxException</code> without detail message.
+	 * 
+	 * @param abox The affected abox.
 	 */
 	public EInconsistentABoxException(final IABox<?, ?, ?, ?> abox)
 	{
@@ -46,6 +48,7 @@ public class EInconsistentABoxException
 	 * Constructs an instance of
 	 * <code>EInconsistentABoxException</code> with the specified detail message.
 	 *
+	 * @param abox The affected abox.
 	 * @param msg the detail message.
 	 */
 	public EInconsistentABoxException(final IABox<?, ?, ?, ?> abox, String msg)

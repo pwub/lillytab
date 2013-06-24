@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -39,6 +39,10 @@ import java.util.Collections;
  * If an immutable is first created and the underlying map is modified, afterwards, behaviour of the immutable is
  * undefined.
  * 
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */

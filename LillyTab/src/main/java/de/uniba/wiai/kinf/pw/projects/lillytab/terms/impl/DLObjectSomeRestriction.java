@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -30,7 +30,11 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
 
 /**
  *
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLObjectSomeRestriction<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 

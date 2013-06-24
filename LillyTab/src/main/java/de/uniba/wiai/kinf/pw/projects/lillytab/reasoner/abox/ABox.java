@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -59,12 +59,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedSet;
 import java.util.TreeSet;
 
 
@@ -72,9 +70,11 @@ import java.util.TreeSet;
  * In-memory copy-on-write implementation of the {@link IABox} interface.
  * <p />
  *
- * @param <I> The type for nominals and values
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>

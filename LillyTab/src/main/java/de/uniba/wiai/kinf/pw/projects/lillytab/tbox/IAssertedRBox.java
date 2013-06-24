@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -33,10 +33,12 @@ import org.apache.commons.collections15.MultiMap;
  * Note that roles must be made known to the RBox prior to use. This is done by assigned a role one of either
  * {@link RoleProperty#DATA_PROPERTY} or {@link RoleProperty#OBJECT_PROPERTY}.
  * 
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- *
- * @param <R> The type for properties (roles)
  */
 public interface IAssertedRBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
 	extends IRBox<I, L, K, R> {

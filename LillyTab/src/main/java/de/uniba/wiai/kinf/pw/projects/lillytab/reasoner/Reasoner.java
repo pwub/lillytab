@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -41,7 +41,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.IntersectionCo
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.RoleRestrictionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SemanticUnionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SomeCompleter;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.SymmetricRoleCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.TransitiveCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.UnionCompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
@@ -71,9 +70,11 @@ import java.util.List;
  * Some completion rules are non-deterministic and thus multiple different ABox-completions may result from the tablaux
  * expansion.. The reasoner will return all clash-free completitions of a particular ABox.
  *
- * @param <I> The type for nominals and values
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
@@ -272,7 +273,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 																			  final boolean stopAtFirstModel)
 		throws EReasonerException, EInconsistencyException
 	{
-		// logInfo("REASONER CALL TO isInRange(%s, %s, %s)", abox.getID(), concept, stopAtFirstModel);
 
 		Branch<I, L, K, R> initialBranch;
 		try {
@@ -301,7 +301,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 																			  final boolean stopAtFirstModel)
 		throws EReasonerException, EInconsistencyException
 	{
-		// logInfo("REASONER CALL TO checkConsistency(%s, %s)", abox.getID(), stopAtFirstModel);
 		try {
 			final Branch<I, L, K, R> initialBranch = prepareInitialBranch(abox);
 
@@ -332,7 +331,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		final IDLClassExpression<I, L, K, R> presumedSuper)
 		throws EReasonerException, EInconsistencyException
 	{
-		// logInfo("REASONER CALL TO isSubClassOf(%s, %s, %s)", abox.getID(), presumedSub, presumedSuper);
 		assert isConsistent(abox);
 
 		try {
@@ -386,7 +384,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 							  final R role)
 		throws EReasonerException, EInconsistencyException
 	{
-		// logInfo("REASONER CALL TO isInDomain(%s, %s, %s)", abox.getID(), desc, role);
 		try {
 			final Collection<IDLClassExpression<I, L, K, R>> roleDomains = abox.getTBox().getRBox().getRoleDomains(
 				role);
@@ -425,7 +422,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 							 final R role)
 		throws EReasonerException, EInconsistencyException
 	{
-		// logInfo("REASONER CALL TO isInRange(%s, %s, %s)", abox.getID(), desc, role);
 		try {
 			final Collection<IDLRestriction<I, L, K, R>> roleDomains = abox.getTBox().getRBox().getRoleRanges(
 				role);
@@ -463,7 +459,6 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		final IDLClassExpression<I, L, K, R> desc2)
 		throws EReasonerException, EInconsistencyException
 	{
-		// logInfo("REASONER CALL TO isDisjoint(%s, %s, %s)", abox.getID(), desc1, desc2);
 		try {
 			if (desc1.equals(desc2)) /*
 			 * terms are equal, cannot be disjoint
@@ -549,8 +544,8 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			} else {
 				if (contState == ReasonerContinuationState.INCONSISTENT) {
 					/* prune branch tree according to the culprits recorded for the current branch */
-					logFinest("Inconsistent branch found: %s", branchNode.getData());
-					logFinest("Clash info: %s", branchNode.getData().getConsistencyInfo());
+					logTrace("Inconsistent branch found: {}", branchNode.getData());
+					logTrace("Clash info: {}", branchNode.getData().getConsistencyInfo());
 				}
 				pruneBranchTree(branchTree, branchNode);
 			}
@@ -559,13 +554,13 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 
 		if (getReasonerOptions().isTracing()) {
-			logFine("Reasoning complete");
+			logDebug("Reasoning complete");
 			if (reasonerResults.isEmpty()) {
-				logFiner("No models found");
+				logTrace("No models found");
 			} else {
-				logFinest("The following models were found:");
+				logTrace("The following models were found:");
 				for (ReasonerResult<I, L, K, R> result : reasonerResults) {
-					logFinest(result);
+					logTrace(result);
 				}
 			}
 		}
@@ -614,7 +609,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		final Branch<I, L, K, R> branch = branchNode.getData();
 		assert branch != null;
 		if (getReasonerOptions().isTracing()) {
-			logFine("Before completion: %s", branch);
+			logDebug("Before completion: {}", branch);
 		}
 
 		/**
@@ -649,7 +644,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 				}
 			}
 			if (getReasonerOptions().isTracing()) {
-				logFiner("After non-generating steps: %s", branch);
+				logTrace("After non-generating steps: {}", branch);
 			}
 
 			/**
@@ -687,12 +682,12 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 				}
 			} while ((nextGenNode != null) && (!wasGenerated));
 			if ((getReasonerOptions().isProgressLogging()) && (nLoops % 100 == 0)) {
-				logFine("Branch %s: %d iterations, %d nodes on queue", branch.getABox().getID(), nLoops,
+				logDebug("Branch {}: {} iterations, {} nodes on queue", branch.getABox().getID(), nLoops,
 						branch.getGeneratingQueue().size() + branch.getNonGeneratingQueue().size());
 				++nLoops;
 			}
 			if (getReasonerOptions().isTracing()) {
-				logFiner("After generating step: %s", branch);
+				logTrace("After generating step: {}", branch);
 			}
 		}
 
@@ -722,7 +717,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			while ((nextNode != null) && cInfo.hasClashingTerms(nextNode.getData().getABox())) {
 				++pruneCount;
 				if ((_reasonerOptions.isTracing()) && (pruneCount > 1)) {
-					logFiner("DDB-pruning performed for, removed `%s'", nextNode);
+					logTrace("DDB-pruning performed for, removed `{}'", nextNode);
 				}
 				nextNode.remove();
 				nextNode = pickBranch(branchTree);

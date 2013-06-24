@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -47,9 +47,11 @@ import java.util.TreeSet;
 
 /**
  *
- * @param <I> The type for nominals and values
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class AbstractReasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
@@ -120,7 +122,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 
 		while (!queue.isEmpty()) {
 			final Point item = queue.remove();
-			logFinest("Propagating from change at %s", item);
+			logTrace("Propagating from change at %s", item);
 			final int i = item.x;
 			final int j = item.y;
 			final int ij = cfMatrix[i][j];
@@ -162,7 +164,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 				final IDLClassReference<I, L, K, R> clsRef = (IDLClassReference<I, L, K, R>) clsTerm;
 				int clsPos = Collections.binarySearch(classList, clsRef.getElement());
 				assert clsPos >= 0;
-				logFiner("%s is in initial ABox, marking.", clsRef);
+				logTrace("%s is in initial ABox, marking.", clsRef);
 				scMatrix[clsPos][clsPos] = 1;
 			}
 		}
@@ -172,7 +174,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 				scMatrix[i][i] = 1;
 				final IDLClassReference<I, L, K, R> klass = abox.getDLTermFactory().
 					getDLClassReference(classList.get(i));
-				logFiner("Testing satisfiability of %s", klass);
+				logTrace("Testing satisfiability of %s", klass);
 				final Collection<? extends IReasonerResult<I, L, K, R>> results = checkConsistency(abox, klass, true);
 			}
 		}
@@ -185,7 +187,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 					getSubDescription()).getElement());
 				int j = Collections.binarySearch(classList, ((IDLClassReference<I, L, K, R>) imp.
 					getSuperDescription()).getElement());
-				logFiner("%s implicitly asserted, marking", imp);
+				logTrace("%s implicitly asserted, marking", imp);
 				scMatrix[i][j] = 1;
 			}
 		}
@@ -197,7 +199,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 						getDLClassReference(classList.get(row));
 					final IDLClassReference<I, L, K, R> superClass = baseABox.getDLTermFactory().
 						getDLClassReference(classList.get(col));
-					logFiner("Testing if (subClassOf %s %s)", subClass, superClass);
+					logTrace("Testing if (subClassOf %s %s)", subClass, superClass);
 					boolean isSub = isSubClassOf(baseABox, subClass, superClass);
 
 					if (isSub) {

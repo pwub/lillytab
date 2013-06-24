@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Peter Wullinger
+ * (c) 2009-2013 Peter Wullinger
  *
  * $Id$
  *
@@ -21,6 +21,8 @@
  **/
 package de.dhke.projects.cutil.collections.frozen;
 
+import de.dhke.projects.cutil.Pair;
+import de.dhke.projects.cutil.collections.iterator.PairIterable;
 import de.dhke.projects.cutil.collections.set.SortedListSet;
 import java.util.*;
 import org.apache.commons.collections15.SetUtils;
@@ -32,6 +34,7 @@ import org.apache.commons.collections15.SetUtils;
  */
 public class FrozenSortedList<T extends Comparable<? super T>>
 	extends AbstractSet<T>
+	implements Comparable<FrozenSortedList<T>>
 {
 	final List<T> _elements;
 	
@@ -86,4 +89,17 @@ public class FrozenSortedList<T extends Comparable<? super T>>
 		} else
 			return false;
 	}	
+
+
+	@Override
+	public int compareTo(
+						 FrozenSortedList<T> o)
+	{
+		for (Pair<T, T> pair: PairIterable.wrap(this, o)) {
+			int compare = pair.getFirst().compareTo(pair.getSecond());
+			if (compare != 0)
+				return compare;
+		}
+		return 0;
+	}
 }

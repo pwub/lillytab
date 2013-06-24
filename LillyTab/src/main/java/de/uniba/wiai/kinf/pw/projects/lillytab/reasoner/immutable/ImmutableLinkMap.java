@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -29,9 +29,11 @@ import java.util.Collection;
 
 /**
  *
- * @param <I> The type for nominals and values
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  *
  */

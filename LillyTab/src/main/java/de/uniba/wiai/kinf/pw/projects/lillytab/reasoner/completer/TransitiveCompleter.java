@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -37,20 +37,30 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
 
-
+/**
+ *
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ *
+ */
 public class TransitiveCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
-	implements ICompleter<I, L, K, R>
-{
+	implements ICompleter<I, L, K, R> {
+
 	public TransitiveCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		super(cChecker);
 	}
 
+
 	public TransitiveCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, boolean trace)
 	{
 		super(cChecker, trace);
 	}
+
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -75,7 +85,8 @@ public class TransitiveCompleter<I extends Comparable<? super I>, L extends Comp
 			final IDLTerm<I, L, K, R> term = termIter.next();
 			/**
 			 * Walk through list of incoming roles, check for transitive roles
-			 **/
+			 *
+			 */
 			IDLAllRestriction<I, L, K, R> forAllTerm = (IDLAllRestriction<I, L, K, R>) term;
 			if (rbox.hasRoleProperty(forAllTerm.getRole(), RoleProperty.TRANSITIVE)) {
 				Iterator<IABoxNode<I, L, K, R>> successorIter = node.getRABox().getSuccessorNodes(forAllTerm.getRole()).

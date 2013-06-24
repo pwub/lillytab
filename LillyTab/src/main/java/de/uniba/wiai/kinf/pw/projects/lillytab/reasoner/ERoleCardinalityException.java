@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -37,6 +37,9 @@ public class ERoleCardinalityException
 	/**
 	 * Creates a new instance of
 	 * <code>ERoleCardinalityException</code> without detail message.
+	 * 
+	 * @param node The affected node
+	 * @param role The affected property/role
 	 */
 	public ERoleCardinalityException(final IABoxNode<?, ?, ?, ?> node, final Object role)
 	{
@@ -49,6 +52,8 @@ public class ERoleCardinalityException
 	 * Constructs an instance of
 	 * <code>ERoleCardinalityException</code> with the specified detail message.
 	 *
+	 * @param node The affected node
+	 * @param role The affected property/role
 	 * @param msg the detail message.
 	 */
 	public ERoleCardinalityException(final IABoxNode<?, ?, ?, ?> node, final Object role, final String msg)

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -29,6 +29,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
  */
 public class EReasonerError
 	extends EReasonerException {
+	private static final long serialVersionUID = 26694331902693942L;
 
 	/**
 	 * Creates a new instance of

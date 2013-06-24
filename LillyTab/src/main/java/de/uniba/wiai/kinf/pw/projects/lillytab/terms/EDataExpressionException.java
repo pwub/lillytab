@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -27,6 +27,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  */
 public class EDataExpressionException
 	extends Exception {
+	private static final long serialVersionUID = 8724304745831093022L;
 
 	/**
 	 * Creates a new instance of

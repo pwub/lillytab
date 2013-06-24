@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -27,7 +27,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
  */
 public class VersionInfo {
 	public static final int REVISION = 1271;
-	public static String VERSION_STRING = "6";
+	public static String VERSION_STRING = "1.9";
 	public static String NAME = "LillyTab";
 
 	private VersionInfo()

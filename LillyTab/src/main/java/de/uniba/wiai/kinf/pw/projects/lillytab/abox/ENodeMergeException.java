@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -36,6 +36,9 @@ public class ENodeMergeException
 	/**
 	 * Creates a new instance of
 	 * <code>ENodeMergeException</code> without detail message.
+	 * 
+	 * @param targetNode the intended target node of the merge
+	 * @param sourceNode the intended source node of the merge
 	 */
 	public ENodeMergeException(final IABoxNode<?, ?, ?, ?> targetNode, final IABoxNode<?, ?, ?, ?> sourceNode)
 	{
@@ -49,6 +52,8 @@ public class ENodeMergeException
 	 * Constructs an instance of
 	 * <code>ENodeMergeException</code> with the specified detail message.
 	 *
+	 * @param targetNode the intended target node of the merge
+	 * @param sourceNode the intended source node of the merge
 	 * @param msg the detail message.
 	 */
 	public ENodeMergeException(final IABoxNode<?, ?, ?, ?> targetNode, final IABoxNode<?, ?, ?, ?> sourceNode, final String msg)

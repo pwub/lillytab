@@ -1,24 +1,19 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
 import de.dhke.projects.cutil.collections.immutable.IImmutable;
@@ -28,7 +23,7 @@ import java.util.Collection;
 import java.util.SortedSet;
 
 /**
- *  {@link IABoxNode}s are the representation of individuals in a description logic tableaux.
+ * {@link IABoxNode}s are the representation of individuals in a description logic tableaux.
  * <p />
  * Nodes are either associated with named individuals or not. If a node is associated with at least one individual, it
  * is called a named node. The set of named individuals is available via {@link #getNames() }.
@@ -48,14 +43,16 @@ import java.util.SortedSet;
  * <p />
  * A node also maintains a list of blocked nodes and conversely also a potential reference to a blocking node. These are
  * used by DL reasoners.
- * 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
- * @param <I> The type for nominals and values
+ *
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ *
+ * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends Comparable<IABoxNode<I, L, K, R>>, IImmutable<IABoxNode<I, L, K, R>> {
 
 	/**
@@ -83,9 +80,9 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 
 
 	/**
-	 * 
+	 *
 	 * Every ABox individual (named or anonymous) is an instance of one or more concepts.
-	 * 
+	 *
 	 *
 	 * @return Return the set of concept terms
 	 */
@@ -102,14 +99,15 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 
 
 	/**
-	 * 
+	 *
 	 * The RABox the role associations between nodes.
-	 * 
+	 *
 	 *
 	 * @see IRABox
 	 * @return ŧhe RABox of the current node.
 	 */
 	IRABox<I, L, K, R> getRABox();
+
 
 	/**
 	 * Create a copy of the current Node in the target ABox.
@@ -148,11 +146,11 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 //	NodeMergeInfo<I, L, K, R> unfoldAll() throws ENodeMergeException;
 
 	/**
-	 * 
+	 *
 	 * Calculate the hashcode of the current node by deep inspection of the node's contents.
 	 * <p />
 	 * Contrary to {@link #hashCode() }, the node's contents are taken into account and not only the node ID.
-	 * 
+	 *
 	 *
 	 * @return The hashcode of the current node, calculated through deep inspection of the node's contents.
 	 */
@@ -160,11 +158,11 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 
 
 	/**
-	 * 
+	 *
 	 * Compare two {@link IABoxNode}es through deep inspection
 	 * <p />
 	 * Contrary to {@link #equals(java.lang.Object) }, this compares two nodes through deep inspection.
-	 * 
+	 *
 	 *
 	 * @param obj The target node to compare to
 	 * @return {@literal true}, if both nodes are equal, {@literal false}, if not.
@@ -185,9 +183,12 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 
 	@Override
 	IABoxNode<I, L, K, R> getImmutable();
-	
+
+
 	NodeMergeInfo<I, L, K, R> addTerm(final IDLRestriction<I, L, K, R> term)
 		throws ENodeMergeException, EIllegalTermTypeException;
+
+
 	NodeMergeInfo<I, L, K, R> addTerms(final Collection<? extends IDLRestriction<I, L, K, R>> terms)
-		throws ENodeMergeException, EIllegalTermTypeException;	
+		throws ENodeMergeException, EIllegalTermTypeException;
 }

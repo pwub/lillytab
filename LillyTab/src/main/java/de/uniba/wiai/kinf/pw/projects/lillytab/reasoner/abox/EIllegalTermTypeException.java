@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -25,6 +25,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 
 
 /**
+ * 
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class EIllegalTermTypeException

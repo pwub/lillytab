@@ -1,24 +1,19 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab;
 
 import de.dhke.projects.lutil.LoggingClass;
@@ -58,7 +53,6 @@ public class Main
 	extends LoggingClass
 	implements Runnable {
 
-
 	/**
 	 * @param args the command line arguments
 	 */
@@ -67,7 +61,6 @@ public class Main
 		Main main = new Main();
 		main.run();
 	}
-
 	private final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory;
 	private final IABoxFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _aboxFactory;
 	private final Reasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _reasoner;
@@ -108,7 +101,7 @@ public class Main
 			final IRI loadIRI = IRI.create(
 				"https://database.riken.jp/sw/download/ria94i~archives~semantics~ontology_def.owl-rdf.xml");
 
-			
+
 			logInfo("Loading ontology from %s", loadIRI);
 			final OWLOntology ontology = ontMan.loadOntology(loadIRI);
 			logInfo("Ontology loaded.");
@@ -118,19 +111,20 @@ public class Main
 			final OWLAPILoader loader = new OWLAPILoader();
 			logInfo("Filling ABox from OWLAPI ontology...");
 			final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> initialABox = loader.fillABox(ontology,
-																							  _aboxFactory.createABox());
+																											  _aboxFactory.createABox());
 			// System.out.println(abox.toString());
 
 			logInfo("Starting classification ...");
-			final Collection<IDLImplies<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> classifications = _reasoner.classify(initialABox);
+			final Collection<IDLImplies<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> classifications = _reasoner.classify(
+				initialABox);
 			logInfo("Classification result: %s", classifications);
 
 		} catch (ENodeMergeException ex) {
-			getLogger().log(Level.SEVERE, "", ex);
+			logThrowing(ex);
 		} catch (EInconsistencyException ex) {
-			getLogger().log(Level.SEVERE, "", ex);
+			logThrowing(ex);
 		} catch (EReasonerException | UnknownOWLOntologyException | OWLOntologyCreationException ex) {
-			getLogger().log(Level.SEVERE, "", ex);
+			logThrowing(ex);
 		}
 
 	}

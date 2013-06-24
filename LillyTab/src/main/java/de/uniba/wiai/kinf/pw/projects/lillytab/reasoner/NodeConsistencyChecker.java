@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -51,9 +51,11 @@ import java.util.SortedSet;
 
 /**
  *
- * @param <I> The type for nominals and values
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
@@ -331,7 +333,7 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 			for (IDLTerm<I, L, K, R> term : node.getTerms().subSet(DLTermOrder.DL_DATA_NEGATION)) {
 				final IDLDataNegation<I, L, K, R> negTerm = (IDLDataNegation<I, L, K, R>) term;
 				if (negTerm.getTerm() instanceof IDLDatatypeExpression) {
-					final IDLDatatypeExpression<I, L, K, R> dtExpression = (IDLDatatypeExpression<I, L, K, R>) term;
+					final IDLDatatypeExpression<I, L, K, R> dtExpression = (IDLDatatypeExpression<I, L, K, R>) negTerm.getTerm();
 					for (L literal : dtNode.getNames()) {
 						if (dtExpression.isValidValue(literal)) {
 							cInfo.addCulprits(node,

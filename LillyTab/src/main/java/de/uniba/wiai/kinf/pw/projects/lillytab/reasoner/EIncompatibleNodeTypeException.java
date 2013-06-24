@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -36,6 +36,8 @@ public class EIncompatibleNodeTypeException
 	/**
 	 * Creates a new instance of
 	 * <code>EInconsistentABoxNodeException</code> without detail message.
+	 * 
+	 * @param node The affected node
 	 */
 	public EIncompatibleNodeTypeException(final IABoxNode<?, ?, ?, ?> node)
 	{
@@ -47,6 +49,7 @@ public class EIncompatibleNodeTypeException
 	 * Constructs an instance of
 	 * <code>EInconsistentABoxNodeException</code> with the specified detail message.
 	 *
+	 * @param node the affected node
 	 * @param msg the detail message.
 	 */
 	public EIncompatibleNodeTypeException(final IABoxNode<?, ?, ?, ?> node, final String msg)

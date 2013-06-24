@@ -1,24 +1,19 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
@@ -38,7 +33,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.SoftItemCache;
 import java.util.Collection;
 
-
 /**
  *
  * @param <I> The type for nominals and values
@@ -48,8 +42,13 @@ import java.util.Collection;
  */
 public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends SoftItemCache<ITerm>
-	implements ISWRLTermFactory<I, L, K, R>
-{
+	implements ISWRLTermFactory<I, L, K, R> {
+
+	public SWRLTermFactory()
+	{
+	}
+
+
 	@Override
 	public ISWRLIndividualReference<I, L, K, R> getSWRLIndividualReference(final I individual)
 	{
@@ -58,6 +57,7 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 		return updateCache(individualRef);
 	}
 
+
 	@Override
 	public ISWRLLiteralReference<I, L, K, R> getSWRLLiteralReference(L literal)
 	{
@@ -65,6 +65,7 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 
 		return updateCache(literalRef);
 	}
+
 
 	@Override
 	public ISWRLClassAtom<I, L, K, R> getSWRLClassAtom(final K klass,
@@ -75,6 +76,7 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 		return updateCache(classAtom);
 	}
 
+
 	@Override
 	public ISWRLIntersection<I, L, K, R> getSWRLIntersection(
 		final Collection<ISWRLAtomicTerm<I, L, K, R>> atoms)
@@ -83,6 +85,7 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 
 		return updateCache(intersection);
 	}
+
 
 	@Override
 	public ISWRLIntersection<I, L, K, R> getSWRLIntersection(final ISWRLAtomicTerm<I, L, K, R> atom1,
@@ -93,6 +96,7 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 		return updateCache(intersection);
 	}
 
+
 	@Override
 	public ISWRLRule<I, L, K, R> getSWRLRule(final ISWRLTerm<I, L, K, R> head,
 											 final ISWRLTerm<I, L, K, R> body)
@@ -102,6 +106,7 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 		return updateCache(rule);
 	}
 
+
 	@Override
 	public ISWRLVariable<I, L, K, R> getSWRLVariable(final String name)
 	{
@@ -110,20 +115,22 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 		return updateCache(variable);
 	}
 
+
 	@Override
 	public ISWRLObjectRoleAtom<I, L, K, R> getSWRLObjectRoleAtom(final R role,
-														   final ISWRLIArgument<I, L, K, R> source,
-														   final ISWRLIArgument<I, L, K, R> target)
+																 final ISWRLIArgument<I, L, K, R> source,
+																 final ISWRLIArgument<I, L, K, R> target)
 	{
 		final ISWRLObjectRoleAtom<I, L, K, R> roleAtom = new SWRLObjectRoleAtom<>(role, source, target);
 
 		return updateCache(roleAtom);
 	}
 
+
 	@Override
 	public ISWRLDataRoleAtom<I, L, K, R> getSWRLDataRoleAtom(R role,
-														 ISWRLIArgument<I, L, K, R> source,
-														 ISWRLDArgument<I, L, K, R> target)
+															 ISWRLIArgument<I, L, K, R> source,
+															 ISWRLDArgument<I, L, K, R> target)
 	{
 		final SWRLDataRoleAtom<I, L, K, R> roleAtom = new SWRLDataRoleAtom<>(role, source, target);
 

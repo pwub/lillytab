@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -39,6 +39,9 @@ public class ETermClashException
 	/**
 	 * Creates a new instance of
 	 * <code>ETermClashException</code> without detail message.
+	 * 
+	 * @param node the affected node
+	 * @param clashingTerms  The clashing set of terms
 	 */
 	public ETermClashException(final IABoxNode<?, ?, ?, ?> node, Object... clashingTerms)
 	{
@@ -51,7 +54,9 @@ public class ETermClashException
 	 * Constructs an instance of
 	 * <code>ETermClashException</code> with the specified detail message.
 	 *
+	 * @param node the affected node
 	 * @param msg the detail message.
+	 * @param clashingTerms the clashing set of terms
 	 */
 	public ETermClashException(final IABoxNode<?, ?, ?, ?> node, final String msg, Object... clashingTerms)
 	{
@@ -59,6 +64,13 @@ public class ETermClashException
 		_clashingTerms = clashingTerms;
 	}
 
+	/**
+	 * Creates a new instance of
+	 * <code>ETermClashException</code> without detail message.
+	 * 
+	 * @param node the affected node
+	 * @param clashingTerms  The clashing set of terms
+	 */
 	public ETermClashException(final IABoxNode<?, ?, ?, ?> node, final Collection<?> clashingTerms)
 	{
 		super(node);
@@ -66,6 +78,14 @@ public class ETermClashException
 	}
 
 
+	/**
+	 * Creates a new instance of
+	 * <code>ETermClashException</code> without detail message.
+	 * 
+	 * @param node the affected node
+	 * @param msg the detail message
+	 * @param clashingTerms  The clashing set of terms
+	 */
 	public ETermClashException(final IABoxNode<?, ?, ?, ?> node, String msg, final Collection<?> clashingTerms)
 	{
 		super(node, msg);

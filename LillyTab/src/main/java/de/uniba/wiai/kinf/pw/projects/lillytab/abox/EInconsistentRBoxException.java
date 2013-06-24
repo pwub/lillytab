@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -29,6 +29,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IAssertedRBox;
  */
 public class EInconsistentRBoxException
 	extends EInconsistencyException {
+	private static final long serialVersionUID = -3077859787691729338L;
 
 	final IAssertedRBox<?, ?, ?, ?> _rbox;
 
@@ -36,6 +37,8 @@ public class EInconsistentRBoxException
 	/**
 	 * Creates a new instance of
 	 * <code>EInconsistentABoxException</code> without detail message.
+	 * 
+	 * @param rbox The affected rbox
 	 */
 	public EInconsistentRBoxException(final IAssertedRBox<?, ?, ?, ?> rbox)
 	{
@@ -47,6 +50,7 @@ public class EInconsistentRBoxException
 	 * Constructs an instance of
 	 * <code>EInconsistentABoxException</code> with the specified detail message.
 	 *
+	 * @param rbox The affected rbox
 	 * @param msg the detail message.
 	 */
 	public EInconsistentRBoxException(final IAssertedRBox<?, ?, ?, ?> rbox, String msg)

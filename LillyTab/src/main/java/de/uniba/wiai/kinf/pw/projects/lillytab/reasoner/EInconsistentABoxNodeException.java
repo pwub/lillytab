@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -38,6 +38,8 @@ public class EInconsistentABoxNodeException
 	/**
 	 * Creates a new instance of
 	 * <code>EInconsistentABoxNodeException</code> without detail message.
+	 * 
+	 * @param node The affected node
 	 */
 	public EInconsistentABoxNodeException(final IABoxNode<?, ?, ?, ?> node)
 	{
@@ -50,6 +52,7 @@ public class EInconsistentABoxNodeException
 	 * Constructs an instance of
 	 * <code>EInconsistentABoxNodeException</code> with the specified detail message.
 	 *
+	 * @param node The affected node
 	 * @param msg the detail message.
 	 */
 	public EInconsistentABoxNodeException(final IABoxNode<?, ?, ?, ?> node, String msg)

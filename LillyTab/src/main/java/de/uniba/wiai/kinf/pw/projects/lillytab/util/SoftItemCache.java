@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -37,7 +37,7 @@ import java.util.WeakHashMap;
  * Otherwise the provided temporary object is stored into the cache, effectively making it into the cached copy.
  * 
  *
- * @param <T>
+ * @param <T> The type of cache items
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SoftItemCache<T> {

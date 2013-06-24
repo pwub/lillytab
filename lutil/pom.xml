@@ -4,7 +4,7 @@
 	<groupId>de.dhke.projects.lutil</groupId>
 	<artifactId>lutil</artifactId>
 	<packaging>jar</packaging>
-	<version>1.9</version>
+	<version>1.9-SNAPSHOT</version>
 	<name>lutil</name>
 	<url>http://maven.apache.org</url>
 
@@ -21,16 +21,19 @@
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+				<version>3.0</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
 				</configuration>
 			</plugin>
-		  <plugin>
-		<artifactId>maven-assembly-plugin</artifactId>
-		<configuration>
-			<descriptorRefs>
-				<descriptorRef>jar-with-dependencies</descriptorRef>
-			</descriptorRefs>
-		</configuration>
-	  </plugin>
 		</plugins>
 	</build>
 
@@ -41,5 +44,22 @@
 			<version>4.8.2</version>
 			<scope>test</scope>
 		</dependency>
+	 <dependency>
+	  <groupId>org.slf4j</groupId>
+	  <artifactId>slf4j-api</artifactId>
+	  <version>1.7.5</version>
+	 </dependency>
 	</dependencies>
+	<distributionManagement>
+		<snapshotRepository>
+			<id>kinf</id>
+			<name>Snapshots Deployment</name>
+			<url>http://maven.kinf.wiai.uni-bamberg.de/content/repositories/snapshots/</url>
+		</snapshotRepository>
+		<repository>
+			<id>kinf</id>
+			<name>Release Deployment</name>
+			<url>http://maven.kinf.wiai.uni-bamberg.de/content/repositories/releases/</url>
+		</repository>
+	</distributionManagement>
 </project>

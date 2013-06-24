@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -36,6 +36,8 @@ public class EUnsupportedDatatypeException
 	/**
 	 * Creates a new instance of
 	 * <code>EUnsupportedDatatypeException</code> without detail message.
+	 * 
+	 * @param dataTypeID The id of the datatype.
 	 */
 	public EUnsupportedDatatypeException(final Object dataTypeID)
 	{
@@ -47,6 +49,7 @@ public class EUnsupportedDatatypeException
 	 * Constructs an instance of
 	 * <code>EUnsupportedDatatypeException</code> with the specified detail message.
 	 *
+	 * @param dataTypeID the id of the datatype.
 	 * @param msg the detail message.
 	 */
 	public EUnsupportedDatatypeException(final Object dataTypeID, final String msg)

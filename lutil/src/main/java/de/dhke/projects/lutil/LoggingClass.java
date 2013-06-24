@@ -1,41 +1,34 @@
 /**
- * (c) 2009-2012 Peter Wullinger
+ * (c) 2009-2013 Peter Wullinger
  *
  * $Id$
  *
- * Use, modification and restribution of this file are covered by the
- * terms of the Artistic License 2.0.
+ * Use, modification and restribution of this file are covered by the terms of the Artistic License 2.0.
  *
- * You should have received a copy of the license terms in a file named
- * "LICENSE" together with this software package.
+ * You should have received a copy of the license terms in a file named "LICENSE" together with this software package.
  *
- * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
- * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
- * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
- * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
- * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
- * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
- * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
- * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
- * DAMAGE.
- **/
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY
+ * EXPRESS OR IMPLIED WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR
+ * NON-INFRINGEMENT ARE DISCLAIMED TO THE EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO COPYRIGHT
+ * HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY
+ * WAY OUT OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 package de.dhke.projects.lutil;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
- * 
+ *
  * Class to be used as a base class for other classes performing logging operations.
  * <p />
  * This class automatically derives a logger name from the class instance it was created for or was provided via a
  * constructor parameter.
  * <p />
  * It provides various convenience methods to handle logging tasks.
- * 
+ *
  *
  * @author Peter Wullinger <java@dhke.de>
  */
@@ -45,17 +38,17 @@ public class LoggingClass
 
 	private LoggingClass(final String loggerName)
 	{
-		_logger = Logger.getLogger(loggerName);
+		_logger = LoggerFactory.getLogger(loggerName);
 	}
 
 	public LoggingClass(Class<?> destinationClass)
 	{
-		this(destinationClass.getPackage().getName());
+		_logger = LoggerFactory.getLogger(destinationClass);
 	}
 
 	protected LoggingClass()
 	{
-		_logger = Logger.getLogger(getClass().getPackage().getName());
+		_logger = LoggerFactory.getLogger(getClass());
 	}
 
 	public Logger getLogger()
@@ -66,7 +59,8 @@ public class LoggingClass
 	private StackTraceElement getExternalCaller(final StackTraceElement[] stackTrace)
 	{
 		int i = 1;
-		while (stackTrace[i].getClassName().equals(LoggingClass.class.getCanonicalName()))
+		while (stackTrace[i].getClassName().equals(LoggingClass.class.getCanonicalName())
+			|| (stackTrace[i].getClass().getPackage().getName().startsWith("org.slf4j")))
 			++i;
 		return stackTrace[i];
 	}
@@ -77,142 +71,65 @@ public class LoggingClass
 		return getExternalCaller(stackTrace);
 	}
 
-	public void logFormat(final Logger logger, final Level level, final String fmt, final Object... args)
+	public void logError(final String fmt, final Object... args)
 	{
-		if (logger.isLoggable(level)) {
-			final StackTraceElement element = getExternalCaller();
-			logger.logp(level, element.getClassName(), element.getMethodName(), String.format(fmt, args));
-		}
-	}
-
-	public void logFormat(final Level level, final String fmt, final Object... args)
-	{
-		logFormat(getLogger(), level, fmt, args);
-	}
-
-	public void log(final Logger logger, final Level level, final Object obj)
-	{
-		if (logger.isLoggable(level)) {
-			final StackTraceElement element = getExternalCaller();
-			logger.logp(level, element.getClassName(), element.getMethodName(), obj.toString());
-		}
-	}
-
-	public void log(final Level level, final Object obj)
-	{
-		log(getLogger(), level, obj);
-	}
-
-	public void logSevere(final Logger logger, final String fmt, final Object... args)
-	{
-		logFormat(logger, Level.SEVERE, fmt, args);
-	}
-
-	public void logSevere(final Logger logger, final Object obj)
-	{
-		if (logger.isLoggable(Level.SEVERE))
-			log(logger, Level.SEVERE, obj);
-	}
-
-	public void logSevere(final String fmt, final Object... args)
-	{
-		logFormat(Level.SEVERE, fmt, args);
-	}
-
-	public void logWarning(final Logger logger, String fmt, final Object... args)
-	{
-		logFormat(logger, Level.WARNING, fmt, args);
+		_logger.error(fmt, args);
 	}
 
 	public void logWarning(final String fmt, final Object... args)
 	{
-		logFormat(Level.WARNING, fmt, args);
+		_logger.warn(fmt, args);
 	}
 
 	public void logWarning(final Object obj)
 	{
-		log(Level.WARNING, obj);
-	}
-
-	public void logInfo(final Logger logger, final String fmt, final Object... args)
-	{
-		logFormat(logger, Level.INFO, fmt, args);
+		if (_logger.isWarnEnabled())
+			_logger.warn(obj.toString());
 	}
 
 	public void logInfo(final String fmt, final Object... args)
 	{
-		logFormat(Level.INFO, fmt, args);
+		_logger.info(fmt, args);
 	}
 
 	public void logInfo(final Object obj)
 	{
-		log(Level.INFO, obj);
+		if (_logger.isInfoEnabled())
+			_logger.info(obj.toString());
 	}
 
-	public void logFine(final Logger logger, final String fmt, final Object... args)
+	public void logDebug(final String fmt, final Object... args)
 	{
-		logFormat(logger, Level.FINE, fmt, args);
+		_logger.debug(fmt, args);
 	}
 
-	public void logFine(final String fmt, final Object... args)
+	public void logDebug(final Object obj)
 	{
-		logFormat(Level.FINE, fmt, args);
+		if (_logger.isDebugEnabled())
+			_logger.debug(obj.toString());
 	}
 
-	public void logFine(final Object obj)
+	public void logTrace(final String fmt, final Object... args)
 	{
-		log(Level.FINE, obj);
+		_logger.trace(fmt, args);;
 	}
 
-	public void logFiner(final Logger logger, final String fmt, final Object... args)
+	public void logTrace(final Object obj)
 	{
-		logFormat(logger, Level.FINER, fmt, args);
-	}
-
-	public void logFiner(final String fmt, final Object... args)
-	{
-		logFormat(Level.FINER, fmt, args);
-	}
-
-	public void logFiner(final Object obj)
-	{
-		log(Level.FINER, obj);
-	}
-
-	public void logFinest(final Logger logger, final String fmt, final Object... args)
-	{
-		logFormat(logger, Level.FINEST, fmt, args);
-	}
-
-	public void logFinest(final String fmt, final Object... args)
-	{
-		logFormat(Level.FINEST, fmt, args);
-	}
-
-	public void logFinest(final Object obj)
-	{
-		log(Level.FINEST, obj);
+		if (_logger.isTraceEnabled())
+			_logger.trace(obj.toString());
 	}
 
 	public void logThrowing(String sourceClass, String sourceMethod, Throwable throwable)
 	{
-		getLogger().throwing(sourceClass, sourceMethod, throwable);
-		final StringWriter sw = new StringWriter();
-		final PrintWriter pw = new PrintWriter(sw);
-		pw.println(throwable.getMessage());
-		throwable.printStackTrace(pw);
-		pw.flush();
-
-		if (throwable.getCause() != null)
-			logThrowing(sourceClass, sourceMethod, throwable.getCause());
-
-		getLogger().logp(Level.SEVERE, sourceClass, sourceMethod, sw.getBuffer().toString());
+		_logger.warn(String.format("%s:%s()", sourceClass, sourceMethod), throwable);
 	}
 
 	public void logThrowing(Throwable throwable)
 	{
-		final StackTraceElement element = getExternalCaller(throwable.getStackTrace());
-		logThrowing(element.getClassName(), element.getMethodName(), throwable);
-
+		if (_logger.isWarnEnabled()) {
+			final StackTraceElement element = getExternalCaller(throwable.getStackTrace());
+			logThrowing(element.getClassName(), element.getMethodName(), throwable);
+		}
 	}
 }

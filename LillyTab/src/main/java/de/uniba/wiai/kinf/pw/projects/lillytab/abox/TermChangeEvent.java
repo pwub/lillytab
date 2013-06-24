@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -24,6 +24,10 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 
 /**
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */

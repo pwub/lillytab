@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2012 Otto-Friedrich-University Bamberg
+ * (c) 2009-2013 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -22,7 +22,6 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividualReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
@@ -93,9 +92,9 @@ public class SWRLLiteralReference<I extends Comparable<? super I>, L extends Com
 		if (this == obj) {
 			return true;
 		}
-		if (obj instanceof ISWRLIndividualReference) {
-			final ISWRLIndividualReference<?, ?, ?, ?> other = (ISWRLIndividualReference<?, ?, ?, ?>) obj;
-			return _literal.equals(other.getIndividual());
+		if (obj instanceof ISWRLLiteralReference) {
+			final ISWRLLiteralReference<?, ?, ?, ?> other = (ISWRLLiteralReference<?, ?, ?, ?>) obj;
+			return _literal.equals(other.getObject());
 		} else {
 			return false;
 		}
