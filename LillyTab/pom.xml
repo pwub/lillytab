@@ -4,7 +4,7 @@
 	<groupId>de.uniba.wiai.kinf.pw.projects.lillytab</groupId>
 	<artifactId>LillyTab-parent</artifactId>
 	<packaging>jar</packaging>
-	<version>1.9-SNAPSHOT</version>
+	<version>1.10-SNAPSHOT</version>
 	<name>LillyTab</name>
 	<url>http://lillytab.sourceforge.net</url>
 	<properties>
