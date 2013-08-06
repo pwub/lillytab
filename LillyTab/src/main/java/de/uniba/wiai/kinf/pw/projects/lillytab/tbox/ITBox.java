@@ -28,6 +28,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import java.util.Collection;
 import java.util.Set;
 
+
 /**
  * 
  * A TBox represents a set of global description that are always valid, i.e. every instance is an instance of the global
@@ -60,20 +61,17 @@ import java.util.Set;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ITBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends ITermSet<I, L, K, R> {
-
+public interface ITBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends ITermSet<I, L, K, R>
+{
 	IRBox<I, L, K, R> getRBox();
 
-
 	IAssertedRBox<I, L, K, R> getAssertedRBox();
-
 
 	/**
 	 * @return A set of global description axioms
 	 */
 	public Set<IDLClassExpression<I, L, K, R>> getGlobalDescriptions();
-
 
 	/**
 	 * 
@@ -88,9 +86,10 @@ public interface ITBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Collection<IDLClassExpression<I, L, K, R>> getUnfolding(IDLClassExpression<I, L, K, R> unfoldee);
 
-
 	String toString(String prefix);
 
-
 	ITBox<I, L, K, R> clone();
+
+	@Override
+	ITBox<I, L, K, R> getImmutable();
 }

@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.tbox;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
@@ -27,12 +28,12 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import org.apache.commons.collections15.MultiMap;
 
 /**
- * 
+ *
  * R box containing information about various role parameters.
  * <p />
  * Note that roles must be made known to the RBox prior to use. This is done by assigned a role one of either
  * {@link RoleProperty#DATA_PROPERTY} or {@link RoleProperty#OBJECT_PROPERTY}.
- * 
+ * <p/>
  * @param <I> The type for individuals/nominals
  * @param <L> The type for literals
  * @param <K> The type for DL classes
@@ -40,15 +41,15 @@ import org.apache.commons.collections15.MultiMap;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IAssertedRBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IAssertedRBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends IRBox<I, L, K, R> {
 
 	/**
-	 * 
+	 *
 	 * Add the specified role to the RBox.
 	 * <p />
 	 * To change the role type of an existing role, you must remove it, first.
-	 * 
+	 * <p/>
 	 *
 	 * @returns {@literal true} if the role was successfully added or {@literal false} if the role did already exist
 	 * with the specified {@literal roleType}.
@@ -79,17 +80,18 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 	// <editor-fold defaultstate="collapsed" desc="role assertion management">
 
 	/**
-	 * 
+	 *
 	 * Remove the equivalence assertion between the two roles.
 	 * <p />
 	 * Note that removing the assertion need not remove the equivalence relationship, as this may still be derived by
 	 * other means.
-	 * 
+	 * <p/>
 	 *
-	 * @param first The first role.
+	 * @param first  The first role.
 	 * @param second The second role.
+	 * <p/>
 	 * @return {@literal true}, if the equivalence assertion between {@literal first} and {@literal second} was removed.
-	 * {@literal false} if the assertion could not be removed.
+	 *            {@literal false} if the assertion could not be removed.
 	 */
 	boolean removeEquivalentRole(final R first, final R second);
 
@@ -97,9 +99,11 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 	/**
 	 * Add an equivalence assertion between {@literal first} and {@literal second}.
 	 *
-	 * @param first The first role
+	 * @param first  The first role
 	 * @param second The second role
+	 * <p/>
 	 * @return {@literal true} if the operation was successful.
+	 * <p/>
 	 * @throws EInconsistentRBoxException The addition would cause an inconsistency
 	 */
 	boolean addEquivalentRole(final R first, final R second)
@@ -107,18 +111,18 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 
 
 	/**
-	 * 
+	 *
 	 * Remove the equivalence assertion between the two roles {@literal first} and {@literal second}.
-	 * 
+	 * <p/>
 	 * Note that removing the assertion need not remove the equivalence relationship, as this may still be derived by
 	 * other means.
-	 * 
+	 * <p/>
 	 *
-	 * @param first The first role
+	 * @param first  The first role
 	 * @param second The second role
 	 *
 	 * @return {@literal true} if the assertion was successfully removed and {@literal false} if the assertion did not
-	 * exist.
+	 *            exist.
 	 *
 	 *
 	 */
@@ -128,10 +132,11 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 	/**
 	 * Add an inverse role assertion between {@literal first} and {@literal second}.
 	 *
-	 * @param first The first role
+	 * @param first  The first role
 	 * @param second The second role
 	 *
 	 * @return {@literal true} if the assertion was successfully added.
+	 * <p/>
 	 * @throws EInconsistentRBoxException The addition would cause an inconsistency
 	 *
 	 */
@@ -140,15 +145,16 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 
 
 	/**
-	 * 
+	 *
 	 * Remove the subrole assertion between {@literal sup} and {@literal sub}.
 	 * <p />
 	 * Note that removing the assertion need not remove the subrole relationship, as this may still be derived by other
 	 * means.
-	 * 
+	 * <p/>
 	 *
 	 * @param sup The super role
 	 * @param sub The sub role.
+	 * <p/>
 	 * @return {@literal true} if the assertion was sucessfully removed.
 	 *
 	 */
@@ -156,14 +162,16 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 
 
 	/**
-	 * 
+	 *
 	 * Add a new subrole assertion between {@literal sup} and {@literal sub}
 	 * <p />
-	 * 
+	 * <p/>
 	 *
 	 * @param sup The super role
 	 * @param sub The sub role
+	 * <p/>
 	 * @return {@literal true} if the subrole assertion was added successfully.
+	 * <p/>
 	 * @throws EInconsistentRBoxException The addition would cause an inconsistency
 	 */
 	boolean addSubRole(final R sup, final R sub)
@@ -173,9 +181,11 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 	/**
 	 * Set the specified property for a role.
 	 *
-	 * @param role The role to modify
+	 * @param role     The role to modify
 	 * @param property The property to set.
+	 * <p/>
 	 * @return True, if the role's properties were modified.
+	 * <p/>
 	 * @throws EInconsistentRBoxException The addition would cause an inconsistency
 	 */
 	boolean setRoleProperty(R role, RoleProperty property)
@@ -183,14 +193,15 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 
 
 	/**
-	 * 
+	 *
 	 * Clear the specified property for a role.
 	 * <p />
 	 * Clearing an asserted role property does not affect the derived properties of a role.
-	 * 
+	 * <p/>
 	 *
-	 * @param role The role to modify
+	 * @param role     The role to modify
 	 * @param property The property to clear.
+	 * <p/>
 	 * @return True, if the role's properties were modified.
 	 *
 	 */
@@ -198,8 +209,17 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 
 
 	/**
-	 *  A multimap, defining the set of domains of a role. <p /> A domain of a role is an
-	 * {@link IDLClassExpression} that the <em>source</em> end of a role link must be a subclass of. 
+	 * XXX - role domain and range handling interface should be fixed
+	 * currently, it is possible to add data ranges to object properties
+	 * and class expressions to data properties.
+	 * <p/>
+	 * This only affects getRoleRanges(), but any change should also
+	 * affect getRoleDomains() to maintain interface consistency.
+	 *
+	 */
+	/**
+	 * A multimap, defining the set of domains of a role. <p /> A domain of a role is an
+	 * {@link IDLClassExpression} that the <em>source</em> end of a role link must be a subclass of.
 	 *
 	 * @return a {@link MultiMap} defining domain restrictions for roles.
 	 */
@@ -207,10 +227,16 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 
 
 	/**
-	 *  A multimap, defining the set of ranges of a role. <p /> A range of a role is an {@link IDLClassExpression}
-	 * that the <em>target</em> end of a role link must be a subclass of. 
+	 * A multimap, defining the set of ranges of a role. <p /> A range of a role is an {@link IDLClassExpression}
+	 * that the <em>target</em> end of a role link must be a subclass of.
 	 *
 	 * @return a {@link MultiMap} defining range restrictions for roles.
 	 */
 	MultiMap<R, IDLRestriction<I, L, K, R>> getRoleRanges();
+
+
+	@Override
+	IAssertedRBox<I, L, K, R> getImmutable();
+//	@Override
+//	IAssertedRBox<I, L, K, R> clone();
 }

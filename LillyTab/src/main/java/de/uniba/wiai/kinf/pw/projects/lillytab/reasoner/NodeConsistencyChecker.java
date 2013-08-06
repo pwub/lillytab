@@ -18,13 +18,13 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.dhke.projects.cutil.collections.frozen.FrozenSet;
 import de.dhke.projects.cutil.collections.iterator.ChainIterable;
 import de.dhke.projects.cutil.collections.set.Flat3Set;
-import de.dhke.projects.lutil.LoggingClass;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
@@ -59,7 +59,6 @@ import java.util.SortedSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends LoggingClass
 	implements INodeConsistencyChecker<I, L, K, R> {
 	/*
 	 * perform tracing

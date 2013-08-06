@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyTerm;
@@ -27,6 +28,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
+import static de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTermList.sortAndEnsureUnique;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.Collection;
 import java.util.Collections;
@@ -47,7 +49,7 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 	public static final String OPERATOR_NAME = "AND";
 
 
-		public DLDataIntersection(final Collection<? extends IDLDataRange<I, L, K, R>> ds)
+	public DLDataIntersection(final Collection<? extends IDLDataRange<I, L, K, R>> ds)
 	{
 		super(DLTermOrder.DL_DATA_INTERSECTION, OPERATOR_NAME, ds.size());
 		if (ds.size() < 2) {
@@ -58,7 +60,7 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 				getModifiableTermList().set(i, d);
 				++i;
 			}
-			Collections.sort(getModifiableTermList());
+			sortAndEnsureUnique(this, 2);
 		}
 	}
 
@@ -69,7 +71,7 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 		getModifiableTermList().set(0, d0);
 		getModifiableTermList().set(1, d1);
 		/* ensure order */
-		Collections.sort(getModifiableTermList());
+		sortAndEnsureUnique(this, 2);
 	}
 
 

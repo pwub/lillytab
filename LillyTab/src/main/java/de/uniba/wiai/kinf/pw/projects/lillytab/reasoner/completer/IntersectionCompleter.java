@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.dhke.projects.cutil.collections.iterator.ChainIterator;
@@ -40,7 +41,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -53,20 +55,25 @@ import java.util.Iterator;
  */
 public class IntersectionCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
-	implements ICompleter<I, L, K, R>
-{
+	implements ICompleter<I, L, K, R> {
+
+	private static final Logger _logger = LoggerFactory.getLogger(IntersectionCompleter.class);
+
+
 	public IntersectionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
+
 
 	public IntersectionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		this(cChecker, false);
 	}
 
+
 	/**
-	 * 
+	 *
 	 * Search the concept set of {@literal node} (on {@literal branch})
 	 * for intersections ({@link IDLObjectIntersection}). Perform intersection
 	 * completion by unfolding all parts of the intersection into the
@@ -76,11 +83,13 @@ public class IntersectionCompleter<I extends Comparable<? super I>, L extends Co
 	 * </pre>
 	 * <p />
 	 * Any necessary node merges will be performed automatically.
-	 * 
+	 * <p/>
 	 *
-	 * @param node The node, whose concept set to search for Intersections.
+	 * @param node       The node, whose concept set to search for Intersections.
 	 * @param branchNode The current node inside the decision tree.
+	 * <p/>
 	 * @return {@link ReasonerContinuationState} determining how to continue with reasoning.
+	 * <p/>
 	 * @throws EReasonerException
 	 */
 	@Override

@@ -18,17 +18,21 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTermList;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  *
@@ -36,22 +40,23 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ * <p/>
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractFixedTermList<ISWRLArgument<I, L, K, R>>
+	extends AbstractList<ISWRLArgument<I, L, K, R>>
 	implements ISWRLRoleAtom<I, L, K, R> {
 
 	private final R _role;
+	private final List<ISWRLArgument<I, L, K, R>> _arguments;
 
 
 	protected SWRLRoleAtom(R role, ISWRLIArgument<I, L, K, R> first,
 						   ISWRLArgument<I, L, K, R> second)
 	{
-		super(2);
+		super();
 		_role = role;
-		getModifiableTermList().set(0, first);
-		getModifiableTermList().set(1, second);
+		_arguments = new ArrayList<>(Arrays.asList(first, second));
 	}
 
 
@@ -77,6 +82,20 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 
 
 	@Override
+	public ISWRLArgument<I, L, K, R> get(int index)
+	{
+		return _arguments.get(index);
+	}
+
+
+	@Override
+	public int size()
+	{
+		return 2;
+	}
+
+
+	@Override
 	public ITerm clone()
 	{
 		return this;
@@ -90,7 +109,8 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 			return true;
 		else if (obj instanceof ISWRLRoleAtom) {
 			final ISWRLRoleAtom<?, ?, ?, ?> other = (ISWRLRoleAtom<?, ?, ?, ?>) obj;
-			return getSWRLTermOrder().equals(other.getSWRLTermOrder()) && getRole().equals(other.getRole()) && super.equals(
+			return getSWRLTermOrder().equals(other.getSWRLTermOrder()) && getRole().equals(other.getRole()) && super.
+				equals(
 				obj);
 		} else
 			return false;
@@ -104,7 +124,9 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 		if (compare == 0) {
 			assert o instanceof ISWRLRoleAtom;
 			final ISWRLRoleAtom<I, L, K, R> other = (ISWRLRoleAtom<I, L, K, R>) o;
-			compare = TermUtil.compareTermList(this, other);
+			compare = getRole().compareTo(other.getRole());
+			if (compare == 0)
+				compare = TermUtil.compareTermList(this, other);
 		}
 		return compare;
 	}

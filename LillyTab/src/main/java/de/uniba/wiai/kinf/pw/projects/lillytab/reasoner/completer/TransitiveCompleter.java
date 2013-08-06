@@ -36,6 +36,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -43,12 +45,16 @@ import java.util.Iterator;
  * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ * <p/>
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  *
  */
 public class TransitiveCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
 	implements ICompleter<I, L, K, R> {
+
+	// private static final Logger _logger = LoggerFactory.getLogger(TransitiveCompleter.class);
+
 
 	public TransitiveCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{

@@ -92,6 +92,13 @@ public class TermSet<I extends Comparable<? super I>, L extends Comparable<? sup
 		super.notifyBeforeElementReplaced(ev);
 	}
 
+	@Override
+	public ITermSet<I, L, K, R> getImmutable()
+	{
+		return new ImmutableTermSet<>(this);
+	}
+		
+
 	/// <editor-fold defaultstate="collapsed" desc="interface ITermSet">
 
 	@Override
@@ -107,14 +114,6 @@ public class TermSet<I extends Comparable<? super I>, L extends Comparable<? sup
 
 		return subSet(beforeTerm, afterTerm);
 	}
-
-
-	@Override
-	public ITermSet<I, L, K, R> getImmutable()
-	{
-		return ImmutableTermSet.decorate(this);
-	}
-
 
 	@Override
 	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final Class<? extends T> klass)

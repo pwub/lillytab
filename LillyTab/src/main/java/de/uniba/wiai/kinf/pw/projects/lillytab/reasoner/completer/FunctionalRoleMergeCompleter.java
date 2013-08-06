@@ -35,6 +35,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractC
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -47,6 +49,7 @@ import java.util.Iterator;
  */
 public class FunctionalRoleMergeCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
 	extends AbstractCompleter<I, L, K, R> {
+	private static final Logger _logger = LoggerFactory.getLogger(FunctionalRoleMergeCompleter.class);
 
 	public FunctionalRoleMergeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
@@ -67,9 +70,9 @@ public class FunctionalRoleMergeCompleter<I extends Comparable<? super I>, L ext
 		try {
 			final IABox<I, L, K, R> abox = node.getABox();
 			if (abox == null) {
-				logInfo("Expected ABox, got null: %s", branchNode.getData().getABox());
-				logInfo("For Node %s", node);
-				logInfo("Node fetch from ABOX yields %s", branchNode.getData().getABox().getNode(node.getNodeID()));
+				_logger.info("Expected ABox, got null: %s", branchNode.getData().getABox());
+				_logger.info("For Node %s", node);
+				_logger.info("Node fetch from ABOX yields %s", branchNode.getData().getABox().getNode(node.getNodeID()));
 			}
 			assert abox != null;
 			assert abox.getTBox() != null;
@@ -86,7 +89,8 @@ public class FunctionalRoleMergeCompleter<I extends Comparable<? super I>, L ext
 					while (succIter.hasNext()) {
 						final IABoxNode<I, L, K, R> nextNode = succIter.next();
 						final NodeMergeInfo<I, L, K, R> mergeInfo = abox.mergeNodes(nextNode, firstNode);
-						branchNode.getData().touchNode(mergeInfo.getCurrentNode());
+						
+						// abox.touchNode(mergeInfo.getCurrentNode());
 
 						succIter = raBox.getSuccessorNodes(outRole).iterator();
 						firstNode = succIter.next();
@@ -105,7 +109,7 @@ public class FunctionalRoleMergeCompleter<I extends Comparable<? super I>, L ext
 						final IABoxNode<I, L, K, R> nextNode = predIter.next();
 						final NodeMergeInfo<I, L, K, R> mergeInfo = abox.mergeNodes(nextNode, firstNode);
 
-						branchNode.getData().touchNode(mergeInfo.getCurrentNode());
+						// abox.touchNode(mergeInfo.getCurrentNode());
 
 						predIter = raBox.getPredecessorNodes(inRole).iterator();
 						firstNode = predIter.next();

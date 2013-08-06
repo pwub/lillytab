@@ -44,7 +44,6 @@ public class NoAddTermSet<I extends Comparable<? super I>, L extends Comparable<
 		super(types, baseSet, baseSet);
 	}
 
-
 	@Override
 	protected void notifyBeforeElementAdded(
 		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> ev)

@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;
@@ -41,7 +42,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLUnion;
 import java.util.Iterator;
 import java.util.List;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @param <I> The type for individuals/nominals
@@ -53,17 +55,22 @@ import java.util.List;
  */
 public class UnionCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
-	implements ICompleter<I, L, K, R>
-{
+	implements ICompleter<I, L, K, R> {
+
+	private static final Logger _logger = LoggerFactory.getLogger(UnionCompleter.class);
+
+
 	public UnionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
 
+
 	public UnionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		this(cChecker, false);
 	}
+
 
 	@Override
 	public ReasonerContinuationState completeNode(final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
@@ -109,7 +116,7 @@ public class UnionCompleter<I extends Comparable<? super I>, L extends Comparabl
 						return ReasonerContinuationState.INCONSISTENT;
 					} else {
 						if (isTracing()) {
-							logTrace("Created %d branches", branchCreationInfos.size());
+							_logger.trace("Created %d branches", branchCreationInfos.size());
 						}
 						final ReasonerContinuationState contState = handleBranchCreation(branchCreationInfos, branchNode,
 																						 node);

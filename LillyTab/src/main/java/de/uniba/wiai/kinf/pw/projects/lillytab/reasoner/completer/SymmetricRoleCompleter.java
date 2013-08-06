@@ -35,6 +35,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.IComplete
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -44,21 +45,20 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SymmetricRoleCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public class SymmetricRoleCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
-	implements ICompleter<I, L, K, R> {
-
+	implements ICompleter<I, L, K, R>
+{
+	// private static final Logger _logger = LoggerFactory.getLogger(SymmetricRoleCompleter.class);
 	public SymmetricRoleCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, boolean trace)
 	{
 		super(cChecker, trace);
 	}
 
-
 	public SymmetricRoleCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		super(cChecker, false);
 	}
-
 
 	@Override
 	public ReasonerContinuationState completeNode(Node<Branch<I, L, K, R>> branchNode, IABoxNode<I, L, K, R> node)
@@ -85,8 +85,10 @@ public class SymmetricRoleCompleter<I extends Comparable<? super I>, L extends C
 				if (!otherNode.getRABox().hasSuccessor(role, node)) {
 					otherNode.getRABox().getAssertedSuccessors().put(role, node.getNodeID());
 					wasModified = true;
-					branch.touchNode(node);
-					branch.touchNode(otherNode);
+					
+					// abox.touchNode(node);
+					// abox.touchNode(otherNode);
+					
 					/**
 					 * It is safe to continue after modification, because we never modify the successors of the current
 					 * node.

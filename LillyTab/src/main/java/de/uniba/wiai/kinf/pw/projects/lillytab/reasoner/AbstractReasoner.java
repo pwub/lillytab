@@ -18,10 +18,10 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
-import de.dhke.projects.lutil.LoggingClass;
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasoner;
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasonerResult;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
@@ -44,6 +44,8 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -55,8 +57,10 @@ import java.util.TreeSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class AbstractReasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends LoggingClass
 	implements IReasoner<I, L, K, R> {
+
+	private static final Logger _logger = LoggerFactory.getLogger(AbstractReasoner.class);
+
 
 	@Override
 	public boolean isSubClassOf(IABox<I, L, K, R> abox, K presumedSub, K presumedSuper)
@@ -122,7 +126,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 
 		while (!queue.isEmpty()) {
 			final Point item = queue.remove();
-			logTrace("Propagating from change at %s", item);
+			_logger.trace("Propagating from change at %s", item);
 			final int i = item.x;
 			final int j = item.y;
 			final int ij = cfMatrix[i][j];
@@ -164,7 +168,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 				final IDLClassReference<I, L, K, R> clsRef = (IDLClassReference<I, L, K, R>) clsTerm;
 				int clsPos = Collections.binarySearch(classList, clsRef.getElement());
 				assert clsPos >= 0;
-				logTrace("%s is in initial ABox, marking.", clsRef);
+				_logger.trace("%s is in initial ABox, marking.", clsRef);
 				scMatrix[clsPos][clsPos] = 1;
 			}
 		}
@@ -174,7 +178,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 				scMatrix[i][i] = 1;
 				final IDLClassReference<I, L, K, R> klass = abox.getDLTermFactory().
 					getDLClassReference(classList.get(i));
-				logTrace("Testing satisfiability of %s", klass);
+				_logger.trace("Testing satisfiability of %s", klass);
 				final Collection<? extends IReasonerResult<I, L, K, R>> results = checkConsistency(abox, klass, true);
 			}
 		}
@@ -187,7 +191,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 					getSubDescription()).getElement());
 				int j = Collections.binarySearch(classList, ((IDLClassReference<I, L, K, R>) imp.
 					getSuperDescription()).getElement());
-				logTrace("%s implicitly asserted, marking", imp);
+				_logger.trace("%s implicitly asserted, marking", imp);
 				scMatrix[i][j] = 1;
 			}
 		}
@@ -199,7 +203,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 						getDLClassReference(classList.get(row));
 					final IDLClassReference<I, L, K, R> superClass = baseABox.getDLTermFactory().
 						getDLClassReference(classList.get(col));
-					logTrace("Testing if (subClassOf %s %s)", subClass, superClass);
+					_logger.trace("Testing if (subClassOf %s %s)", subClass, superClass);
 					boolean isSub = isSubClassOf(baseABox, subClass, superClass);
 
 					if (isSub) {

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.SortedSet;
+
 
 /**
  * An ABox is a set of instance nodes associated with descriptions. An axiom also references a set of global axioms, the
@@ -51,8 +53,8 @@ import java.util.Set;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends Set<IABoxNode<I, L, K, R>>, IImmutable<IABox<I, L, K, R>>, Cloneable, Serializable {
-
+	extends Set<IABoxNode<I, L, K, R>>, IImmutable<IABox<I, L, K, R>>, Cloneable, Serializable
+{
 	/**
 	 * Retrieve the unique ID of the current ABox.
 	 *
@@ -60,7 +62,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * @see NodeID
 	 */
 	NodeID getID();
-
 
 	/**
 	 * Create a new, anonymous node and add it to the current ABox. For datatype nodes, the returned node is empty.
@@ -84,7 +85,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode)
 		throws ENodeMergeException;
 
-
 	/**
 	 * Create a new, anonymous node literal node. The returned node is empty.
 	 *
@@ -92,7 +92,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 *
 	 */
 	IDatatypeABoxNode<I, L, K, R> createDatatypeNode();
-
 
 	/**
 	 * Create a new, anonymous individual (non-datatype node and add it to the current ABox. Individual nodes
@@ -113,7 +112,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	IIndividualABoxNode<I, L, K, R> createIndividualNode()
 		throws ENodeMergeException;
-
 
 	/**
 	 *
@@ -138,7 +136,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	IIndividualABoxNode<I, L, K, R> getOrAddIndividualNode(final I individual)
 		throws ENodeMergeException;
 
-
 	/**
 	 *
 	 * Retrieve or create a new named {@link IABoxNode} referencing the specified {@literal literal}. If the individual
@@ -162,7 +159,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	IDatatypeABoxNode<I, L, K, R> getOrAddDatatypeNode(final L literal)
 		throws ENodeMergeException;
 
-
 	/**
 	 * The node map maps node names and node IDs to actual nodes. <p /> As the current ABox may be cloned, references to
 	 * ABox nodes should never be to the real class but indirectly via node ID or node name.
@@ -170,7 +166,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * @return The the map of all nodes, indexed by identifier.
 	 */
 	Map<Object, IABoxNode<I, L, K, R>> getNodeMap();
-
 
 	/**
 	 * Retrieve the node with the specified {@literal id}.
@@ -180,7 +175,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	IABoxNode<I, L, K, R> getNode(NodeID id);
 
-
 	/**
 	 * Retrieve the node with the specified {@literal literal}
 	 *
@@ -189,7 +183,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 *
 	 */
 	IDatatypeABoxNode<I, L, K, R> getDatatypeNode(final L literal);
-
 
 	/**
 	 * Retrieve the node with the specified {@literal individual}
@@ -201,48 +194,40 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	IIndividualABoxNode<I, L, K, R> getIndividualNode(final I individual);
 
-
 	/**
 	 * @return The {@link TBox} for the ABox.
 	 */
 	ITBox<I, L, K, R> getTBox();
-
 
 	/**
 	 * @return The {@link IRBox} for the ABox.
 	 */
 	IRBox<I, L, K, R> getRBox();
 
-
 	/**
 	 * @return The {@link IAssertedRBox} for the ABox.
 	 */
 	IAssertedRBox<I, L, K, R> getAssertedRBox();
-
 
 	/**
 	 * @return A deep clone of the current {@link IABox }.
 	 */
 	IABox<I, L, K, R> clone();
 
-
 	/**
 	 * @return The {@link IDLTermFactory} of the current ABox.
 	 */
 	IDLTermFactory<I, L, K, R> getDLTermFactory();
-
 
 	/**
 	 * @return The {@link TermEntryFactory} of the current ABox.
 	 */
 	TermEntryFactory<I, L, K, R> getTermEntryFactory();
 
-
 	/**
 	 * @return A factory used to create a set of {@link NodeID}s.
 	 */
 	ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory();
-
 
 	/**
 	 * Determine, if {@literal node1} and {@literal node2} can be merged.
@@ -252,7 +237,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * @return {@literal true}, if {@literal node1} and {@literal node2} can be merged.
 	 */
 	boolean canMerge(final IABoxNode<I, L, K, R> node1, final IABoxNode<I, L, K, R> node2);
-
 
 	/**
 	 * Join the two nodes {@literal node1} and {@literal node2} into a single node. The result of the join is a single
@@ -273,7 +257,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 										 final IABoxNode<I, L, K, R> node2)
 		throws ENodeMergeException;
 
-
 	/**
 	 * Retrieve the list of {@link ICollectionListener}s of the internal node set. <p /> The {@link ICollectionListener}
 	 * is informed, whenever a modification is made to the node list of the current ABox.
@@ -286,7 +269,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	List<ICollectionListener<IABoxNode<I, L, K, R>, Collection<IABoxNode<I, L, K, R>>>> getNodeSetListeners();
 
-
 	/**
 	 * Retrieve the list of {@link INodeMergeListener}s attached to this {@link IABox}. <p /> A
 	 * {@link INodeMergeListener} is informed, when two nodes are merged into one. <p /> Note, that callers should take
@@ -298,7 +280,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	List<INodeMergeListener<I, L, K, R>> getNodeMergeListeners();
 
-
 	/**
 	 * Return the list of {@link ITermSetListener}s attached to this {@link IABox}. <p /> The {@link ITermSetListener}
 	 * are informed, when the term set of a node is modified. <p /> Listeners are not cloned together with ABoxes.
@@ -307,7 +288,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	List<ITermSetListener<I, L, K, R>> getTermSetListeners();
 
-
 	/**
 	 * Calculate the hashcode of the current node by deep inspection of the abox's contents. <p /> Contrary to {@link #hashCode()
 	 * }, the abox's contents are taken into account and not only the object identity.
@@ -315,7 +295,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * @return The hashcode of the current node, calculated through deep inspection of the abox's contents.
 	 */
 	int deepHashCode();
-
 
 	/**
 	 * Compare two {@link IABox}es through deep inspection <p /> Contrary to {@link #equals(java.lang.Object) }, this
@@ -326,7 +305,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	boolean deepEquals(Object obj);
 
-
 	/**
 	 * Get the list of all class references by any of the axioms in the current ABox, TBox or RBox.
 	 *
@@ -334,7 +312,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 *
 	 */
 	Set<K> getClassesInSignature();
-
 
 	/**
 	 * Get the list of all role references by any of the axioms in the current ABox, TBox or RBox.
@@ -344,7 +321,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Set<R> getRolesInSignature();
 
-
 	/**
 	 * Return the blocking state cache of the current ABox. The blocking state cache is used by reasoners to store
 	 * cached information about the blocking status of nodes inside the ABox.
@@ -353,9 +329,7 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	IBlockingStateCache getBlockingStateCache();
 
-
 	String toString(String prefix);
-
 
 	/**
 	 * Return an immutable version of the current ABox. >
@@ -377,14 +351,12 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 //	 * @return The modifiable list of {@link IUnfoldListener}s.
 //	 */
 //	List<IUnfoldListener<I, L, K, R>> getUnfoldListeners();
-
 	/**
 	 * Retrieve the dependency map for the current {@link IABox}.
 	 *
 	 * @return The dependency map for the current {@link IABox}
 	 */
 	IDependencyMap<I, L, K, R> getDependencyMap();
-
 
 	/**
 	 * Determine if the current {@link IABox} contains the supplied {@link TermEntry}.	*
@@ -394,7 +366,6 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 *
 	 */
 	boolean containsTermEntry(final TermEntry<I, L, K, R> entry);
-
 
 	/**
 	 * Determine if the current {@link IABox} contain all of the supplied {@link TermEntry}s.
@@ -412,4 +383,50 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 //	 **/
 //	public void unfoldAll() 
 //		throws ENodeMergeException;
+
+	boolean hasMoreGeneratingNodes();
+
+	/// <editor-fold defaultstate="collapsed" desc="Node Queues">
+	boolean hasMoreNonGeneratingNodes();
+
+	boolean removeFromQueues(
+		final Collection<NodeID> nodeIDs);
+
+	boolean removeFromQueues(final NodeID nodeID);
+
+	boolean removeNodeFromQueues(
+		final IABoxNode<I, L, K, R> node);
+
+	boolean removeNodesFromQueues(
+		final Collection<? extends IABoxNode<I, L, K, R>> nodes);
+
+	boolean touch(final NodeID nodeID);
+
+	boolean touchAll(
+		final Collection<NodeID> individuals);
+
+	boolean touchIndividual(final I individual);
+
+	boolean touchLiteral(final L literal);
+
+	boolean touchNode(
+		final IABoxNode<I, L, K, R> node);
+
+	boolean touchNodes(
+		final Collection<? extends IABoxNode<I, L, K, R>> nodes);
+
+	IABoxNode<I, L, K, R> nextGeneratingNode();
+
+	IABoxNode<I, L, K, R> nextNonGeneratingNode();
+
+	/**
+	 * @return the _generatingQueue
+	 */
+	SortedSet<NodeID> getGeneratingQueue();
+
+	/**
+	 * @return the _nonGeneratingQueue
+	 */
+	SortedSet<NodeID> getNonGeneratingQueue();
+	/// </editor-fold>
 }

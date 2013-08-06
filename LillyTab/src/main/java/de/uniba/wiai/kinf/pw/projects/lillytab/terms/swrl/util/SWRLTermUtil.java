@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.util;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasoner;
@@ -31,6 +32,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDArgument;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRangeAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIntersection;
@@ -105,7 +107,7 @@ public class SWRLTermUtil
 		} else if (second == null) {
 			return first;
 		} else {
-			ArrayList<ISWRLTerm<I, L, K, R>> list = new ArrayList<>(2);
+			final ArrayList<ISWRLTerm<I, L, K, R>> list = new ArrayList<>(2);
 			list.add(first);
 			list.add(second);
 			list.trimToSize();
@@ -135,6 +137,10 @@ public class SWRLTermUtil
 			return swrlTermFactory.getSWRLObjectRoleAtom(objRole.getRole(),
 														 getMappedIndividual(objRole.getFirstIndividual(), varMap),
 														 getMappedIndividual(objRole.getSecondIndividual(), varMap));
+		} else if (term instanceof ISWRLDataRangeAtom) {
+			final ISWRLDataRangeAtom<I, L, K, R> rangeAtom = (ISWRLDataRangeAtom<I, L, K, R>) term;
+			return swrlTermFactory.getSWRLDataRange(rangeAtom.getDataRange(), getMappedIndividual(rangeAtom.
+				getIndividual(), varMap));
 		} else if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")
 			final ITermList<ISWRLAtomicTerm<I, L, K, R>> list = (ITermList<ISWRLAtomicTerm<I, L, K, R>>) term;
@@ -192,6 +198,10 @@ public class SWRLTermUtil
 			final ISWRLRoleAtom<I, L, K, R> roleAtom = (ISWRLRoleAtom<I, L, K, R>) term;
 			targetColl.add(roleAtom.getFirstIndividual());
 			targetColl.add(roleAtom.getSecondIndividual());
+		} else if (term instanceof ISWRLDataRangeAtom) {
+			final ISWRLDataRangeAtom<I, L, K, R> rangeAtom = (ISWRLDataRangeAtom<I, L, K, R>) term;
+			targetColl.add(rangeAtom.getIndividual());
+
 		} else if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")
 			final ITermList<ISWRLAtomicTerm<I, L, K, R>> list = (ITermList<ISWRLAtomicTerm<I, L, K, R>>) term;
@@ -219,6 +229,11 @@ public class SWRLTermUtil
 			}
 			if (roleAtom.getSecondIndividual() instanceof ISWRLVariable) {
 				targetColl.add((ISWRLVariable<I, L, K, R>) roleAtom.getSecondIndividual());
+			}
+		} else if (term instanceof ISWRLDataRangeAtom) {
+			final ISWRLDataRangeAtom<I, L, K, R> dataRange = (ISWRLDataRangeAtom<I, L, K, R>) term;
+			if (dataRange.getIndividual() instanceof ISWRLVariable) {
+				targetColl.add((ISWRLVariable<I, L, K, R>) dataRange.getIndividual());
 			}
 		} else if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")

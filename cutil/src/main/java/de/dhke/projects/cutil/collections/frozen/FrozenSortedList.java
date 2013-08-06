@@ -84,7 +84,7 @@ public class FrozenSortedList<T extends Comparable<? super T>>
 	public boolean equals(Object o)
 	{
 		if (o instanceof Collection) {
-			Collection c = (Collection)o;
+			Collection<?> c = (Collection<?>)o;
 			return SetUtils.isEqualSet(_elements, c);
 		} else
 			return false;

@@ -18,15 +18,16 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 
 /**
- * 
+ *
  * Base interface for all DL related {@link ITerm}s.
- * 
+ * <p/>
  * @param <I> The type for individuals/nominals
  * @param <L> The type for literals
  * @param <K> The type for DL classes
@@ -34,7 +35,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IDLTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IDLTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends ITerm, Comparable<IDLTerm<I, L, K, R>> {
 
 	/**
@@ -60,7 +61,11 @@ public interface IDLTerm<I extends Comparable<? super I>, L extends Comparable<?
 	 * @see IToStringFormatter} to format external entities (OWL objects).
 	 *
 	 * @param entityFormatter
+	 * <p/>
 	 * @return
 	 */
 	String toString(final IToStringFormatter entityFormatter);
+
+
+	IDLTerm<I, L, K, R> clone();
 }

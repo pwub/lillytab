@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.collections15.MultiMap;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -50,17 +51,16 @@ import org.apache.commons.collections15.MultiMap;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AspectMultiMap<R, NodeID, MultiMap<R, NodeID>>
-	implements ILinkMap<I, L, K, R>, Cloneable {
-
+	implements ILinkMap<I, L, K, R>, Cloneable
+{
 	public LinkMap(
 		final IABoxNode<I, L, K, R> node,
 		boolean always_empty)
 	{
 		super(new EmptyMultiMap<R, NodeID>(), node);
 	}
-
 
 	public LinkMap(
 		final IABoxNode<I, L, K, R> node)
@@ -69,14 +69,12 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 										   new MultiTreeSetHashMapFactory<R, NodeID>()), node);
 	}
 
-
 	protected LinkMap(
 		final IABoxNode<I, L, K, R> node,
 		final CopyOnWriteMultiMap<R, NodeID> baseMap)
 	{
 		super(baseMap, node);
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -85,13 +83,11 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		return (IABoxNode<I, L, K, R>) getSender();
 	}
 
-
 	@Override
 	public NodeID put(final R role, final IABoxNode<I, L, K, R> node)
 	{
 		return put(role, node.getNodeID());
 	}
-
 
 	@Override
 	public boolean putAll(R key,
@@ -105,7 +101,6 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		}
 		return added;
 	}
-
 
 	@Override
 	protected void notifyAfterElementAdded(CollectionItemEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> ev)
@@ -128,10 +123,11 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		} else {
 			throw new IllegalArgumentException(String.format("Unsupported collection `%s'", ev.getCollection()));
 		}
+		abox.touchNode(source);
+		abox.touchNode(target);
 
 		super.notifyAfterElementAdded(ev);
 	}
-
 
 	@Override
 	public void notifyAfterElementRemoved(final CollectionItemEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> e)
@@ -157,12 +153,13 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 					throw new IllegalArgumentException(String.format("Unsupported collection `%s'", e.
 						getCollection()));
 				}
+				abox.touchNode(target);
 			}
+			abox.touchNode(source);
 		}
 
 		super.notifyAfterElementRemoved(e);
 	}
-
 
 	@Override
 	public void notifyBeforeCollectionCleared(CollectionEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> e)
@@ -205,19 +202,23 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		super.notifyBeforeCollectionCleared(e);
 	}
 
+	@Override
+	protected void notifyAfterCollectionCleared(
+		CollectionEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> ev)
+	{
+		getNode().getABox().touchNodes(getNode().getABox());
+	}
 
 	private boolean isSuccessorMap(final IABoxNode<I, L, K, R> node, final MultiMap<R, NodeID> map)
 	{
 		return map == node.getRABox().getAssertedSuccessors();
 	}
 
-
 	private boolean isPredecessorMap(final IABoxNode<I, L, K, R> node,
 									 final MultiMap<R, NodeID> map)
 	{
 		return map == node.getRABox().getAssertedPredecessors();
 	}
-
 
 	private Collection<Pair<R, IABoxNode<I, L, K, R>>> getAllEntries(
 		final IABox<I, L, K, R> abox,
@@ -230,7 +231,6 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		}
 		return list;
 	}
-
 
 	public LinkMap<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode)
 	{

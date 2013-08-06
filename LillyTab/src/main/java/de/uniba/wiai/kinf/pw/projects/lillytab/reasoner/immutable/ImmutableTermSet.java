@@ -24,7 +24,6 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 import de.dhke.projects.cutil.IDecorator;
 import de.dhke.projects.cutil.collections.immutable.GenericImmutableSet;
 import de.dhke.projects.cutil.collections.immutable.GenericImmutableSortedSet;
-import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import de.dhke.projects.cutil.collections.immutable.ImmutableIterator;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
@@ -33,6 +32,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
+
 
 /**
  * /
@@ -50,22 +50,21 @@ import java.util.SortedSet;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ImmutableTermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public class ImmutableTermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends GenericImmutableSet<IDLTerm<I, L, K, R>, ITermSet<I, L, K, R>>
-	implements ITermSet<I, L, K, R>, IDecorator<ITermSet<I, L, K, R>>,
-	IImmutable<ITermSet<I, L, K, R>> {
-
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableTermSet<I, L, K, R> decorate(final ITermSet<I, L, K, R> baseSet)
+	implements ITermSet<I, L, K, R>, IDecorator<ITermSet<I, L, K, R>>
+{
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableTermSet<I, L, K, R> decorate(
+		final ITermSet<I, L, K, R> baseSet)
 	{
 		return new ImmutableTermSet<>(baseSet);
 	}
 
- ImmutableTermSet(
+	public ImmutableTermSet(
 		final ITermSet<I, L, K, R> baseSet)
 	{
 		super(baseSet, null);
 	}
-
 
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> subSet(DLTermOrder termType)
@@ -73,28 +72,18 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return GenericImmutableSortedSet.decorate(getDecoratee().subSet(termType));
 	}
 
-
-	@Override
-	public ITermSet<I, L, K, R> getImmutable()
-	{
-		return this;
-	}
-
-
 	@Override
 	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(Class<? extends T> klass)
 	{
 		return ImmutableIterator.decorate(getDecoratee().iterator(klass));
 	}
 
-
 	@Override
 	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(DLTermOrder termType,
-																	   Class<? extends T> klass)
+																Class<? extends T> klass)
 	{
 		return ImmutableIterator.decorate(getDecoratee().iterator(termType, klass));
 	}
-
 
 	@Override
 	public Comparator<? super IDLTerm<I, L, K, R>> comparator()
@@ -102,14 +91,12 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return getDecoratee().comparator();
 	}
 
-
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> subSet(IDLTerm<I, L, K, R> fromElement,
-														IDLTerm<I, L, K, R> toElement)
+												 IDLTerm<I, L, K, R> toElement)
 	{
 		return Collections.unmodifiableSortedSet(getDecoratee().subSet(fromElement, toElement));
 	}
-
 
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> headSet(IDLTerm<I, L, K, R> toElement)
@@ -117,13 +104,11 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return Collections.unmodifiableSortedSet(getDecoratee().headSet(toElement));
 	}
 
-
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> tailSet(IDLTerm<I, L, K, R> fromElement)
 	{
 		return Collections.unmodifiableSortedSet(getDecoratee().tailSet(fromElement));
 	}
-
 
 	@Override
 	public IDLTerm<I, L, K, R> first()
@@ -131,10 +116,17 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return getDecoratee().first();
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> last()
 	{
 		return getDecoratee().last();
 	}
+
+	@Override
+	public ITermSet<I, L, K, R> getImmutable()
+	{
+		return this;
+	}
+	
+	
 }

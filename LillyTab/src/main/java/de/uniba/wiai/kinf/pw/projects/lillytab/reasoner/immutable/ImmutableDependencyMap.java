@@ -309,6 +309,19 @@ public class ImmutableDependencyMap<I extends Comparable<? super I>, L extends C
 	}
 
 	@Override
+	public boolean hasGoverningTerm(
+		IABoxNode<I, L, K, R> node)
+	{
+		return getDecoratee().hasGoverningTerm(node);
+	}
+
+	@Override
+	public boolean hasGoverningTerm(NodeID nodeID)
+	{
+		return getDecoratee().hasGoverningTerm(nodeID);
+	}
+
+	@Override
 	public String toString()
 	{
 		return getDecoratee().toString();

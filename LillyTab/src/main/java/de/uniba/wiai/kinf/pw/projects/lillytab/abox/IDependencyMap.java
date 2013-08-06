@@ -26,6 +26,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Collection;
 import org.apache.commons.collections15.MultiMap;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -35,10 +36,10 @@ import org.apache.commons.collections15.MultiMap;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IDependencyMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IDependencyMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends MultiMap<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>,
-	IImmutable<IDependencyMap<I, L, K, R>> {
-
+	IImmutable<IDependencyMap<I, L, K, R>>
+{
 	/**
 	 * 
 	 * Returns the list of governing terms of the current ABox.
@@ -55,38 +56,35 @@ public interface IDependencyMap<I extends Comparable<? super I>, L extends Compa
 	 */
 	Collection<TermEntry<I, L, K, R>> getGoverningTerms();
 
-
 	boolean addGoverningTerm(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term);
-
 
 	boolean addGoverningTerm(final NodeID nodeID, final IDLTerm<I, L, K, R> term);
 
-
 	boolean addGoverningTerm(final TermEntry<I, L, K, R> termEntry);
-	
+
 	boolean hasGoverningTerm(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term);
+
 	boolean hasGoverningTerm(final TermEntry<I, L, K, R> termEntry);
+
 	boolean hasGoverningTerm(final NodeID nodeID, final IDLTerm<I, L, K, R> term);
 
+	boolean hasGoverningTerm(final NodeID nodeID);
+
+	boolean hasGoverningTerm(final IABoxNode<I, L, K, R> node);
 
 	void addParent(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term,
 				   final IABoxNode<I, L, K, R> parentNode, final IDLTerm<I, L, K, R> parentTerm);
 
-
 	void addParent(final NodeID nodeID, final IDLTerm<I, L, K, R> term, final NodeID parentNodeID,
 				   final IDLTerm<I, L, K, R> parentTerm);
 
-
 	void addParent(final TermEntry<I, L, K, R> termEntry, final TermEntry<I, L, K, R> parentEntry);
-
 
 	void addParent(final NodeID nodeID, final IDLTerm<I, L, K, R> term,
 				   final TermEntry<I, L, K, R> parentEntry);
 
-
 	void addParent(final TermEntry<I, L, K, R> termEntry, final NodeID parentNode,
 				   final IDLTerm<I, L, K, R> parentTerm);
-
 
 	/**
 	 * 
@@ -99,7 +97,6 @@ public interface IDependencyMap<I extends Comparable<? super I>, L extends Compa
 	 */
 	Collection<TermEntry<I, L, K, R>> getParents(final TermEntry<I, L, K, R> entry);
 
-
 	/**
 	 * Get the direct parents of the entry composed of {@literal nodeID} and {@literal term}.
 	 *
@@ -109,73 +106,53 @@ public interface IDependencyMap<I extends Comparable<? super I>, L extends Compa
 	 */
 	Collection<TermEntry<I, L, K, R>> getParents(final NodeID nodeID, final IDLTerm<I, L, K, R> term);
 
-
 	Collection<TermEntry<I, L, K, R>> getParents(final IABoxNode<I, L, K, R> node,
-														final IDLTerm<I, L, K, R> term);
-
+												 final IDLTerm<I, L, K, R> term);
 
 	Collection<TermEntry<I, L, K, R>> getParents(final TermEntry<I, L, K, R> entry, boolean recursive);
 
-
 	Collection<TermEntry<I, L, K, R>> getParents(final NodeID nodeID, final IDLTerm<I, L, K, R> term,
-														boolean recursive);
-
+												 boolean recursive);
 
 	Collection<TermEntry<I, L, K, R>> getParents(final IABoxNode<I, L, K, R> node,
-														final IDLTerm<I, L, K, R> term, boolean recursive);
-
+												 final IDLTerm<I, L, K, R> term, boolean recursive);
 
 	Collection<TermEntry<I, L, K, R>> getChildren(final TermEntry<I, L, K, R> entry);
 
-
 	Collection<TermEntry<I, L, K, R>> getChildren(final NodeID nodeID, final IDLTerm<I, L, K, R> term);
 
-
 	Collection<TermEntry<I, L, K, R>> getChildren(final IABoxNode<I, L, K, R> node,
-														 final IDLTerm<I, L, K, R> term);
-
+												  final IDLTerm<I, L, K, R> term);
 
 	Collection<TermEntry<I, L, K, R>> getChildren(final TermEntry<I, L, K, R> entry, boolean recursive);
 
-
 	Collection<TermEntry<I, L, K, R>> getChildren(final NodeID nodeID, final IDLTerm<I, L, K, R> term,
-														 boolean recursive);
-
+												  boolean recursive);
 
 	Collection<TermEntry<I, L, K, R>> getChildren(final IABoxNode<I, L, K, R> node,
-														 final IDLTerm<I, L, K, R> term, boolean recursive);
-
+												  final IDLTerm<I, L, K, R> term, boolean recursive);
 
 	boolean hasChild(final TermEntry<I, L, K, R> parent, final TermEntry<I, L, K, R> child);
-
 
 	boolean hasChild(final NodeID parentNodeID, final IDLTerm<I, L, K, R> parentTerm, final NodeID childNodeID,
 					 final IDLTerm<I, L, K, R> childTerm);
 
-
 	boolean hasChild(final IABoxNode<I, L, K, R> parentNode, final IDLTerm<I, L, K, R> parentTerm,
 					 final IABoxNode<I, L, K, R> childNode, final IDLTerm<I, L, K, R> childTerm);
 
-
 	boolean containsKey(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term);
-
 
 	boolean containsValue(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term,
 						  final IABoxNode<I, L, K, R> parentNode, final IDLTerm<I, L, K, R> parentTerm);
 
-
 	boolean containsValue(final NodeID nodeID, final IDLTerm<I, L, K, R> term, final NodeID parentNodeID,
 						  final IDLTerm<I, L, K, R> parentTerm);
 
-
 	Collection<TermEntry<I, L, K, R>> getNodeRoots(final NodeID node);
-
 
 	Collection<TermEntry<I, L, K, R>> getNodeRoots(final IABoxNode<I, L, K, R> node);
 
-
 	IDependencyMap<I, L, K, R> clone();
-
 
 	TermEntryFactory<I, L, K, R> getTermEntryFactory();
 }

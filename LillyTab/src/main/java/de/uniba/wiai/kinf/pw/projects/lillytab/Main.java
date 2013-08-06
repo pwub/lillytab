@@ -16,7 +16,6 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab;
 
-import de.dhke.projects.lutil.LoggingClass;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
@@ -33,7 +32,6 @@ import java.util.Collection;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.LogManager;
-import java.util.logging.Logger;
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLClass;
@@ -44,14 +42,18 @@ import org.semanticweb.owlapi.model.OWLOntologyCreationException;
 import org.semanticweb.owlapi.model.OWLOntologyManager;
 import org.semanticweb.owlapi.model.OWLProperty;
 import org.semanticweb.owlapi.model.UnknownOWLOntologyException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class Main
-	extends LoggingClass
 	implements Runnable {
+
+	static final Logger _logger = LoggerFactory.getLogger(Main.class);
+
 
 	/**
 	 * @param args the command line arguments
@@ -82,11 +84,11 @@ public class Main
 	private void initLogger()
 	{
 		LogManager.getLogManager().reset();
-		Logger.getLogger("").
+		java.util.logging.Logger.getLogger("").
 			setLevel(Level.ALL);
 		ConsoleHandler handler = new ConsoleHandler();
 		handler.setLevel(Level.FINER);
-		Logger.getLogger("").addHandler(handler);
+		java.util.logging.Logger.getLogger("").addHandler(handler);
 	}
 
 
@@ -102,29 +104,25 @@ public class Main
 				"https://database.riken.jp/sw/download/ria94i~archives~semantics~ontology_def.owl-rdf.xml");
 
 
-			logInfo("Loading ontology from %s", loadIRI);
+			_logger.info("Loading ontology from %s", loadIRI);
 			final OWLOntology ontology = ontMan.loadOntology(loadIRI);
-			logInfo("Ontology loaded.");
+			_logger.info("Ontology loaded.");
 
 			// final StringOutputTarget tos = new StringOutputTarget();
 
 			final OWLAPILoader loader = new OWLAPILoader();
-			logInfo("Filling ABox from OWLAPI ontology...");
+			_logger.info("Filling ABox from OWLAPI ontology...");
 			final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> initialABox = loader.fillABox(ontology,
 																											  _aboxFactory.createABox());
 			// System.out.println(abox.toString());
 
-			logInfo("Starting classification ...");
+			_logger.info("Starting classification ...");
 			final Collection<IDLImplies<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> classifications = _reasoner.classify(
 				initialABox);
-			logInfo("Classification result: %s", classifications);
+			_logger.info("Classification result: %s", classifications);
 
-		} catch (ENodeMergeException ex) {
-			logThrowing(ex);
-		} catch (EInconsistencyException ex) {
-			logThrowing(ex);
-		} catch (EReasonerException | UnknownOWLOntologyException | OWLOntologyCreationException ex) {
-			logThrowing(ex);
+		} catch (EInconsistencyException | EReasonerException | UnknownOWLOntologyException | OWLOntologyCreationException ex) {
+			_logger.error("error during Reasoning", ex);
 		}
 
 	}

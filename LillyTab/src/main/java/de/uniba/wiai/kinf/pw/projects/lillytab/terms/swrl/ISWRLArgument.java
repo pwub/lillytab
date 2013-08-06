@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
@@ -33,8 +34,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ISWRLArgument<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends Comparable<ISWRLArgument<I, L, K, R>>, ITerm {
+public interface ISWRLArgument<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends Comparable<ISWRLArgument<I, L, K, R>> {
 
 	String toString(final IToStringFormatter formatter);
 }

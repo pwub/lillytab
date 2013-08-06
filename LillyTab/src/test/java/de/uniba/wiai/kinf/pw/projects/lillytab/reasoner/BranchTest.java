@@ -57,18 +57,18 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class BranchTest {
-
+public class BranchTest
+{
 	@BeforeClass
 	public static void setUpClass()
 		throws Exception
 	{
 	}
-
 
 	@AfterClass
 	public static void tearDownClass()
@@ -80,11 +80,9 @@ public class BranchTest {
 	private IDLTermFactory<String, String, String, String> _termFactory;
 	private IABoxFactory<String, String, String, String> _aboxFactory;
 
-
 	public BranchTest()
 	{
 	}
-
 
 	@Before
 	public void setUp()
@@ -104,7 +102,6 @@ public class BranchTest {
 		_branch = new Branch<>(_abox, true);
 	}
 
-
 	@After
 	public void tearDown()
 	{
@@ -112,7 +109,6 @@ public class BranchTest {
 		_abox = null;
 		_branch = null;
 	}
-
 
 	/**
 	 * Test of getABox method, of class Branch.
@@ -126,7 +122,6 @@ public class BranchTest {
 		//		assertNotSame(_abox, _branch.getABox());
 		assertNotSame(_abox, secondBranch.getABox());
 	}
-
 
 	/**
 	 * Test of clone method, of class Branch.
@@ -150,12 +145,14 @@ public class BranchTest {
 		/* check, if link was copied */
 		assertEquals(1, secondBranch.getABox().getIndividualNode("a").getRABox().getAssertedSuccessors().size());
 		assertTrue(secondBranch.getABox().getIndividualNode("a").getRABox().getAssertedSuccessors().containsValue("r0",
-																												  secondBranch.getABox().getIndividualNode(
+																												  secondBranch.
+			getABox().getIndividualNode(
 			"b").getNodeID()));
 		assertEquals(1, secondBranch.getABox().getIndividualNode("b").getRABox().getAssertedPredecessors().size());
 		assertTrue(
 			secondBranch.getABox().getIndividualNode("b").getRABox().getAssertedPredecessors().containsValue("r0",
-																											 secondBranch.getABox().getIndividualNode(
+																											 secondBranch.
+			getABox().getIndividualNode(
 			"a").getNodeID()));
 
 		assertFalse(_branch.getABox().getNodeMap().containsKey(c));
@@ -177,188 +174,9 @@ public class BranchTest {
 		 assertTrue(_branch.getNonGeneratingQueue().add(d));
 		 */
 
-		// assertTrue(secondBranch.getGeneratingQueue().add(c));
-		// new nodes are automatically part of the queue, now
-		assertTrue(secondBranch.getGeneratingQueue().contains(c));
-		assertTrue(secondBranch.getNonGeneratingQueue().contains(c));
-		assertTrue(secondBranch.removeFromQueues(c));
-		assertFalse(secondBranch.getGeneratingQueue().contains(c));
-		assertFalse(secondBranch.getNonGeneratingQueue().contains(c));
-
 		// assertTrue(secondBranch.getNonGeneratingQueue().add(c));
 
 		assertFalse(_branch.getABox().getNodeMap().containsKey(c));
 		assertEquals(d, secondBranch.getABox().getIndividualNode("d").getNodeID());
-
-		/* cloning needs to preserve semantics */
-		assertTrue(secondBranch.getGeneratingQueue().contains(d));
-		assertTrue(secondBranch.getNonGeneratingQueue().contains(d));
-	}
-
-
-	/**
-	 * Test of getNonGeneratingQueue method, of class Branch.
-	 */
-	@Test
-	public void testgetNonGeneratingQueue()
-		throws EReasonerException, EInconsistencyException
-	{
-		final NodeID c = _abox.getOrAddIndividualNode("c").getNodeID();
-
-		assertFalse(_branch.getNonGeneratingQueue().isEmpty());
-		assertTrue(_branch.getNonGeneratingQueue().contains(c));
-		assertFalse(_branch.touch(c));
-		assertTrue(_branch.getNonGeneratingQueue().contains(c));
-		assertTrue(_branch.removeFromQueues(c));
-		assertFalse(_branch.getNonGeneratingQueue().contains(c));
-	}
-
-
-	/**
-	 * Test of getGeneratingQueue method, of class Branch.
-	 */
-	@Test
-	public void testgetGeneratingQueue()
-		throws EReasonerException, EInconsistencyException
-	{
-		final NodeID c = _abox.getOrAddIndividualNode("c").getNodeID();
-
-		assertFalse(_branch.getGeneratingQueue().isEmpty());
-		assertTrue(_branch.getGeneratingQueue().contains(c));
-		assertFalse(_branch.touch(c));
-		assertTrue(_branch.getGeneratingQueue().contains(c));
-		assertTrue(_branch.removeFromQueues(c));
-		assertFalse(_branch.getGeneratingQueue().contains(c));
-	}
-
-
-	/**
-	 * Test of touchLiteral method, of class Branch.
-	 */
-	@Test
-	public void testTouch_IABoxNode()
-	{
-		assertSame(_abox, _branch.getABox());
-		_branch.clearQueues();
-		/* only for copy on write */
-		IABoxNode<String, String, String, String> aNode = _branch.getABox().getIndividualNode("a");
-		assertNotNull(aNode);
-		assertTrue(_branch.getGeneratingQueue().contains(aNode.getNodeID()));
-		assertTrue(_branch.getGeneratingQueue().contains(aNode.getNodeID()));
-		_branch.removeNodeFromQueues(aNode);
-		assertFalse(_branch.getGeneratingQueue().contains(aNode.getNodeID()));
-		assertFalse(_branch.getGeneratingQueue().contains(aNode.getNodeID()));
-		_branch.touchNode(aNode);
-		assertTrue(_branch.getGeneratingQueue().contains(aNode.getNodeID()));
-		assertTrue(_branch.getGeneratingQueue().contains(aNode.getNodeID()));
-	}
-
-
-	/**
-	 * Test of touchLiteral method, of class Branch.
-	 */
-	@Test
-	public void testTouch_NodeID()
-		throws EReasonerException, EInconsistencyException
-	{
-		final NodeID c = _abox.getOrAddIndividualNode("c").getNodeID();
-
-		// new nodes are now added to the queues, automatically
-		assertTrue(_branch.getGeneratingQueue().contains(c));
-		assertTrue(_branch.getNonGeneratingQueue().contains(c));
-		_branch.removeFromQueues(c);
-		assertFalse(_branch.getGeneratingQueue().contains(c));
-		assertFalse(_branch.getNonGeneratingQueue().contains(c));
-		_branch.touch(c);
-		assertTrue(_branch.getGeneratingQueue().contains(c));
-		assertTrue(_branch.getNonGeneratingQueue().contains(c));
-	}
-
-
-	/**
-	 * Test of touchLiteral method, of class Branch.
-	 */
-	@Test
-	public void testTouch_Collection()
-		throws EReasonerException, EInconsistencyException
-	{
-		final NodeID c = _abox.getOrAddIndividualNode("c").getNodeID();
-		final NodeID d = _abox.getOrAddIndividualNode("d").getNodeID();
-		final Collection<NodeID> names = new ArrayList<>();
-		names.add(c);
-		names.add(d);
-
-		_branch.removeFromQueues(c);
-		_branch.removeFromQueues(d);
-
-		assertFalse(_branch.getGeneratingQueue().contains(c));
-		assertFalse(_branch.getNonGeneratingQueue().contains(c));
-		assertFalse(_branch.getGeneratingQueue().contains(d));
-		assertFalse(_branch.getNonGeneratingQueue().contains(d));
-		_branch.touchAll(names);
-		assertTrue(_branch.getGeneratingQueue().contains(c));
-		assertTrue(_branch.getNonGeneratingQueue().contains(c));
-		assertTrue(_branch.getGeneratingQueue().contains(d));
-		assertTrue(_branch.getNonGeneratingQueue().contains(d));
-	}
-
-
-	/**
-	 * Test of touchNodes method, of class Branch.
-	 */
-	@Test
-	public void testTouchNodes()
-		throws EReasonerException, EInconsistencyException
-	{
-		final IABoxNode<String, String, String, String> a = _abox.getIndividualNode("a");
-		final IABoxNode<String, String, String, String> b = _abox.getIndividualNode("b");
-		final Collection<IABoxNode<String, String, String, String>> nodes = new ArrayList<>();
-		nodes.add(a);
-		nodes.add(b);
-
-		assertTrue(_branch.removeNodeFromQueues(a));
-		assertTrue(_branch.removeNodeFromQueues(b));
-		assertFalse(_branch.getGeneratingQueue().contains(a.getNodeID()));
-		assertFalse(_branch.getNonGeneratingQueue().contains(a.getNodeID()));
-		assertFalse(_branch.getGeneratingQueue().contains(b.getNodeID()));
-		assertFalse(_branch.getNonGeneratingQueue().contains(b.getNodeID()));
-		_branch.touchNodes(nodes);
-		assertTrue(_branch.getGeneratingQueue().contains(a.getNodeID()));
-		assertTrue(_branch.getNonGeneratingQueue().contains(a.getNodeID()));
-		assertTrue(_branch.getGeneratingQueue().contains(b.getNodeID()));
-		assertTrue(_branch.getNonGeneratingQueue().contains(b.getNodeID()));
-	}
-
-
-//	@Test
-//	public void testNodeQueueSort()
-//		throws EReasonerException, ENodeMergeException
-//	{
-//		final IABox<String, String, String, String> abox = _aboxFactory.createABox();
-//		final Branch<String, String, String, String> branch = new Branch<>(abox, true);
-//
-//		final IABoxNode<String, String, String, String> n0 = abox.createNode(false);
-//		final IABoxNode<String, String, String, String> n1 = abox.createNode(false);
-//		assertEquals(2, abox.size());
-//		assertSame(abox.first(), n0);
-//		assertSame(abox.last(), n1);
-//		n1.addTerm(_termFactory.getDLIndividualReference("b"));
-//		assertEquals(2, abox.size());
-//		assertSame(abox.first(), n1);
-//		assertSame(abox.last(), n0);
-//	}
-
-
-	@Test
-	public void testNodeAddTouch()
-		throws EReasonerException, ENodeMergeException
-	{
-		final IABox<String, String, String, String> abox = _aboxFactory.createABox();
-		final Branch<String, String, String, String> branch = new Branch<>(abox, true);
-
-		branch.clearQueues();
-		IABoxNode<String, String, String, String> node = abox.createNode(false);
-		assertTrue(branch.getGeneratingQueue().contains(node.getNodeID()));
-		assertTrue(branch.getNonGeneratingQueue().contains(node.getNodeID()));
 	}
 }

@@ -39,6 +39,7 @@ import org.apache.commons.collections15.IteratorUtils;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.Transformer;
 
+
 /**
  * @param <I> The type for individuals/nominals
  * @param <L> The type for literals
@@ -47,8 +48,9 @@ import org.apache.commons.collections15.Transformer;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class RABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	implements IRABox<I, L, K, R> {
+public class RABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements IRABox<I, L, K, R>
+{
 	/// </editor-fold>
 	/**
 	 * The set of successor nodes, indexed by role.
@@ -65,7 +67,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 	 */
 	private IABoxNode<I, L, K, R> _node;
 
-
 	public RABox(final IABoxNode<I, L, K, R> node)
 	{
 		_node = node;
@@ -80,7 +81,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		_predecessors = new LinkMap<>(node);
 	}
 
-
 	protected RABox(final IABoxNode<I, L, K, R> node,
 					final LinkMap<I, L, K, R> predMap,
 					final LinkMap<I, L, K, R> succMap)
@@ -90,13 +90,11 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		_successors = succMap;
 	}
 
-
 	@Override
 	public IABoxNode<I, L, K, R> getNode()
 	{
 		return _node;
 	}
-
 
 	@Override
 	public Collection<R> getOutgoingRoles()
@@ -111,7 +109,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		return outRoles;
 	}
 
-
 	@Override
 	public Collection<R> getIncomingRoles()
 	{
@@ -125,20 +122,17 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		return inRoles;
 	}
 
-
 	@Override
 	public ILinkMap<I, L, K, R> getAssertedSuccessors()
 	{
 		return _successors;
 	}
 
-
 	@Override
 	public ILinkMap<I, L, K, R> getAssertedPredecessors()
 	{
 		return _predecessors;
 	}
-
 
 	@Override
 	public boolean hasSuccessor(R role, NodeID successor)
@@ -158,14 +152,12 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		}
 	}
 
-
 	@Override
 	public boolean hasSuccessor(R role,
 								IABoxNode<I, L, K, R> successor)
 	{
 		return hasSuccessor(role, successor.getNodeID());
 	}
-
 
 	@Override
 	public boolean hasPredecessor(R role, NodeID predecessor)
@@ -183,14 +175,12 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		}
 	}
 
-
 	@Override
 	public boolean hasPredecessor(R role,
 								  IABoxNode<I, L, K, R> predecessor)
 	{
 		return hasPredecessor(role, predecessor.getNodeID());
 	}
-
 
 	@Override
 	public Collection<NodeID> getSuccessors(final R role)
@@ -204,7 +194,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		return succs;
 	}
 
-
 	@Override
 	public Collection<NodeID> getPredecessors(final R role)
 	{
@@ -217,12 +206,12 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		return preds;
 	}
 
-
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getSuccessorNodes(final R role)
 	{
 		return ExtractorCollection.decorate(getSuccessors(role),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
+		{
 			@Override
 			public IABoxNode<I, L, K, R> transform(NodeID input)
 			{
@@ -230,13 +219,13 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			}
 		});
 	}
-
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getPredecessorNodes(final R role)
 	{
 		return ExtractorCollection.decorate(getPredecessors(role),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
+		{
 			@Override
 			public IABoxNode<I, L, K, R> transform(NodeID input)
 			{
@@ -244,13 +233,13 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			}
 		});
 	}
-
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getPredecessorNodes()
 	{
 		return ExtractorCollection.decorate(getPredecessors(),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
+		{
 			@Override
 			public IABoxNode<I, L, K, R> transform(NodeID input)
 			{
@@ -258,13 +247,13 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			}
 		});
 	}
-
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getSuccessorNodes()
 	{
 		return ExtractorCollection.decorate(getSuccessors(),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
+		{
 			@Override
 			public IABoxNode<I, L, K, R> transform(NodeID input)
 			{
@@ -272,14 +261,12 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			}
 		});
 	}
-
 
 	@Override
 	public IRABox<I, L, K, R> getImmutable()
 	{
 		return ImmutableRABox.decorate(this);
 	}
-
 
 	@Override
 	public boolean hasSuccessor(R role)
@@ -290,15 +277,14 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			 */
 			return true;
 		} else {
-			for (R superRole : _node.getABox().getTBox().getRBox().getSuperRoles(role)) {
-				if (_successors.containsKey(superRole)) {
+			for (R subRole : _node.getABox().getTBox().getRBox().getSubRoles(role)) {
+				if (_successors.containsKey(subRole)) {
 					return true;
 				}
 			}
 			return false;
 		}
 	}
-
 
 	@Override
 	public boolean hasPredecessor(R role)
@@ -309,8 +295,8 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			 */
 			return true;
 		} else {
-			for (R superRole : _node.getABox().getTBox().getRBox().getSuperRoles(role)) {
-				if (_predecessors.containsKey(superRole)) {
+			for (R subRole : _node.getABox().getTBox().getRBox().getSubRoles(role)) {
+				if (_predecessors.containsKey(subRole)) {
 					return true;
 				}
 			}
@@ -318,11 +304,11 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		}
 	}
 
-
 	@Override
 	public Iterable<Pair<R, NodeID>> getSuccessorPairs()
 	{
-		return new Iterable<Pair<R, NodeID>>() {
+		return new Iterable<Pair<R, NodeID>>()
+		{
 			@Override
 			public Iterator<Pair<R, NodeID>> iterator()
 			{
@@ -331,11 +317,11 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		};
 	}
 
-
 	@Override
 	public Iterable<Pair<R, NodeID>> getPredecessorPairs()
 	{
-		return new Iterable<Pair<R, NodeID>>() {
+		return new Iterable<Pair<R, NodeID>>()
+		{
 			@Override
 			public Iterator<Pair<R, NodeID>> iterator()
 			{
@@ -343,7 +329,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			}
 		};
 	}
-
 
 	@Override
 	public Set<NodeID> getPredecessors()
@@ -356,7 +341,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		return preds;
 	}
 
-
 	@Override
 	public Set<NodeID> getSuccessors()
 	{
@@ -368,17 +352,15 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		return succs;
 	}
 
-
 	@Override
 	public IRABox<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode)
 	{
 		assert newNode instanceof IABoxNode;
 
 		final RABox<I, L, K, R> klone = new RABox<>(newNode,
-														   _predecessors.clone(newNode), _successors.clone(newNode));
+													_predecessors.clone(newNode), _successors.clone(newNode));
 		return klone;
 	}
-
 
 	@Override
 	public boolean deepEquals(Object obj)
@@ -397,7 +379,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			return false;
 		}
 	}
-
 
 	@Override
 	public int deepHashCode()
@@ -419,14 +400,14 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 	}
 
 	/// <editor-fold defaultstate="collapsed" desc="class SubRoleAwareNodeIDIterator">
+
 	/**
 	 *
 	 */
 	final class SubRoleAwareNodeIDIterator
-		implements Iterator<NodeID> {
-
+		implements Iterator<NodeID>
+	{
 		private Iterator<NodeID> _iter;
-
 
 		SubRoleAwareNodeIDIterator(final R role, final MultiMap<R, NodeID> map)
 		{
@@ -441,20 +422,17 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			_iter = IteratorUtils.chainedIterator(iterators);
 		}
 
-
 		@Override
 		public boolean hasNext()
 		{
 			return _iter.hasNext();
 		}
 
-
 		@Override
 		public NodeID next()
 		{
 			return _iter.next();
 		}
-
 
 		@Override
 		public void remove()
@@ -465,24 +443,23 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="class SubRoleAwarePairIterator">
+
 	/**
 	 * XXX - support inverse roles
 	 *
 	 */
 	final class SubRoleAwarePairIterator
-		implements Iterator<Pair<R, NodeID>> {
-
+		implements Iterator<Pair<R, NodeID>>
+	{
 		private Iterator<Map.Entry<R, NodeID>> _assertedIter;
 		private Iterator<R> _roleIter;
 		private Pair<R, NodeID> _currentPair;
-
 
 		SubRoleAwarePairIterator(final MultiMap<R, NodeID> map)
 		{
 			_assertedIter = MultiMapEntryIterator.decorate(map);
 			advance();
 		}
-
 
 		private void advance()
 		{
@@ -501,13 +478,11 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			}
 		}
 
-
 		@Override
 		public boolean hasNext()
 		{
 			return _currentPair != null;
 		}
-
 
 		@Override
 		public Pair<R, NodeID> next()
@@ -520,7 +495,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 				return thisPair;
 			}
 		}
-
 
 		@Override
 		public void remove()

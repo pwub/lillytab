@@ -23,6 +23,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -33,7 +34,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IDLLiteralReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends IDLDataRange<I, L, K, R>, IAtom {
-
+	extends IAtom, IDLDataRange<I, L, K, R>
+{
 	L getLiteral();
 }

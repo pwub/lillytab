@@ -51,17 +51,20 @@ public class AspectCollection<E, C extends Collection<E>>
 			_baseIterator = getDecoratee().iterator();
 		}
 
+		@Override
 		public boolean hasNext()
 		{
 			return _baseIterator.hasNext();
 		}
 
+		@Override
 		public E next()
 		{
 			_current = _baseIterator.next();
 			return _current;
 		}
 
+		@Override
 		public void remove()
 		{
 			CollectionItemEvent<E, Collection<E>> ev = notifyBeforeElementRemoved(AspectCollection.this, _current);
@@ -95,36 +98,43 @@ public class AspectCollection<E, C extends Collection<E>>
 	}
 
 
+	@Override
 	public int size()
 	{
 		return _baseCollection.size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return _baseCollection.isEmpty();
 	}
 
+	@Override
 	public boolean contains(final Object o)
 	{
 		return _baseCollection.contains(o);
 	}
 
+	@Override
 	public Iterator<E> iterator()
 	{
 		return new Itr();
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return _baseCollection.toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return _baseCollection.toArray(a);
 	}
 
+	@Override
 	public boolean add(final E e)
 	{
 		CollectionItemEvent<E, Collection<E>> ev = notifyBeforeElementAdded(this, e);
@@ -135,6 +145,7 @@ public class AspectCollection<E, C extends Collection<E>>
 	}
 
 	@SuppressWarnings("unchecked")
+	@Override
 	public boolean remove(final Object o)
 	{
 		if (contains(o)) {
@@ -147,11 +158,13 @@ public class AspectCollection<E, C extends Collection<E>>
 			return false;
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return _baseCollection.containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends E> c)
 	{
 		for (E item : c)
@@ -192,16 +205,19 @@ public class AspectCollection<E, C extends Collection<E>>
 		return wasRemoved;
 	}
 
+	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
 		return batchRemove(c, false);
 	}
 
+	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
 		return batchRemove(c, true);
 	}
 
+	@Override
 	public void clear()
 	{
 		if (!isEmpty()) {
@@ -211,6 +227,7 @@ public class AspectCollection<E, C extends Collection<E>>
 		}
 	}
 
+	@Override
 	public C getDecoratee()
 	{
 		return _baseCollection;

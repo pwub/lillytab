@@ -18,13 +18,13 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDatatype;
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.Collection;
@@ -107,7 +107,7 @@ public class AnyDataType<I extends Comparable<? super I>, L extends Comparable<?
 
 
 	@Override
-	public ITerm clone()
+	public AnyDataType<I, L, K, R> clone()
 	{
 		return this;
 	}

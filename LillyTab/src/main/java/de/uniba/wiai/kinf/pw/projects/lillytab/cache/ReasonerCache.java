@@ -28,6 +28,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import java.util.Collection;
 import java.util.WeakHashMap;
 import org.apache.commons.collections15.MultiMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -41,7 +43,9 @@ import org.apache.commons.collections15.MultiMap;
 public class ReasonerCache<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractReasoner<I, L, K, R>
 	implements IReasoner<I, L, K, R>, IDecorator<IReasoner<I, L, K, R>> {
-
+	
+	static final Logger _logger = LoggerFactory.getLogger(ReasonerCache.class);
+	
 	private IReasoner<I, L, K, R> _baseReasoner;
 	private WeakHashMap<IABox<I, L, K, R>, Cache> _cacheMap = new WeakHashMap<>();
 

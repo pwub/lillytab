@@ -19,11 +19,12 @@
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.io;
+package de.uniba.wiai.kinf.pw.projects.lillytab.io;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRangeAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividualReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
@@ -45,6 +46,7 @@ import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataProperty;
+import org.semanticweb.owlapi.model.OWLDataRange;
 import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLObjectProperty;
@@ -55,26 +57,24 @@ import org.semanticweb.owlapi.model.SWRLDataFactory;
 import org.semanticweb.owlapi.model.SWRLIArgument;
 import org.semanticweb.owlapi.model.SWRLRule;
 
+
 /**
  *
  * @author Peter Wullinger <java@dhke.de>
  */
-public class OWLAPISWRLStorer {
-
-	private final SWRLDataFactory _dataFactory;
-
+public class OWLAPISWRLStorer
+{
+	private final OWLDataFactory _dataFactory;
 
 	public OWLAPISWRLStorer()
 	{
 		this(OWLManager.getOWLDataFactory());
 	}
 
-
 	public OWLAPISWRLStorer(final OWLDataFactory dataFactory)
 	{
 		_dataFactory = dataFactory;
 	}
-
 
 	public SWRLAtom convertAtom(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceAtom)
 	{
@@ -100,12 +100,17 @@ public class OWLAPISWRLStorer {
 				throw new IllegalArgumentException(String.format("Unknown property type `%s'", roleAtom.getRole().
 					getClass()));
 			}
+		} else if (sourceAtom instanceof ISWRLDataRangeAtom) {
+			final ISWRLDataRangeAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rangeAtom =
+				(ISWRLDataRangeAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceAtom;
+			final SWRLDArgument arg = makeDataLiteral(varMap, rangeAtom.getIndividual());
+			final OWLDataRange dataRange = OWLAPIStorer.convertDataRange(_dataFactory, rangeAtom.getDataRange());
+			return _dataFactory.getSWRLDataRangeAtom(dataRange, arg);
 		} else {
 			throw new IllegalArgumentException(String.format("Unsupported SWRL atom type `%s'", sourceAtom.
 				getClass()));
 		}
 	}
-
 
 	public Set<SWRLAtom> convertAtoms(
 		final Collection<? extends ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> sourceAtoms)
@@ -117,7 +122,6 @@ public class OWLAPISWRLStorer {
 		}
 		return atoms;
 	}
-
 
 	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceRule,
 								final Set<OWLAnnotation> annotations)
@@ -144,7 +148,6 @@ public class OWLAPISWRLStorer {
 		return rule;
 	}
 
-
 	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceRule)
 	{
 		final Set<SWRLAtom> headTerms;
@@ -168,7 +171,6 @@ public class OWLAPISWRLStorer {
 		final SWRLRule rule = _dataFactory.getSWRLRule(bodyTerms, headTerms);
 		return rule;
 	}
-
 
 	private SWRLIArgument makeIndividual(final Map<String, IRI> varMap,
 										 final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> indRef)
@@ -202,7 +204,6 @@ public class OWLAPISWRLStorer {
 			throw new IllegalArgumentException(String.format("Unsupported individual type `%s'", indRef.getClass()));
 		}
 	}
-
 
 	private SWRLDArgument makeDataLiteral(final Map<String, IRI> varMap,
 										  final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> indRef)

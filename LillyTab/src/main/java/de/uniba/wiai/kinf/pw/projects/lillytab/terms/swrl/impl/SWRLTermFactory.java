@@ -17,9 +17,11 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDArgument;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRangeAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividualReference;
@@ -38,10 +40,11 @@ import java.util.Collection;
  * @param <I> The type for nominals and values
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ * <p/>
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends SoftItemCache<ITerm>
+	extends SoftItemCache<Object>
 	implements ISWRLTermFactory<I, L, K, R> {
 
 	public SWRLTermFactory()
@@ -135,5 +138,15 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 		final SWRLDataRoleAtom<I, L, K, R> roleAtom = new SWRLDataRoleAtom<>(role, source, target);
 
 		return updateCache(roleAtom);
+	}
+
+
+	@Override
+	public ISWRLDataRangeAtom<I, L, K, R> getSWRLDataRange(
+		IDLDataRange<I, L, K, R> range,
+		ISWRLDArgument<I, L, K, R> individual)
+	{
+		final SWRLDataRangeAtom<I, L, K, R> rangeAtom = new SWRLDataRangeAtom<>(range, individual);
+		return updateCache(rangeAtom);
 	}
 }

@@ -28,6 +28,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import java.util.Collection;
 import java.util.TreeSet;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -37,14 +38,13 @@ import java.util.TreeSet;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends AspectSortedSet<IABoxNode<I, L, K, R>> {
-
+public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AspectSortedSet<IABoxNode<I, L, K, R>>
+{
 	public ABoxNodeSet(final ABox<I, L, K, R> abox)
 	{
 		super(new TreeSet<IABoxNode<I, L, K, R>>(), abox);
 	}
-
 
 	public ABoxNodeSet(final ABox<I, L, K, R> newABox, final ABoxNodeSet<I, L, K, R> klonee)
 	{
@@ -54,21 +54,19 @@ public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<?
 		}
 	}
 
-
 	@SuppressWarnings("unchecked")
 	public ABox<I, L, K, R> getABox()
 	{
 		return (ABox<I, L, K, R>) getSender();
 	}
 
-
 	@Override
 	public void notifyAfterCollectionCleared(
 		CollectionEvent<IABoxNode<I, L, K, R>, Collection<IABoxNode<I, L, K, R>>> e)
 	{
 		getABox()._nodeMap.clear();
+		getABox().clearQueues();
 	}
-
 
 	@Override
 	public void notifyBeforeElementAdded(
@@ -91,7 +89,6 @@ public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<?
 		}
 	}
 
-
 	@Override
 	public void notifyAfterElementAdded(
 		CollectionItemEvent<IABoxNode<I, L, K, R>, Collection<IABoxNode<I, L, K, R>>> e)
@@ -102,10 +99,10 @@ public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<?
 		getABox()._nodeMap.put(node.getNodeID(), node);
 		for (Object name : node.getNames()) {
 			getABox()._nodeMap.put(name, node);
+			getABox().touchNode(node);
 		}
 		super.notifyAfterElementAdded(e);
 	}
-
 
 	@Override
 	public void notifyBeforeElementRemoved(
@@ -114,8 +111,9 @@ public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<?
 		super.notifyBeforeElementRemoved(e);
 		e.getItem().getRABox().getAssertedPredecessors().clear();
 		e.getItem().getRABox().getAssertedSuccessors().clear();
-	}
+		getABox().removeNodeFromQueues(e.getItem());
 
+	}
 
 	@Override
 	public void notifyAfterElementRemoved(
@@ -134,12 +132,10 @@ public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<?
 		super.notifyAfterElementRemoved(e);
 	}
 
-
 	public ABoxNodeSet<I, L, K, R> clone(final ABox<I, L, K, R> newABox)
 	{
 		return new ABoxNodeSet<>(newABox, this);
 	}
-
 
 	/**
 	 * 
@@ -167,7 +163,6 @@ public class ABoxNodeSet<I extends Comparable<? super I>, L extends Comparable<?
 			return false;
 		}
 	}
-
 
 	/**
 	 * undo the changes made by {@link #removeNoUnlink(de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABoxNode)

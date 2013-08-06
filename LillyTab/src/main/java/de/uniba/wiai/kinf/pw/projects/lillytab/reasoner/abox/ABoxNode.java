@@ -18,10 +18,10 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
-import de.dhke.projects.lutil.LoggingClass;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
@@ -43,6 +43,8 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import org.apache.commons.collections15.SetUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -56,9 +58,9 @@ import org.apache.commons.collections15.SetUtils;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class ABoxNode<N extends Comparable<? super N>, I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends LoggingClass
 	implements IABoxNode<I, L, K, R>, Cloneable
 {
+	private static final Logger _logger = LoggerFactory.getLogger(ABoxNode.class);
 	// private final Map<DLTermOrder, IDLClassExpression<I, L, K, R>> _smallestTerms;
 	/**
 	 * The (unmodifiable) node ID of this node.
@@ -97,8 +99,8 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	/**
 	 * Create a new, named ABox node referencing the specified {@literal individual}.
 	 *
-	 * @param abox The abox of the new individual.
-	 * @param id The number of the new node.
+	 * @param abox           The abox of the new individual.
+	 * @param id             The number of the new node.
 	 * @param isDatatypeNode
 	 */
 	protected ABoxNode(final ABox<I, L, K, R> abox, final int id, final boolean isDatatypeNode)
@@ -184,50 +186,6 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		return new ABoxNodeTermEntryCollection<>(this);
 	}
 
-//	/**
-//	 * 
-//	 * Perform concept unfolding an all concept terms of the current node. 
-//	 * <p />
-//	 * When the unfolding produces nominals references, node joins 
-//	 * (see {@link IABox#mergeNodes(de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode, de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode)}
-//	 * may take place. {@literal unfoldAll()} thus returns a {@link NodeMergeInfo} indicating the ID of the target node
-//	 * containing the unfoldings and information, if the target node was modified. 
-//	 * 
-//	 *
-//	 * @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings and information,
-//	 * if the target node was modified.
-//	 * @throws ENodeMergeException
-//	 */
-//	@Override
-//	public NodeMergeInfo<I, L, K, R> unfoldAll()
-//		throws ENodeMergeException
-//	{
-//		final NodeMergeInfo<I, L, K, R> mergeInfo = new NodeMergeInfo<>(this, false);
-//		/*
-//		 * the local abox may go away
-//		 */
-//		IABoxNode<I, L, K, R> currentNode = this;
-//		Iterator<IDLTerm<I, L, K, R>> iter = currentNode.getTerms().iterator();
-//		while (iter.hasNext()) {
-//			final IDLTerm<I, L, K, R> term = iter.next();
-//			if (term instanceof IDLClassExpression) {
-//				final IDLClassExpression<I, L, K, R> desc = (IDLClassExpression<I, L, K, R>) term;
-//				final NodeMergeInfo<I, L, K, R> unfoldResult = addClassTerm(desc);
-//				mergeInfo.append(unfoldResult);
-//				assert _abox.contains(currentNode);
-//				if (!currentNode.equals(unfoldResult.getCurrentNode())) {
-//					// a merge operation occured, switch current node, restart description iterator
-//					currentNode = unfoldResult.getCurrentNode();
-//					iter = currentNode.getTerms().iterator();
-//				} else if (unfoldResult.isModified(currentNode))
-//					 // no merge operation, but the current node was modified, restart iterator
-//					iter = currentNode.getTerms().iterator();
-//			}
-//		}
-//
-//
-//		return mergeInfo;
-//	}
 /// <editor-fold defaultstate="collapsed" desc="Cloneable">
 	@Override
 	public abstract ABoxNode<N, I, L, K, R> clone(final IABox<I, L, K, R> newABox);
@@ -383,11 +341,13 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	 * This checks if the supplied term is of the proper type for the current node and dispatches to {@link IDatatypeABoxNode#addDataTerm(de.uniba.wiai.kinf.pw.projects.lillytab.terms.datatype.IDLDataRange)
 	 * }
 	 * and {@link IIndividualABoxNode#addDataTerm(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression) ), as appropriate.
-	 * <p /> 	 {@link EInconsistencyException} is raised, when the term is not of the appropriate type.
+	 * <p /> null	 {@link EInconsistencyException} is raised, when the term is not of the appropriate type.
 	 *
 	 * @param desc
+	 * <p/>
 	 * @return The {@link NodeMergeInfo} resulting from adding the supplied term.
-	 * @throws ENodeMergeException A node merge was required and could not
+	 * <p/>
+	 * @throws ENodeMergeException       A node merge was required and could not
 	 * @throws EIllegalTermTypeException The supplied term was not of the appropriate type for the target node.
 	 *
 	 *

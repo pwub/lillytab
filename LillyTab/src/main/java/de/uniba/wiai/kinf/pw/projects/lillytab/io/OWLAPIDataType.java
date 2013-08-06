@@ -25,6 +25,7 @@ import com.sun.msv.datatype.xsd.*;
 import de.dhke.projects.cutil.collections.set.Flat3Set;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.*;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDatatype;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AnyDataType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.Collection;
 import java.util.HashSet;
@@ -40,6 +41,7 @@ import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLProperty;
 import org.semanticweb.owlapi.vocab.XSDVocabulary;
 
+
 /**
  * A wrapper that implments datatypes for the {@link OWLAPILoader} and forwards validation to a back to
  * {@link XSDatatypeImpl}.
@@ -47,10 +49,9 @@ import org.semanticweb.owlapi.vocab.XSDVocabulary;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class OWLAPIDataType
-	implements IDLDatatype<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> {
-
+	implements IDLDatatype<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>
+{
 	private static final BidiMap<IRI, XSDatatypeImpl> _dataTypeMap = new DualHashBidiMap<>();
-
 
 	static {
 		_dataTypeMap.put(XSDVocabulary.ANY_URI.getIRI(), AnyURIType.theInstance);
@@ -97,7 +98,6 @@ public class OWLAPIDataType
 	private final XSDatatypeImpl _dataTypeImpl;
 	private final ValidationContext _validationCtx = new SimpleValidationContext();
 
-
 	public OWLAPIDataType(final IRI datatypeIRI)
 		throws EUnsupportedDatatypeException
 	{
@@ -108,12 +108,10 @@ public class OWLAPIDataType
 		}
 	}
 
-
 	public IRI getDatatypeIRI()
 	{
 		return _datatypeIRI;
 	}
-
 
 	@Override
 	public boolean isValidValue(OWLLiteral literal)
@@ -122,12 +120,10 @@ public class OWLAPIDataType
 		return (stringLit != null) && _dataTypeImpl.isValid(stringLit, _validationCtx);
 	}
 
-
 	public String getStringLiteral(OWLLiteral literal)
 	{
 		return literal.getLiteral();
 	}
-
 
 	@Override
 	public boolean isCompatibleValue(final OWLLiteral lit1, final OWLLiteral lit2, final OWLLiteral... otherLits)
@@ -153,7 +149,6 @@ public class OWLAPIDataType
 		}
 	}
 
-
 	public boolean isCompatibleValue(final Collection<? extends OWLLiteral> literals)
 	{
 		if (literals.isEmpty()) {
@@ -172,7 +167,6 @@ public class OWLAPIDataType
 			return true;
 		}
 	}
-
 
 	@Override
 	public Set<Set<OWLLiteral>> getIncompatibleValues(Collection<? extends OWLLiteral> literals)
@@ -194,13 +188,11 @@ public class OWLAPIDataType
 		return incompatibles;
 	}
 
-
 	@Override
 	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_DATATYPE_EXPRESSION);
 	}
-
 
 	@Override
 	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getAfter()
@@ -208,31 +200,29 @@ public class OWLAPIDataType
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_DATATYPE_EXPRESSION);
 	}
 
-
 	@Override
 	public DLTermOrder getDLTermOrder()
 	{
 		return DLTermOrder.DL_DATATYPE_EXPRESSION;
 	}
 
-
 	@Override
-	public ITerm clone()
+	public OWLAPIDataType clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int compareTo(IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> o)
 	{
 		int compare = getDLTermOrder().compareTo(o);
 		if (compare == 0) {
-			if (o instanceof AnyURIType)
+			if (o instanceof AnyDataType)
 				/* any sorts before all other datatypes */
 				return 1;
 			else if (!(o instanceof OWLAPIDataType)) {
-				throw new EInvalidTermException("Mixing OWLAPIDatatype with other datatypes is not supported");
+				throw new EInvalidTermException(
+					"Mixing OWLAPIDatatype with other datatypes other than any is not supported");
 			} else {
 				OWLAPIDataType other = (OWLAPIDataType) o;
 				compare = getDatatypeIRI().compareTo(other.getDatatypeIRI());
@@ -240,7 +230,6 @@ public class OWLAPIDataType
 		}
 		return compare;
 	}
-
 
 	@Override
 	public String toString()
@@ -254,6 +243,23 @@ public class OWLAPIDataType
 		return sb.toString();
 	}
 
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		else if (obj instanceof OWLAPIDataType) {
+			OWLAPIDataType other = (OWLAPIDataType) obj;
+			return getDatatypeIRI().equals(other.getDatatypeIRI());
+		} else
+			return false;
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return _datatypeIRI.hashCode();
+	}
 
 	@Override
 	public String toString(IToStringFormatter entityFormatter)

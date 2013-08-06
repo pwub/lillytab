@@ -28,6 +28,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
+import static de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTermList.sortAndEnsureUnique;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.Collection;
 import java.util.Collections;
@@ -59,7 +60,7 @@ public class DLObjectIntersection<I extends Comparable<? super I>, L extends Com
 				getModifiableTermList().set(i, d);
 				++i;
 			}
-			Collections.sort(getModifiableTermList());
+			sortAndEnsureUnique(this, 2);
 		}
 	}
 
@@ -70,7 +71,7 @@ public class DLObjectIntersection<I extends Comparable<? super I>, L extends Com
 		getModifiableTermList().set(0, d0);
 		getModifiableTermList().set(1, d1);
 		/* ensure order */
-		Collections.sort(getModifiableTermList());
+		sortAndEnsureUnique(this, 2);
 	}
 
 

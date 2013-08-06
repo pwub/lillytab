@@ -18,10 +18,11 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
+import java.util.List;
 
 /**
  * @param <I> The type for individuals/nominals
@@ -32,7 +33,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface ISWRLRoleAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends ISWRLAtomicTerm<I, L, K, R>, ITermList<ISWRLArgument<I, L, K, R>> {
+	extends ISWRLAtomicTerm<I, L, K, R>, List<ISWRLArgument<I, L, K, R>> {
 
 	public ISWRLIArgument<I, L, K, R> getFirstIndividual();
 

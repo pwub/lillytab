@@ -38,6 +38,7 @@ import java.util.*;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -47,9 +48,9 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class RBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	implements IRBox<I, L, K, R> {
-
+public class RBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements IRBox<I, L, K, R>
+{
 	private final AssertedRBox<I, L, K, R> _assertedRBox;
 	private final MultiMap<R, R> _inverseRoles;
 	private final MultiMap<R, R> _equivalentRoles;
@@ -57,7 +58,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 	private final MultiMap<R, R> _superRoles;
 	private final MultiMap<RoleProperty, R> _propertyRoleMap;
 	private final MultiMap<R, RoleProperty> _rolePropertyMap;
-
 
 	protected RBox(final AssertedRBox<I, L, K, R> assertedRBox)
 	{
@@ -73,13 +73,32 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		_superRoles = new MultiSortedListSetHashMap<>();
 	}
 
+	protected RBox(
+		final AssertedRBox<I, L, K, R> assertedRBox,
+		final MultiMap<R, R> inverseRoles,
+		final MultiMap<R, R> equivalentRoles,
+		final MultiMap<R, R> subRoles,
+		final MultiMap<R, R> superRoles,
+		final MultiMap<RoleProperty, R> propertyRoleMap,
+		final MultiMap<R, RoleProperty> rolePropertyMap)
+	{
+		_assertedRBox = assertedRBox;
+
+		_rolePropertyMap = new MultiEnumSetHashMap<>(RoleProperty.class, _assertedRBox.getRoleProperties());
+		_propertyRoleMap = new MultiTreeSetHashMap<>(_assertedRBox.getPropertyRoles());
+
+		_inverseRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getInverseRoles());
+		_equivalentRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getEquivalentRoles());
+
+		_subRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getSubRoles());
+		_superRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getSuperRoles());
+	}
 
 	@Override
 	public ITBox<I, L, K, R> getTBox()
 	{
 		return _assertedRBox.getTBox();
 	}
-
 
 	protected void recalculate()
 		throws EInconsistentRBoxException
@@ -124,7 +143,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	private boolean propagateRoleProperties()
 	{
 		boolean isChanged = false;
@@ -134,7 +152,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		isChanged |= propagateDown(RoleProperty.SYMMETRIC);
 		return isChanged;
 	}
-
 
 	private boolean updateTopSubSuper()
 	{
@@ -157,7 +174,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-
 	private boolean updateEqualitiesSubSuper()
 		throws EInconsistentRBoxException
 	{
@@ -178,7 +194,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return isChanged;
 	}
-
 
 	private boolean updateTopEqualities()
 	{
@@ -203,7 +218,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return isChanged;
 	}
-
 
 	private boolean updateSubSuperEqualities()
 		throws EInconsistentRBoxException
@@ -231,7 +245,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return isChanged;
 	}
-
 
 	private boolean updateInverseEqualities()
 		throws EInconsistentRBoxException
@@ -306,7 +319,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-
 	private void addCommutativeInverses()
 	{
 		final Collection<Map.Entry<R, R>> addList = new HashSet<>();
@@ -320,7 +332,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	private void addCommutativeEqualities()
 	{
 		final Collection<Map.Entry<R, R>> addList = new HashSet<>();
@@ -333,7 +344,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 			_equivalentRoles.put(addItem.getKey(), addItem.getValue());
 		}
 	}
-
 
 	private void addSubSuper()
 	{
@@ -360,13 +370,11 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public String toString()
 	{
 		return toString("");
 	}
-
 
 	@Override
 	public String toString(String prefix)
@@ -388,7 +396,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return sb.toString();
 	}
 
-
 	@Override
 	public Collection<R> getEquivalentRoles(R role)
 	{
@@ -403,7 +410,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 			return null;
 		}
 	}
-
 
 	@Override
 	public Collection<R> getInverseRoles(R role)
@@ -420,7 +426,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public Collection<IDLClassExpression<I, L, K, R>> getRoleDomains(final R role)
 	{
@@ -435,7 +440,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return domains;
 	}
-
 
 	@Override
 	public Collection<IDLRestriction<I, L, K, R>> getRoleRanges(final R role)
@@ -453,7 +457,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 	}
 
-
 	@Override
 	public Collection<RoleProperty> getRoleProperties(R role)
 	{
@@ -465,13 +468,11 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public RoleType getRoleType(R role)
 	{
 		return _assertedRBox.getRoleType(role);
 	}
-
 
 	@Override
 	public boolean hasRole(R role)
@@ -479,13 +480,11 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return (getRoleType(role) != null);
 	}
 
-
 	@Override
 	public Collection<R> getRoles()
 	{
 		return _assertedRBox.getRoles();
 	}
-
 
 	@Override
 	public Collection<R> getRoles(RoleProperty property)
@@ -498,13 +497,11 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public Collection<R> getRoles(RoleType type)
 	{
 		return _assertedRBox.getRoles(type);
 	}
-
 
 	@Override
 	public Collection<R> getSubRoles(R role)
@@ -521,7 +518,6 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public Collection<R> getSuperRoles(R role)
 	{
@@ -537,13 +533,11 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public boolean hasRoleProperty(R role, RoleProperty property)
 	{
 		return _rolePropertyMap.containsValue(role, property);
 	}
-
 
 	@Override
 	public boolean hasRoleType(R role, RoleType roleType)
@@ -551,13 +545,11 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return getAssertedRBox().hasRoleType(role, roleType);
 	}
 
-
 	@Override
 	public boolean isEquivalentRole(R first, R second)
 	{
 		return _equivalentRoles.containsValue(first, second);
 	}
-
 
 	@Override
 	public boolean isInverseRole(R first, R second)
@@ -565,13 +557,11 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _inverseRoles.containsValue(first, second);
 	}
 
-
 	@Override
 	public boolean hasInverseRoles()
 	{
 		return !_inverseRoles.isEmpty();
 	}
-
 
 	@Override
 	public boolean isSubRole(R sup, R sub)
@@ -579,20 +569,17 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _subRoles.containsValue(sup, sub);
 	}
 
-
 	@Override
 	public boolean isSuperRole(R sub, R sup)
 	{
 		return _superRoles.containsValue(sub, sup);
 	}
 
-
 	@Override
 	public IAssertedRBox<I, L, K, R> getAssertedRBox()
 	{
 		return _assertedRBox;
 	}
-
 
 	private boolean propagateDown(final RoleProperty prop)
 	{
@@ -611,7 +598,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return isChanged;
 	}
-	
+
 	private boolean propagateUp(final RoleProperty prop)
 	{
 		boolean isChanged = false;
@@ -628,5 +615,17 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 			}
 		}
 		return isChanged;
-	}	
+	}
+
+	@Override
+	public IRBox<I, L, K, R> clone()
+	{
+		return this;
+	}
+
+	@Override
+	public IRBox<I, L, K, R> getImmutable()
+	{
+		return new ImmutableRBox<>(getTBox().getImmutable(), this);
+	}
 }

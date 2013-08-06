@@ -34,6 +34,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -45,8 +46,8 @@ import java.util.TreeMap;
  */
 public class IndividualABoxNode<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends ABoxNode<I, I, L, K, R>
-	implements IIndividualABoxNode<I, L, K, R> {
-
+	implements IIndividualABoxNode<I, L, K, R>
+{
 	public IndividualABoxNode(
 		ABox<I, L, K, R> newABox,
 		ABoxNode<I, I, L, K, R> klonee)
@@ -54,13 +55,11 @@ public class IndividualABoxNode<I extends Comparable<? super I>, L extends Compa
 		super(newABox, klonee);
 	}
 
-
 	public IndividualABoxNode(
 		ABox<I, L, K, R> abox, int id)
 	{
 		super(abox, id, false);
 	}
-
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addClassTerm(final IDLClassExpression<I, L, K, R> term)
@@ -103,7 +102,7 @@ public class IndividualABoxNode<I extends Comparable<? super I>, L extends Compa
 						addQueue.put(unfoldee, addTerm);
 					}
 				}
-				if ((parent != null) && (!depMap.containsKey(currentNode, term))) {
+				if ((parent != null) && (!depMap.containsKey(currentNode, term)) && (!term.equals(parent))) {
 					depMap.addParent(currentNode, term, currentNode, parent);
 				}
 			}
@@ -112,7 +111,6 @@ public class IndividualABoxNode<I extends Comparable<? super I>, L extends Compa
 		assert abox.contains(mergeInfo.getCurrentNode());
 		return mergeInfo;
 	}
-
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addClassTerm(
@@ -134,7 +132,6 @@ public class IndividualABoxNode<I extends Comparable<? super I>, L extends Compa
 	}
 
 	/// </editor-fold>
-
 	@Override
 	public IndividualABoxNode<I, L, K, R> clone(
 		IABox<I, L, K, R> newABox)

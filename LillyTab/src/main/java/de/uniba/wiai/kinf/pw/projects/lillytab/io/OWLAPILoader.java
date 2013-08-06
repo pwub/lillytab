@@ -21,7 +21,6 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.io;
 
-import de.dhke.projects.lutil.LoggingClass;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
@@ -42,6 +41,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectNegation;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectUnion;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLSomeRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataNegation;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
@@ -51,6 +51,9 @@ import java.util.List;
 import java.util.Set;
 import org.semanticweb.owlapi.model.*;
 import org.semanticweb.owlapi.vocab.Namespaces;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Loaders are classes that perform the transformation between an external representation of an ontology (ABox + TBox)
@@ -65,10 +68,9 @@ import org.semanticweb.owlapi.vocab.Namespaces;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class OWLAPILoader
-	extends LoggingClass {
-
+{
+	static final Logger _logger = LoggerFactory.getLogger(OWLAPILoader.class);
 	private boolean _isIgnoreUnsupportedAxioms = true;
-
 
 	public OWLAPILoader(boolean ignoreUnsupportedAxioms)
 	{
@@ -76,15 +78,13 @@ public class OWLAPILoader
 		_isIgnoreUnsupportedAxioms = ignoreUnsupportedAxioms;
 	}
 
-
 	public OWLAPILoader()
 	{
 	}
 
 	/// <editor-fold defaultstate="collapsed" desc="data range conversion">
-
-	private IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> convertDatatype(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+	public static IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> convertDatatype(
+		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory,
 		final OWLDatatype datatype)
 		throws EUnsupportedDatatypeException
 	{
@@ -94,42 +94,41 @@ public class OWLAPILoader
 		 */
 		final IRI incorrectLiteralIRI = IRI.create(Namespaces.XSD + "Literal");
 		if (datatype.isTopDatatype() || (datatype.asOWLDatatype().getIRI().equals(incorrectLiteralIRI))) {
-			return abox.getDLTermFactory().getDLTopDatatype();
+			return termFactory.getDLTopDatatype();
 		} else {
 			return new OWLAPIDataType(datatypeIRI);
 		}
 	}
 
-
-	private IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> convertDataRange(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLDataRange dataRange)
+	public static IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> convertDataRange(
+		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory,
+		final OWLDataRange dataRange)
 	{
 		if (dataRange instanceof OWLDataComplementOf) {
 			final OWLDataComplementOf complementOf = (OWLDataComplementOf) dataRange;
 			final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> subExp = convertDataRange(
-				abox,
+				termFactory,
 				complementOf.getDataRange());
-			final IDLDataNegation<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> negation = abox.
-				getDLTermFactory().getDLDataNegation(
-				subExp);
+			final IDLDataNegation<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> negation = termFactory.
+				getDLDataNegation(subExp);
 			return negation;
 		} else if (dataRange instanceof OWLDataOneOf) {
 			final OWLDataOneOf oneOf = (OWLDataOneOf) dataRange;
 			Set<IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> literals = new HashSet<>();
 			for (OWLLiteral literal : oneOf.getValues()) {
-				final IDLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = abox.
-					getDLTermFactory().getDLLiteralReference(
+				final IDLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = termFactory.
+					getDLLiteralReference(
 					literal);
 				literals.add(nominal);
 			}
 			final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc = TermUtil.
 				joinToDataUnion(literals,
-								abox.getDLTermFactory());
+								termFactory);
 			return desc;
 		} else if (dataRange instanceof OWLDatatype) {
 			try {
 				assert dataRange.isDatatype();
-				return convertDatatype(abox, dataRange.asOWLDatatype());
+				return convertDatatype(termFactory, dataRange.asOWLDatatype());
 			} catch (EUnsupportedDatatypeException ex) {
 				// XXX - propagate?
 				throw new IllegalArgumentException(ex);
@@ -139,24 +138,22 @@ public class OWLAPILoader
 			final List<IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> terms = new ArrayList<>();
 			for (OWLDataRange subRange : unionOf.getOperands()) {
 				final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> subDesc = convertDataRange(
-					abox, subRange);
+					termFactory, subRange);
 				terms.add(subDesc);
 			}
 			final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc = TermUtil.
-				joinToDataUnion(terms,
-								abox.getDLTermFactory());
+				joinToDataUnion(terms, termFactory);
 			return desc;
 		} else if (dataRange instanceof OWLDataIntersectionOf) {
 			final OWLDataIntersectionOf intersection = (OWLDataIntersectionOf) dataRange;
 			final List<IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> terms = new ArrayList<>();
 			for (OWLDataRange subRange : intersection.getOperands()) {
 				final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> subDesc = convertDataRange(
-					abox, subRange);
+					termFactory, subRange);
 				terms.add(subDesc);
 			}
 			final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc = TermUtil.
-				joinToDataIntersection(terms,
-									   abox.getDLTermFactory());
+				joinToDataIntersection(terms, termFactory);
 			return desc;
 		} else {
 			throw new IllegalArgumentException("Unsupported data range type: " + dataRange.getClass().toString());
@@ -165,8 +162,7 @@ public class OWLAPILoader
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="makeDLDescription()">
-
-	private IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
+	private static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLBooleanClassExpression owlDesc)
 		throws EInconsistentRBoxException
@@ -199,7 +195,8 @@ public class OWLAPILoader
 				/*
 				 * union
 				 */
-				final IDLObjectUnion<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> union = abox.getDLTermFactory().getDLObjectUnion(
+				final IDLObjectUnion<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> union = abox.
+					getDLTermFactory().getDLObjectUnion(
 					operands);
 				return union;
 			}
@@ -208,8 +205,7 @@ public class OWLAPILoader
 			toString());
 	}
 
-
-	private IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
+	private static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLRestriction<?, ?, ?> owlDesc)
 		throws EInconsistentRBoxException
 	{
@@ -277,7 +273,7 @@ public class OWLAPILoader
 			final OWLDataSomeValuesFrom owlSomeRestriction = (OWLDataSomeValuesFrom) owlDesc;
 			final OWLProperty<?, ?> property = owlSomeRestriction.getProperty().asOWLDataProperty();
 			final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> subject = convertDataRange(
-				abox,
+				abox.getDLTermFactory(),
 				owlSomeRestriction.getFiller());
 			final IDLDataSomeRestriction<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> someRestriction = abox.
 				getDLTermFactory().
@@ -291,7 +287,7 @@ public class OWLAPILoader
 			final OWLDataAllValuesFrom owlAllRestriction = (OWLDataAllValuesFrom) owlDesc;
 			final OWLProperty<?, ?> property = owlAllRestriction.getProperty().asOWLDataProperty();
 			final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> subject = convertDataRange(
-				abox,
+				abox.getDLTermFactory(),
 				owlAllRestriction.getFiller());
 			final IDLAllRestriction<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> allRestriction = abox.
 				getDLTermFactory().
@@ -317,40 +313,39 @@ public class OWLAPILoader
 			toString());
 	}
 
-
-	private IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLDescription(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLObjectOneOf owlOneOf)
+	public static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLDescription(
+		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory,
+		final OWLObjectOneOf owlOneOf)
 	{
 		/*
 		 * object one of
 		 */
-		Set<IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> nomimals = new HashSet<>();
+		final Set<IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> nomimals = new HashSet<>();
 		for (OWLIndividual individual : owlOneOf.getIndividuals()) {
-			IDLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = abox.
-				getDLTermFactory().getDLIndividualReference(individual);
+			IDLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = termFactory.
+				getDLIndividualReference(individual);
 			nomimals.add(nominal);
 		}
-		IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc;
+		final IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc;
 		assert !nomimals.isEmpty();
 		if (nomimals.size() == 1) {
 			desc = nomimals.iterator().next();
 		} else {
-			desc = abox.getDLTermFactory().getDLObjectUnion(nomimals);
+			desc = termFactory.getDLObjectUnion(nomimals);
 		}
 		return desc;
 	}
 
-
-	private IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLDataOneOf owlOneOf)
+	public static IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
+		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory,
+		final OWLDataOneOf owlOneOf)
 	{
 		/*
 		 * data one of
 		 */
-		Set<IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> literals = new HashSet<>();
+		final Set<IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> literals = new HashSet<>();
 		for (OWLLiteral literal : owlOneOf.getValues()) {
-			IDLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = abox.
-				getDLTermFactory().
+			IDLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = termFactory.
 				getDLLiteralReference(literal);
 			literals.add(nominal);
 		}
@@ -360,13 +355,12 @@ public class OWLAPILoader
 		if (literals.size() == 1) {
 			desc = literals.iterator().next();
 		} else {
-			desc = abox.getDLTermFactory().getDLDataUnion(literals);
+			desc = termFactory.getDLDataUnion(literals);
 		}
 		return desc;
 	}
 
-
-	private IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLClassDescription(
+	private static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLClassDescription(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLClassExpression owlDesc)
 		throws EInconsistentRBoxException
 	{
@@ -382,7 +376,7 @@ public class OWLAPILoader
 		} else if (owlDesc instanceof OWLRestriction) {
 			return makeDLRestrictionTerm(abox, (OWLRestriction) owlDesc);
 		} else if (owlDesc instanceof OWLObjectOneOf) {
-			return makeDLDescription(abox, (OWLObjectOneOf) owlDesc);
+			return makeDLDescription(abox.getDLTermFactory(), (OWLObjectOneOf) owlDesc);
 		} else {
 			throw new IllegalArgumentException("Unsupported property expression type: " + owlDesc.getClass().
 				toString());
@@ -391,13 +385,14 @@ public class OWLAPILoader
 	/// </editor-fold>
 
 	/// <editor-fold defaultstate="collapsed" desc="axiom processing">
-
-	private void processClassAssertionAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-											final OWLClassAssertionAxiom axiom)
+	private static void processClassAssertionAxiom(
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+		final OWLClassAssertionAxiom axiom)
 		throws ENodeMergeException, EInconsistencyException
 	{
 		final OWLIndividual individual = axiom.getIndividual();
-		final IIndividualABoxNode<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> node = abox.getOrAddIndividualNode(
+		final IIndividualABoxNode<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> node = abox.
+			getOrAddIndividualNode(
 			individual);
 		final OWLClassExpression owlDesc = axiom.getClassExpression();
 		final IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc = makeDLClassDescription(
@@ -405,8 +400,7 @@ public class OWLAPILoader
 		node.addClassTerm(desc);
 	}
 
-
-	private void processDataPropertyAssertionAxiom(
+	private static void processDataPropertyAssertionAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLDataPropertyAssertionAxiom axiom)
 		throws ENodeMergeException, EInconsistencyException
@@ -431,9 +425,9 @@ public class OWLAPILoader
 		}
 	}
 
-
-	private void processDataPropertyDomainAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-												final OWLDataPropertyDomainAxiom axiom)
+	private static void processDataPropertyDomainAxiom(
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+		final OWLDataPropertyDomainAxiom axiom)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -447,9 +441,9 @@ public class OWLAPILoader
 		rbox.getRoleDomains().put(property, makeDLClassDescription(abox, owlDomain));
 	}
 
-
-	private void processDataPropertyRangeAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-											   final OWLDataPropertyRangeAxiom axiom)
+	private static void processDataPropertyRangeAxiom(
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+		final OWLDataPropertyRangeAxiom axiom)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -460,12 +454,12 @@ public class OWLAPILoader
 		/*
 		 * add range to RBox
 		 */
-		rbox.getRoleRanges().put(property, convertDataRange(abox, owlRange));
+		rbox.getRoleRanges().put(property, convertDataRange(abox.getDLTermFactory(), owlRange));
 	}
 
-
-	private void processDisjointClassesAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-											 final OWLDisjointClassesAxiom axiom)
+	private static void processDisjointClassesAxiom(
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+		final OWLDisjointClassesAxiom axiom)
 		throws EInconsistentRBoxException
 	{
 		/**
@@ -510,9 +504,9 @@ public class OWLAPILoader
 		}
 	}
 
-
-	private void processEquivalentClassesAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-											   final OWLEquivalentClassesAxiom axiom)
+	private static void processEquivalentClassesAxiom(
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+		final OWLEquivalentClassesAxiom axiom)
 		throws EInconsistentRBoxException
 	{
 		for (OWLSubClassOfAxiom subClassAxiom : axiom.asOWLSubClassOfAxioms()) {
@@ -520,8 +514,7 @@ public class OWLAPILoader
 		}
 	}
 
-
-	private void processObjectPropertyAssertionAxiom(
+	private static void processObjectPropertyAssertionAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLObjectPropertyAssertionAxiom axiom)
 		throws ENodeMergeException, EInconsistencyException
@@ -532,9 +525,11 @@ public class OWLAPILoader
 		final OWLIndividual target = axiom.getObject();
 
 		rbox.addRole(property, RoleType.OBJECT_PROPERTY);
-		final IABoxNode<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceNode = abox.getOrAddIndividualNode(
+		final IABoxNode<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceNode = abox.
+			getOrAddIndividualNode(
 			source);
-		final IABoxNode<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetNode = abox.getOrAddIndividualNode(
+		final IABoxNode<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetNode = abox.
+			getOrAddIndividualNode(
 			target);
 		if (!sourceNode.getRABox().getAssertedSuccessors().containsValue(property, targetNode.getNodeID())) {
 			/*
@@ -544,8 +539,7 @@ public class OWLAPILoader
 		}
 	}
 
-
-	private void processObjectPropertyDomainAxiom(
+	private static void processObjectPropertyDomainAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLObjectPropertyDomainAxiom axiom)
 		throws EInconsistencyException
@@ -561,8 +555,7 @@ public class OWLAPILoader
 		rbox.getRoleDomains().put(property, makeDLClassDescription(abox, owlDomain));
 	}
 
-
-	private void processObjectPropertyRangeAxiom(
+	private static void processObjectPropertyRangeAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLObjectPropertyRangeAxiom axiom)
 		throws EInconsistencyException
@@ -578,9 +571,8 @@ public class OWLAPILoader
 		rbox.getRoleRanges().put(property, makeDLClassDescription(abox, owlRange));
 	}
 
-
-	private void processSubClassAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-									  final OWLSubClassOfAxiom axiom)
+	private static void processSubClassAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+											 final OWLSubClassOfAxiom axiom)
 		throws EInconsistentRBoxException
 	{
 		final IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sub = makeDLClassDescription(
@@ -595,8 +587,7 @@ public class OWLAPILoader
 		abox.getTBox().add(implies);
 	}
 
-
-	private void processTransitiveObjectPropertyAxiom(
+	private static void processTransitiveObjectPropertyAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLTransitiveObjectPropertyAxiom axiom)
 		throws EInconsistencyException
@@ -606,8 +597,7 @@ public class OWLAPILoader
 		abox.getAssertedRBox().setRoleProperty(property, RoleProperty.TRANSITIVE);
 	}
 
-
-	private void processSymmetricObjectPropertyAxiom(
+	private static void processSymmetricObjectPropertyAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLSymmetricObjectPropertyAxiom axiom)
 		throws EInconsistencyException
@@ -617,8 +607,7 @@ public class OWLAPILoader
 		abox.getAssertedRBox().setRoleProperty(property, RoleProperty.SYMMETRIC);
 	}
 
-
-	private void processFunctionalDataPropertyAxiom(
+	private static void processFunctionalDataPropertyAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLFunctionalDataPropertyAxiom axiom)
 		throws EInconsistencyException
@@ -628,8 +617,7 @@ public class OWLAPILoader
 		abox.getAssertedRBox().setRoleProperty(property, RoleProperty.FUNCTIONAL);
 	}
 
-
-	private void processFunctionalObjectPropertyAxiom(
+	private static void processFunctionalObjectPropertyAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLFunctionalObjectPropertyAxiom axiom)
 		throws EInconsistencyException
@@ -639,8 +627,7 @@ public class OWLAPILoader
 		abox.getAssertedRBox().setRoleProperty(property, RoleProperty.FUNCTIONAL);
 	}
 
-
-	private void processSubObjectPropertyOfAxiom(
+	private static void processSubObjectPropertyOfAxiom(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
 		final OWLSubObjectPropertyOfAxiom ax)
 		throws EInconsistencyException
@@ -667,9 +654,9 @@ public class OWLAPILoader
 		rbox.addSubRole(supProp, subProp);
 	}
 
-
-	private void processSubDataPropertyOfAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-											   final OWLSubDataPropertyOfAxiom ax)
+	private static void processSubDataPropertyOfAxiom(
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+		final OWLSubDataPropertyOfAxiom ax)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -693,9 +680,8 @@ public class OWLAPILoader
 		rbox.addSubRole(supProp, subProp);
 	}
 
-
-	private void processAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-							  final OWLAxiom axiom)
+	private static void processAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
+									 final OWLAxiom axiom)
 		throws EInconsistencyException, ENodeMergeException
 	{
 		/*
@@ -755,7 +741,6 @@ public class OWLAPILoader
 	}
 /// </editor-fold>
 
-
 	public IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> fillABox(final OWLOntology ontology,
 																				  final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetAbox)
 		throws ENodeMergeException, EInconsistencyException
@@ -765,8 +750,7 @@ public class OWLAPILoader
 				processAxiom(targetAbox, axiom);
 			} catch (IllegalArgumentException ex) {
 				if (isIsIgnoreUnsupportedAxioms()) {
-					logThrowing(ex);
-					logWarning("Unknown axiom of type '%s' ignored.", axiom.getClass());
+					_logger.warn(String.format("Unknown axiom of type '%s' ignored.", axiom.getClass()), ex);
 				} else {
 					throw ex;
 				}
@@ -776,7 +760,6 @@ public class OWLAPILoader
 		return targetAbox;
 	}
 
-
 	/**
 	 * @return the _isIgnoreUnsupportedAxioms
 	 */
@@ -784,7 +767,6 @@ public class OWLAPILoader
 	{
 		return _isIgnoreUnsupportedAxioms;
 	}
-
 
 	/**
 	 * @param isIgnoreUnsupportedAxioms the _isIgnoreUnsupportedAxioms to set

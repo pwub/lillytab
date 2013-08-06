@@ -38,6 +38,7 @@ import java.util.Set;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 
+
 /**
  *  Represents an DL TBox. A TBox is a set of global terms that define restrictions on the ABox models, for example
  * role hierachies, domain and range restrictions for properties as well as more complex axioms. <p /> The current
@@ -58,10 +59,10 @@ import org.apache.commons.collections15.multimap.MultiHashMap;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class TBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public class TBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends TermSet<I, L, K, R>
-	implements ITBox<I, L, K, R> {
-
+	implements ITBox<I, L, K, R>
+{
 	private final IDLTermFactory<I, L, K, R> _termFactory;
 	/**
 	 * The set of non-unfoldable global descriptions
@@ -85,7 +86,6 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 */
 	private final IRBox<I, L, K, R> _rbox;
 
-
 	public TBox(final IDLTermFactory<I, L, K, R> termFactory)
 	{
 		super(TermTypes.CLASS_ONLY);
@@ -94,19 +94,15 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		_termFactory = termFactory;
 	}
 
-
 	/**
 	 * @return The set of non-unfoldable descriptions.
 	 */
 	@Override
 	public Set<IDLClassExpression<I, L, K, R>> getGlobalDescriptions()
 	{
-		if (isNeedRecalculate()) {
-			recalculate();
-		}
+		recalculateIfNeeded();
 		return Collections.unmodifiableSet(_globalDescriptionSet);
 	}
-
 
 	/**
 	 * @param unfoldee The description to unfold.
@@ -115,9 +111,7 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 	@Override
 	public Collection<IDLClassExpression<I, L, K, R>> getUnfolding(final IDLClassExpression<I, L, K, R> unfoldee)
 	{
-		if (isNeedRecalculate()) {
-			recalculate();
-		}
+		recalculateIfNeeded();
 		if (_unfolding.containsKey(unfoldee)) {
 			return _unfolding.get(unfoldee);
 		} else {
@@ -125,61 +119,61 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	public int getGeneration()
 	{
+		recalculateIfNeeded();
 		return _generation;
 	}
-
 
 	/**
 	 *  Recalculate the internal state from the term set. <p /> Should only be called, when needed, i.e. when the
 	 * term set was changed since the last access. 
 	 */
-	private void recalculate()
+	private void recalculateIfNeeded()
 	{
-		_unfolding.clear();
-		_globalDescriptionSet.clear();
+		if (_needRecalculate) {
+			_unfolding.clear();
+			_globalDescriptionSet.clear();
 
-		/* first, we unfold any top level intersections recursively */
-		Set<IDLTerm<I, L, K, R>> termSet = TermUtil.unfoldIntersections(this, _termFactory);
+			/* first, we unfold any top level intersections recursively */
+			Set<IDLTerm<I, L, K, R>> termSet = TermUtil.unfoldIntersections(this, _termFactory);
 
-		Iterator<IDLTerm<I, L, K, R>> iter = termSet.iterator();
+			Iterator<IDLTerm<I, L, K, R>> iter = termSet.iterator();
 
-		while (iter.hasNext()) {
-			IDLTerm<I, L, K, R> term = iter.next();
-			if (term instanceof IDLClassExpression) {
-				/* pick up descriptions only */
-				IDLClassExpression<I, L, K, R> desc = (IDLClassExpression<I, L, K, R>) term;
-				/* simplify description */
-				desc = TermUtil.simplify(desc, _termFactory);
-				if (desc instanceof IDLImplies) {
-					handleImplication(desc);
-				} else if (desc instanceof IDLObjectIntersection) {
-					/**
-					 * if the description is an intersection, look at it's parts and treat them individually.
-					 *
-					 */
-					IDLObjectIntersection<I, L, K, R> intersection = (IDLObjectIntersection<I, L, K, R>) desc;
-					for (IDLClassExpression<I, L, K, R> subTerm : intersection) {
-						if (subTerm instanceof IDLImplies) {
-							handleImplication(subTerm);
-						} else {
-							_globalDescriptionSet.add(TermUtil.toNNF(subTerm, _termFactory));
+			while (iter.hasNext()) {
+				IDLTerm<I, L, K, R> term = iter.next();
+				if (term instanceof IDLClassExpression) {
+					/* pick up descriptions only */
+					IDLClassExpression<I, L, K, R> desc = (IDLClassExpression<I, L, K, R>) term;
+					/* simplify description */
+					desc = TermUtil.simplify(desc, _termFactory);
+					if (desc instanceof IDLImplies) {
+						handleImplication(desc);
+					} else if (desc instanceof IDLObjectIntersection) {
+						/**
+						 * if the description is an intersection, look at it's parts and treat them individually.
+						 *
+						 */
+						IDLObjectIntersection<I, L, K, R> intersection = (IDLObjectIntersection<I, L, K, R>) desc;
+						for (IDLClassExpression<I, L, K, R> subTerm : intersection) {
+							if (subTerm instanceof IDLImplies) {
+								handleImplication(subTerm);
+							} else {
+								_globalDescriptionSet.add(TermUtil.toNNF(subTerm, _termFactory));
+							}
 						}
+					} else {
+						_globalDescriptionSet.add(TermUtil.toNNF(desc, _termFactory));
 					}
-				} else {
-					_globalDescriptionSet.add(TermUtil.toNNF(desc, _termFactory));
 				}
 			}
+			/* don't forget to add _Thing_ */
+			_globalDescriptionSet.add(_termFactory.getDLThing());
+			/* increment generation counter */
+			++_generation;
+			_needRecalculate = false;
 		}
-		/* don't forget to add _Thing_ */
-		_globalDescriptionSet.add(_termFactory.getDLThing());
-		/* increment generation counter */
-		++_generation;
-		_needRecalculate = false;
 	}
-
 
 	private void handleImplication(IDLClassExpression<I, L, K, R> desc)
 	{
@@ -202,13 +196,11 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-
 	@Override
 	public IRBox<I, L, K, R> getRBox()
 	{
 		return _rbox;
 	}
-
 
 	@Override
 	public IAssertedRBox<I, L, K, R> getAssertedRBox()
@@ -216,14 +208,12 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _rbox.getAssertedRBox();
 	}
 
-
 	@Override
 	public String toString(String prefix)
 	{
 		// XXX - rewrite
 		return toString();
 	}
-
 
 	/**
 	 *
@@ -234,7 +224,6 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _needRecalculate;
 	}
 
-
 	/**
 	 * signal that the current termset needs to be recalculated.
 	 */
@@ -242,7 +231,6 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 	{
 		_needRecalculate = true;
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -253,7 +241,6 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		super.notifyAfterElementAdded(e);
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyAfterElementRemoved(
@@ -262,7 +249,6 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		setNeedRecalculate();
 		super.notifyAfterElementRemoved(e);
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -273,7 +259,6 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		super.notifyAfterElementReplaced(e);
 	}
 
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void notifyAfterCollectionCleared(
@@ -283,11 +268,16 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		super.notifyAfterCollectionCleared(e);
 	}
 
-
 	@Override
 	public TBox<I, L, K, R> clone()
 	{
 		/* XXX - TBox is not cloned, yet */
 		return this;
+	}
+
+	@Override
+	public ITBox<I, L, K, R> getImmutable()
+	{
+		return new ImmutableTBox<>(this);
 	}
 }

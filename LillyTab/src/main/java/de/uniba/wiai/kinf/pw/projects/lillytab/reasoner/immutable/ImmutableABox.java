@@ -75,6 +75,7 @@ public class ImmutableABox<I extends Comparable<? super I>, L extends Comparable
 		return new ImmutableABox<>(baseABox);
 	}
 	private final IABox<I, L, K, R> _baseABox;
+	private final ITBox<I, L, K, R> _tbox;
 	private final Map<Object, IABoxNode<I, L, K, R>> _nodeMap;
 	private final Transformer<IABoxNode<I, L, K, R>, IABoxNode<I, L, K, R>> _nodeTransformer = new Transformer<IABoxNode<I, L, K, R>, IABoxNode<I, L, K, R>>()
 	{
@@ -101,6 +102,7 @@ public class ImmutableABox<I extends Comparable<? super I>, L extends Comparable
 	{
 		/* the initial ABox is not cloned, but left as is. Make sure, you do not modify it, afterwards (cloning is okay) */
 		_baseABox = baseABox;
+		_tbox = baseABox.getTBox().getImmutable();
 		_nodeSet = GenericImmutableSet.decorate(baseABox, _nodeTransformer);
 		_nodeMap = ImmutableMap.decorate(_baseABox.getNodeMap(), _nodeTransformer);
 	}
@@ -171,19 +173,19 @@ public class ImmutableABox<I extends Comparable<? super I>, L extends Comparable
 	@Override
 	public ITBox<I, L, K, R> getTBox()
 	{
-		return _baseABox.getTBox();
+		return _tbox;
 	}
 
 	@Override
 	public IRBox<I, L, K, R> getRBox()
 	{
-		return _baseABox.getRBox();
+		return _tbox.getRBox();
 	}
 
 	@Override
 	public IAssertedRBox<I, L, K, R> getAssertedRBox()
 	{
-		return _baseABox.getAssertedRBox();
+		return _tbox.getAssertedRBox();
 	}
 
 	@Override
@@ -407,5 +409,107 @@ public class ImmutableABox<I extends Comparable<? super I>, L extends Comparable
 		throws ENodeMergeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean removeFromQueues(
+		Collection<NodeID> nodeIDs)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean removeFromQueues(NodeID nodeID)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean removeNodeFromQueues(
+		IABoxNode<I, L, K, R> node)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean touch(NodeID nodeID)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean touchAll(
+		Collection<NodeID> individuals)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean touchLiteral(L literal)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean touchIndividual(I individual)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean touchNode(
+		IABoxNode<I, L, K, R> node)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean touchNodes(
+		Collection<? extends IABoxNode<I, L, K, R>> nodes)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public boolean removeNodesFromQueues(
+		Collection<? extends IABoxNode<I, L, K, R>> nodes)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableABox.");
+	}
+
+	@Override
+	public IABoxNode<I, L, K, R> nextGeneratingNode()
+	{
+		return _baseABox.nextGeneratingNode();
+	}
+
+	@Override
+	public IABoxNode<I, L, K, R> nextNonGeneratingNode()
+	{
+		return _baseABox.nextNonGeneratingNode();
+	}
+
+	@Override
+	public boolean hasMoreGeneratingNodes()
+	{
+		return _baseABox.hasMoreGeneratingNodes();
+	}
+
+	@Override
+	public boolean hasMoreNonGeneratingNodes()
+	{
+		return _baseABox.hasMoreNonGeneratingNodes();
+	}
+
+	@Override
+	public SortedSet<NodeID> getNonGeneratingQueue()
+	{
+		return _baseABox.getNonGeneratingQueue();
+	}
+
+	@Override
+	public SortedSet<NodeID> getGeneratingQueue()
+	{
+		return _baseABox.getGeneratingQueue();
 	}
 }

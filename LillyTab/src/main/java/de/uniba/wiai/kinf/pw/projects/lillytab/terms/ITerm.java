@@ -41,5 +41,5 @@ public interface ITerm
 	int hashCode();
 
 
-	public ITerm clone();
+	// public ITerm clone();
 }

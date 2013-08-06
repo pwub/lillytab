@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.dhke.projects.cutil.Pair;
@@ -32,8 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.list.FixedSizeList;
 import org.apache.commons.collections15.list.TransformedList;
+
 
 /**
  *
@@ -41,20 +42,20 @@ import org.apache.commons.collections15.list.TransformedList;
  *
  *
  * @param <Term> The type of the terms
+ * <p/>
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class AbstractFixedTermList<Term extends ITerm>
-	implements ITermList<Term> {
-
+	implements ITermList<Term>
+{
 	private static final long serialVersionUID = 7141058164156591514L;
 	private final List<Term> _modifiableBackend;
-	private final List<Term> _backend;
+	private List<Term> _unmodifiableBackend = null;
 	/**
 	 * Hashcode is cached for term lists, this should improve performance.
 	 *
 	 */
 	private int _hashCode = 0;
-
 
 	/**
 	 *
@@ -66,10 +67,8 @@ public class AbstractFixedTermList<Term extends ITerm>
 	 */
 	protected AbstractFixedTermList(final List<Term> backend)
 	{
-		_modifiableBackend = FixedSizeList.decorate(backend);
-		_backend = Collections.unmodifiableList(_modifiableBackend);
+		_modifiableBackend = backend;
 	}
-
 
 	/**
 	 *
@@ -85,10 +84,9 @@ public class AbstractFixedTermList<Term extends ITerm>
 		for (int i = 0; i < size; ++i) {
 			backendList.add(null);
 		}
-		_modifiableBackend = FixedSizeList.decorate(backendList);
-		_backend = Collections.unmodifiableList(_modifiableBackend);
+		backendList.trimToSize();
+		_modifiableBackend = backendList;
 	}
-
 
 	@Override
 	public boolean equals(final Object obj)
@@ -99,12 +97,30 @@ public class AbstractFixedTermList<Term extends ITerm>
 		return equals(this, obj);
 	}
 
-	/// <editor-fold defaultstate="collapsed" desc="ITermList<Term>">
+	protected static <T extends Comparable<? super T> & ITerm> void sortAndEnsureUnique(
+		AbstractFixedTermList<T> t,
+		final int minimumSize)
+	{
+		Collections.sort(t.getModifiableTermList());
+		final Iterator<T> iter = t.getModifiableTermList().iterator();
+		T prev = null;
+		while (iter.hasNext()) {
+			final T cur = iter.next();
+			if ((prev != null) && prev.equals(cur)) {
+				prev = cur;
+				iter.remove();
+			}
+		}
+		if (t.size() < minimumSize)
+			throw new IllegalArgumentException("Need at least " + minimumSize + " distinct arguments");
+	}
 
+	/// <editor-fold defaultstate="collapsed" desc="ITermList<Term>">
 	@Override
 	public List<ITerm> getTermList()
 	{
-		return TransformedList.decorate(this, new Transformer<Term, ITerm>() {
+		return TransformedList.decorate(this, new Transformer<Term, ITerm>()
+		{
 			@Override
 			public ITerm transform(Term input)
 			{
@@ -113,166 +129,142 @@ public class AbstractFixedTermList<Term extends ITerm>
 		});
 	}
 
-
 	public List<Term> getModifiableTermList()
 	{
 		return _modifiableBackend;
 	}
 
-
 	@Override
 	public int size()
 	{
-		return _backend.size();
+		return _modifiableBackend.size();
 	}
-
 
 	@Override
 	public boolean isEmpty()
 	{
-		return _backend.isEmpty();
+		return _modifiableBackend.isEmpty();
 	}
-
 
 	@Override
 	public boolean contains(final Object o)
 	{
-		return _backend.contains(o);
+		return _modifiableBackend.contains(o);
 	}
-
 
 	@Override
 	public Iterator<Term> iterator()
 	{
-		return _backend.iterator();
+		return getUnmodifiableBackend().iterator();
 	}
-
 
 	@Override
 	public Object[] toArray()
 	{
-		return _backend.toArray();
+		return _modifiableBackend.toArray();
 	}
-
 
 	@Override
 	public <T> T[] toArray(final T[] a)
 	{
-		return _backend.toArray(a);
+		return _modifiableBackend.toArray(a);
 	}
-
 
 	@Override
 	public boolean add(final Term e)
 	{
-		return _backend.add(e);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public boolean remove(final Object o)
 	{
-		return _backend.remove(o);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
-		return _backend.containsAll(c);
+		return _modifiableBackend.containsAll(c);
 	}
-
 
 	@Override
 	public boolean addAll(final Collection<? extends Term> c)
 	{
-		return _backend.addAll(c);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public boolean addAll(final int index, final Collection<? extends Term> c)
 	{
-		return _backend.addAll(index, c);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
-		return _backend.removeAll(c);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
-		return _backend.retainAll(c);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public void clear()
 	{
-		_backend.clear();
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public Term get(final int index)
 	{
-		return _backend.get(index);
+		return _modifiableBackend.get(index);
 	}
-
 
 	@Override
 	public Term set(final int index, final Term element)
 	{
-		return _backend.set(index, element);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public void add(final int index, final Term element)
 	{
-		_backend.add(index, element);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public Term remove(final int index)
 	{
-		return _backend.remove(index);
+		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
-
 
 	@Override
 	public int indexOf(final Object o)
 	{
-		return _backend.indexOf(o);
+		return _modifiableBackend.indexOf(o);
 	}
-
 
 	@Override
 	public int lastIndexOf(final Object o)
 	{
-		return _backend.lastIndexOf(o);
+		return _modifiableBackend.lastIndexOf(o);
 	}
-
 
 	@Override
 	public ListIterator<Term> listIterator()
 	{
-		return _backend.listIterator();
+		return getUnmodifiableBackend().listIterator();
 	}
-
 
 	@Override
 	public ListIterator<Term> listIterator(final int index)
 	{
-		return _backend.listIterator(index);
+		return getUnmodifiableBackend().listIterator(index);
 	}
-
 
 	@Override
 	public int hashCode()
@@ -288,7 +280,6 @@ public class AbstractFixedTermList<Term extends ITerm>
 		return _hashCode;
 	}
 
-
 	/**
 	 *
 	 * Compare the the {@link ITermList} {@literal tl0} to the object {@literal o1}.
@@ -296,7 +287,8 @@ public class AbstractFixedTermList<Term extends ITerm>
 	 *
 	 * @param <T> The type of the {@link ITermList}'s elements.
 	 * @param tl0 The {@link ITermList} to compare.
-	 * @param o1 The object to compare.
+	 * @param o1  The object to compare.
+	 * <p/>
 	 * @return {@literal true} if {@literal o1} is equal to {@literal tl0}
 	 *
 	 */
@@ -320,11 +312,21 @@ public class AbstractFixedTermList<Term extends ITerm>
 		}
 	}
 
-
 	@Override
 	public List<Term> subList(final int fromIndex, final int toIndex)
 	{
-		return _backend.subList(fromIndex, toIndex);
+		return getUnmodifiableBackend().subList(fromIndex, toIndex);
 	}
 	/// </editor-fold>
+
+	/**
+	 * @return the _unmodifiableBackend
+	 */
+	protected List<Term> getUnmodifiableBackend()
+	{
+		if (_unmodifiableBackend == null) {
+			_unmodifiableBackend = Collections.unmodifiableList(_modifiableBackend);
+		}
+		return _unmodifiableBackend;
+	}
 }

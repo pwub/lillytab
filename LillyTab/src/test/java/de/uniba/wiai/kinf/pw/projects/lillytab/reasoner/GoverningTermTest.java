@@ -246,7 +246,7 @@ public class GoverningTermTest {
 			assertEquals(1, node2.getRABox().getSuccessorNodes().size());
 			final IABoxNode<String, String, String, String> succ = node2.getRABox().getSuccessorNodes().iterator().
 				next();
-			assertTrue(abox.getDependencyMap().hasGoverningTerm(succ, _parser.parse("A")));
+			assertFalse(abox.getDependencyMap().hasGoverningTerm(succ, _parser.parse("A")));
 			assertFalse(abox.getDependencyMap().hasGoverningTerm(node2, _parser.parse("(some r A)")));
 		}
 	}

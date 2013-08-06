@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.dhke.projects.cutil.collections.iterator.ChainIterator;
@@ -29,6 +30,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.ConsistencyInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
@@ -45,7 +47,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLSomeRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -58,18 +61,23 @@ import java.util.Iterator;
  */
 public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
-	implements ICompleter<I, L, K, R>
-{
+	implements ICompleter<I, L, K, R> {
+
+	private static final Logger _logger = LoggerFactory.getLogger(SomeCompleter.class);
+
+
 	public SomeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker,
 						 final boolean trace)
 	{
 		super(cChecker, trace);
 	}
 
+
 	public SomeCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		this(cChecker, false);
 	}
+
 
 	protected ReasonerContinuationState completeFunctionalRole(
 		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
@@ -100,25 +108,26 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 				final boolean isDataProperty = abox.getTBox().getRBox().hasRoleType(role, RoleType.DATA_PROPERTY);
 				succ = abox.createNode(isDataProperty);
 
-				if (abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().getEntry(node,
-																										   someRestriction))) {
-					abox.getDependencyMap().addGoverningTerm(node, abox.getDLTermFactory().getDLThing());
-
-				}
-
-				/* the target term becomes a governing term if and only if we generated a new node */
-				abox.getDependencyMap().addGoverningTerm(succ, subTerm);
-
 				node.getRABox().getAssertedSuccessors().put(role, succ.getNodeID());
-				branch.touchNode(node);
+				// abox.touchNode(node);
 				haveGenerated = true;
 			}
-			/*
-			 * update dependency map
+
+			/**
+			 * update dependency map and governing terms
+			 * <p/>
+			 * The governing term always moves to the successor.
 			 */
+			final TermEntry<I, L, K, R> someTermEntry = abox.getTermEntryFactory().getEntry(node, someRestriction);
+			final TermEntry<I, L, K, R> subTermEntry = abox.getTermEntryFactory().getEntry(succ, subTerm);
+			if (abox.getDependencyMap().getGoverningTerms().remove(someTermEntry)) {
+				abox.getDependencyMap().addGoverningTerm(subTermEntry);
+			}
 			if (!abox.getDependencyMap().containsKey(succ, subTerm)) {
 				abox.getDependencyMap().addParent(succ, subTerm, node, someRestriction);
 			}
+			succ.addTerm(subTerm);
+
 
 			/* final NodeMergeInfo<I, L, K, R> mergeInfo = */ succ.addTerm(subTerm);
 		} catch (ENodeMergeException | EIllegalTermTypeException ex) {
@@ -134,12 +143,15 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 		}
 	}
 
+
 	/**
 	 *
-	 * @param branchNode The current branch node
-	 * @param node The current node
+	 * @param branchNode      The current branch node
+	 * @param node            The current node
 	 * @param someRestriction The restriction this completion happens on
+	 * <p/>
 	 * @return {@literal true}, if a successor was generated.
+	 * <p/>
 	 * @throws EReasonerException
 	 */
 	protected ReasonerContinuationState completeNonFunctionalRole(
@@ -178,7 +190,7 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 			/*
 			 * schedule the existing node for recheck
 			 */
-			branch.touchNode(node);
+			// abox.touchNode(node);
 
 			/**
 			 * No successor with matching term found, generate one.
@@ -195,10 +207,11 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 				if (!abox.getDependencyMap().containsKey(newNode, subTerm)) {
 					abox.getDependencyMap().addParent(newNode, subTerm, node, someRestriction);
 					/**
-					 * The governing term is not the initial some restriction "(∃ . term)", 
+					 * The governing term is not the initial some restriction "(∃ . term)",
 					 * but the actual subterm "term".
 					 * If the some restriction was a governing term, delete it.
-					 **/
+					 *
+					 */
 					if (abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().getEntry(node,
 																											   someRestriction))) {
 						abox.getDependencyMap().addGoverningTerm(node, abox.getDLTermFactory().getDLThing());
@@ -218,7 +231,7 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 					node.getRABox().getAssertedSuccessors().put(role, newNode.getNodeID());
 				}
 				if (isTracing()) {
-					logTrace("%s: Generated node: %s", branchNode, newNode);
+					_logger.trace("%s: Generated node: %s", branchNode, newNode);
 				}
 
 				/*
@@ -233,6 +246,7 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 		}
 		return ReasonerContinuationState.CONTINUE;
 	}
+
 
 	@Override
 	public ReasonerContinuationState completeNode(IDecisionTree.Node<Branch<I, L, K, R>> branchNode,

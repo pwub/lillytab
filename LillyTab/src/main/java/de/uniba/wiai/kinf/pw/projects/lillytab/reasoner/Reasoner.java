@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;
@@ -31,6 +32,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IIndividualABoxNode;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.ABox;
@@ -49,6 +51,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.ArrayList;
@@ -56,6 +59,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -80,6 +86,7 @@ import java.util.List;
 public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractReasoner<I, L, K, R>
 {
+	private static final Logger _logger = LoggerFactory.getLogger(Reasoner.class);
 	// private ABox<I, L, K, R> _initialAbox;
 	private ReasonerOptions _reasonerOptions;
 	private INodeConsistencyChecker<I, L, K, R> _nodeConsistencyChecker;
@@ -118,6 +125,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	 *
 	 *
 	 * @param abox The ABox to generate the completer list for
+	 * <p/>
 	 * @return The list of generating (non-node creating) completers for the reasoner.
 	 */
 	protected List<ICompleter<I, L, K, R>> getNonGeneratingCompleters(
@@ -183,6 +191,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	 *
 	 *
 	 * @param abox The ABox to generate the completer list for
+	 * <p/>
 	 * @return The list of generating (node creating) completers for the reasoner.
 	 *
 	 */
@@ -210,16 +219,51 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 
 	/// <editor-fold defaultstate="collapsed" desc="Prepare functions">
 	/**
-	 * Update the {@literal abox} for expansion. All global concepts that cannot be undolfded lazily are propagated into
-	 * the existing nodes. Scan the node for unfoldable concepts and unfoled them recursively.
+	 * 
+	 * Perform concept unfolding an all concept terms of the current node. 
+	 * <p />
+	 * When the unfolding produces nominals references, node joins 
+	 * (see {@link IABox#mergeNodes(de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode, de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode)}
+	 * may take place. {@literal unfoldAll()} thus returns a {@link NodeMergeInfo} indicating the ID of the target node
+	 * containing the unfoldings and information, if the target node was modified. 
 	 *
-	 * @see IABoxNode#addClassTerm(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression)
-	 * @param abox
+	 * @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings and information,
+	 * if the target node was modified.
+	 * @throws ENodeMergeException
 	 */
+	private NodeMergeInfo<I, L, K, R> unfoldAll(final IIndividualABoxNode<I, L, K, R> node)
+		throws ENodeMergeException
+	{
+		final NodeMergeInfo<I, L, K, R> mergeInfo = new NodeMergeInfo<>(node, false);
+		/*
+		 * the local abox may go away
+		 */
+		IABoxNode<I, L, K, R> currentNode = node;
+		Iterator<IDLTerm<I, L, K, R>> iter = currentNode.getTerms().iterator();
+		while (iter.hasNext()) {
+			final IDLTerm<I, L, K, R> term = iter.next();
+			if (term instanceof IDLClassExpression) {
+				final IDLClassExpression<I, L, K, R> desc = (IDLClassExpression<I, L, K, R>) term;
+				final NodeMergeInfo<I, L, K, R> unfoldResult = node.addTerm(desc);
+				mergeInfo.append(unfoldResult);
+				if (!currentNode.equals(unfoldResult.getCurrentNode())) {
+					// a merge operation occured, switch current node, restart description iterator
+					currentNode = unfoldResult.getCurrentNode();
+					iter = currentNode.getTerms().iterator();
+				} else if (unfoldResult.isModified(currentNode))
+					// no merge operation, but the current node was modified, restart iterator
+					iter = currentNode.getTerms().iterator();
+			}
+		}
+
+		return mergeInfo;
+	}
+
 	/**
 	 * Create the initial branch for reasoning. This copied the ABox and initializes a new {@link Branch } object..
 	 *
 	 * @param abox The ABox to start with. A copy is made.
+	 * <p/>
 	 * @return An empty, freshly created branch for the supplied ABox.
 	 */
 	private Branch<I, L, K, R> prepareInitialBranch(final IABox<I, L, K, R> abox)
@@ -234,18 +278,21 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		 * Make sure, existing terms have been considered for lazy unfolding. This is no longer needed.
 		 */
 		// initialBranch.getABox().unfoldAll();
-		Iterator<IABoxNode<I, L, K, R>> nodeIter = initialBranch.getABox().iterator();
 
 		/* add global descriptions to all nodes */
-		while (nodeIter.hasNext()) {
-			final IABoxNode<I, L, K, R> node = nodeIter.next();
+		final Set<NodeID> touchedNodes = new HashSet<>(abox.getGeneratingQueue());
+		touchedNodes.addAll(abox.getNonGeneratingQueue());
+
+		/**
+		 * Only unfold TBox for touched nodes.
+		 **/
+		for (NodeID touchedNode : touchedNodes) {
+			final IABoxNode<I, L, K, R> node = initialBranch.getABox().getNode(touchedNode);
 			if (node instanceof IIndividualABoxNode) {
-				final IIndividualABoxNode<I, L, K, R> iNode = (IIndividualABoxNode<I, L, K, R>) node;
-				final NodeMergeInfo<I, L, K, R> mergeInfo = iNode.addTerms(
-					initialBranch.getABox().getTBox().getGlobalDescriptions());
-				if (!mergeInfo.getMergedNodes().isEmpty()) {
-					nodeIter = initialBranch.getABox().iterator();
-				}
+				IIndividualABoxNode<I, L, K, R> iNode = (IIndividualABoxNode<I, L, K, R>) node;
+				final NodeMergeInfo<I, L, K, R> mergeInfo = unfoldAll(iNode);
+				iNode = (IIndividualABoxNode<I, L, K, R>) mergeInfo.getCurrentNode();
+				iNode.addTerms(initialBranch.getABox().getTBox().getGlobalDescriptions());
 			}
 		}
 
@@ -514,11 +561,13 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	/**
 	 * Perform completion on all branches below {@literal branchPoint}.
 	 *
-	 * @param branchQueue A queue of branches to complete. Will be extended
+	 * @param branchQueue      A queue of branches to complete. Will be extended
 	 * @param stopAtFirstModel Shall we stop at the first model or determinal ALL saturated tableaux
+	 * <p/>
 	 * @return A collection of consistent {@link IABox}es.
+	 * <p/>
 	 * @throws EInconsistentOntologyException No consistent ABox was found.
-	 * @throws EReasonerException A reasoner error occured
+	 * @throws EReasonerException             A reasoner error occured
 	 */
 	private Collection<? extends ReasonerResult<I, L, K, R>> complete(
 		final BranchTree<I, L, K, R> branchTree,
@@ -544,8 +593,8 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			} else {
 				if (contState == ReasonerContinuationState.INCONSISTENT) {
 					/* prune branch tree according to the culprits recorded for the current branch */
-					logTrace("Inconsistent branch found: {}", branchNode.getData());
-					logTrace("Clash info: {}", branchNode.getData().getConsistencyInfo());
+					_logger.trace("Inconsistent branch found: {}", branchNode.getData());
+					_logger.trace("Clash info: {}", branchNode.getData().getConsistencyInfo());
 				}
 				pruneBranchTree(branchTree, branchNode);
 			}
@@ -554,13 +603,13 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 
 		if (getReasonerOptions().isTracing()) {
-			logDebug("Reasoning complete");
+			_logger.debug("Reasoning complete");
 			if (reasonerResults.isEmpty()) {
-				logTrace("No models found");
+				_logger.trace("No models found");
 			} else {
-				logTrace("The following models were found:");
+				_logger.trace("The following models were found:");
 				for (ReasonerResult<I, L, K, R> result : reasonerResults) {
-					logTrace(result);
+					_logger.trace("{}", result);
 				}
 			}
 		}
@@ -593,7 +642,9 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 	 * will return the first branch from the branch queue where no completion rules are applicable any more.
 	 *
 	 * @param bt The {@link BranchTree}.
+	 * <p/>
 	 * @return A completed branch
+	 * <p/>
 	 * @throws EReasonerException, EInconsistentOntologyException
 	 */
 	private ReasonerContinuationState completeBranch(
@@ -609,7 +660,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		final Branch<I, L, K, R> branch = branchNode.getData();
 		assert branch != null;
 		if (getReasonerOptions().isTracing()) {
-			logDebug("Before completion: {}", branch);
+			_logger.debug("Before completion: {}", branch);
 		}
 
 		/**
@@ -617,9 +668,10 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 		 * step next)
 		 *
 		 */
-		while (branch.hasMoreNonGeneratingNodes() || branch.hasMoreGeneratingNodes()) {
-			while (branch.hasMoreNonGeneratingNodes()) {
-				final IABoxNode<I, L, K, R> nextNonGenNode = branch.nextNonGeneratingNode();
+		final IABox<I, L, K, R> abox = branch.getABox();
+		while (abox.hasMoreNonGeneratingNodes() || abox.hasMoreGeneratingNodes()) {
+			while (abox.hasMoreNonGeneratingNodes()) {
+				final IABoxNode<I, L, K, R> nextNonGenNode = abox.nextNonGeneratingNode();
 				if (!blockingStrategy.isBlocked(nextNonGenNode)) {
 					final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().
 						isConsistent(nextNonGenNode);
@@ -628,7 +680,8 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 						return ReasonerContinuationState.INCONSISTENT;
 					} else {
 						/**
-						 * Run any non-generating completers until one of them signals that we have to recheck to node queue
+						 * Run any non-generating completers until one of them signals that we have to recheck to node
+						 * queue
 						 * or branch tree, or we run out of nodes on the non-generating queue.
 						 */
 						for (ICompleter<I, L, K, R> nonGenCompleter : nonGeneratingCompleters) {
@@ -644,7 +697,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 				}
 			}
 			if (getReasonerOptions().isTracing()) {
-				logTrace("After non-generating steps: {}", branch);
+				_logger.trace("After non-generating steps: {}", branch);
 			}
 
 			/**
@@ -654,7 +707,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			IABoxNode<I, L, K, R> nextGenNode;
 			boolean wasGenerated = false;
 			do {
-				nextGenNode = branch.nextGeneratingNode();
+				nextGenNode = abox.nextGeneratingNode();
 				if ((nextGenNode != null) && (!blockingStrategy.isBlocked(nextGenNode))) {
 					final ConsistencyInfo<I, L, K, R> cInfo = getNodeConsistencyChecker().isConsistent(
 						nextGenNode);
@@ -682,12 +735,11 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 				}
 			} while ((nextGenNode != null) && (!wasGenerated));
 			if ((getReasonerOptions().isProgressLogging()) && (nLoops % 100 == 0)) {
-				logDebug("Branch {}: {} iterations, {} nodes on queue", branch.getABox().getID(), nLoops,
-						branch.getGeneratingQueue().size() + branch.getNonGeneratingQueue().size());
+				_logger.debug("Branch {}: {} iterations", branch.getABox().getID(), nLoops);
 				++nLoops;
 			}
 			if (getReasonerOptions().isTracing()) {
-				logTrace("After generating step: {}", branch);
+				_logger.trace("After generating step: {}", branch);
 			}
 		}
 
@@ -717,7 +769,7 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 			while ((nextNode != null) && cInfo.hasClashingTerms(nextNode.getData().getABox())) {
 				++pruneCount;
 				if ((_reasonerOptions.isTracing()) && (pruneCount > 1)) {
-					logTrace("DDB-pruning performed for, removed `{}'", nextNode);
+					_logger.trace("DDB-pruning performed for, removed `{}'", nextNode);
 				}
 				nextNode.remove();
 				nextNode = pickBranch(branchTree);

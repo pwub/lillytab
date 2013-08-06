@@ -18,11 +18,11 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util;
 
 import de.dhke.projects.cutil.collections.tree.IDecisionTree;
-import de.dhke.projects.lutil.LoggingClass;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
@@ -38,8 +38,7 @@ import java.util.List;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public abstract class AbstractCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends LoggingClass
+public abstract class AbstractCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements ICompleter<I, L, K, R> {
 
 	private final INodeConsistencyChecker<I, L, K, R> _cChecker;
@@ -72,15 +71,16 @@ public abstract class AbstractCompleter<I extends Comparable<? super I>, L exten
 
 
 	/**
-	 *  Traverse the list of {@link BranchCreationInfo}s and update the branch tree as necessary. <p /> Also
-	 * validate, if the modifications to the current branch require rechecking the node queue. 
+	 * Traverse the list of {@link BranchCreationInfo}s and update the branch tree as necessary. <p /> Also
+	 * validate, if the modifications to the current branch require rechecking the node queue.
 	 *
 	 * @param branchCreationInfos A list of recent {@link BranchCreationInfo}s.
-	 * @param currentBranch The current (base) branch.
-	 * @param node The current node.
-	 * @param branchQueue The branch queue.
+	 * @param currentBranch       The current (base) branch.
+	 * @param node                The current node.
+	 * @param branchQueue         The branch queue.
+	 * <p/>
 	 * @return {@literal true}, if processing can continue uninterruptedly on the current branch. {@literal false}, if
-	 * the node queue needs to be rechecked before further processing.
+	 *            the node queue needs to be rechecked before further processing.
 	 *
 	 */
 	protected ReasonerContinuationState handleBranchCreation(

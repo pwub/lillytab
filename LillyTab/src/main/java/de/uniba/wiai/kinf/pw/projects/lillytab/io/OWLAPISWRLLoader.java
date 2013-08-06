@@ -18,58 +18,46 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.io;
+ *
+ */
+package de.uniba.wiai.kinf.pw.projects.lillytab.io;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.*;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl.SWRLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.util.SWRLTermUtil;
 import java.util.*;
 import org.apache.commons.collections15.BidiMap;
 import org.apache.commons.collections15.bidimap.DualHashBidiMap;
-import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.*;
+
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class OWLAPISWRLLoader {
-
-	final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory;
-	final ISWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _swrlFactory;
-
-
-	public OWLAPISWRLLoader()
-	{
-		this(
-			new OWLAPIDLTermFactory(OWLManager.getOWLDataFactory()),
-			new SWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>());
-	}
-
+public class OWLAPISWRLLoader
+{
+	private final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory;
+	private final ISWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _swrlFactory;
 
 	public OWLAPISWRLLoader(
-		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory,
-		final ISWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> swrlFactory)
+		IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory,
+		ISWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _swrlFactory)
 	{
-		_termFactory = termFactory;
-		_swrlFactory = swrlFactory;
+		this._termFactory = _termFactory;
+		this._swrlFactory = _swrlFactory;
 	}
-
 
 	public IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getTermFactory()
 	{
 		return _termFactory;
 	}
 
-
 	public ISWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getSWRLTermFactory()
 	{
 		return _swrlFactory;
 	}
-
 
 	private ISWRLIArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> handleIndividual(
 		final SWRLIArgument arg,
@@ -92,7 +80,6 @@ public class OWLAPISWRLLoader {
 		}
 	}
 
-
 	private ISWRLDArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> handleData(
 		final SWRLDArgument arg,
 		final BidiMap<IRI, String> varNames)
@@ -112,7 +99,6 @@ public class OWLAPISWRLLoader {
 			throw new IllegalArgumentException("Unknown SWRL individual type: " + arg.getClass());
 		}
 	}
-
 
 	private String getVarName(final IRI sourceName, final BidiMap<IRI, String> varNames)
 	{
@@ -136,7 +122,6 @@ public class OWLAPISWRLLoader {
 		assert varName != null;
 		return varName;
 	}
-
 
 	private Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> convertAtoms(
 		final Collection<SWRLAtom> sourceAtoms,
@@ -187,18 +172,26 @@ public class OWLAPISWRLLoader {
 					final ISWRLIArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> ind1 = handleIndividual(
 						arg1, varNames);
 					final ISWRLDArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> ind2 = handleData(arg2,
-																												  varNames);
+																												   varNames);
 					final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> atom = _swrlFactory.
 						getSWRLDataRoleAtom(dataProp, ind1, ind2);
 					targetAtoms.add(atom);
 				}
+			} else if (sourceAtom instanceof SWRLDataRangeAtom) {
+				final SWRLDataRangeAtom rangeAtom = (SWRLDataRangeAtom) sourceAtom;
+				final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> dataRange = OWLAPILoader.
+					convertDataRange(_termFactory, rangeAtom.getPredicate());
+				final SWRLDArgument arg = rangeAtom.getArgument();
+				ISWRLDArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> ind = handleData(arg, varNames);
+				final ISWRLDataRangeAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> atom =
+					_swrlFactory.getSWRLDataRange(dataRange, ind);
+				targetAtoms.add(atom);
 			} else {
 				throw new IllegalArgumentException("Unsupported atom type: " + sourceAtom.getClass());
 			}
 		}
 		return targetAtoms;
 	}
-
 
 	public ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> convertRule(final SWRLRule sourceRule)
 	{
@@ -214,7 +207,6 @@ public class OWLAPISWRLLoader {
 			SWRLTermUtil.joinIntoIntersection(bodyAtoms, _swrlFactory));
 		return targetRule;
 	}
-
 
 	public Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> getRules(final OWLOntology onto)
 	{

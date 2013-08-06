@@ -18,9 +18,11 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.Collection;
 
 /**
@@ -62,4 +64,8 @@ public interface ISWRLTermFactory<I extends Comparable<? super I>, L extends Com
 
 
 	ISWRLVariable<I, L, K, R> getSWRLVariable(String name);
+
+
+	ISWRLDataRangeAtom<I, L, K, R> getSWRLDataRange(final IDLDataRange<I, L, K, R> range,
+												final ISWRLDArgument<I, L, K, R> individual);
 }

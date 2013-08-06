@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.EInvalidTermException;
@@ -30,16 +31,16 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  *
  * @param <I> The type for nominals and values
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
+ * <p/>
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLIntersection<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public class SWRLIntersection<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractFixedTermList<ISWRLAtomicTerm<I, L, K, R>>
 	implements ISWRLIntersection<I, L, K, R> {
 
@@ -57,7 +58,7 @@ public class SWRLIntersection<I extends Comparable<? super I>, L extends Compara
 				getModifiableTermList().set(i, d);
 				++i;
 			}
-			Collections.sort(getModifiableTermList());
+			sortAndEnsureUnique(this, 2);
 		}
 	}
 
@@ -68,7 +69,7 @@ public class SWRLIntersection<I extends Comparable<? super I>, L extends Compara
 		getModifiableTermList().set(0, a0);
 		getModifiableTermList().set(1, a1);
 		/* ensure order */
-		Collections.sort(getModifiableTermList());
+		sortAndEnsureUnique(this, 2);
 	}
 
 

@@ -18,13 +18,15 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.util;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIndividualReference;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -138,6 +140,18 @@ public class LabelToStringFormatter
 			sb.append("{");
 			append(sb, nomRef.getIndividual());
 			sb.append("}");
+		}
+
+		if ((!haveLabel) && (obj instanceof Iterable)) {
+			final Iterator<?> iter = ((Iterable<?>) obj).iterator();
+			sb.append("[");
+			boolean first = false;
+			while (iter.hasNext()) {
+				if (!first)
+					sb.append(", ");
+				sb.append(toString(iter.next()));
+			}
+			sb.append("]");
 		}
 
 		/**

@@ -168,6 +168,8 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 	@Override
 	public void addParent(final TermEntry<I, L, K, R> termEntry, final TermEntry<I, L, K, R> parentEntry)
 	{
+		if (termEntry.equals(parentEntry))
+			throw new IllegalArgumentException("Term cannot be its own parent");
 		put(termEntry, parentEntry);
 	}
 
@@ -175,14 +177,14 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 	public void addParent(final TermEntry<I, L, K, R> termEntry, final NodeID parentNode,
 						  final IDLTerm<I, L, K, R> parentTerm)
 	{
-		put(termEntry, _entryFactory.getEntry(parentNode, parentTerm));
+		addParent(termEntry, _entryFactory.getEntry(parentNode, parentTerm));
 	}
 
 	@Override
 	public void addParent(final NodeID nodeID, final IDLTerm<I, L, K, R> term,
 						  final TermEntry<I, L, K, R> parentEntry)
 	{
-		put(_entryFactory.getEntry(nodeID, term), parentEntry);
+		addParent(_entryFactory.getEntry(nodeID, term), parentEntry);
 	}
 
 	@Override
@@ -311,6 +313,7 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 			sb.append(termEntry);
 		}
 		for (Map.Entry<TermEntry<I, L, K, R>, Collection<TermEntry<I, L, K, R>>> entry : this.entrySet()) {
+			sb.append("<");
 			if (isFirst) {
 				isFirst = false;
 			} else {
@@ -319,6 +322,7 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 			sb.append(entry.getKey());
 			sb.append(": ");
 			sb.append(CollectionUtil.deepToString(entry.getValue()));
+			sb.append(">");
 		}
 		sb.append("}");
 		return sb.toString();
@@ -395,5 +399,22 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 									IDLTerm<I, L, K, R> term)
 	{
 		return hasGoverningTerm(getTermEntryFactory().getEntry(nodeID, term));
+	}
+
+	@Override
+	public boolean hasGoverningTerm(NodeID nodeID)
+	{
+		for (TermEntry<I, L, K, R> govTerm : _governingTerms) {
+			if (govTerm.getNodeID().equals(nodeID))
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean hasGoverningTerm(
+		IABoxNode<I, L, K, R> node)
+	{
+		return hasGoverningTerm(node.getNodeID());
 	}
 }

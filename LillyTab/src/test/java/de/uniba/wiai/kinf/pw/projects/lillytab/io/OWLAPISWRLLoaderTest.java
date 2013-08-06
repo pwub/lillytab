@@ -19,9 +19,12 @@
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.io;
+package de.uniba.wiai.kinf.pw.projects.lillytab.io;
 
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
+import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPISWRLLoader;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.*;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl.SWRLTermFactory;
 import java.util.Set;
 import org.junit.*;
 import static org.junit.Assert.*;
@@ -30,42 +33,38 @@ import org.semanticweb.owlapi.io.OWLOntologyDocumentSource;
 import org.semanticweb.owlapi.io.StringDocumentSource;
 import org.semanticweb.owlapi.model.*;
 
+
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class OWLAPISWRLLoaderTest {
-
-
+public class OWLAPISWRLLoaderTest
+{
 	@BeforeClass
 	public static void setUpClass()
 		throws Exception
 	{
 	}
 
-
 	@AfterClass
 	public static void tearDownClass()
 		throws Exception
 	{
 	}
-
 	private OWLOntologyManager _ontoMan;
 	private OWLAPISWRLLoader _loader;
-
 
 	public OWLAPISWRLLoaderTest()
 	{
 	}
 
-
 	@Before
 	public void setUp()
 	{
 		_ontoMan = OWLManager.createOWLOntologyManager();
-		_loader = new OWLAPISWRLLoader();
+		_loader = new OWLAPISWRLLoader(new OWLAPIDLTermFactory(_ontoMan.getOWLDataFactory()),
+									   new SWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>());
 	}
-
 
 	@After
 	public void tearDown()
@@ -73,7 +72,6 @@ public class OWLAPISWRLLoaderTest {
 		_ontoMan = null;
 		_loader = null;
 	}
-
 
 	@Test
 	public void testClassPropertyRule() throws OWLOntologyCreationException
@@ -107,15 +105,17 @@ public class OWLAPISWRLLoaderTest {
 		assertEquals(1, rules.size());
 		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rule = rules.iterator().next();
 		assertTrue(rule.getBody() instanceof ISWRLClassAtom);
-		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.getBody();
+		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+			getBody();
 		assertTrue(body.getIndividual() instanceof ISWRLVariable);
-		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) body.getIndividual();
+		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) body.
+			getIndividual();
 		assertTrue(rule.getHead() instanceof ISWRLRoleAtom);
-		final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> head = (ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.getHead();
+		final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> head = (ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+			getHead();
 		assertEquals(head.getFirstIndividual(), body.getIndividual());
 		assertTrue(head.getSecondIndividual() instanceof ISWRLIndividualReference);
 	}
-
 
 	@Test
 	public void testClassClassRule() throws OWLOntologyCreationException
@@ -148,12 +148,16 @@ public class OWLAPISWRLLoaderTest {
 		assertEquals(1, rules.size());
 		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rule = rules.iterator().next();
 		assertTrue(rule.getBody() instanceof ISWRLClassAtom);
-		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.getBody();
+		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+			getBody();
 		assertTrue(body.getIndividual() instanceof ISWRLVariable);
-		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) body.getIndividual();
+		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) body.
+			getIndividual();
 		assertTrue(rule.getHead() instanceof ISWRLClassAtom);
-		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> head = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.getHead();
+		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> head = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+			getHead();
 		assertTrue(head.getIndividual() instanceof ISWRLIndividualReference);
-		final ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nom = (ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) head.getIndividual();
+		final ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nom = (ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) head.
+			getIndividual();
 	}
 }

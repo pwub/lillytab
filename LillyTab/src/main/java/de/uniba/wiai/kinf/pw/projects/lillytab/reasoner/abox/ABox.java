@@ -59,10 +59,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 
 
@@ -80,6 +82,7 @@ import java.util.TreeSet;
 public class ABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements IABox<I, L, K, R>
 {
+	/// </editor-fold>
 	private static final long serialVersionUID = 3990522176232016954L;
 	private static final boolean TO_STRING_ID_ONLY = false;
 	/**
@@ -135,6 +138,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 */
 	private final DependencyMap<I, L, K, R> _dependencyMap;
 	private final List<INodeMergeListener<I, L, K, R>> _nodeMergeListeners = new ArrayList<>();
+	/**
+	 * Node queue management
+	 */
+	private final SortedSet<NodeID> _nonGeneratingQueue = new TreeSet<>();
+	private final SortedSet<NodeID> _generatingQueue = new TreeSet<>();
 
 	/// <editor-fold defaultstate="collapsed" desc="constructors">
 	public ABox(
@@ -174,6 +182,9 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		_nodeMap = _common.getNodeMapFactory().getInstance();
 		_tbox = klonee._tbox.clone();
 		_tboxGeneration = klonee._tboxGeneration;
+
+		_nonGeneratingQueue.addAll(klonee._nonGeneratingQueue);
+		_generatingQueue.addAll(klonee._generatingQueue);
 
 		for (IABoxNode<I, L, K, R> node : klonee) {
 			add(node.clone(this));
@@ -645,6 +656,17 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 			sb.append("\n");
 
 			sb.append(subPrefix);
+			sb.append("Node Queues: \n");
+			sb.append(subPrefix);
+			sb.append("\tGenerating Queue:     ");
+			sb.append(getGeneratingQueue());
+			sb.append("\n");
+			sb.append(subPrefix);
+			sb.append("\tNon-Generating Queue: ");
+			sb.append(getNonGeneratingQueue());
+			sb.append("\n");
+
+			sb.append(subPrefix);
 			sb.append("Dependency Map: ");
 			sb.append(getDependencyMap().toString());
 			sb.append("\n");
@@ -956,6 +978,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 		final TermChangeEvent<I, L, K, R> ev = new TermChangeEvent<>(this, node, term);
 
+		touchNode(node);
+
 		if (!_termSetListeners.isEmpty()) {
 			for (ITermSetListener<I, L, K, R> listener : _termSetListeners) {
 				listener.termAdded(ev);
@@ -972,6 +996,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		} else if (term instanceof IDLLiteralReference) {
 			_nodeMap.remove(((IDLLiteralReference<I, L, K, R>) term).getLiteral());
 		}
+
+		touchNode(node);
 
 		final TermChangeEvent<I, L, K, R> ev = new TermChangeEvent<>(this, node, term);
 		if (!_termSetListeners.isEmpty()) {
@@ -998,6 +1024,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 			}
 		}
 
+		touchNode(node);
+
 		if (!_termSetListeners.isEmpty()) {
 			for (ITermSetListener<I, L, K, R> listener : _termSetListeners) {
 				listener.termSetCleared(ev);
@@ -1015,45 +1043,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 	/// </editor-fold>
 
-//	@Override
-//	public void unfoldAll()
-//		throws ENodeMergeException
-//	{
-//		/**
-//		 * We remember the TBox generation number and re-run the unfold operation only if the TBox was re-calculated in
-//		 * between.
-//		 */
-//		final TBox<I, L, K, R> tbox = getTBox();
-//		if (tbox.getGeneration() > _tboxGeneration) {
-//			final Set<IDLRestriction<I, L, K, R>> globalDescs = tbox.getGlobalDescriptions();
-//
-//			Iterator<IABoxNode<I, L, K, R>> iter = iterator();
-//			while (iter.hasNext()) {
-//				IABoxNode<I, L, K, R> currentNode = iter.next();
-//				assert contains(currentNode);
-//
-//				/*
-//				 * unfold existing terms
-//				 */
-//				NodeMergeInfo<I, L, K, R> unfoldResult = currentNode.unfoldAll();
-//
-//				/*
-//				 * unfold global descriptions
-//				 */
-//				unfoldResult.append(currentNode.addTerms(globalDescs));
-//
-//				if (!unfoldResult.getMergedNodes().isEmpty()) {
-//					/*
-//					 * a merge occured, refetch node
-//					 */
-//					currentNode = unfoldResult.getCurrentNode();
-//					assert contains(currentNode);
-//					iter = iterator();
-//				}
-//			}
-//			_tboxGeneration = tbox.getGeneration();
-//		}
-//	}
 	@Override
 	public boolean containsAllTermEntries(Collection<TermEntry<I, L, K, R>> entries)
 	{
@@ -1071,12 +1060,205 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		final IABoxNode<I, L, K, R> node = getNode(entry.getNodeID());
 		return ((node != null) && node.getTerms().contains(entry.getTerm()));
 	}
-	/// <editor-fold defaultstate="collapsed" desc="DependencyMap">
 
+	/// <editor-fold defaultstate="collapsed" desc="DependencyMap">
 	@Override
 	public DependencyMap<I, L, K, R> getDependencyMap()
 	{
 		return _dependencyMap;
 	}
 	/// </editor-fold>
+
+	/// <editor-fold defaultstate="collapsed" desc="Node Queues">
+	@Override
+	public boolean hasMoreNonGeneratingNodes()
+	{
+		return !getNonGeneratingQueue().isEmpty();
+	}
+
+	@Override
+	public boolean hasMoreGeneratingNodes()
+	{
+		return !getGeneratingQueue().isEmpty();
+	}
+
+	@Override
+	public boolean removeFromQueues(final NodeID nodeID)
+	{
+		checkTBoxGeneration();
+		boolean wasRemoved = false;
+		final IABoxNode<I, L, K, R> node = getNode(nodeID);
+		if (node != null) {
+			wasRemoved = _nonGeneratingQueue.remove(nodeID);
+			wasRemoved |= _generatingQueue.remove(nodeID);
+		}
+		return wasRemoved;
+	}
+
+	@Override
+	public boolean removeNodeFromQueues(final IABoxNode<I, L, K, R> node)
+	{
+		checkTBoxGeneration();
+		boolean wasRemoved = false;
+		if (node != null) {
+			final NodeID nodeID = node.getNodeID();
+			wasRemoved = _nonGeneratingQueue.remove(nodeID);
+			wasRemoved |= _generatingQueue.remove(nodeID);
+		}
+		return wasRemoved;
+	}
+
+	@Override
+	public boolean removeFromQueues(final Collection<NodeID> nodeIDs)
+	{
+		checkTBoxGeneration();
+		boolean wasRemoved = false;
+		wasRemoved |= getGeneratingQueue().removeAll(nodeIDs);
+		wasRemoved |= getNonGeneratingQueue().removeAll(nodeIDs);
+		return wasRemoved;
+	}
+
+	@Override
+	public boolean removeNodesFromQueues(final Collection<? extends IABoxNode<I, L, K, R>> nodes)
+	{
+		checkTBoxGeneration();
+		boolean wasRemoved = false;
+		for (IABoxNode<I, L, K, R> node : nodes) {
+			wasRemoved |= removeNodeFromQueues(node);
+		}
+		return wasRemoved;
+	}
+
+	public boolean clearQueues()
+	{
+		boolean cleared = false;
+		if (!_nonGeneratingQueue.isEmpty()) {
+			_nonGeneratingQueue.clear();
+			cleared = true;
+		}
+		if (!_generatingQueue.isEmpty()) {
+			_nonGeneratingQueue.clear();
+			cleared = true;
+		}
+		return cleared;
+	}
+
+	@Override
+	public IABoxNode<I, L, K, R> nextNonGeneratingNode()
+	{
+		return nextNode(_nonGeneratingQueue);
+	}
+
+	@Override
+	public IABoxNode<I, L, K, R> nextGeneratingNode()
+	{
+		return nextNode(_generatingQueue);
+	}
+
+	private IABoxNode<I, L, K, R> nextNode(final Collection<NodeID> queue)
+	{
+		checkTBoxGeneration();
+
+		IABoxNode<I, L, K, R> nextNode = null;
+		while ((nextNode == null) && (!queue.isEmpty())) {
+			final Iterator<NodeID> iter = queue.iterator();
+			assert iter.hasNext();
+			final NodeID nextNodeID = iter.next();
+			iter.remove();
+			nextNode = getNode(nextNodeID);
+		}
+		return nextNode;
+	}
+
+	/**
+	 * @return the _nonGeneratingQueue
+	 */
+	@Override
+	public SortedSet<NodeID> getNonGeneratingQueue()
+	{
+		checkTBoxGeneration();
+		return Collections.unmodifiableSortedSet(_nonGeneratingQueue);
+	}
+
+	/**
+	 * @return the _generatingQueue
+	 */
+	@Override
+	public SortedSet<NodeID> getGeneratingQueue()
+	{
+		checkTBoxGeneration();
+		return Collections.unmodifiableSortedSet(_generatingQueue);
+	}
+
+	@Override
+	public boolean touchLiteral(final L literal)
+	{
+		final IABoxNode<I, L, K, R> node = getDatatypeNode(literal);
+		return touchNode(node);
+	}
+
+	@Override
+	public boolean touchIndividual(final I individual)
+	{
+		final IABoxNode<I, L, K, R> node = getIndividualNode(individual);
+		return touchNode(node);
+	}
+
+	@Override
+	public boolean touch(final NodeID nodeID)
+	{
+		IABoxNode<I, L, K, R> node = getNode(nodeID);
+		return touchNode(node);
+	}
+
+	@Override
+	public boolean touchAll(final Collection<NodeID> individuals)
+	{
+		boolean wasAdded = false;
+		for (NodeID nodeID : individuals) {
+			wasAdded |= touch(nodeID);
+		}
+		return wasAdded;
+	}
+
+	@Override
+	public boolean touchNode(final IABoxNode<I, L, K, R> node)
+	{
+		boolean wasAdded = false;
+		assert node != null;
+		assert contains(node);
+		assert node.getABox() == this;
+		/**
+		 * XXX - TODO: This is currently inefficient for large aboxes
+		 */
+		if (!_nonGeneratingQueue.contains(node.getNodeID())) {
+			_nonGeneratingQueue.add(node.getNodeID());
+			wasAdded = true;
+		}
+		if (!_generatingQueue.contains(node.getNodeID())) {
+			_generatingQueue.add(node.getNodeID());
+			wasAdded = true;
+		}
+		return wasAdded;
+	}
+
+	@Override
+	public boolean touchNodes(final Collection<? extends IABoxNode<I, L, K, R>> nodes)
+	{
+		boolean wasAdded = false;
+		for (IABoxNode<I, L, K, R> node : nodes) {
+			assert node != null;
+			wasAdded |= touchNode(node);
+		}
+		return wasAdded;
+	}
+	/// </editor-fold>
+
+	private void checkTBoxGeneration()
+	{
+		if (_tboxGeneration < getTBox().getGeneration()) {
+			touchNodes(_nodes);
+			_tboxGeneration = getTBox().getGeneration();
+		}
+	}
 }

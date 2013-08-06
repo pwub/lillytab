@@ -46,6 +46,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.Iterator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -61,6 +63,8 @@ public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparab
 	extends AbstractCompleter<I, L, K, R>
 	implements ICompleter<I, L, K, R>
 {
+	private static final Logger _logger = LoggerFactory.getLogger(ForAllCompleter.class);
+	
 	public ForAllCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
@@ -168,7 +172,7 @@ public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparab
 							}
 
 							if (isTracing()) {
-								logTrace("ForAll-propagation of %s from node %s to %s", forAllTerm, node.getNodeID(),
+								_logger.trace("ForAll-propagation of %s from node %s to %s", forAllTerm, node.getNodeID(),
 										  succID);
 							}
 

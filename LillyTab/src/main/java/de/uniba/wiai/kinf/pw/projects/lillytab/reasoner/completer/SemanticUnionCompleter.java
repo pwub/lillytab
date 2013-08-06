@@ -48,6 +48,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -63,6 +65,7 @@ public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends C
 	extends AbstractCompleter<I, L, K, R>
 	implements ICompleter<I, L, K, R>
 {
+	private static final Logger _logger = LoggerFactory.getLogger(SemanticUnionCompleter.class);
 	/**
 	 * The largest union size supported. Semantic branching creates pow(2, MAX_UNION_SIZE) branches for unions of that
 	 * size.
@@ -156,7 +159,7 @@ public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends C
 						return ReasonerContinuationState.INCONSISTENT;
 					} else {
 						if (isTracing()) {
-							logTrace("Created %d branches", branchCreationInfos.size());
+							_logger.trace("Created %d branches", branchCreationInfos.size());
 						}
 						final ReasonerContinuationState contState = handleBranchCreation(branchCreationInfos, branchNode,
 																						 node);

@@ -27,6 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
 import java.util.SortedSet;
 
+
 /**
  * @param <I> The type for individuals/nominals
  * @param <L> The type for literals
@@ -35,9 +36,9 @@ import java.util.SortedSet;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ITermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends SortedSet<IDLTerm<I, L, K, R>>, IImmutable<ITermSet<I, L, K, R>> {
-
+public interface ITermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends SortedSet<IDLTerm<I, L, K, R>>, IImmutable<ITermSet<I, L, K, R>>
+{
 	/**
 	 * Create an iterator over all elements of the current term set which are derivates of {@literal klass}.
 	 *
@@ -45,8 +46,7 @@ public interface ITermSet<I extends Comparable<? super I>, L extends Comparable<
 	 * @param klass The class of the elements to look for.
 	 * @return An iterator of the filtered elements of type {@literal klass}.
 	 */
-	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final Class<? extends T> klass);
-
+	<T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final Class<? extends T> klass);
 
 	/**
 	 * Create an iterator over all elements of the current term set which are derivates of {@literal klass} and feature
@@ -58,9 +58,8 @@ public interface ITermSet<I extends Comparable<? super I>, L extends Comparable<
 	 * @param klass The class of the elements to look for.
 	 * @return An iterator of the filtered elements of type {@literal klass}.
 	 */
-	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final DLTermOrder termType,
-																	   final Class<? extends T> klass);
-
+	<T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final DLTermOrder termType,
+														 final Class<? extends T> klass);
 
 	/**
 	 *  Return the subset of the current {@link ITermSet} that contains only the terms of the specified type. <p />
@@ -70,5 +69,12 @@ public interface ITermSet<I extends Comparable<? super I>, L extends Comparable<
 	 * @return The subset of the current termset containing only terms of the specified term type.
 	 * @see DLTermOrder
 	 */
-	public SortedSet<IDLTerm<I, L, K, R>> subSet(final DLTermOrder termType);
+	SortedSet<IDLTerm<I, L, K, R>> subSet(final DLTermOrder termType);
+
+	/**
+	 * 
+	 * @return an immutable version of this {@link ITermSet}
+	 */
+	@Override
+	ITermSet<I, L, K, R> getImmutable();
 }

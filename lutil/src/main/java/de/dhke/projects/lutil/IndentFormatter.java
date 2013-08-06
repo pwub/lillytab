@@ -18,8 +18,9 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.util;
+ *
+ */
+package de.dhke.projects.lutil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,7 +29,7 @@ import java.util.logging.LogRecord;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <java@dhke.de>
  */
 public class IndentFormatter
 	extends java.util.logging.Formatter {
@@ -95,7 +96,7 @@ public class IndentFormatter
 	}
 
 
-		public String formatLoggerName(final String longName, final int width)
+	public String formatDottedName(final String longName, final int width)
 	{
 		if (_nameCache.containsKey(longName)) {
 			return _nameCache.get(longName);
@@ -140,7 +141,9 @@ public class IndentFormatter
 		sb.append(String.format("%10d", record.getMillis()));
 		sb.append(levelToIndent(record.getLevel()));
 		sb.append("[");
-		sb.append(formatLoggerName(record.getLoggerName(), 30));
+		sb.append(formatDottedName(record.getSourceClassName(), 30));
+		sb.append(".");
+		sb.append(record.getSourceMethodName().substring(0, Math.min(10, record.getSourceMethodName().length())));
 		sb.append("] ");
 		sb.append(record.getMessage());
 		sb.append("\n");

@@ -18,10 +18,12 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
+import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.io.Serializable;
 
 /**
@@ -36,17 +38,17 @@ import java.io.Serializable;
  */
 public final class TermEntry<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements Serializable, Comparable<TermEntry<I, L, K, R>> {
-
+	
 	private static final long serialVersionUID = 5144437688016123689L;
-
-
+	
+	
 	static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> TermEntry<I, L, K, R> wrap(
 		final NodeID nodeID, final IDLTerm<I, L, K, R> term)
 	{
 		return new TermEntry<>(nodeID, term);
 	}
-
-
+	
+	
 	static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> TermEntry<I, L, K, R> wrap(
 		final IABoxNode<?, ?, ?, ?> node, final IDLTerm<I, L, K, R> term)
 	{
@@ -54,34 +56,34 @@ public final class TermEntry<I extends Comparable<? super I>, L extends Comparab
 	}
 	private final NodeID _nodeID;
 	private final IDLTerm<I, L, K, R> _term;
-
-
+	
+	
 	protected TermEntry(NodeID nodeID, IDLTerm<I, L, K, R> term)
 	{
 		this._nodeID = nodeID;
 		this._term = term;
 	}
-
-
+	
+	
 	public NodeID getNodeID()
 	{
 		return _nodeID;
 	}
-
-
+	
+	
 	public IDLTerm<I, L, K, R> getTerm()
 	{
 		return _term;
 	}
-
-
+	
+	
 	@Override
 	public int hashCode()
 	{
 		return 1408217 + 346421 * _nodeID.hashCode() + _term.hashCode();
 	}
-
-
+	
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -94,8 +96,8 @@ public final class TermEntry<I extends Comparable<? super I>, L extends Comparab
 			return false;
 		}
 	}
-
-
+	
+	
 	@Override
 	public int compareTo(TermEntry<I, L, K, R> o)
 	{
@@ -105,8 +107,8 @@ public final class TermEntry<I extends Comparable<? super I>, L extends Comparab
 		}
 		return c;
 	}
-
-
+	
+	
 	@Override
 	public String toString()
 	{
@@ -117,5 +119,17 @@ public final class TermEntry<I extends Comparable<? super I>, L extends Comparab
 		sb.append(getTerm());
 		sb.append(">");
 		return sb.toString();
+	}
+	
+
+	public String toString(final IToStringFormatter formatter)
+	{
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<");
+		sb.append(formatter.toString(getNodeID()));
+		sb.append(", ");
+		sb.append(getTerm().toString(formatter));
+		sb.append(">");
+		return sb.toString();		
 	}
 }
