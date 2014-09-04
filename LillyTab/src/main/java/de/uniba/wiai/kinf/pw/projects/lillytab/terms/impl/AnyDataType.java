@@ -26,10 +26,11 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDatatype;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
+
 
 /**
  *
@@ -41,19 +42,17 @@ import java.util.Set;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class AnyDataType<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IDLDatatype<I, L, K, R> {
-
+	implements IDLDatatype<I, L, K, R>
+{
 	public AnyDataType()
 	{
 	}
-
 
 	@Override
 	public boolean isValidValue(L literal)
 	{
 		return true;
 	}
-
 
 	@SafeVarargs
 	@Override
@@ -62,7 +61,6 @@ public class AnyDataType<I extends Comparable<? super I>, L extends Comparable<?
 		return true;
 	}
 
-
 	@Override
 	public Set<Set<L>> getIncompatibleValues(
 		Collection<? extends L> lits)
@@ -70,13 +68,11 @@ public class AnyDataType<I extends Comparable<? super I>, L extends Comparable<?
 		return Collections.emptySet();
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_DATATYPE_EXPRESSION);
 	}
-
 
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()
@@ -84,20 +80,11 @@ public class AnyDataType<I extends Comparable<? super I>, L extends Comparable<?
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_DATATYPE_EXPRESSION);
 	}
 
-
 	@Override
 	public DLTermOrder getDLTermOrder()
 	{
 		return DLTermOrder.DL_DATATYPE_EXPRESSION;
 	}
-
-
-	@Override
-	public String toString(IToStringFormatter entityFormatter)
-	{
-		return toString();
-	}
-
 
 	@Override
 	public String toString()
@@ -105,13 +92,11 @@ public class AnyDataType<I extends Comparable<? super I>, L extends Comparable<?
 		return "xsd:anyType";
 	}
 
-
 	@Override
 	public AnyDataType<I, L, K, R> clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int compareTo(
@@ -127,5 +112,12 @@ public class AnyDataType<I extends Comparable<? super I>, L extends Comparable<?
 				return -1;
 		} else
 			return compare;
+	}
+
+	@Override
+	public void accept(
+		IDLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
 	}
 }

@@ -27,15 +27,17 @@ import java.util.EnumSet;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class EnumUtil {
+public class EnumUtil { EnumUtil()
+	{
+	}
+
 
 	public static <E extends Enum<E>> EnumSet<E> parseEnum(final Class<E> klass, final String input)
 	{
 		return parseEnum(klass, input, "\\s*,\\s*");
 	}
 
-
-	public static <E extends Enum<E>> EnumSet<E> parseEnum(final Class<E> klass, final String input, final String sepExp)
+ public static <E extends Enum<E>> EnumSet<E> parseEnum(final Class<E> klass, final String input, final String sepExp)
 	{
 		final EnumSet<E> result = EnumSet.noneOf(klass);
 		final String[] parts = input.split(sepExp);
@@ -44,9 +46,5 @@ public class EnumUtil {
 			result.add(value);
 		}
 		return result;
-	}
-
- EnumUtil()
-	{
 	}
 }

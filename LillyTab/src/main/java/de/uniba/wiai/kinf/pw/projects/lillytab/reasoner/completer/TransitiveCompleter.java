@@ -36,8 +36,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -51,25 +50,21 @@ import org.slf4j.LoggerFactory;
  */
 public class TransitiveCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
-	implements ICompleter<I, L, K, R> {
-
+	implements ICompleter<I, L, K, R>
+{
 	// private static final Logger _logger = LoggerFactory.getLogger(TransitiveCompleter.class);
-
-
 	public TransitiveCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		super(cChecker);
 	}
-
 
 	public TransitiveCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, boolean trace)
 	{
 		super(cChecker, trace);
 	}
 
-
 	@Override
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "unchecked"})
 	public ReasonerContinuationState completeNode(IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
 												  IABoxNode<I, L, K, R> node)
 		throws EReasonerException
@@ -100,9 +95,13 @@ public class TransitiveCompleter<I extends Comparable<? super I>, L extends Comp
 				try {
 					while ((successorIter != null) && successorIter.hasNext()) {
 						final IABoxNode<I, L, K, R> succNode = successorIter.next();
+
+
 						if (!succNode.getTerms().contains(forAllTerm)) {
+
 							/* update dependency map */
 							abox.getDependencyMap().addParent(node, forAllTerm, succNode, forAllTerm);
+
 							final NodeMergeInfo<I, L, K, R> mergeInfo = succNode.addTerm(forAllTerm);
 							if (mergeInfo.getMergedNodes().contains(node)) {
 								/**

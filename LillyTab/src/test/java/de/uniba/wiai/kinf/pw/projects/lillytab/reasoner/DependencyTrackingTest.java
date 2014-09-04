@@ -74,6 +74,17 @@ import org.junit.Test;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DependencyTrackingTest {
+	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
+	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
+		_termFactory);
+	private IABox<String, String, String, String> _abox;
+	private Reasoner<String, String, String, String> _reasoner;
+	private SimpleKRSSParser _parser;
+
+
+		public DependencyTrackingTest()
+	{
+	}
 
 
 	@BeforeClass
@@ -88,23 +99,9 @@ public class DependencyTrackingTest {
 
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
+	public static void tearDownClass() throws Exception
 	{
 	}
-	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
-	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
-		_termFactory);
-	private IABox<String, String, String, String> _abox;
-	private Reasoner<String, String, String, String> _reasoner;
-	private SimpleKRSSParser _parser;
-
-
-		public DependencyTrackingTest()
-	{
-	}
-
-
 	@Before
 	public void setUp()
 	{
@@ -114,7 +111,6 @@ public class DependencyTrackingTest {
 		_parser = new SimpleKRSSParser(_termFactory);
 		_abox = _aboxFactory.createABox();
 	}
-
 
 	@After
 	public void tearDown()
@@ -127,7 +123,8 @@ public class DependencyTrackingTest {
 
 	//	@Test
 	@Test
-	public void testExistsTracking() throws EInconsistencyException, EReasonerException, ParseException
+	public void testExistsTracking()
+		throws EInconsistencyException, EReasonerException, ParseException
 	{
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		IABoxNode<String, String, String, String> aNode = _abox.createNode(false);
@@ -143,6 +140,7 @@ public class DependencyTrackingTest {
 
 		assertTrue(abox.getDependencyMap().containsValue(bNode, b, aNode, some));
 	}
+
 
 	@Test
 	public void testExistsTrackingFunctionalRole()
@@ -233,8 +231,6 @@ public class DependencyTrackingTest {
 		assertTrue(abox.getDependencyMap().containsValue(bNode, b, aNode, only));
 		assertEquals(2, abox.size());
 	}
-
-
 	@Test
 	public void testIntersectionTracking()
 		throws EInconsistencyException, EReasonerException, ParseException

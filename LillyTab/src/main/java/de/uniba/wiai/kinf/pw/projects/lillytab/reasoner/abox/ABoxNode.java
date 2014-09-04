@@ -34,7 +34,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.TermSet.TermTypes;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,6 +63,20 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	private static final Logger _logger = LoggerFactory.getLogger(ABoxNode.class);
 	// private final Map<DLTermOrder, IDLClassExpression<I, L, K, R>> _smallestTerms;
 	/**
+	 * The link map
+	 *
+	 */
+	protected final IRABox<I, L, K, R> _raBox;
+	/**
+	 * The set of concept terms for this node. Not final because of copy-on-write.
+	 */
+	protected final ABoxNodeTermSet<I, L, K, R> _terms;
+	/**
+	 * The set of node names.
+	 */
+	protected final SortedSet<N> _names = new TreeSet<>();
+	// private final Map<DLTermOrder, IDLClassExpression<I, L, K, R>> _smallestTerms;
+	/**
 	 * The (unmodifiable) node ID of this node.
 	 *
 	 */
@@ -72,29 +86,15 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	 *
 	 */
 	private final boolean _isDatatypeNode;
-	// private final Map<DLTermOrder, IDLClassExpression<I, L, K, R>> _smallestTerms;
-	/**
-	 * The link map
-	 *
-	 */
-	protected final IRABox<I, L, K, R> _raBox;
 	/**
 	 * The Abox
 	 *
 	 */
 	private ABox<I, L, K, R> _abox;
 	/**
-	 * The set of concept terms for this node. Not final because of copy-on-write.
-	 */
-	protected final ABoxNodeTermSet<I, L, K, R> _terms;
-	/**
 	 * Wrapper around {@link #_terms} that prevents direct additions.
 	 */
 	private final NoAddTermSet<I, L, K, R> _noAddTerms;
-	/**
-	 * The set of node names.
-	 */
-	protected final SortedSet<N> _names = new TreeSet<>();
 
 	/**
 	 * Create a new, named ABox node referencing the specified {@literal individual}.
@@ -353,7 +353,7 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 	 *
 	 */
 	@Override
-	public NodeMergeInfo<I, L, K, R> addTerm(final IDLRestriction<I, L, K, R> desc)
+	public NodeMergeInfo<I, L, K, R> addTerm(final IDLNodeTerm<I, L, K, R> desc)
 		throws ENodeMergeException, EIllegalTermTypeException
 	{
 		if (this instanceof IDatatypeABoxNode) {
@@ -379,11 +379,11 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addTerms(
-		Collection<? extends IDLRestriction<I, L, K, R>> terms)
+		Collection<? extends IDLNodeTerm<I, L, K, R>> terms)
 		throws ENodeMergeException, EIllegalTermTypeException
 	{
 		final NodeMergeInfo<I, L, K, R> mergeInfo = new NodeMergeInfo<>(this, false);
-		for (IDLRestriction<I, L, K, R> term : terms) {
+		for (IDLNodeTerm<I, L, K, R> term : terms) {
 			final NodeMergeInfo<I, L, K, R> newMergeInfo = mergeInfo.getCurrentNode().addTerm(term);
 			mergeInfo.append(newMergeInfo);
 		}

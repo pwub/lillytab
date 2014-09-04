@@ -48,6 +48,16 @@ import org.junit.Test;
  */
 public class RABoxTest {
 
+	private IDLTermFactory<String, String, String, String> _termFactory;
+	private IABoxFactory<String, String, String, String> _aboxFactory;
+	private IABox<String, String, String, String> _abox;
+	private IRBox<String, String, String, String> _rbox;
+
+
+	public RABoxTest()
+	{
+	}
+
 
 	@BeforeClass
 	public static void setUpClass()
@@ -57,16 +67,6 @@ public class RABoxTest {
 
 	@AfterClass
 	public static void tearDownClass()
-	{
-	}
-
-	private IDLTermFactory<String, String, String, String> _termFactory;
-	private IABoxFactory<String, String, String, String> _aboxFactory;
-	private IABox<String, String, String, String> _abox;
-	private IRBox<String, String, String, String> _rbox;
-
-
-	public RABoxTest()
 	{
 	}
 
@@ -92,7 +92,8 @@ public class RABoxTest {
 
 
 	@Test
-	public void testGetSuccessors() throws EInconsistencyException
+	public void testGetSuccessors()
+		throws EInconsistencyException
 	{
 		IABoxNode<String, String, String, String> aNode = _abox.getOrAddIndividualNode("a");
 		IABoxNode<String, String, String, String> bNode = _abox.getOrAddIndividualNode("b");
@@ -110,7 +111,8 @@ public class RABoxTest {
 
 
 	@Test
-	public void testGetSuccessorNodes() throws EInconsistencyException
+	public void testGetSuccessorNodes()
+		throws EInconsistencyException
 	{
 		IABoxNode<String, String, String, String> aNode = _abox.getOrAddIndividualNode("a");
 		IABoxNode<String, String, String, String> bNode = _abox.getOrAddIndividualNode("b");

@@ -25,6 +25,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.ISWRLTermVisitor;
+
 
 /**
  *
@@ -32,7 +34,12 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
  */
 public class SWRLDataRoleAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends SWRLRoleAtom<I, L, K, R>
-	implements ISWRLDataRoleAtom<I, L, K, R> {
+	implements ISWRLDataRoleAtom<I, L, K, R>
+{
+		public SWRLDataRoleAtom(R role, ISWRLIArgument<I, L, K, R> first, ISWRLDArgument<I, L, K, R> second)
+	{
+		super(role, first, second);
+	}
 
 	@Override
 	public ISWRLDArgument<I, L, K, R> getSecondIndividual()
@@ -40,18 +47,16 @@ public class SWRLDataRoleAtom<I extends Comparable<? super I>, L extends Compara
 		return (ISWRLDArgument<I, L, K, R>) super.getSecondIndividual();
 	}
 
-
-	public SWRLDataRoleAtom(R role,
-							ISWRLIArgument<I, L, K, R> first,
-							ISWRLDArgument<I, L, K, R> second)
-	{
-		super(role, first, second);
-	}
-
-
 	@Override
 	public SWRLTermOrder getSWRLTermOrder()
 	{
 		return SWRLTermOrder.SWRL_DATA_ROLE_ATOM;
+	}
+
+	@Override
+	public void accept(
+		ISWRLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
 	}
 }

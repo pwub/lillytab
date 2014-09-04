@@ -27,6 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectNegation;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 
+
 /**
  * @param <I> The type for individuals/nominals
  * @param <L> The type for literals
@@ -35,18 +36,16 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class DLObjectNegation<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends AbstractUnaryOperator<IDLClassExpression<I, L, K, R>>
-	implements IDLObjectNegation<I, L, K, R> {
-
+public class DLObjectNegation<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends AbstractDLUnaryOperator<I, L, K, R, IDLClassExpression<I, L, K, R>>
+	implements IDLObjectNegation<I, L, K, R>
+{
 	public final static String OPERATOR_NAME = "NOT";
-
 
 	public DLObjectNegation(final IDLClassExpression<I, L, K, R> d)
 	{
 		super(DLTermOrder.DL_OBJECT_NEGATION, OPERATOR_NAME, d);
 	}
-
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -55,7 +54,6 @@ public class DLObjectNegation<I extends Comparable<? super I>, L extends Compara
 		return this;
 		// return new DLObjectNegation<I, L, K, R>((IDLClassExpression<I, L, K, R>)getTerm().clone());
 	}
-
 
 	@Override
 	public int compareTo(final IDLTerm<I, L, K, R> o)
@@ -69,13 +67,11 @@ public class DLObjectNegation<I extends Comparable<? super I>, L extends Compara
 		return compare;
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_OBJECT_NEGATION);
 	}
-
 
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()

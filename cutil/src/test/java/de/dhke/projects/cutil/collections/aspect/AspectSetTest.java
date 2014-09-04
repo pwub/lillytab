@@ -193,7 +193,7 @@ public class AspectSetTest {
 	@Test
 	public void testToArray_GenericType()
 	{
-		assertArrayEquals(new Integer[]{1, 2, 3, 4}, _aspectSet.toArray(new Integer[0]));
+		assertArrayEquals(new Integer[]{1, 2, 3, 4}, _aspectSet.toArray(new Integer[_aspectSet.size()]));
 	}
 
 

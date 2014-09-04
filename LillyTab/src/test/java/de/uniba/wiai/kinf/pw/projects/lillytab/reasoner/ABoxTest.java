@@ -47,20 +47,6 @@ import org.junit.Test;
  */
 public class ABoxTest {
 
-
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
 	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
 		_termFactory);
@@ -72,12 +58,22 @@ public class ABoxTest {
 	}
 
 
+	@BeforeClass
+	public static void setUpClass() throws Exception
+	{
+	}
+
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
+	{
+	}
+
 	@Before
 	public void setUp()
 	{
 		_abox = _aboxFactory.createABox();
 	}
-
 
 	@After
 	public void tearDown()

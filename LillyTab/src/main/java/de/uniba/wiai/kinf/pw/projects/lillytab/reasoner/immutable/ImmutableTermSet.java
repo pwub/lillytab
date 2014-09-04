@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
 import de.dhke.projects.cutil.IDecorator;
@@ -33,16 +34,15 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
 
-
 /**
  * /
  **
- * * 
+ * *
  * A proxy object to an {@link ITermSet} that forbids changes to the underlying set.
  * <p />
  * If an immutable is first created and the underlying map is modified, afterwards, behaviour of the immutable is
  * undefined.
- * 
+ * <p/>
  * @param <I> The type for individuals/nominals
  * @param <L> The type for literals
  * @param <K> The type for DL classes
@@ -52,19 +52,20 @@ import java.util.SortedSet;
  */
 public class ImmutableTermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends GenericImmutableSet<IDLTerm<I, L, K, R>, ITermSet<I, L, K, R>>
-	implements ITermSet<I, L, K, R>, IDecorator<ITermSet<I, L, K, R>>
-{
+	implements ITermSet<I, L, K, R>, IDecorator<ITermSet<I, L, K, R>> {
+
+	public ImmutableTermSet(final ITermSet<I, L, K, R> baseSet)
+	{
+		super(baseSet, null);
+	}
+
+
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableTermSet<I, L, K, R> decorate(
 		final ITermSet<I, L, K, R> baseSet)
 	{
 		return new ImmutableTermSet<>(baseSet);
 	}
 
-	public ImmutableTermSet(
-		final ITermSet<I, L, K, R> baseSet)
-	{
-		super(baseSet, null);
-	}
 
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> subSet(DLTermOrder termType)
@@ -72,11 +73,13 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return GenericImmutableSortedSet.decorate(getDecoratee().subSet(termType));
 	}
 
+
 	@Override
 	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(Class<? extends T> klass)
 	{
 		return ImmutableIterator.decorate(getDecoratee().iterator(klass));
 	}
+
 
 	@Override
 	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(DLTermOrder termType,
@@ -85,11 +88,13 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return ImmutableIterator.decorate(getDecoratee().iterator(termType, klass));
 	}
 
+
 	@Override
 	public Comparator<? super IDLTerm<I, L, K, R>> comparator()
 	{
 		return getDecoratee().comparator();
 	}
+
 
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> subSet(IDLTerm<I, L, K, R> fromElement,
@@ -98,11 +103,13 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return Collections.unmodifiableSortedSet(getDecoratee().subSet(fromElement, toElement));
 	}
 
+
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> headSet(IDLTerm<I, L, K, R> toElement)
 	{
 		return Collections.unmodifiableSortedSet(getDecoratee().headSet(toElement));
 	}
+
 
 	@Override
 	public SortedSet<IDLTerm<I, L, K, R>> tailSet(IDLTerm<I, L, K, R> fromElement)
@@ -110,11 +117,13 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return Collections.unmodifiableSortedSet(getDecoratee().tailSet(fromElement));
 	}
 
+
 	@Override
 	public IDLTerm<I, L, K, R> first()
 	{
 		return getDecoratee().first();
 	}
+
 
 	@Override
 	public IDLTerm<I, L, K, R> last()
@@ -122,11 +131,10 @@ public class ImmutableTermSet<I extends Comparable<? super I>, L extends Compara
 		return getDecoratee().last();
 	}
 
+
 	@Override
 	public ITermSet<I, L, K, R> getImmutable()
 	{
 		return this;
 	}
-	
-	
 }

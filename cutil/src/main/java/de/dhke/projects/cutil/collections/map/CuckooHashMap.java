@@ -31,115 +31,13 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 	static final int DEFAULT_INITIAL_CAPACITY = 16;
 	static final int MAXIMUM_CAPACITY = 1 << 30;
 	static final float DEFAULT_LOAD_FACTOR = 0.75f;
-
-	static class DefaultHashFunction<T> implements HashFunction<T> {
-
-		private static final Random ENGINE = new Random();
-		private int rounds;
-
-		public DefaultHashFunction()
-		{
-			this(1);
-		}
-
-		public DefaultHashFunction(int rounds)
-		{
-			this.rounds = rounds;
-		}
-
-		public int hash(Object key, int limit)
-		{
-			ENGINE.setSeed(key.hashCode());
-			int h = ENGINE.nextInt(limit);
-			for (int i = 1; i < this.rounds; i++) {
-				h = ENGINE.nextInt(limit);
-			}
-
-			return h;
-		}
-	}
-
-	static class Entry<K, V> implements Map.Entry<K, V> {
-
-		final K key;
-		V value;
-
-		Entry(K k, V v)
-		{
-			value = v;
-			key = k;
-		}
-
-		@Override
-		public final boolean equals(Object o)
-		{
-			if (!(o instanceof Map.Entry))
-				return false;
-			Map.Entry e = (Map.Entry) o;
-			Object k1 = getKey();
-			Object k2 = e.getKey();
-			if (k1 == k2 || (k1 != null && k1.equals(k2))) {
-				Object v1 = getValue();
-				Object v2 = e.getValue();
-				if (v1 == v2 || (v1 != null && v1.equals(v2)))
-					return true;
-			}
-			return false;
-		}
-
-		public final K getKey()
-		{
-			return CuckooHashMap.unmaskNull(key);
-		}
-
-		public final V getValue()
-		{
-			return value;
-		}
-
-		@Override
-		public final int hashCode()
-		{
-			return (key == null ? 0 : key.hashCode())
-					^ (value == null ? 0 : value.hashCode());
-		}
-
-		public final V setValue(V newValue)
-		{
-			V oldValue = value;
-			value = newValue;
-			return oldValue;
-		}
-
-		@Override
-		public final String toString()
-		{
-			return getKey() + "=>" + getValue();
-		}
-	}
-
-	public static interface HashFunction<T> {
-
-		public int hash(Object key, int limit);
-	}
-
-	@SuppressWarnings("unchecked")
-	static <T> T maskNull(T key)
-	{
-		return key == null ? (T) NULL_KEY : key;
-	}
-
-	static <T> T unmaskNull(T key)
-	{
-		return (key == NULL_KEY ? null : key);
-	}
+	static final Object NULL_KEY = new Object();
 	transient Entry<K, V>[] table;
 	transient int size;
 	int threshold;
 	final float loadFactor;
 	final transient HashFunction<K> hash1;
 	final transient HashFunction<K> hash2;
-	static final Object NULL_KEY = new Object();
 
 	@SuppressWarnings("unchecked")
 	public CuckooHashMap()
@@ -190,10 +88,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 				DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);
 	}
 
-	int capacity()
-	{
-		return table.length;
-	}
+	@Override
 
 	public Set<java.util.Map.Entry<K, V>> entrySet()
 	{
@@ -228,16 +123,55 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		return null;
 	}
 
-	private int hash(HashFunction<K> func, Object key)
+	@Override
+	public boolean isEmpty()
+	{
+		return size == 0;
+	}
+
+	@Override
+	public V put(K key, V value)
+	{
+		return put(key, value, false);
+	}
+
+	@Override
+	public int size()
+	{
+		return size;
+	}
+
+	@SuppressWarnings("unchecked")
+	static <T> T maskNull(T key)
+	{
+		return key == null ? (T) NULL_KEY : key;
+	}
+
+		static <T> T unmaskNull(T key)
+	{
+		return (key == NULL_KEY ? null : key);
+	}
+
+	int capacity()
+	{
+		return table.length;
+	}
+
+	float loadFactor()
+	{
+		return loadFactor;
+	}
+
+		private int hash(HashFunction<K> func, Object key)
 	{
 		return func.hash(key, table.length);
 	}
 
-	private void init()
+		private void init()
 	{
 	}
 
-	private boolean insertEntry(Entry<K, V> e)
+		private boolean insertEntry(Entry<K, V> e)
 	{
 		int count = 0;
 		Entry<K, V> current = e;
@@ -261,23 +195,6 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		}
 
 		return false;
-	}
-
-	@Override
-	public boolean isEmpty()
-	{
-		return size == 0;
-	}
-
-	float loadFactor()
-	{
-		return loadFactor;
-	}
-
-	@Override
-	public V put(K key, V value)
-	{
-		return put(key, value, false);
 	}
 
 	@SuppressWarnings("unchecked")
@@ -322,9 +239,98 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		threshold = (int) (newCapacity * loadFactor);
 	}
 
-	@Override
-	public int size()
-	{
-		return size;
+	public static interface HashFunction<T> {
+
+		public int hash(Object key, int limit);
+	}
+
+	static class DefaultHashFunction<T> implements HashFunction<T> {
+
+		private static final Random ENGINE = new Random();
+		private int rounds;
+
+		DefaultHashFunction()
+		{
+			this(1);
+		}
+
+		DefaultHashFunction(int rounds)
+		{
+			this.rounds = rounds;
+		}
+
+		@Override
+		public int hash(Object key, int limit)
+		{
+			ENGINE.setSeed(key.hashCode());
+			int h = ENGINE.nextInt(limit);
+			for (int i = 1; i < this.rounds; i++) {
+				h = ENGINE.nextInt(limit);
+			}
+
+			return h;
+		}
+	}
+
+	static class Entry<K, V> implements Map.Entry<K, V> {
+
+		final K key;
+		V value;
+
+		Entry(K k, V v)
+		{
+			value = v;
+			key = k;
+		}
+
+		@Override
+		public final boolean equals(Object o)
+		{
+			if (!(o instanceof Map.Entry))
+				return false;
+			Map.Entry e = (Map.Entry) o;
+			Object k1 = getKey();
+			Object k2 = e.getKey();
+			if (k1 == k2 || (k1 != null && k1.equals(k2))) {
+				Object v1 = getValue();
+				Object v2 = e.getValue();
+				if (v1 == v2 || (v1 != null && v1.equals(v2)))
+					return true;
+			}
+			return false;
+		}
+
+		@Override
+		public final K getKey()
+		{
+			return CuckooHashMap.unmaskNull(key);
+		}
+
+		@Override
+		public final V getValue()
+		{
+			return value;
+		}
+
+		@Override
+		public final int hashCode()
+		{
+			return (key == null ? 0 : key.hashCode())
+					^ (value == null ? 0 : value.hashCode());
+		}
+
+		@Override
+		public final V setValue(V newValue)
+		{
+			V oldValue = value;
+			value = newValue;
+			return oldValue;
+		}
+
+		@Override
+		public final String toString()
+		{
+			return getKey() + "=>" + getValue();
+		}
 	}
 }

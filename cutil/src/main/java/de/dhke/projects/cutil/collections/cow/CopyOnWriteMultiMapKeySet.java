@@ -35,91 +35,17 @@ import org.apache.commons.collections15.MultiMap;
  *
  * @author Peter Wullinger <java@dhke.de>
  */
-class CopyOnWriteMultiMapKeySet<K, V, M extends MultiMap<K, V>>
+class CopyOnWriteMultiMapKeySet<K, V>
 	implements Set<K>
 {
-	/// <editor-fold defaultstate="collapsed" desc="class Itr">
-	private class Itr
-		implements Iterator<K>
-	{
-		private Iterator<K> _keyIterator;
-		/**
-		 * the iteration position of this iterator.
-		 * 
-		 * if _iterPos == -2, we operate on an already copied COWmap and
-		 * simple iterate.
-		 * 
-		 * if _iterPos >= -1, we operate 
-		 */
-		private int _iterPos;
-
-		public Itr()
-		{
-			if (_cowMap.isWasCopied()) {
-				_iterPos = -2;
-			} else
-				_iterPos = -1;
-			_keyIterator = _cowMap.getDecoratee().keySet().iterator();
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return _keyIterator.hasNext();
-		}
-
-		@Override
-		public K next()
-		{
-			final K key = _keyIterator.next();
-			if (_iterPos >= -1)
-				++_iterPos;
-			return key;
-		}
-
-		@Override
-		public void remove()
-		{
-			/**
-			 * I cannot think of a proper way to fully support this method.
-			 * If a COW list has not been copied yet, a remove would change thee underlying collection.
-			 * In this case, we would have to create a new iterator at exactly the same
-			 * position for the new collection. This works for lists but not for collections.
-			 **/
-			if (_iterPos == -2)
-				_keyIterator.remove();
-			else {
-				assert !_cowMap.isWasCopied();
-				_cowMap.copy();
-				assert _cowMap.isWasCopied();
-				_keyIterator = _cowMap.getDecoratee().keySet().iterator();
-				for (int i = -1; i < _iterPos; ++i)
-					_keyIterator.next();
-				_iterPos = -2;
-				_keyIterator.remove();
-			}
-		}
-	}
-	/// </editor-fold>
 	
-	private GenericCopyOnWriteMultiMap<K, V, M> _cowMap;
+	private CopyOnWriteMultiMap<K, V> _cowMap;
 	private MultiMap<K, V> _lastBaseMap = null;
 	private Set<K> _cachedKeySet = null;
 
-	protected CopyOnWriteMultiMapKeySet(final GenericCopyOnWriteMultiMap<K, V, M> cowMap)
+	protected CopyOnWriteMultiMapKeySet(final CopyOnWriteMultiMap<K, V> cowMap)
 	{
 		_cowMap = cowMap;
-	}
-
-	private Set<K> getOriginalKeySet()
-	{
-		/* cache value set to avoid re-fetch */
-		if (_lastBaseMap != _cowMap.getDecoratee()) {
-			_lastBaseMap = _cowMap.getDecoratee();
-			_cachedKeySet = _lastBaseMap.keySet();
-		}
-		assert _cachedKeySet != null;
-		return _cachedKeySet;
 	}
 
 	@Override
@@ -159,7 +85,7 @@ class CopyOnWriteMultiMapKeySet<K, V, M extends MultiMap<K, V>>
 	}
 
 	@Override
-	public boolean add(K key)
+	public  boolean add(K key)
 	{
 		throw new UnsupportedOperationException("Cannot add to key set");
 	}
@@ -221,4 +147,78 @@ class CopyOnWriteMultiMapKeySet<K, V, M extends MultiMap<K, V>>
 			hCode += key.hashCode();
 		return hCode;
 	}
+
+		private Set<K> getOriginalKeySet()
+	{
+		/* cache value set to avoid re-fetch */
+		if (_lastBaseMap != _cowMap.getDecoratee()) {
+			_lastBaseMap = _cowMap.getDecoratee();
+			_cachedKeySet = _lastBaseMap.keySet();
+		}
+		assert _cachedKeySet != null;
+		return _cachedKeySet;
+	}
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
+	private class Itr
+		implements Iterator<K>
+	{
+		private Iterator<K> _keyIterator;
+		/**
+		 * the iteration position of this iterator.
+		 * 
+		 * if _iterPos == -2, we operate on an already copied COWmap and
+		 * simple iterate.
+		 * 
+		 * if _iterPos >= -1, we operate 
+		 */
+		private int _iterPos;
+
+		Itr()
+		{
+			if (_cowMap.isWasCopied()) {
+				_iterPos = -2;
+			} else
+				_iterPos = -1;
+			_keyIterator = _cowMap.getDecoratee().keySet().iterator();
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return _keyIterator.hasNext();
+		}
+
+		@Override
+		public K next()
+		{
+			final K key = _keyIterator.next();
+			if (_iterPos >= -1)
+				++_iterPos;
+			return key;
+		}
+
+		@Override
+		public void remove()
+		{
+			/**
+			 * I cannot think of a proper way to fully support this method.
+			 * If a COW list has not been copied yet, a remove would change thee underlying collection.
+			 * In this case, we would have to create a new iterator at exactly the same
+			 * position for the new collection. This works for lists but not for collections.
+			 **/
+			if (_iterPos == -2)
+				_keyIterator.remove();
+			else {
+				assert !_cowMap.isWasCopied();
+				_cowMap.copy();
+				assert _cowMap.isWasCopied();
+				_keyIterator = _cowMap.getDecoratee().keySet().iterator();
+				for (int i = -1; i < _iterPos; ++i)
+					_keyIterator.next();
+				_iterPos = -2;
+				_keyIterator.remove();
+			}
+		}
+	}
+	/// </editor-fold>
 }

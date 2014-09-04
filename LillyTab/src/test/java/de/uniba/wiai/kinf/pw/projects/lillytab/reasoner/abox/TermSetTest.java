@@ -39,6 +39,12 @@ import org.junit.Test;
  * @author peterw
  */
 public class TermSetTest {
+	private IDLTermFactory <String, String, String, String> _termFactory;
+	private TermSet<String, String, String, String> _termSet;
+	
+	public TermSetTest()
+	{
+	}
 	
 
 	@BeforeClass
@@ -51,12 +57,7 @@ public class TermSetTest {
 	public static void tearDownClass()
 	{
 	}
-	private IDLTermFactory <String, String, String, String> _termFactory;
-	private TermSet<String, String, String, String> _termSet;
-	
-	public TermSetTest()
-	{
-	}
+
 	
 
 	@Before

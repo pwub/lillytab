@@ -256,32 +256,8 @@ public class SWRLTermUtil
 		return targetColl;
 	}
 
-	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> compareIndividuals(
-		final ISWRLArgument<I, L, K, R> ind1, final ISWRLArgument<I, L, K, R> ind2,
-		final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap)
-	{
-		final ISWRLArgument<I, L, K, R> mappedInd1 = getMappedIndividual(ind1, varMap);
-		final ISWRLArgument<I, L, K, R> mappedInd2 = getMappedIndividual(ind2, varMap);
-
-		if (mappedInd1.equals(mappedInd2)) /* already equal? */ {
-			return varMap;
-		} else if (mappedInd1 instanceof ISWRLVariable) {
-			final ISWRLVariable<I, L, K, R> var1 = (ISWRLVariable<I, L, K, R>) mappedInd1;
-			varMap.put(var1, mappedInd2);
-			return varMap;
-		} else if (mappedInd2 instanceof ISWRLVariable) {
-			final ISWRLVariable<I, L, K, R> var2 = (ISWRLVariable<I, L, K, R>) mappedInd2;
-			varMap.put(var2, mappedInd1);
-			return varMap;
-		} else {
-			throw new IllegalArgumentException(String.format("Incompatible individuals %s<->%s", ind1, ind2));
-		}
-	}
-
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> compareTerms(
-		final ISWRLTerm<I, L, K, R> term1, final ISWRLTerm<I, L, K, R> term2,
-		final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap,
-		final IDLTermFactory<I, L, K, R> termFactory, final ISWRLTermFactory<I, L, K, R> swrlTermFactory)
+		final ISWRLTerm<I, L, K, R> term1, final ISWRLTerm<I, L, K, R> term2, final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap, final IDLTermFactory<I, L, K, R> termFactory, final ISWRLTermFactory<I, L, K, R> swrlTermFactory)
 	{
 		if (term1 instanceof ISWRLClassAtom) {
 			if (term2 instanceof ISWRLClassAtom) {
@@ -353,9 +329,7 @@ public class SWRLTermUtil
 	}
 
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLTerm<I, L, K, R> simplify(
-		final ISWRLTerm<I, L, K, R> inTerm, final IABox<I, L, K, R> abox, final IReasoner<I, L, K, R> reasoner,
-		final ISWRLTermFactory<I, L, K, R> swrlFactory)
-		throws EReasonerException, EInconsistencyException
+		final ISWRLTerm<I, L, K, R> inTerm, final IABox<I, L, K, R> abox, final IReasoner<I, L, K, R> reasoner, final ISWRLTermFactory<I, L, K, R> swrlFactory) throws EReasonerException, EInconsistencyException
 	{
 		if (inTerm == null)
 			return null;
@@ -418,5 +392,26 @@ public class SWRLTermUtil
 				throw new IllegalArgumentException("Unsupported SWRL argument type: " + presumedSub.getClass());
 		} else
 			return false;
+	}
+
+	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> compareIndividuals(
+		final ISWRLArgument<I, L, K, R> ind1, final ISWRLArgument<I, L, K, R> ind2, final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap)
+	{
+		final ISWRLArgument<I, L, K, R> mappedInd1 = getMappedIndividual(ind1, varMap);
+		final ISWRLArgument<I, L, K, R> mappedInd2 = getMappedIndividual(ind2, varMap);
+
+		if (mappedInd1.equals(mappedInd2)) /* already equal? */ {
+			return varMap;
+		} else if (mappedInd1 instanceof ISWRLVariable) {
+			final ISWRLVariable<I, L, K, R> var1 = (ISWRLVariable<I, L, K, R>) mappedInd1;
+			varMap.put(var1, mappedInd2);
+			return varMap;
+		} else if (mappedInd2 instanceof ISWRLVariable) {
+			final ISWRLVariable<I, L, K, R> var2 = (ISWRLVariable<I, L, K, R>) mappedInd2;
+			varMap.put(var2, mappedInd1);
+			return varMap;
+		} else {
+			throw new IllegalArgumentException(String.format("Incompatible individuals %s<->%s", ind1, ind2));
+		}
 	}
 }

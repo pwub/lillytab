@@ -37,19 +37,6 @@ import java.util.Map;
  */
 public class ReasonerResult<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements IReasonerResult<I, L, K, R> {
-
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ReasonerResult<I, L, K, R> create(
-		final IABox<I, L, K, R> abox, final Map<NodeID, NodeID> mergeMap)
-	{
-		return new ReasonerResult<>(abox, mergeMap);
-	}
-
-
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ReasonerResult<I, L, K, R> create(
-		final IABox<I, L, K, R> abox)
-	{
-		return new ReasonerResult<>(abox, null);
-	}
 	private final IABox<I, L, K, R> _abox;
 	private final Map<NodeID, NodeID> _mergeMap;
 
@@ -58,6 +45,18 @@ public class ReasonerResult<I extends Comparable<? super I>, L extends Comparabl
 	{
 		_abox = abox;
 		_mergeMap = mergeMap;
+	}
+
+
+		public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ReasonerResult<I, L, K, R> create(final IABox<I, L, K, R> abox, final Map<NodeID, NodeID> mergeMap)
+	{
+		return new ReasonerResult<>(abox, mergeMap);
+	}
+
+
+		public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ReasonerResult<I, L, K, R> create(final IABox<I, L, K, R> abox)
+	{
+		return new ReasonerResult<>(abox, null);
 	}
 
 

@@ -38,20 +38,19 @@ import org.junit.Test;
  */
 public class TermEqualityTest
 {
+	private ISWRLTermFactory<String, String, String, String> _termFactory;
+
+	public TermEqualityTest()
+	{
+	}
+
 	@BeforeClass
-	public static void setUpClass()
-		throws Exception
+	public static void setUpClass() throws Exception
 	{
 	}
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-	private ISWRLTermFactory<String, String, String, String> _termFactory;
-
-	public TermEqualityTest()
+	public static void tearDownClass() throws Exception
 	{
 	}
 

@@ -39,7 +39,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLImplies<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends AbstractBinaryDLOperator<IDLClassExpression<I, L, K, R>>
+	extends AbstractBinaryDLOperator<I, L, K, R, IDLClassExpression<I, L, K, R>>
 	implements IDLImplies<I, L, K, R> {
 
 	public final static String OPERATOR_NAME = "IMPLIES";

@@ -23,6 +23,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.dhke.projects.cutil.collections.tree.IDecisionTree;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
@@ -36,8 +37,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractC
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.Collection;
 
@@ -85,19 +86,26 @@ public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends
 		 * This also makes the transitive propagation work.
 		 */
 		for (R outRole : node.getRABox().getOutgoingRoles()) {
-			final Collection<IDLRestriction<I, L, K, R>> ranges = branch.getABox().getTBox().getRBox().
+			final Collection<IDLNodeTerm<I, L, K, R>> ranges = branch.getABox().getTBox().getRBox().
 				getRoleRanges(outRole);
-			for (IDLRestriction<I, L, K, R> range : ranges) {
+			final IABox<I, L, K, R> abox = node.getABox();
+			for (IDLNodeTerm<I, L, K, R> range : ranges) {
 				try {
-					if (node.getABox().getRBox().hasRoleType(outRole, RoleType.DATA_PROPERTY)) {
+					if (abox.getRBox().hasRoleType(outRole, RoleType.DATA_PROPERTY)) {
 						final IDLDataRange<I, L, K, R> dataRange = (IDLDataRange<I, L, K, R>) range;
 						final IDLDataAllRestriction<I, L, K, R> allRes = branch.getABox().getDLTermFactory().
 							getDLDataAllRestriction(outRole, dataRange);
+						if (! node.getTerms().contains(range)) {
+							abox.getDependencyMap().addParent(node, range, node, abox.getDLTermFactory().getDLTopDatatype());
+						}
 						node.addTerm(allRes);
-					} else if (node.getABox().getRBox().hasRoleType(outRole, RoleType.OBJECT_PROPERTY)) {
+					} else if (abox.getRBox().hasRoleType(outRole, RoleType.OBJECT_PROPERTY)) {
 						final IDLClassExpression<I, L, K, R> classExp = (IDLClassExpression<I, L, K, R>) range;
 						final IDLObjectAllRestriction<I, L, K, R> allRes = branch.getABox().getDLTermFactory().
 							getDLObjectAllRestriction(outRole, classExp);
+						if (! node.getTerms().contains(range)) {
+							abox.getDependencyMap().addParent(node, range, node, abox.getDLTermFactory().getDLThing());
+						}
 						node.addTerm(allRes);
 					}
 				} catch (EIllegalTermTypeException ex) {
@@ -108,10 +116,15 @@ public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends
 					return ReasonerContinuationState.INCONSISTENT;
 				}
 			}
-			final Collection<IDLClassExpression<I, L, K, R>> domain = branch.getABox().getTBox().getRBox().getRoleDomains(outRole);
-			if ((domain != null) && (!node.getTerms().containsAll(domain))) {
+			final Collection<IDLClassExpression<I, L, K, R>> domains = branch.getABox().getTBox().getRBox().getRoleDomains(outRole);
+			if ((domains != null) && (!node.getTerms().containsAll(domains))) {
 				try {
-					final NodeMergeInfo<I, L, K, R> mergeInfo = node.addTerms(domain);
+					for (IDLClassExpression<I, L, K, R> domain: domains) {
+						if (! node.getTerms().contains(domain)) {
+							abox.getDependencyMap().addParent(node, domain, node, abox.getDLTermFactory().getDLThing());
+						}
+					}
+					final NodeMergeInfo<I, L, K, R> mergeInfo = node.addTerms(domains);
 					if (mergeInfo.isModified(node)) {
 						/**
 						 * the current node was merged away, stop processing, recheck queues
@@ -122,7 +135,7 @@ public class RoleRestrictionCompleter<I extends Comparable<? super I>, L extends
 				} catch (ENodeMergeException ex) {
 					/* XXX - this be narrowed down to an individual term */
 					branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
-					branch.getConsistencyInfo().addCulprits(node, domain);
+					branch.getConsistencyInfo().addCulprits(node, domains);
 					return ReasonerContinuationState.INCONSISTENT;
 				}
 			}

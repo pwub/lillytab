@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
+
 /**
  *
  * Marker interface to describe DL terms that represent possibly complex class descriptions (named or anonymous).
@@ -36,8 +37,8 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IDLClassExpression<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends IDLRestriction<I, L, K, R> {
-
+	extends IDLNodeTerm<I, L, K, R>
+{
 	@Override
 	IDLClassExpression<I, L, K, R> clone();
 }

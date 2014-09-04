@@ -4,7 +4,7 @@
   <groupId>de.uniba.wiai.kinf.pw.projects.diss</groupId>
   <artifactId>Lillytab-parent</artifactId>
   <packaging>pom</packaging>
-  <version>1.9</version>
+  <version>1.11</version>
   <name>diss</name>
   <url>http://maven.apache.org</url>
   <profiles>

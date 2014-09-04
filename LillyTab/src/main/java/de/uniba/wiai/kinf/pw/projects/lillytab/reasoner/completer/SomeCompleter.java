@@ -42,8 +42,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.IComplete
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataSomeRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectSomeRestriction;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLSomeRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
@@ -79,16 +79,43 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 	}
 
 
+	@Override
+	public ReasonerContinuationState completeNode(
+		IDecisionTree.Node<Branch<I, L, K, R>> branchNode, IABoxNode<I, L, K, R> node)
+		throws EReasonerException
+	{
+		@SuppressWarnings("unchecked")
+		final Iterator<IDLTerm<I, L, K, R>> iter = ChainIterator.decorate(
+			node.getTerms().iterator(IDLObjectSomeRestriction.class),
+			node.getTerms().iterator(IDLDataSomeRestriction.class));
+		while (iter.hasNext()) {
+			final IDLTerm<I, L, K, R> term = iter.next();
+			if (term instanceof IDLSomeRestriction) {
+				final IDLSomeRestriction<I, L, K, R> someRestriction = (IDLSomeRestriction<I, L, K, R>) term;
+				final R role = someRestriction.getRole();
+
+				ReasonerContinuationState cState;
+				if (node.getABox().getTBox().getRBox().hasRoleProperty(role, RoleProperty.FUNCTIONAL)) {
+					cState = completeFunctionalRole(branchNode, node, someRestriction);
+				} else {
+					cState = completeNonFunctionalRole(branchNode, node, someRestriction);
+				}
+				if (cState != ReasonerContinuationState.CONTINUE) {
+					return cState;
+				}
+			}
+		}
+		return ReasonerContinuationState.CONTINUE;
+	}
+
 	protected ReasonerContinuationState completeFunctionalRole(
-		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
-		final IABoxNode<I, L, K, R> node,
-		final IDLSomeRestriction<I, L, K, R> someRestriction)
+		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode, final IABoxNode<I, L, K, R> node, final IDLSomeRestriction<I, L, K, R> someRestriction)
 		throws EReasonerException
 	{
 		final R role = someRestriction.getRole();
 		final Branch<I, L, K, R> branch = branchNode.getData();
 		final IABox<I, L, K, R> abox = branch.getABox();
-		final IDLRestriction<I, L, K, R> subTerm = someRestriction.getTerm();
+		final IDLNodeTerm<I, L, K, R> subTerm = someRestriction.getTerm();
 		IABoxNode<I, L, K, R> succ;
 		boolean haveGenerated;
 
@@ -154,16 +181,13 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 	 * <p/>
 	 * @throws EReasonerException
 	 */
-	protected ReasonerContinuationState completeNonFunctionalRole(
-		final IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
-		final IABoxNode<I, L, K, R> node,
-		final IDLSomeRestriction<I, L, K, R> someRestriction)
+		protected ReasonerContinuationState completeNonFunctionalRole(final IDecisionTree.Node<Branch<I, L, K, R>> branchNode, final IABoxNode<I, L, K, R> node, final IDLSomeRestriction<I, L, K, R> someRestriction)
 		throws EReasonerException
 	{
 		final Branch<I, L, K, R> branch = branchNode.getData();
 		final IABox<I, L, K, R> abox = branch.getABox();
 		final R role = someRestriction.getRole();
-		final IDLRestriction<I, L, K, R> subTerm = someRestriction.getTerm();
+		final IDLNodeTerm<I, L, K, R> subTerm = someRestriction.getTerm();
 		boolean haveMatchingSuccessor = false;
 
 		if (node instanceof IDatatypeABoxNode) {
@@ -242,36 +266,6 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 				branch.getConsistencyInfo().addCulprits(node, someRestriction);
 				branch.getConsistencyInfo().upgradeClashType(ConsistencyInfo.ClashType.FINAL);
 				return ReasonerContinuationState.INCONSISTENT;
-			}
-		}
-		return ReasonerContinuationState.CONTINUE;
-	}
-
-
-	@Override
-	public ReasonerContinuationState completeNode(IDecisionTree.Node<Branch<I, L, K, R>> branchNode,
-												  IABoxNode<I, L, K, R> node)
-		throws EReasonerException
-	{
-		@SuppressWarnings("unchecked")
-		final Iterator<IDLTerm<I, L, K, R>> iter = ChainIterator.decorate(
-			node.getTerms().iterator(IDLObjectSomeRestriction.class),
-			node.getTerms().iterator(IDLDataSomeRestriction.class));
-		while (iter.hasNext()) {
-			final IDLTerm<I, L, K, R> term = iter.next();
-			if (term instanceof IDLSomeRestriction) {
-				final IDLSomeRestriction<I, L, K, R> someRestriction = (IDLSomeRestriction<I, L, K, R>) term;
-				final R role = someRestriction.getRole();
-
-				ReasonerContinuationState cState;
-				if (node.getABox().getTBox().getRBox().hasRoleProperty(role, RoleProperty.FUNCTIONAL)) {
-					cState = completeFunctionalRole(branchNode, node, someRestriction);
-				} else {
-					cState = completeNonFunctionalRole(branchNode, node, someRestriction);
-				}
-				if (cState != ReasonerContinuationState.CONTINUE) {
-					return cState;
-				}
 			}
 		}
 		return ReasonerContinuationState.CONTINUE;

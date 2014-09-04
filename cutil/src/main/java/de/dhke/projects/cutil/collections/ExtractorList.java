@@ -25,32 +25,38 @@ import de.dhke.projects.cutil.IDecorator;
 import java.util.AbstractList;
 import java.util.List;
 import org.apache.commons.collections15.Transformer;
+import org.apache.commons.collections15.list.TransformedList;
+
 
 /**
- *
+ * Wrapper list that supports transformed reading from
+ * another list.
+ * <p />
+ * Can bee seen as as the "reader" variant of {@link TransformedList},
+ * which transforms items <em>ADDED</em> to a list.
+ * 
  * @param <I> 
  * @param <O> 
  * @param <L> 
  * @author Peter Wullinger <java@dhke.de>
  */
-public class ExtractorList<I, O, L extends List<I>>
+public class ExtractorList<I, O>
 	extends AbstractList<O>
-	implements List<O>, IDecorator<L>
+	implements List<O>, IDecorator<List<? extends I>>
 {
-	private final L _baseList;
+	private final List<? extends I> _baseList;
 	private final Transformer<I, O> _transformer;
 
-	protected ExtractorList(L baseList, Transformer<I, O> transformer)
+	protected ExtractorList(List<? extends I> baseList, Transformer<I, O> transformer)
 	{
 		_baseList = baseList;
 		_transformer = transformer;
 	}
 
-	public static <I, O, L extends List<I>> ExtractorList<I, O, L> decorate(L baseCollection, Transformer<I, O> transformer)
+	public static <I, O> ExtractorList<I, O> decorate(List<? extends I> baseCollection, Transformer<I, O> transformer)
 	{
 		return new ExtractorList<>(baseCollection, transformer);
 	}
-
 
 	@Override
 	public O get(int index)
@@ -64,9 +70,9 @@ public class ExtractorList<I, O, L extends List<I>>
 		return _baseList.size();
 	}
 
-	public L getDecoratee()
+	@Override
+	public List<? extends I> getDecoratee()
 	{
 		return _baseList;
 	}
-
 }

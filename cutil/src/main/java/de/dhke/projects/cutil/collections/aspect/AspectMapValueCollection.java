@@ -33,31 +33,6 @@ import java.util.Map;
 public class AspectMapValueCollection<K, V, M extends Map<K, V>>
 	implements Collection<V>
 {
-	private class Itr
-		implements Iterator<V>
-	{
-		private final Iterator<Map.Entry<K, V>> _entryIterator;
-
-		public Itr()
-		{
-			_entryIterator = _aspectMap.entrySet().iterator();
-		}
-
-		public boolean hasNext()
-		{
-			return _entryIterator.hasNext();
-		}
-
-		public V next()
-		{
-			return _entryIterator.next().getValue();
-		}
-
-		public void remove()
-		{
-			_entryIterator.remove();
-		}
-	}
 	private AspectMap<K, V, M> _aspectMap;
 	private Collection<V> _values;
 
@@ -67,41 +42,49 @@ public class AspectMapValueCollection<K, V, M extends Map<K, V>>
 		_values = aspectMap.getDecoratee().values();
 	}
 
+	@Override
 	public int size()
 	{
 		return _values.size();
 	}
 
+	@Override
 	public boolean isEmpty()
 	{
 		return _values.isEmpty();
 	}
 
+	@Override
 	public boolean contains(final Object o)
 	{
 		return _values.contains(o);
 	}
 
+	@Override
 	public Iterator<V> iterator()
 	{
 		return new Itr();
 	}
 
+	@Override
 	public Object[] toArray()
 	{
 		return _values.toArray();
 	}
 
+	@Override
 	public <T> T[] toArray(final T[] a)
 	{
 		return _values.toArray(a);
 	}
 
+	@Override
 	public boolean add(final V e)
 	{
 		throw new UnsupportedOperationException("Cannot add to value collection");
 	}
 
+	@Override
 	public boolean remove(final Object o)
 	{
 		/**
@@ -126,17 +109,48 @@ public class AspectMapValueCollection<K, V, M extends Map<K, V>>
 		return false;
 	}
 
+	@Override
 	public boolean containsAll(final Collection<?> c)
 	{
 		return _values.containsAll(c);
 	}
 
+	@Override
 	public boolean addAll(final Collection<? extends V> c)
 	{
 		throw new UnsupportedOperationException("Cannot add to value collection");
 	}
 
-	private boolean batchRemove(final Collection<?> c, final boolean retain)
+	@Override
+
+	public boolean removeAll(final Collection<?> c)
+	{
+		return batchRemove(c, false);
+	}
+
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		return batchRemove(c, true);
+	}
+
+	@Override
+	public void clear()
+	{
+		if (!isEmpty()) {
+			CollectionEvent<Map.Entry<K, V>, Map<K, V>> ev = _aspectMap.notifyBeforeCollectionCleared(_aspectMap);
+			_values.clear();
+			_aspectMap.notifyAfterCollectionCleared(ev);
+		}
+	}
+
+	@Override
+	public String toString()
+	{
+		return _values.toString();
+	}
+
+		private boolean batchRemove(final Collection<?> c, final boolean retain)
 	{
 		for (Map.Entry<K, V> entry : _aspectMap.getDecoratee().entrySet()) {
 			if (c.contains(entry.getValue()) != retain) {
@@ -155,29 +169,32 @@ public class AspectMapValueCollection<K, V, M extends Map<K, V>>
 		}
 		return haveRemoved;
 	}
-
-	public boolean removeAll(final Collection<?> c)
+	private class Itr
+		implements Iterator<V>
 	{
-		return batchRemove(c, false);
-	}
+		private final Iterator<Map.Entry<K, V>> _entryIterator;
 
-	public boolean retainAll(final Collection<?> c)
-	{
-		return batchRemove(c, true);
-	}
-
-	public void clear()
-	{
-		if (!isEmpty()) {
-			CollectionEvent<Map.Entry<K, V>, Map<K, V>> ev = _aspectMap.notifyBeforeCollectionCleared(_aspectMap);
-			_values.clear();
-			_aspectMap.notifyAfterCollectionCleared(ev);
+		Itr()
+		{
+			_entryIterator = _aspectMap.entrySet().iterator();
 		}
-	}
 
-	@Override
-	public String toString()
-	{
-		return _values.toString();
+		@Override
+		public boolean hasNext()
+		{
+			return _entryIterator.hasNext();
+		}
+
+		@Override
+		public V next()
+		{
+			return _entryIterator.next().getValue();
+		}
+
+		@Override
+		public void remove()
+		{
+			_entryIterator.remove();
+		}
 	}
 }

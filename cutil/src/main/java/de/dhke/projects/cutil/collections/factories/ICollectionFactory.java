@@ -18,18 +18,19 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.factories;
 
+import de.dhke.projects.cutil.INoArgsFactory;
 import java.util.Collection;
-
 
 /**
  *
  * @author Peter Wullinger <java@dhke.de>
  */
-public interface ICollectionFactory<E, C extends Collection<E>>
+public interface ICollectionFactory<E, C extends Collection<E>> 
+	extends INoArgsFactory<C>
 {
-	C getInstance();
-	C getInstance(C baseCollection);
+	C getInstance(Collection<? extends E> baseCollection);
 }

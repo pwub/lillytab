@@ -49,6 +49,18 @@ import org.junit.Test;
  */
 public class ReasonerClassifyTest {
 
+	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
+	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
+		_termFactory);
+	private IABox<String, String, String, String> _abox;
+	private Reasoner<String, String, String, String> _reasoner;
+	private SimpleKRSSParser _parser;
+
+
+	public ReasonerClassifyTest()
+	{
+	}
+
 
 	@BeforeClass
 	public static void setUpClass()
@@ -63,18 +75,6 @@ public class ReasonerClassifyTest {
 
 	@AfterClass
 	public static void tearDownClass()
-	{
-	}
-
-	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
-	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
-		_termFactory);
-	private IABox<String, String, String, String> _abox;
-	private Reasoner<String, String, String, String> _reasoner;
-	private SimpleKRSSParser _parser;
-
-
-	public ReasonerClassifyTest()
 	{
 	}
 
@@ -102,7 +102,8 @@ public class ReasonerClassifyTest {
 
 
 	@Test
-	public void inconsistentClassify() throws ParseException, EReasonerException, EInconsistencyException
+	public void inconsistentClassify()
+		throws ParseException, EReasonerException, EInconsistencyException
 	{
 		_abox.getTBox().add(_parser.parse("(implies A (not B))"));
 		_abox.getTBox().add(_parser.parse("(implies B A)"));
@@ -111,7 +112,8 @@ public class ReasonerClassifyTest {
 
 
 	@Test
-	public void someRSubClassPropagationTest() throws ParseException, EReasonerException, EInconsistencyException
+	public void someRSubClassPropagationTest()
+		throws ParseException, EReasonerException, EInconsistencyException
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		_abox.getTBox().add(_parser.parse("(implies A (some r _Thing_))"));

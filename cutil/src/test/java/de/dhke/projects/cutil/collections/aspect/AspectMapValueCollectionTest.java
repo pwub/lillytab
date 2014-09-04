@@ -177,7 +177,7 @@ public class AspectMapValueCollectionTest
 	@Test
 	public void testToArray_GenericType()
 	{
-		assertArrayEquals(new String[]{"1", "2", "3", "4"}, _values.toArray(new String[0]));
+		assertArrayEquals(new String[]{"1", "2", "3", "4"}, _values.toArray(new String[_values.size()]));
 	}
 
 	/**

@@ -21,8 +21,6 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.io;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
-import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPISWRLLoader;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.*;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl.SWRLTermFactory;
 import java.util.Set;
@@ -40,21 +38,19 @@ import org.semanticweb.owlapi.model.*;
  */
 public class OWLAPISWRLLoaderTest
 {
+	private OWLOntologyManager _ontoMan;
+	private OWLAPISWRLLoader _loader;
+	public OWLAPISWRLLoaderTest()
+	{
+	}
+
 	@BeforeClass
-	public static void setUpClass()
-		throws Exception
+	public static void setUpClass() throws Exception
 	{
 	}
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-	private OWLOntologyManager _ontoMan;
-	private OWLAPISWRLLoader _loader;
-
-	public OWLAPISWRLLoaderTest()
+	public static void tearDownClass() throws Exception
 	{
 	}
 

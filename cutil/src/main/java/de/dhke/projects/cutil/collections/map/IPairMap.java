@@ -33,7 +33,33 @@ public interface IPairMap<First, Second, Tag>
 {
 	boolean containsKey(final First first, final Second second);
 
+	/**
+	 * Retrieve the element from the map represented by the compound key (first, second).
+	 * 
+	 * @param first The first component of the key
+	 * @param second The second component of the key
+	 * @return The value 
+	 */
 	Tag get(final First first, final Second second);
-	Tag remove(final First first, final Second second);
+	/**
+	 * Remove the map element specified by the key (first, second).
+	 * <p />
+	 * This used to be called only remove(), but Java 8 introduced
+	 * {@link #remove(java.lang.Object, java.lang.Object) to remove a specific key-value pair.
+	 * <p />
+	 * @param first The first component of the key
+	 * @param second The second component of the key
+	 * @return 
+	 */
+	Tag removePair(final First first, final Second second);
+	
+	/**
+	 * Put the item with (first, second) as a key and tag 
+	 * 
+	 * @param first
+	 * @param second
+	 * @param tag
+	 * @return 
+	 */
 	Tag put(final First first, final Second second, final Tag tag);
 }

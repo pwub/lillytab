@@ -23,12 +23,12 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataSomeRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLImplies;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIndividualReference;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectNegation;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectSomeRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectUnion;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
@@ -55,13 +55,14 @@ public class TermUtil {
 
 	/**
 	 *
-	 * @param <I> The type for individuals/nominals
-	 * @param <L> The type for literals
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
+	 * @param <I>         The type for individuals/nominals
+	 * @param <L>         The type for literals
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
 	 *
 	 * @param sourceDesc
 	 * @param termFactory
+	 *                       <p/>
 	 * @return
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<IDLTerm<I, L, K, R>> unfoldIntersections(
@@ -85,7 +86,8 @@ public class TermUtil {
 	 * @param <L> The type for literals
 	 * @param <K> The type for DL classes
 	 * @param <R> The type for properties (roles)
-	 **/
+	 *
+	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<IDLTerm<I, L, K, R>> unfoldIntersections(
 		final Set<IDLTerm<I, L, K, R>> sourceSet, final IDLTermFactory<I, L, K, R> termFactory)
 	{
@@ -103,9 +105,10 @@ public class TermUtil {
 	 * @param <L> The type for literals
 	 * @param <K> The type for DL classes
 	 * @param <R> The type for properties (roles)
-	 **/
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLRestriction<I, L, K, R> simplify(
-		final IDLRestriction<I, L, K, R> desc, final IDLTermFactory<I, L, K, R> termFactory)
+	 *
+	 */
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLNodeTerm<I, L, K, R> simplify(
+		final IDLNodeTerm<I, L, K, R> desc, final IDLTermFactory<I, L, K, R> termFactory)
 	{
 		if (desc instanceof IDLDataRange) {
 			return simplify((IDLDataRange<I, L, K, R>) desc, termFactory);
@@ -124,11 +127,12 @@ public class TermUtil {
 	 * required, use {@link #toNNF(de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression, de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory) ).
 	 * <p />
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param desc The {@link IDLClassExpression} to simplify
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param desc        The {@link IDLClassExpression} to simplify
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
+	 * <p/>
 	 * @return A term representing a simplified version of the input term.
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLClassExpression<I, L, K, R> simplify(
@@ -254,8 +258,8 @@ public class TermUtil {
 	}
 
 
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLRestriction<I, L, K, R> negate(
-		final IDLRestriction<I, L, K, R> exp, final IDLTermFactory<I, L, K, R> termFactory)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLNodeTerm<I, L, K, R> negate(
+		final IDLNodeTerm<I, L, K, R> exp, final IDLTermFactory<I, L, K, R> termFactory)
 	{
 		if (exp instanceof IDLDataRange) {
 			return negate((IDLDataRange<I, L, K, R>) exp, termFactory);
@@ -268,11 +272,12 @@ public class TermUtil {
 
 	/**
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param ds A list of terms
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param ds          A list of terms
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
+	 * <p/>
 	 * @return A list of terms with negations of all input terms.
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> List<IDLClassExpression<I, L, K, R>> negateAll(
@@ -288,11 +293,12 @@ public class TermUtil {
 
 	/**
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param ds A list of terms
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param ds          A list of terms
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
+	 * <p/>
 	 * @return A list of terms with negations of all input terms.
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> List<IDLDataRange<I, L, K, R>> negateAllData(
@@ -301,26 +307,6 @@ public class TermUtil {
 		final List<IDLDataRange<I, L, K, R>> subTerms = new ArrayList<>();
 		for (IDLDataRange<I, L, K, R> subTerm : ds) {
 			subTerms.add(toNNF(termFactory.getDLDataNegation(subTerm), termFactory));
-		}
-		return subTerms;
-	}
-
-
-	/**
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param ds A list of terms.
-	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
-	 * @return A list of terms where in Negation Normal Form.
-	 *
-	 */
-	static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> List<IDLClassExpression<I, L, K, R>> allToNNF(
-		final Collection<IDLClassExpression<I, L, K, R>> ds, final IDLTermFactory<I, L, K, R> termFactory)
-	{
-		final List<IDLClassExpression<I, L, K, R>> subTerms = new ArrayList<>();
-		for (IDLClassExpression<I, L, K, R> subTerm : ds) {
-			subTerms.add(toNNF(subTerm, termFactory));
 		}
 		return subTerms;
 	}
@@ -438,11 +424,12 @@ public class TermUtil {
 	/**
 	 * Transform an input term into negation normal form (NNF).
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param simpDesc A term
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param simpDesc    A term
 	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
+	 * <p/>
 	 * @return A transformation of the input term into Negation Normal Form.
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLClassExpression<I, L, K, R> toNNF(
@@ -589,14 +576,15 @@ public class TermUtil {
 	 * is returned if {@literal desc1} is a negation of {@literal desc2}. A return value of {@literal false} does not
 	 * mean, that the terms are not contradictory, just that it could not be verified syntactically.
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
 	 * @param desc1
 	 * @param desc2
 	 * @param termFactory
+	 *                       <p/>
 	 * @return {@literal true} is returned if {@literal desc1} is a negation of {@literal desc2}. {@literal false} if
-	 * not clash could be found (syntactically).
+	 *            not clash could be found (syntactically).
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> boolean isSyntacticNegation(
 		final IDLClassExpression<I, L, K, R> desc1, final IDLClassExpression<I, L, K, R> desc2,
@@ -650,14 +638,15 @@ public class TermUtil {
 	 * not be properly determined (and full reasoning is required to do this).
 	 *
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param presumedSub The presumed subclass
+	 * @param <I>           The type for nominals and values
+	 * @param <K>           The type for DL classes
+	 * @param <R>           The type for properties (roles)
+	 * @param presumedSub   The presumed subclass
 	 * @param presumedSuper The presumed superclass
-	 * @param termFactory The {@link IDLTermFactory} to use
+	 * @param termFactory   The {@link IDLTermFactory} to use
+	 * <p/>
 	 * @return {@literal true} if {@literal presumedSub} is a subclass of {@literal presumedSub}. {@literal false}, if
-	 * not or if the relationship between both could not be determined.
+	 *            not or if the relationship between both could not be determined.
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> boolean isSyntacticSubClass(
 		final IDLClassExpression<I, L, K, R> presumedSub, final IDLClassExpression<I, L, K, R> presumedSuper,
@@ -702,10 +691,11 @@ public class TermUtil {
 	 * both term lists are equal, the term length is used to decide.
 	 *
 	 * @param <Term> The subterm type, must derive from {@link IDLTerm}.
-	 * @param tl0 The first term list
-	 * @param tl1 The second term list
+	 * @param tl0    The first term list
+	 * @param tl1    The second term list
+	 * <p/>
 	 * @return {@literal -1}, if {@literal tl0 &lt; tl1}, {@literal 0}, if {@literal tl0.equals(tl1)} and {@literal 1},
-	 * if {@literal tl0 &gt; tl1}.
+	 *            if {@literal tl0 &gt; tl1}.
 	 */
 	public static <Term extends Comparable<? super Term>> int compareTermList(
 		final List<Term> tl0, final List<? extends Term> tl1)
@@ -738,11 +728,12 @@ public class TermUtil {
 	/**
 	 * Create a union of the specified subterms. If there is only one subterm, return it directly.
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param subTerms List of subterms for the new term.
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param subTerms    List of subterms for the new term.
 	 * @param termFactory
+	 *                       <p/>
 	 * @return
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLClassExpression<I, L, K, R> joinToUnion(
@@ -760,11 +751,12 @@ public class TermUtil {
 	/**
 	 * Create a union of the specified subterms. If there is only one subterm, return it directly.
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param subTerms List of subterms for the new term.
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param subTerms    List of subterms for the new term.
 	 * @param termFactory
+	 *                       <p/>
 	 * @return
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLDataRange<I, L, K, R> joinToDataUnion(
@@ -781,11 +773,12 @@ public class TermUtil {
 	/**
 	 * Create a union of the specified subterms. If there is only one subterm, return it directly.
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param subTerms List of subterms for the new term.
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param subTerms    List of subterms for the new term.
 	 * @param termFactory
+	 *                       <p/>
 	 * @return
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLDataRange<I, L, K, R> joinToDataIntersection(
@@ -802,11 +795,12 @@ public class TermUtil {
 	/**
 	 * Create an intersection of the specified subterms. If there is only one subterm, return it directly.
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param subTerms List of subterms for the new term.
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param subTerms    List of subterms for the new term.
 	 * @param termFactory
+	 *                       <p/>
 	 * @return
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLClassExpression<I, L, K, R> joinToIntersection(
@@ -836,12 +830,13 @@ public class TermUtil {
 	/**
 	 * Create an intersection of two terms, possible folding multiple layers of intersections.
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param first First term
-	 * @param second Second term
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param first       First term
+	 * @param second      Second term
 	 * @param termFactory
+	 *                       <p/>
 	 * @return
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> IDLClassExpression<I, L, K, R> joinToIntersection(
@@ -859,13 +854,13 @@ public class TermUtil {
 	/**
 	 * Collect all subterms of a certain type
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param <Term> The type of the term to extract
+	 * @param <I>        The type for nominals and values
+	 * @param <K>        The type for DL classes
+	 * @param <R>        The type for properties (roles)
+	 * @param <Term>     The type of the term to extract
 	 * @param targetTerm The target term to extract from
-	 * @param termType The class/type of the terms to extract
-	 * @param targetSet The set to add results to.
+	 * @param termType   The class/type of the terms to extract
+	 * @param targetSet  The set to add results to.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, Term extends IDLTerm<I, L, K, R>> void collectSubTerms(
@@ -887,12 +882,12 @@ public class TermUtil {
 	/**
 	 * Collect all subterms of a certain type
 	 *
-	 * @param <I> The type for nominals and values
-	 * @param <K> The type for DL classes
-	 * @param <R> The type for properties (roles)
-	 * @param <Term> The type of the term to extract
+	 * @param <I>        The type for nominals and values
+	 * @param <K>        The type for DL classes
+	 * @param <R>        The type for properties (roles)
+	 * @param <Term>     The type of the term to extract
 	 * @param targetTerm The target term to extract from
-	 * @param termType The class/type of the terms to extract
+	 * @param termType   The class/type of the terms to extract
 	 */
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, Term extends IDLTerm<I, L, K, R>> Set<Term> collectSubTerms(
 		final IDLTerm<I, L, K, R> targetTerm, final Class<Term> termType)
@@ -900,5 +895,26 @@ public class TermUtil {
 		final Set<Term> targetTerms = new HashSet<>();
 		collectSubTerms(targetTerm, termType, targetTerms);
 		return targetTerms;
+	}
+
+
+	/**
+	 * @param <I>         The type for nominals and values
+	 * @param <K>         The type for DL classes
+	 * @param <R>         The type for properties (roles)
+	 * @param ds          A list of terms.
+	 * @param termFactory The {@link IDLTermFactory} to use for creating new terms.
+	 * <p/>
+	 * @return A list of terms where in Negation Normal Form.
+	 *
+	 */
+	static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> List<IDLClassExpression<I, L, K, R>> allToNNF(
+		final Collection<IDLClassExpression<I, L, K, R>> ds, final IDLTermFactory<I, L, K, R> termFactory)
+	{
+		final List<IDLClassExpression<I, L, K, R>> subTerms = new ArrayList<>();
+		for (IDLClassExpression<I, L, K, R> subTerm : ds) {
+			subTerms.add(toNNF(subTerm, termFactory));
+		}
+		return subTerms;
 	}
 }

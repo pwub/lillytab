@@ -18,7 +18,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
 import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 import java.util.SortedSet;
 
@@ -185,10 +185,10 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	IABoxNode<I, L, K, R> getImmutable();
 
 
-	NodeMergeInfo<I, L, K, R> addTerm(final IDLRestriction<I, L, K, R> term)
+	NodeMergeInfo<I, L, K, R> addTerm(final IDLNodeTerm<I, L, K, R> term)
 		throws ENodeMergeException, EIllegalTermTypeException;
 
 
-	NodeMergeInfo<I, L, K, R> addTerms(final Collection<? extends IDLRestriction<I, L, K, R>> terms)
+	NodeMergeInfo<I, L, K, R> addTerms(final Collection<? extends IDLNodeTerm<I, L, K, R>> terms)
 		throws ENodeMergeException, EIllegalTermTypeException;
 }

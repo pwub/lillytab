@@ -39,38 +39,6 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 public class AspectMultiMapEntrySet<K, V, M extends MultiMap<K, V>>
 	implements Set<Map.Entry<K, Collection<V>>>
 {
-	private class Itr
-		implements Iterator<Map.Entry<K, Collection<V>>>
-	{
-		Iterator<K> _keyIterator;
-		private Map.Entry<K, Collection<V>> _current = null;
-
-		protected Itr()
-		{
-			_keyIterator = _aspectMap.keySet().iterator();
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return _keyIterator.hasNext();
-		}
-
-		@Override
-		public Entry<K, Collection<V>> next()
-		{
-			K key = _keyIterator.next();
-			Collection<V> value = _aspectMap.get(key);
-			_current = new DefaultMapEntry<>(key, value);
-			return _current;
-		}
-
-		@Override
-		public void remove()
-		{
-			_keyIterator.remove();
-		}
-	}
 
 	private final AspectMultiMap<K, V, M> _aspectMap;
 	private final Set<Map.Entry<K, Collection<V>>> _entrySet;
@@ -153,7 +121,25 @@ public class AspectMultiMapEntrySet<K, V, M extends MultiMap<K, V>>
 		throw new UnsupportedOperationException("Cannot add to entry set.");
 	}
 
-	private boolean batchRemove(Collection<?> c, boolean retain)
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		return batchRemove(c, true);
+	}
+
+	@Override
+	public boolean removeAll(final Collection<?> c)
+	{
+		return batchRemove(c, false);
+	}
+
+	@Override
+	public void clear()
+	{
+		_aspectMap.clear();
+	}
+
+		private boolean batchRemove(Collection<?> c, boolean retain)
 	{
 		for (Map.Entry<K, Collection<V>> entry: _entrySet) {
 			if (c.contains(entry) != retain) {
@@ -179,22 +165,36 @@ public class AspectMultiMapEntrySet<K, V, M extends MultiMap<K, V>>
 		}
 		return wasRemoved;
 	}
-
-	@Override
-	public boolean retainAll(final Collection<?> c)
+	private class Itr
+		implements Iterator<Map.Entry<K, Collection<V>>>
 	{
-		return batchRemove(c, true);
-	}
+		Iterator<K> _keyIterator;
+		private Map.Entry<K, Collection<V>> _current = null;
 
-	@Override
-	public boolean removeAll(final Collection<?> c)
-	{
-		return batchRemove(c, false);
-	}
+		protected Itr()
+		{
+			_keyIterator = _aspectMap.keySet().iterator();
+		}
 
-	@Override
-	public void clear()
-	{
-		_aspectMap.clear();
+		@Override
+		public boolean hasNext()
+		{
+			return _keyIterator.hasNext();
+		}
+
+		@Override
+		public Entry<K, Collection<V>> next()
+		{
+			K key = _keyIterator.next();
+			Collection<V> value = _aspectMap.get(key);
+			_current = new DefaultMapEntry<>(key, value);
+			return _current;
+		}
+
+		@Override
+		public void remove()
+		{
+			_keyIterator.remove();
+		}
 	}
 }

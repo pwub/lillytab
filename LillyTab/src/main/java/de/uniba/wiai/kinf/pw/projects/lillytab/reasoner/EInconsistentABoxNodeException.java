@@ -62,12 +62,6 @@ public class EInconsistentABoxNodeException
 	}
 
 
-	IABoxNode<?, ?, ?, ?> getABoxNode()
-	{
-		return _node;
-	}
-
-
 	@Override
 	public String toString()
 	{
@@ -77,5 +71,11 @@ public class EInconsistentABoxNodeException
 		sb.append("at node ");
 		sb.append(getABoxNode().getNodeID());
 		return sb.toString();
+	}
+
+
+	IABoxNode<?, ?, ?, ?> getABoxNode()
+	{
+		return _node;
 	}
 }

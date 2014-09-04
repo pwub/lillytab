@@ -39,17 +39,15 @@ import java.util.Collection;
  */
 public class ImmutableLinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
 	extends ImmutableMultiMap<R, NodeID>
-	implements ILinkMap<I, L, K, R> {
-
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableLinkMap<I, L, K, R> decorate(final ILinkMap<I, L, K, R> baseMap)
-	{
-		return new ImmutableLinkMap<>(baseMap);
-	}
-
- ImmutableLinkMap(
-		final ILinkMap<I, L, K, R> baseMap)
+	implements ILinkMap<I, L, K, R> { ImmutableLinkMap(final ILinkMap<I, L, K, R> baseMap)
 	{
 		super(baseMap, null, null);
+	}
+
+ public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableLinkMap<I, L, K, R> decorate(
+		final ILinkMap<I, L, K, R> baseMap)
+	{
+		return new ImmutableLinkMap<>(baseMap);
 	}
 
 

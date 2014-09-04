@@ -38,121 +38,6 @@ public class AspectList<E, L extends List<E>>
 	extends AspectCollectionNotifier<E, List<E>>
 	implements List<E>, IDecorator<L>
 {
-	private enum IterationDirection
-	{
-		FORWARD,
-		NONE,
-		BACKWARD
-	};
-
-	/// <editor-fold defaultstate="collapsed" desc="Iterator">
-	public class Itr
-		implements Iterator<E>, ListIterator<E>
-	{
-		private final ListIterator<E> _baseIterator;
-		private IterationDirection _lastDirection = IterationDirection.NONE;
-
-
-		public Itr()
-		{
-			_baseIterator = getDecoratee().listIterator();
-		}
-
-
-		public Itr(final int index)
-		{
-			_baseIterator = getDecoratee().listIterator(index);
-		}
-
-
-		public boolean hasNext()
-		{
-			return _baseIterator.hasNext();
-		}
-
-
-		public E next()
-		{
-			E item = _baseIterator.next();
-			_lastDirection = IterationDirection.FORWARD;
-			return item;
-		}
-
-
-		public void remove()
-		{
-			E item = get(getCurrentIndex());
-			ListItemEvent<E, List<E>> ev = new ListItemEvent<E, List<E>>(AspectList.this, item, getCurrentIndex());
-			notifyBeforeElementRemoved(ev);
-			_baseIterator.remove();
-			_lastDirection = IterationDirection.NONE;
-			notifyAfterElementRemoved(ev);
-		}
-
-
-		public boolean hasPrevious()
-		{
-			return _baseIterator.hasPrevious();
-		}
-
-
-		public E previous()
-		{
-			E item = _baseIterator.previous();
-			_lastDirection = IterationDirection.FORWARD;
-			return item;
-		}
-
-
-		public int nextIndex()
-		{
-			return _baseIterator.nextIndex();
-		}
-
-
-		public int previousIndex()
-		{
-			return _baseIterator.previousIndex();
-		}
-
-
-		public void set(final E e)
-		{
-			E oldItem = get(getCurrentIndex());
-			ListItemReplacedEvent<E, List<E>> ev = new ListItemReplacedEvent<E, List<E>>(AspectList.this, getCurrentIndex(), oldItem, e);
-			notifyBeforeElementReplaced(ev);
-			_baseIterator.set(e);
-			notifyAfterElementReplaced(ev);
-		}
-
-
-		public void add(final E e)
-		{
-			CollectionItemEvent<E, List<E>> ev = new CollectionItemEvent<E, List<E>>(AspectList.this, e);
-			notifyBeforeElementAdded(ev);
-			_baseIterator.add(e);
-			ev = new ListItemEvent<E, List<E>>(AspectList.this, e, previousIndex());
-			notifyAfterElementAdded(ev);
-		}
-
-
-		/**
-		 * @return The position of the "current" item with regard
-		 * to the last all to {@link #next()} or {@link #previous() }.
-		 */
-		private int getCurrentIndex()
-		{
-			switch (_lastDirection) {
-				case BACKWARD:
-					return nextIndex();
-				case FORWARD:
-					return previousIndex();
-				default:
-					throw new NoSuchElementException("Iterator position unknown");
-			}
-		}
-	}
-	/// </editor-fold>
 	
 	private final L _baseList;
 
@@ -372,6 +257,44 @@ public class AspectList<E, L extends List<E>>
 		return wasAdded;
 	}
 
+	@Override
+	public boolean removeAll(final Collection<?> c)
+	{
+		return batchRemove(c, false);
+	}
+
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		return batchRemove(c, true);
+	}
+
+
+	@Override
+	public void clear()
+	{
+		if (! isEmpty()) {
+			CollectionEvent<E, List<E>> ev = new CollectionEvent<E, List<E>>(getSender(), this);
+			notifyBeforeCollectionCleared(ev);
+			_baseList.clear();
+			notifyAfterCollectionCleared(ev);
+		}
+	}
+
+	@Override
+	public L getDecoratee()
+	{
+		return _baseList;
+	}
+
+
+	@Override
+	public String toString()
+	{
+		return _baseList.toString();
+	}
+
+
 	@SuppressWarnings("unchecked")
 	private boolean batchRemove(final Collection<?> c, final boolean retain)
 	{
@@ -397,41 +320,127 @@ public class AspectList<E, L extends List<E>>
 		return wasRemoved;
 	}
 
-	@Override
-	public boolean removeAll(final Collection<?> c)
+	/// <editor-fold defaultstate="collapsed" desc="Iterator">
+	public class Itr
+		implements Iterator<E>, ListIterator<E>
 	{
-		return batchRemove(c, false);
-	}
+		private final ListIterator<E> _baseIterator;
+		private IterationDirection _lastDirection = IterationDirection.NONE;
 
 
-	@Override
-	public boolean retainAll(final Collection<?> c)
-	{
-		return batchRemove(c, true);
-	}
+		public Itr()
+		{
+			_baseIterator = getDecoratee().listIterator();
+		}
 
-	@Override
-	public void clear()
-	{
-		if (! isEmpty()) {
-			CollectionEvent<E, List<E>> ev = new CollectionEvent<E, List<E>>(getSender(), this);
-			notifyBeforeCollectionCleared(ev);
-			_baseList.clear();
-			notifyAfterCollectionCleared(ev);
+
+		public Itr(final int index)
+		{
+			_baseIterator = getDecoratee().listIterator(index);
+		}
+
+
+		@Override
+		public boolean hasNext()
+		{
+			return _baseIterator.hasNext();
+		}
+
+
+		@Override
+		public E next()
+		{
+			E item = _baseIterator.next();
+			_lastDirection = IterationDirection.FORWARD;
+			return item;
+		}
+
+
+		@Override
+		public void remove()
+		{
+			E item = get(getCurrentIndex());
+			ListItemEvent<E, List<E>> ev = new ListItemEvent<E, List<E>>(AspectList.this, item, getCurrentIndex());
+			notifyBeforeElementRemoved(ev);
+			_baseIterator.remove();
+			_lastDirection = IterationDirection.NONE;
+			notifyAfterElementRemoved(ev);
+		}
+
+
+		@Override
+		public boolean hasPrevious()
+		{
+			return _baseIterator.hasPrevious();
+		}
+
+
+		@Override
+		public E previous()
+		{
+			E item = _baseIterator.previous();
+			_lastDirection = IterationDirection.FORWARD;
+			return item;
+		}
+
+
+		@Override
+		public int nextIndex()
+		{
+			return _baseIterator.nextIndex();
+		}
+
+
+		@Override
+		public int previousIndex()
+		{
+			return _baseIterator.previousIndex();
+		}
+
+
+		@Override
+		public void set(final E e)
+		{
+			E oldItem = get(getCurrentIndex());
+			ListItemReplacedEvent<E, List<E>> ev = new ListItemReplacedEvent<E, List<E>>(AspectList.this, getCurrentIndex(), oldItem, e);
+			notifyBeforeElementReplaced(ev);
+			_baseIterator.set(e);
+			notifyAfterElementReplaced(ev);
+		}
+
+
+		@Override
+		public void add(final E e)
+		{
+			CollectionItemEvent<E, List<E>> ev = new CollectionItemEvent<E, List<E>>(AspectList.this, e);
+			notifyBeforeElementAdded(ev);
+			_baseIterator.add(e);
+			ev = new ListItemEvent<E, List<E>>(AspectList.this, e, previousIndex());
+			notifyAfterElementAdded(ev);
+		}
+
+
+		/**
+		 * @return The position of the "current" item with regard
+		 * to the last all to {@link #next()} or {@link #previous() }.
+		 */
+		private int getCurrentIndex()
+		{
+			switch (_lastDirection) {
+				case BACKWARD:
+					return nextIndex();
+				case FORWARD:
+					return previousIndex();
+				default:
+					throw new NoSuchElementException("Iterator position unknown");
+			}
 		}
 	}
-
-
-	@Override
-	public L getDecoratee()
+	/// </editor-fold>
+	private enum IterationDirection
 	{
-		return _baseList;
-	}
-
-
-	@Override
-	public String toString()
-	{
-		return _baseList.toString();
-	}
+		FORWARD,
+		NONE,
+		BACKWARD
+	};
 }

@@ -73,10 +73,20 @@ import org.junit.Test;
  */
 public class ReasonerOntologyTest {
 
+	private IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
+	private IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(_termFactory);
+	private IABox<String, String, String, String> _abox;
+	private Reasoner<String, String, String, String> _reasoner;
+	private SimpleKRSSParser _parser;
+
+
+	public ReasonerOntologyTest()
+	{
+	}
+
 
 	@BeforeClass
-	public static void setUpClass()
-		throws Exception
+	public static void setUpClass() throws Exception
 	{
 		LogManager.getLogManager().reset();
 		Logger.getLogger("").setLevel(Level.ALL);
@@ -87,19 +97,7 @@ public class ReasonerOntologyTest {
 
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
-	private IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
-	private IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(_termFactory);
-	private IABox<String, String, String, String> _abox;
-	private Reasoner<String, String, String, String> _reasoner;
-	private SimpleKRSSParser _parser;
-
-
-	public ReasonerOntologyTest()
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -123,7 +121,8 @@ public class ReasonerOntologyTest {
 
 
 	@Test(expected = EInconsistencyException.class)
-	public void testSimpleInconsistentStoneDamageOntology() throws ParseException, EReasonerException, EInconsistencyException
+	public void testSimpleInconsistentStoneDamageOntology()
+		throws ParseException, EReasonerException, EInconsistencyException
 	{
 		_abox.getAssertedRBox().addRole("hasDamage", RoleType.OBJECT_PROPERTY);
 
@@ -155,7 +154,8 @@ public class ReasonerOntologyTest {
 
 
 	@Test
-	public void testSimpleConsistentStoneDamageOntology() throws ParseException, EReasonerException, EInconsistencyException
+	public void testSimpleConsistentStoneDamageOntology()
+		throws ParseException, EReasonerException, EInconsistencyException
 	{
 		_abox.getAssertedRBox().addRole("hasDamage", RoleType.OBJECT_PROPERTY);
 

@@ -19,25 +19,36 @@
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.util;
+package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
+
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IUnaryOperator;
 
 /**
  *
+ * @param <Term> The type of the wrapped term.
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SimpleToStringFormatter
-	implements IToStringFormatter {
+public abstract class AbstractDLUnaryOperator<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, Term extends IDLTerm<I, L, K, R>>
+	extends AbstractDLOperatorTerm<I, L, K, R, Term>
+	implements IUnaryOperator<Term> {
 
-	@Override
-	public String toString(Object obj)
+	public AbstractDLUnaryOperator(final DLTermOrder termOrder, final String operatorName, final Term term)
 	{
-		return obj.toString();
+		super(termOrder, operatorName, 1);
+		getModifiableTermList().set(0, term);
 	}
 
 
-	@Override
-	public void append(StringBuilder sb, Object obj)
+	public AbstractDLUnaryOperator(final DLTermOrder termOrder, final String operatorName)
 	{
-		sb.append(obj);
+		super(termOrder, operatorName, 1);
+	}
+	
+	@Override
+	public Term getTerm()
+	{
+		return get(0);
 	}
 }

@@ -25,7 +25,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIndividualReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
+
 
 /**
  *
@@ -36,39 +37,34 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class DLIndividualReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	implements IDLIndividualReference<I, L, K, R> {
-
+public class DLIndividualReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements IDLIndividualReference<I, L, K, R>
+{
 	private final I _individual;
-
-
+	
 	protected DLIndividualReference(final I individual)
 	{
 		_individual = individual;
 	}
-
-
+	
 	@Override
 	public I getIndividual()
 	{
 		return _individual;
 	}
-
-
+	
 	@Override
 	public DLTermOrder getDLTermOrder()
 	{
 		return DLTermOrder.DL_INDIVIDUAL_REFERENCE;
 	}
-
-
+	
 	@Override
 	public DLIndividualReference<I, L, K, R> clone()
 	{
 		return this;
 	}
-
-
+	
 	@Override
 	public int compareTo(final IDLTerm<I, L, K, R> o)
 	{
@@ -80,8 +76,7 @@ public class DLIndividualReference<I extends Comparable<? super I>, L extends Co
 		}
 		return compare;
 	}
-
-
+	
 	@Override
 	public String toString()
 	{
@@ -91,19 +86,7 @@ public class DLIndividualReference<I extends Comparable<? super I>, L extends Co
 		sb.append("}");
 		return sb.toString();
 	}
-
-
-	@Override
-	public String toString(IToStringFormatter entityFormatter)
-	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append("{");
-		sb.append(entityFormatter.toString(_individual));
-		sb.append("}");
-		return sb.toString();
-	}
-
-
+	
 	@Override
 	public boolean equals(Object obj)
 	{
@@ -114,25 +97,29 @@ public class DLIndividualReference<I extends Comparable<? super I>, L extends Co
 				&& getIndividual().equals(((IDLIndividualReference) obj).getIndividual()));
 		}
 	}
-
-
+	
 	@Override
 	public int hashCode()
 	{
 		return getIndividual().hashCode();
 	}
-
-
+	
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_INDIVIDUAL_REFERENCE);
 	}
-
-
+	
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_INDIVIDUAL_REFERENCE);
+	}
+	
+	@Override
+	public void accept(
+		IDLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
 	}
 }

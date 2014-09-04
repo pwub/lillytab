@@ -56,10 +56,21 @@ import org.junit.Test;
  */
 public class ReasonerDataTest {
 
+	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
+	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
+		_termFactory);
+	private IABox<String, String, String, String> _abox;
+	private Reasoner<String, String, String, String> _reasoner;
+	private SimpleKRSSParser _parser;
+
+
+	public ReasonerDataTest()
+	{
+	}
+
 
 	@BeforeClass
-	public static void setUpClass()
-		throws Exception
+	public static void setUpClass() throws Exception
 	{
 		LogManager.getLogManager().reset();
 		Logger.getLogger("").setLevel(Level.ALL);
@@ -70,20 +81,7 @@ public class ReasonerDataTest {
 
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
-	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
-	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
-		_termFactory);
-	private IABox<String, String, String, String> _abox;
-	private Reasoner<String, String, String, String> _reasoner;
-	private SimpleKRSSParser _parser;
-
-
-	public ReasonerDataTest()
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -111,7 +109,8 @@ public class ReasonerDataTest {
 
 
 	@Test
-	public void testDataSome() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testDataSome()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		_abox.getAssertedRBox().addRole("r", RoleType.DATA_PROPERTY);
 
@@ -128,7 +127,8 @@ public class ReasonerDataTest {
 
 
 	@Test(expected = EIllegalTermTypeException.class)
-	public void testDataSomeIndividual() throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
+	public void testDataSomeIndividual()
+		throws ENodeMergeException, ParseException, EReasonerException, EInconsistencyException
 	{
 		_abox.getAssertedRBox().addRole("r", RoleType.DATA_PROPERTY);
 

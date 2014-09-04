@@ -18,13 +18,15 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox;
 
+import de.dhke.projects.cutil.collections.factories.EnumSetFactory;
+import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
+import de.dhke.projects.cutil.collections.factories.SortedListSetFactory;
 import de.dhke.projects.cutil.collections.iterator.MultiMapEntryIterable;
-import de.dhke.projects.cutil.collections.map.MultiEnumSetHashMap;
-import de.dhke.projects.cutil.collections.map.MultiSortedListSetHashMap;
-import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
+import de.dhke.projects.cutil.collections.map.GenericMultiHashMap;
 import de.dhke.projects.cutil.collections.set.Flat3Set;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IAssertedRBox;
@@ -33,11 +35,10 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.*;
 import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
-
 
 /**
  *
@@ -49,8 +50,8 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class RBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IRBox<I, L, K, R>
-{
+	implements IRBox<I, L, K, R> {
+
 	private final AssertedRBox<I, L, K, R> _assertedRBox;
 	private final MultiMap<R, R> _inverseRoles;
 	private final MultiMap<R, R> _equivalentRoles;
@@ -59,40 +60,23 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 	private final MultiMap<RoleProperty, R> _propertyRoleMap;
 	private final MultiMap<R, RoleProperty> _rolePropertyMap;
 
+
 	protected RBox(final AssertedRBox<I, L, K, R> assertedRBox)
 	{
 		_assertedRBox = assertedRBox;
 
-		_rolePropertyMap = new MultiEnumSetHashMap<>(RoleProperty.class);
-		_propertyRoleMap = new MultiTreeSetHashMap<>();
+		final ICollectionFactory<R, ? extends Collection<R>> roleSetFactory = new SortedListSetFactory<>();
 
-		_inverseRoles = new MultiSortedListSetHashMap<>();
-		_equivalentRoles = new MultiSortedListSetHashMap<>();
+		_rolePropertyMap = new GenericMultiHashMap<>(new EnumSetFactory<>(RoleProperty.class));
+		_propertyRoleMap = new GenericMultiHashMap<>(roleSetFactory);
 
-		_subRoles = new MultiSortedListSetHashMap<>();
-		_superRoles = new MultiSortedListSetHashMap<>();
+		_inverseRoles = new GenericMultiHashMap<>(roleSetFactory);
+		_equivalentRoles = new GenericMultiHashMap<>(roleSetFactory);
+
+		_subRoles = new GenericMultiHashMap<>(roleSetFactory);
+		_superRoles = new GenericMultiHashMap<>(roleSetFactory);
 	}
 
-	protected RBox(
-		final AssertedRBox<I, L, K, R> assertedRBox,
-		final MultiMap<R, R> inverseRoles,
-		final MultiMap<R, R> equivalentRoles,
-		final MultiMap<R, R> subRoles,
-		final MultiMap<R, R> superRoles,
-		final MultiMap<RoleProperty, R> propertyRoleMap,
-		final MultiMap<R, RoleProperty> rolePropertyMap)
-	{
-		_assertedRBox = assertedRBox;
-
-		_rolePropertyMap = new MultiEnumSetHashMap<>(RoleProperty.class, _assertedRBox.getRoleProperties());
-		_propertyRoleMap = new MultiTreeSetHashMap<>(_assertedRBox.getPropertyRoles());
-
-		_inverseRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getInverseRoles());
-		_equivalentRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getEquivalentRoles());
-
-		_subRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getSubRoles());
-		_superRoles = new MultiSortedListSetHashMap<>(_assertedRBox.getSuperRoles());
-	}
 
 	@Override
 	public ITBox<I, L, K, R> getTBox()
@@ -100,8 +84,255 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _assertedRBox.getTBox();
 	}
 
-	protected void recalculate()
-		throws EInconsistentRBoxException
+
+	@Override
+	public String toString()
+	{
+		return toString("");
+	}
+
+
+	@Override
+	public String toString(String prefix)
+	{
+		/* ": Properties: [], Domains: [], Ranges: []".length() = 41 */
+		StringBuilder sb = new StringBuilder(_assertedRBox.getRoles().size() * (prefix.length() + 41));
+
+		for (R role : _assertedRBox.getRoles()) {
+			sb.append(role);
+			sb.append(": Properties: ");
+			sb.append(getRoleProperties(role));
+			sb.append(", Domains: ");
+			sb.append(getRoleDomains(role));
+			sb.append(", Ranges: ");
+			sb.append(getRoleRanges(role));
+			sb.append("\n");
+			sb.append(prefix);
+		}
+		return sb.toString();
+	}
+
+
+	@Override
+	public Collection<R> getEquivalentRoles(R role)
+	{
+		if (!hasRole(role)) {
+			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
+		}
+
+		final Collection<R> roles = _equivalentRoles.get(role);
+		if (roles != null) {
+			return Collections.unmodifiableCollection(roles);
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public Collection<R> getInverseRoles(R role)
+	{
+		if (!hasRole(role)) {
+			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
+		}
+
+		final Collection<R> roles = _inverseRoles.get(role);
+		if (roles != null) {
+			return Collections.unmodifiableCollection(roles);
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public Collection<IDLClassExpression<I, L, K, R>> getRoleDomains(final R role)
+	{
+		final Set<IDLClassExpression<I, L, K, R>> domains = new Flat3Set<>();
+
+		for (R superRole : getSuperRoles(role)) {
+			final Collection<IDLClassExpression<I, L, K, R>> assertedDomains = _assertedRBox.getRoleDomains(
+				superRole);
+			if (assertedDomains != null) {
+				domains.addAll(assertedDomains);
+			}
+		}
+		return domains;
+	}
+
+
+	@Override
+	public Collection<IDLNodeTerm<I, L, K, R>> getRoleRanges(final R role)
+	{
+		final Set<IDLNodeTerm<I, L, K, R>> ranges = new Flat3Set<>();
+
+		for (R superRole : getSuperRoles(role)) {
+			final Collection<IDLNodeTerm<I, L, K, R>> assertedRanges = _assertedRBox.getRoleRanges(
+				superRole);
+			if (assertedRanges != null) {
+				ranges.addAll(assertedRanges);
+			}
+		}
+		return ranges;
+
+	}
+
+
+	@Override
+	public Collection<RoleProperty> getRoleProperties(R role)
+	{
+		final Collection<RoleProperty> properties = _rolePropertyMap.get(role);
+		if (properties != null) {
+			return Collections.unmodifiableCollection(properties);
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public RoleType getRoleType(R role)
+	{
+		return _assertedRBox.getRoleType(role);
+	}
+
+
+	@Override
+	public boolean hasRole(R role)
+	{
+		return (getRoleType(role) != null);
+	}
+
+
+	@Override
+	public Collection<R> getRoles()
+	{
+		return _assertedRBox.getRoles();
+	}
+
+
+	@Override
+	public Collection<R> getRoles(RoleProperty property)
+	{
+		final Collection<R> roles = _propertyRoleMap.get(property);
+		if (roles != null) {
+			return Collections.unmodifiableCollection(roles);
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public Collection<R> getRoles(RoleType type)
+	{
+		return _assertedRBox.getRoles(type);
+	}
+
+
+	@Override
+	public Collection<R> getSubRoles(R role)
+	{
+		if (!hasRole(role)) {
+			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
+		}
+
+		final Collection<R> subRoles = _subRoles.get(role);
+		if (subRoles != null) {
+			return Collections.unmodifiableCollection(subRoles);
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public Collection<R> getSuperRoles(R role)
+	{
+		if (!hasRole(role)) {
+			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
+		}
+
+		final Collection<R> superRoles = _superRoles.get(role);
+		if (superRoles != null) {
+			return Collections.unmodifiableCollection(superRoles);
+		} else {
+			return null;
+		}
+	}
+
+
+	@Override
+	public boolean hasRoleProperty(R role, RoleProperty property)
+	{
+		return _rolePropertyMap.containsValue(role, property);
+	}
+
+
+	@Override
+	public boolean hasRoleType(R role, RoleType roleType)
+	{
+		return getAssertedRBox().hasRoleType(role, roleType);
+	}
+
+
+	@Override
+	public boolean isEquivalentRole(R first, R second)
+	{
+		return _equivalentRoles.containsValue(first, second);
+	}
+
+
+	@Override
+	public boolean isInverseRole(R first, R second)
+	{
+		return _inverseRoles.containsValue(first, second);
+	}
+
+
+	@Override
+	public boolean hasInverseRoles()
+	{
+		return !_inverseRoles.isEmpty();
+	}
+
+
+	@Override
+	public boolean isSubRole(R sup, R sub)
+	{
+		return _subRoles.containsValue(sup, sub);
+	}
+
+
+	@Override
+	public boolean isSuperRole(R sub, R sup)
+	{
+		return _superRoles.containsValue(sub, sup);
+	}
+
+
+	@Override
+	public IAssertedRBox<I, L, K, R> getAssertedRBox()
+	{
+		return _assertedRBox;
+	}
+
+
+	@Override
+	public IRBox<I, L, K, R> clone()
+	{
+		return this;
+	}
+
+
+	@Override
+	public IRBox<I, L, K, R> getImmutable()
+	{
+		return new ImmutableRBox<>(getTBox().getImmutable(), this);
+	}
+
+
+		protected void recalculate() throws EInconsistentRBoxException
 	{
 		/*
 		 * clear local collections, initialize from asserted RBox
@@ -143,7 +374,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-	private boolean propagateRoleProperties()
+
+		private boolean propagateRoleProperties()
 	{
 		boolean isChanged = false;
 		isChanged |= propagateDown(RoleProperty.FUNCTIONAL);
@@ -153,7 +385,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-	private boolean updateTopSubSuper()
+
+		private boolean updateTopSubSuper()
 	{
 		boolean isChanged = false;
 		final Collection<R> topRoles = getRoles(RoleProperty.TOP);
@@ -174,8 +407,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-	private boolean updateEqualitiesSubSuper()
-		throws EInconsistentRBoxException
+
+		private boolean updateEqualitiesSubSuper() throws EInconsistentRBoxException
 	{
 		boolean isChanged = false;
 
@@ -195,7 +428,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-	private boolean updateTopEqualities()
+
+		private boolean updateTopEqualities()
 	{
 		boolean isChanged = false;
 		final Collection<R> topAdds = new TreeSet<>();
@@ -219,8 +453,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-	private boolean updateSubSuperEqualities()
-		throws EInconsistentRBoxException
+
+		private boolean updateSubSuperEqualities() throws EInconsistentRBoxException
 	{
 		boolean isChanged = false;
 
@@ -246,8 +480,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-	private boolean updateInverseEqualities()
-		throws EInconsistentRBoxException
+
+		private boolean updateInverseEqualities() throws EInconsistentRBoxException
 	{
 		final Collection<Map.Entry<R, R>> addList = new HashSet<>();
 		boolean isChanged = false;
@@ -319,7 +553,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-	private void addCommutativeInverses()
+
+		private void addCommutativeInverses()
 	{
 		final Collection<Map.Entry<R, R>> addList = new HashSet<>();
 		for (Map.Entry<R, R> invEntry : MultiMapEntryIterable.decorate(_inverseRoles.entrySet())) {
@@ -331,6 +566,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 			_inverseRoles.put(addItem.getKey(), addItem.getValue());
 		}
 	}
+
 
 	private void addCommutativeEqualities()
 	{
@@ -344,6 +580,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 			_equivalentRoles.put(addItem.getKey(), addItem.getValue());
 		}
 	}
+
 
 	private void addSubSuper()
 	{
@@ -370,218 +607,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-	@Override
-	public String toString()
-	{
-		return toString("");
-	}
 
-	@Override
-	public String toString(String prefix)
-	{
-		/* ": Properties: [], Domains: [], Ranges: []".length() = 41 */
-		StringBuilder sb = new StringBuilder(_assertedRBox.getRoles().size() * (prefix.length() + 41));
-
-		for (R role : _assertedRBox.getRoles()) {
-			sb.append(role);
-			sb.append(": Properties: ");
-			sb.append(getRoleProperties(role));
-			sb.append(", Domains: ");
-			sb.append(getRoleDomains(role));
-			sb.append(", Ranges: ");
-			sb.append(getRoleRanges(role));
-			sb.append("\n");
-			sb.append(prefix);
-		}
-		return sb.toString();
-	}
-
-	@Override
-	public Collection<R> getEquivalentRoles(R role)
-	{
-		if (!hasRole(role)) {
-			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
-		}
-
-		final Collection<R> roles = _equivalentRoles.get(role);
-		if (roles != null) {
-			return Collections.unmodifiableCollection(roles);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public Collection<R> getInverseRoles(R role)
-	{
-		if (!hasRole(role)) {
-			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
-		}
-
-		final Collection<R> roles = _inverseRoles.get(role);
-		if (roles != null) {
-			return Collections.unmodifiableCollection(roles);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public Collection<IDLClassExpression<I, L, K, R>> getRoleDomains(final R role)
-	{
-		final Set<IDLClassExpression<I, L, K, R>> domains = new Flat3Set<>();
-
-		for (R superRole : getSuperRoles(role)) {
-			final Collection<IDLClassExpression<I, L, K, R>> assertedDomains = _assertedRBox.getRoleDomains(
-				superRole);
-			if (assertedDomains != null) {
-				domains.addAll(assertedDomains);
-			}
-		}
-		return domains;
-	}
-
-	@Override
-	public Collection<IDLRestriction<I, L, K, R>> getRoleRanges(final R role)
-	{
-		final Set<IDLRestriction<I, L, K, R>> ranges = new Flat3Set<>();
-
-		for (R superRole : getSuperRoles(role)) {
-			final Collection<IDLRestriction<I, L, K, R>> assertedRanges = _assertedRBox.getRoleRanges(
-				superRole);
-			if (assertedRanges != null) {
-				ranges.addAll(assertedRanges);
-			}
-		}
-		return ranges;
-
-	}
-
-	@Override
-	public Collection<RoleProperty> getRoleProperties(R role)
-	{
-		final Collection<RoleProperty> properties = _rolePropertyMap.get(role);
-		if (properties != null) {
-			return Collections.unmodifiableCollection(properties);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public RoleType getRoleType(R role)
-	{
-		return _assertedRBox.getRoleType(role);
-	}
-
-	@Override
-	public boolean hasRole(R role)
-	{
-		return (getRoleType(role) != null);
-	}
-
-	@Override
-	public Collection<R> getRoles()
-	{
-		return _assertedRBox.getRoles();
-	}
-
-	@Override
-	public Collection<R> getRoles(RoleProperty property)
-	{
-		final Collection<R> roles = _propertyRoleMap.get(property);
-		if (roles != null) {
-			return Collections.unmodifiableCollection(roles);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public Collection<R> getRoles(RoleType type)
-	{
-		return _assertedRBox.getRoles(type);
-	}
-
-	@Override
-	public Collection<R> getSubRoles(R role)
-	{
-		if (!hasRole(role)) {
-			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
-		}
-
-		final Collection<R> subRoles = _subRoles.get(role);
-		if (subRoles != null) {
-			return Collections.unmodifiableCollection(subRoles);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public Collection<R> getSuperRoles(R role)
-	{
-		if (!hasRole(role)) {
-			throw new IllegalArgumentException(String.format("Unknown role `%s'", role));
-		}
-
-		final Collection<R> superRoles = _superRoles.get(role);
-		if (superRoles != null) {
-			return Collections.unmodifiableCollection(superRoles);
-		} else {
-			return null;
-		}
-	}
-
-	@Override
-	public boolean hasRoleProperty(R role, RoleProperty property)
-	{
-		return _rolePropertyMap.containsValue(role, property);
-	}
-
-	@Override
-	public boolean hasRoleType(R role, RoleType roleType)
-	{
-		return getAssertedRBox().hasRoleType(role, roleType);
-	}
-
-	@Override
-	public boolean isEquivalentRole(R first, R second)
-	{
-		return _equivalentRoles.containsValue(first, second);
-	}
-
-	@Override
-	public boolean isInverseRole(R first, R second)
-	{
-		return _inverseRoles.containsValue(first, second);
-	}
-
-	@Override
-	public boolean hasInverseRoles()
-	{
-		return !_inverseRoles.isEmpty();
-	}
-
-	@Override
-	public boolean isSubRole(R sup, R sub)
-	{
-		return _subRoles.containsValue(sup, sub);
-	}
-
-	@Override
-	public boolean isSuperRole(R sub, R sup)
-	{
-		return _superRoles.containsValue(sub, sup);
-	}
-
-	@Override
-	public IAssertedRBox<I, L, K, R> getAssertedRBox()
-	{
-		return _assertedRBox;
-	}
-
-	private boolean propagateDown(final RoleProperty prop)
+		private boolean propagateDown(final RoleProperty prop)
 	{
 		boolean isChanged = false;
 
@@ -599,7 +626,8 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return isChanged;
 	}
 
-	private boolean propagateUp(final RoleProperty prop)
+
+		private boolean propagateUp(final RoleProperty prop)
 	{
 		boolean isChanged = false;
 
@@ -615,17 +643,5 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 			}
 		}
 		return isChanged;
-	}
-
-	@Override
-	public IRBox<I, L, K, R> clone()
-	{
-		return this;
-	}
-
-	@Override
-	public IRBox<I, L, K, R> getImmutable()
-	{
-		return new ImmutableRBox<>(getTBox().getImmutable(), this);
 	}
 }

@@ -34,6 +34,7 @@ import org.apache.commons.collections15.SetUtils;
  */
 public class FrozenFlat3Set<T>
 	extends Flat3Set<T> {
+	private int _hashValue = 0;
 
 	public FrozenFlat3Set(final Collection<? extends T> coll)
 	{
@@ -88,7 +89,6 @@ public class FrozenFlat3Set<T>
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");
 	}
-	private int _hashValue = 0;
 
 
 	@Override

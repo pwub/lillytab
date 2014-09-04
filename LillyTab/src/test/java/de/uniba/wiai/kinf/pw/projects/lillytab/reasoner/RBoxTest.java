@@ -38,26 +38,24 @@ import static org.junit.Assert.*;
  */
 public class RBoxTest {
 
-
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
 	private IDLTermFactory<String, String, String, String> _termFactory;
 	private ITBox<String, String, String, String> _tbox;
 	private AssertedRBox<String, String, String, String> _assertedRBox;
 
 
 	public RBoxTest()
+	{
+	}
+
+
+	@BeforeClass
+	public static void setUpClass() throws Exception
+	{
+	}
+
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -81,7 +79,8 @@ public class RBoxTest {
 
 
 	@Test
-	public void testDataPropertySubRole() throws EInconsistentRBoxException
+	public void testDataPropertySubRole()
+		throws EInconsistentRBoxException
 	{
 		_assertedRBox.addRole("r1", RoleType.DATA_PROPERTY);
 		_assertedRBox.addRole("r2", RoleType.DATA_PROPERTY);
@@ -95,7 +94,8 @@ public class RBoxTest {
 
 
 	@Test
-	public void testObjectPropertySubRole() throws EInconsistentRBoxException
+	public void testObjectPropertySubRole()
+		throws EInconsistentRBoxException
 	{
 		_assertedRBox.addRole("r1", RoleType.OBJECT_PROPERTY);
 		_assertedRBox.addRole("r2", RoleType.OBJECT_PROPERTY);
@@ -122,7 +122,7 @@ public class RBoxTest {
 
 
 	@Test
-	public void testTopRoleAllSub()
+		public void testTopRoleAllSub()
 		throws EInconsistentRBoxException
 	{
 		_assertedRBox.addRole("op1", RoleType.OBJECT_PROPERTY);

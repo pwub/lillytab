@@ -36,42 +36,6 @@ public class AspectCollection<E, C extends Collection<E>>
 	extends AspectCollectionNotifier<E, Collection<E>>
 	implements Collection<E>, IDecorator<C>
 {
-	/**
-	 *
-	 * @author Peter Wullinger <java@dhke.de>
-	 */
-	public class Itr
-		implements Iterator<E>
-	{
-		private final Iterator<E> _baseIterator;
-		private E _current = null;
-
-		public Itr()
-		{
-			_baseIterator = getDecoratee().iterator();
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return _baseIterator.hasNext();
-		}
-
-		@Override
-		public E next()
-		{
-			_current = _baseIterator.next();
-			return _current;
-		}
-
-		@Override
-		public void remove()
-		{
-			CollectionItemEvent<E, Collection<E>> ev = notifyBeforeElementRemoved(AspectCollection.this, _current);
-			_baseIterator.remove();
-			notifyAfterElementRemoved(ev);
-		}
-	}
 	private final C _baseCollection;
 
 	public AspectCollection(final C baseCollection)
@@ -180,31 +144,6 @@ public class AspectCollection<E, C extends Collection<E>>
 		return wasAdded;
 	}
 
-	@SuppressWarnings("unchecked")
-	private boolean batchRemove(final Collection<?> c, boolean retain)
-	{
-		if (retain) {
-			for (E item : _baseCollection)
-				if (c.contains(item))
-					notifyBeforeElementRemoved(this, item);
-		} else {
-			for (Object item : c)
-				notifyBeforeElementRemoved(this, (E) item);
-		}
-
-		boolean wasRemoved = false;
-		Iterator<E> iter = _baseCollection.iterator();
-		while (iter.hasNext()) {
-			E item = iter.next();
-			if (c.contains(item) != retain) {
-				wasRemoved = true;
-				iter.remove();
-				notifyAfterElementRemoved(this, item);
-			}
-		}
-		return wasRemoved;
-	}
-
 	@Override
 	public boolean removeAll(final Collection<?> c)
 	{
@@ -237,5 +176,66 @@ public class AspectCollection<E, C extends Collection<E>>
 	public String toString()
 	{
 		return _baseCollection.toString();
+	}
+
+	@SuppressWarnings("unchecked")
+	private boolean batchRemove(final Collection<?> c, boolean retain)
+	{
+		if (retain) {
+			for (E item : _baseCollection)
+				if (c.contains(item))
+					notifyBeforeElementRemoved(this, item);
+		} else {
+			for (Object item : c)
+				notifyBeforeElementRemoved(this, (E) item);
+		}
+
+		boolean wasRemoved = false;
+		Iterator<E> iter = _baseCollection.iterator();
+		while (iter.hasNext()) {
+			E item = iter.next();
+			if (c.contains(item) != retain) {
+				wasRemoved = true;
+				iter.remove();
+				notifyAfterElementRemoved(this, item);
+			}
+		}
+		return wasRemoved;
+	}
+	/**
+	 *
+	 * @author Peter Wullinger <java@dhke.de>
+	 */
+	public class Itr
+		implements Iterator<E>
+	{
+		private final Iterator<E> _baseIterator;
+		private E _current = null;
+
+		public Itr()
+		{
+			_baseIterator = getDecoratee().iterator();
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return _baseIterator.hasNext();
+		}
+
+		@Override
+		public E next()
+		{
+			_current = _baseIterator.next();
+			return _current;
+		}
+
+		@Override
+		public void remove()
+		{
+			CollectionItemEvent<E, Collection<E>> ev = notifyBeforeElementRemoved(AspectCollection.this, _current);
+			_baseIterator.remove();
+			notifyAfterElementRemoved(ev);
+		}
 	}
 }

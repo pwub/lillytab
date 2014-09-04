@@ -22,7 +22,8 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.ISWRLTermVisitor;
+
 
 /**
  *
@@ -33,11 +34,10 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface ISWRLTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends ITerm, Comparable<ISWRLTerm<I, L, K, R>> {
-
+public interface ISWRLTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends ITerm, Comparable<ISWRLTerm<I, L, K, R>>
+{
 	SWRLTermOrder getSWRLTermOrder();
 
-
-	String toString(final IToStringFormatter formatter);
+	void accept(ISWRLTermVisitor<I, L, K, R> visitor);
 }

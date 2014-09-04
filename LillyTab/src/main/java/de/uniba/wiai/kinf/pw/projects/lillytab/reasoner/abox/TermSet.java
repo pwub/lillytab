@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.collections.aspect.AspectSortedSet;
@@ -76,6 +77,50 @@ public class TermSet<I extends Comparable<? super I>, L extends Comparable<? sup
 
 
 	@Override
+	public ITermSet<I, L, K, R> getImmutable()
+	{
+		return new ImmutableTermSet<>(this);
+	}
+
+
+	/// <editor-fold defaultstate="collapsed" desc="interface ITermSet">
+	@Override
+	public SortedSet<IDLTerm<I, L, K, R>> subSet(
+		DLTermOrder termType)
+	{
+		final DLTermOrder[] values = DLTermOrder.values();
+		final int typeIndex = Arrays.binarySearch(values, termType);
+		assert (typeIndex > 0) && (typeIndex < values.length - 1);
+		final DLTermOrder before = values[typeIndex - 1];
+		final DLTermOrder after = values[typeIndex + 1];
+		final DLDummyTerm<I, L, K, R> beforeTerm = new DLDummyTerm<>(before);
+		final DLDummyTerm<I, L, K, R> afterTerm = new DLDummyTerm<>(after);
+
+		return subSet(beforeTerm, afterTerm);
+	}
+
+
+	@Override
+	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final Class<? extends T> klass)
+	{
+		return new TermsOfTypeIterator<>(klass, this);
+	}
+
+
+	@Override
+	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(DLTermOrder termType, Class<? extends T> klass)
+	{
+		return new TermsOfTypeIterator<>(klass, subSet(termType));
+	}
+
+
+	TermTypes getAllowedTermTypes()
+	{
+		return _types;
+	}
+
+
+	@Override
 	protected void notifyBeforeElementAdded(
 		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> ev)
 	{
@@ -90,49 +135,6 @@ public class TermSet<I extends Comparable<? super I>, L extends Comparable<? sup
 	{
 		checkTermType(ev.getNewItem());
 		super.notifyBeforeElementReplaced(ev);
-	}
-
-	@Override
-	public ITermSet<I, L, K, R> getImmutable()
-	{
-		return new ImmutableTermSet<>(this);
-	}
-		
-
-	/// <editor-fold defaultstate="collapsed" desc="interface ITermSet">
-
-	@Override
-	public SortedSet<IDLTerm<I, L, K, R>> subSet(DLTermOrder termType)
-	{
-		final DLTermOrder[] values = DLTermOrder.values();
-		final int typeIndex = Arrays.binarySearch(values, termType);
-		assert (typeIndex > 0) && (typeIndex < values.length - 1);
-		final DLTermOrder before = values[typeIndex - 1];
-		final DLTermOrder after = values[typeIndex + 1];
-		final DLDummyTerm<I, L, K, R> beforeTerm = new DLDummyTerm<>(before);
-		final DLDummyTerm<I, L, K, R> afterTerm = new DLDummyTerm<>(after);
-
-		return subSet(beforeTerm, afterTerm);
-	}
-
-	@Override
-	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(final Class<? extends T> klass)
-	{
-		return new TermsOfTypeIterator<>(klass, this);
-	}
-
-
-	@Override
-	public <T extends IDLTerm<I, L, K, R>> Iterator<T> iterator(DLTermOrder termType,
-																Class<? extends T> klass)
-	{
-		return new TermsOfTypeIterator<>(klass, subSet(termType));
-	}
-
-
-	public TermTypes getAllowedTermTypes()
-	{
-		return _types;
 	}
 
 

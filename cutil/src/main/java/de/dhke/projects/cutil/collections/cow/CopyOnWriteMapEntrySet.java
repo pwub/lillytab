@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.cow;
 
 import java.util.Collection;
@@ -28,77 +29,17 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 
-class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
+class CopyOnWriteMapEntrySet<K, V>
 	implements Set<Entry<K, V>> {
-	/// <editor-fold defaultstate="collapsed" desc="class Itr">
-
-	private class Itr
-		implements Iterator<Map.Entry<K, V>> {
-
-		private final Iterator<K> _keyIterator;
-		private final boolean _collectionAlreadyCopied;
-
-
-		Itr()
-		{
-			super();
-			_collectionAlreadyCopied = _cowMap.isWasCopied();
-			_keyIterator = _cowMap.getDecoratee().keySet().iterator();
-		}
-
-
-		@Override
-		public boolean hasNext()
-		{
-			return _keyIterator.hasNext();
-		}
-
-
-		@Override
-		public Entry<K, V> next()
-		{
-			K nextKey = _keyIterator.next();
-			V nextValue = _cowMap.get(nextKey);
-			return new DefaultMapEntry<>(nextKey, nextValue);
-		}
-
-
-		@Override
-		public void remove()
-		{
-			/**
-			 * I cannot think of a proper way to fully support this method. If a COW list has not been copied yet, a
-			 * remove would change the underlying collection. In this case, we would have to create a new iterator at
-			 * exactly the same position for the new collection. This works for lists but not for collections.
-			 *
-			 */
-			if (_collectionAlreadyCopied)
-				_keyIterator.remove();
-			else
-				throw new UnsupportedOperationException("Cannot remove from untouched CopyOnWriteMap via iterator.");
-		}
-	}
 	/// </editor-fold>
-	private final GenericCopyOnWriteMap<K, V, M> _cowMap;
-
-
-	protected CopyOnWriteMapEntrySet(final GenericCopyOnWriteMap<K, V, M> cowMap)
-	{
-		_cowMap = cowMap;
-	}
+	private final CopyOnWriteMap<K, V> _cowMap;
 	private Map<K, V> _lastBaseMap = null;
 	private Set<Entry<K, V>> _cachedEntrySet = null;
 
 
-	private Set<Entry<K, V>> getOriginalEntrySet()
+	protected CopyOnWriteMapEntrySet(final CopyOnWriteMap<K, V> cowMap)
 	{
-		/* cache entrty set to avoid re-fetch */
-		if (_lastBaseMap != _cowMap.getDecoratee()) {
-			_lastBaseMap = _cowMap.getDecoratee();
-			_cachedEntrySet = _lastBaseMap.entrySet();
-		}
-		assert _cachedEntrySet != null;
-		return _cachedEntrySet;
+		_cowMap = cowMap;
 	}
 
 
@@ -234,5 +175,65 @@ class CopyOnWriteMapEntrySet<K, V, M extends Map<K, V>>
 		for (Entry<K, V> entry : this)
 			hCode += entry.hashCode();
 		return hCode;
+	}
+
+
+	private Set<Entry<K, V>> getOriginalEntrySet()
+	{
+		/* cache entrty set to avoid re-fetch */
+		if (_lastBaseMap != _cowMap.getDecoratee()) {
+			_lastBaseMap = _cowMap.getDecoratee();
+			_cachedEntrySet = _lastBaseMap.entrySet();
+		}
+		assert _cachedEntrySet != null;
+		return _cachedEntrySet;
+	}
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
+
+	private class Itr
+		implements Iterator<Map.Entry<K, V>> {
+
+		private final Iterator<K> _keyIterator;
+		private final boolean _collectionAlreadyCopied;
+
+
+		Itr()
+		{
+			super();
+			_collectionAlreadyCopied = _cowMap.isWasCopied();
+			_keyIterator = _cowMap.getDecoratee().keySet().iterator();
+		}
+
+
+		@Override
+		public boolean hasNext()
+		{
+			return _keyIterator.hasNext();
+		}
+
+
+		@Override
+		public Entry<K, V> next()
+		{
+			K nextKey = _keyIterator.next();
+			V nextValue = _cowMap.get(nextKey);
+			return new DefaultMapEntry<>(nextKey, nextValue);
+		}
+
+
+		@Override
+		public void remove()
+		{
+			/**
+			 * I cannot think of a proper way to fully support this method. If a COW list has not been copied yet, a
+			 * remove would change the underlying collection. In this case, we would have to create a new iterator at
+			 * exactly the same position for the new collection. This works for lists but not for collections.
+			 *
+			 */
+			if (_collectionAlreadyCopied)
+				_keyIterator.remove();
+			else
+				throw new UnsupportedOperationException("Cannot remove from untouched CopyOnWriteMap via iterator.");
+		}
 	}
 }

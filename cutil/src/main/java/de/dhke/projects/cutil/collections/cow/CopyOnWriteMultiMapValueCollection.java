@@ -18,87 +18,178 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.cow;
 
 import java.util.Collection;
 import java.util.Iterator;
 import org.apache.commons.collections15.MultiMap;
 
-
 /**
  *
  * @param <K>
  * @param <V>
  * @param <M>
+ * <p/>
  * @author Peter Wullinger <java@dhke.de>
  */
-public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
-	implements Collection<V>
-{
-	/// <editor-fold defaultstate="collapsed" desc="class Itr">
-	private class Itr
-		implements Iterator<V>
-	{
-		private final Iterator<V> _valueIterator;
-		private final boolean _collectionAlreadyCopied;
-
-		public Itr()
-		{
-			_collectionAlreadyCopied = _cowMap.isWasCopied();
-			_valueIterator = _cowMap.getDecoratee().values().iterator();
-		}
-
-		public Itr(final Object key)
-		{
-			_collectionAlreadyCopied = _cowMap.isWasCopied();
-			_valueIterator = _cowMap.getDecoratee().iterator(key);
-		}
-
-		public boolean hasNext()
-		{
-			return _valueIterator.hasNext();
-		}
-
-		public V next()
-		{
-			return _valueIterator.next();
-		}
-
-		public void remove()
-		{
-			/**
-			 * I cannot think of a proper way to fully support this method.
-			 * If a COW list has not been copied yet, a remove would chang thee underlying collection.
-			 * In this case, we would have to create a new iterator at exactly the same
-			 * position for the new collection. This works for lists but not for collections.
-			 **/
-			if (_collectionAlreadyCopied)
-				_valueIterator.remove();
-			else
-				throw new UnsupportedOperationException("Cannot remove from untouched CopyOnWriteMap via iterator.");
-		}
-	}
+public class CopyOnWriteMultiMapValueCollection<K, V>
+	implements Collection<V> {
 	/// </editor-fold>
-	
-	private final GenericCopyOnWriteMultiMap<K, V, M> _cowMap;
+	private final CopyOnWriteMultiMap<K, V> _cowMap;
 	private final Object _key;
 	private MultiMap<K, V> _lastBaseMap = null;
 	private Collection<V> _cachedValueCollection = null;
 
-	protected CopyOnWriteMultiMapValueCollection(final GenericCopyOnWriteMultiMap<K, V, M> cowMap)
+
+	protected CopyOnWriteMultiMapValueCollection(final CopyOnWriteMultiMap<K, V> cowMap)
 	{
 		_key = null;
 		_cowMap = cowMap;
 	}
 
-	protected CopyOnWriteMultiMapValueCollection(final GenericCopyOnWriteMultiMap<K, V, M> cowMap, final Object key)
+
+	protected CopyOnWriteMultiMapValueCollection(final CopyOnWriteMultiMap<K, V> cowMap, final Object key)
 	{
 		_key = key;
 		_cowMap = cowMap;
 	}
 
-	private Collection<V> getOriginalValueCollection()
+
+	@Override
+	public int size()
+	{
+		if (_key == null)
+			return getOriginalValueCollection().size();
+		else
+			return _cowMap.size(_key);
+	}
+
+
+	@Override
+	public boolean isEmpty()
+	{
+		if (_key == null)
+			return getOriginalValueCollection().isEmpty();
+		else
+			return (!_cowMap.containsKey(_key)) || (_cowMap.getDecoratee().get(_key).isEmpty());
+	}
+
+
+	@Override
+	public boolean contains(final Object o)
+	{
+		if (_key == null)
+			return _cowMap.containsValue(o);
+		else
+			return _cowMap.containsValue(_key, o);
+	}
+
+
+	@Override
+	public Iterator<V> iterator()
+	{
+		if (_key == null)
+			return new Itr();
+		else
+			return new Itr(_key);
+	}
+
+
+	@Override
+	public Object[] toArray()
+	{
+		return getOriginalValueCollection().toArray();
+	}
+
+
+	@Override
+	public <T> T[] toArray(final T[] a)
+	{
+		return getOriginalValueCollection().toArray(a);
+	}
+
+
+	@Override
+	public  boolean add(final V key)
+	{
+		throw new UnsupportedOperationException("Cannot add to value set");
+	}
+
+
+	@Override
+	public boolean remove(final Object o)
+	{
+		_cowMap.copy();
+		return getOriginalValueCollection().remove(o);
+	}
+
+
+	@Override
+	public boolean containsAll(final Collection<?> c)
+	{
+		return getOriginalValueCollection().containsAll(c);
+	}
+
+
+	@Override
+	public boolean addAll(final Collection<? extends V> c)
+	{
+		throw new UnsupportedOperationException("Cannot add to value set");
+	}
+
+
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		_cowMap.copy();
+		return getOriginalValueCollection().retainAll(c);
+	}
+
+
+	@Override
+	public boolean removeAll(final Collection<?> c)
+	{
+		_cowMap.copy();
+		return getOriginalValueCollection().removeAll(c);
+	}
+
+
+	@Override
+	public void clear()
+	{
+		getOriginalValueCollection().clear();
+	}
+
+
+	@Override
+	public boolean equals(final Object obj)
+	{
+		if (this == obj)
+			return true;
+		return getOriginalValueCollection().equals(obj);
+	}
+
+
+	@Override
+	public int hashCode()
+	{
+		int hCode = 0;
+		for (V value : this)
+			hCode += value.hashCode();
+		return hCode;
+	}
+
+
+	@Override
+	public String toString()
+	{
+		return getOriginalValueCollection().toString();
+	}
+
+
+		private Collection<V> getOriginalValueCollection()
 	{
 		/* cache value set to avoid re-fetch */
 		if (_lastBaseMap != _cowMap.getDecoratee()) {
@@ -111,120 +202,57 @@ public class CopyOnWriteMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 		assert _cachedValueCollection != null;
 		return _cachedValueCollection;
 	}
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
 
-	@Override
-	public int size()
-	{
-		if (_key == null)
-			return getOriginalValueCollection().size();
-		else
-			return _cowMap.size(_key);
-	}
+	private class Itr
+		implements Iterator<V> {
 
-	@Override
-	public boolean isEmpty()
-	{
-		if (_key == null)
-			return getOriginalValueCollection().isEmpty();
-		else
-			return (! _cowMap.containsKey(_key)) || (_cowMap.getDecoratee().get(_key).isEmpty());
-	}
+		private final Iterator<V> _valueIterator;
+		private final boolean _collectionAlreadyCopied;
 
-	@Override
-	public boolean contains(final Object o)
-	{
-		if (_key == null)
-			return _cowMap.containsValue(o);
-		else
-			return _cowMap.containsValue(_key, o);
-	}
 
-	@Override
-	public Iterator<V> iterator()
-	{
-		if (_key == null)
-			return new Itr();
-		else
-			return new Itr(_key);
-	}
+		Itr()
+		{
+			_collectionAlreadyCopied = _cowMap.isWasCopied();
+			_valueIterator = _cowMap.getDecoratee().values().iterator();
+		}
 
-	@Override
-	public Object[] toArray()
-	{
-		return getOriginalValueCollection().toArray();
-	}
 
-	@Override
-	public <T> T[] toArray(final T[] a)
-	{
-		return getOriginalValueCollection().toArray(a);
-	}
+		Itr(final Object key)
+		{
+			_collectionAlreadyCopied = _cowMap.isWasCopied();
+			_valueIterator = _cowMap.getDecoratee().iterator(key);
+		}
 
-	@Override
-	public boolean add(final V key)
-	{
-		throw new UnsupportedOperationException("Cannot add to value set");
-	}
 
-	@Override
-	public boolean remove(final Object o)
-	{
-		_cowMap.copy();
-		return getOriginalValueCollection().remove(o);
-	}
+		@Override
+		public boolean hasNext()
+		{
+			return _valueIterator.hasNext();
+		}
 
-	@Override
-	public boolean containsAll(final Collection<?> c)
-	{
-		return getOriginalValueCollection().containsAll(c);
-	}
 
-	@Override
-	public boolean addAll(final Collection<? extends V> c)
-	{
-		throw new UnsupportedOperationException("Cannot add to value set");
-	}
+		@Override
+		public V next()
+		{
+			return _valueIterator.next();
+		}
 
-	@Override
-	public boolean retainAll(final Collection<?> c)
-	{
-		_cowMap.copy();
-		return getOriginalValueCollection().retainAll(c);
-	}
 
-	@Override
-	public boolean removeAll(final Collection<?> c)
-	{
-		_cowMap.copy();
-		return getOriginalValueCollection().removeAll(c);
-	}
-
-	@Override
-	public void clear()
-	{
-		getOriginalValueCollection().clear();
-	}
-
-	@Override
-	public boolean equals(final Object obj)
-	{
-		if (this == obj)
-			return true;
-		return getOriginalValueCollection().equals(obj);
-	}
-
-	@Override
-	public int hashCode()
-	{
-		int hCode = 0;
-		for (V value : this)
-			hCode += value.hashCode();
-		return hCode;
-	}
-
-	@Override
-	public String toString()
-	{
-		return getOriginalValueCollection().toString();
+		@Override
+		public void remove()
+		{
+			/**
+			 * I cannot think of a proper way to fully support this method.
+			 * If a COW list has not been copied yet, a remove would chang thee underlying collection.
+			 * In this case, we would have to create a new iterator at exactly the same
+			 * position for the new collection. This works for lists but not for collections.
+			 *
+			 */
+			if (_collectionAlreadyCopied)
+				_valueIterator.remove();
+			else
+				throw new UnsupportedOperationException("Cannot remove from untouched CopyOnWriteMap via iterator.");
+		}
 	}
 }

@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.util;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRule;
@@ -39,6 +40,15 @@ import org.junit.Test;
  */
 public class SimpleSWRLParserTest {
 
+	private final ISWRLTermFactory<String, String, String, String> _swrlFactory = new SWRLTermFactory<>();
+	private SimpleSWRLParser _parser;
+
+
+		public SimpleSWRLParserTest()
+	{
+	}
+
+
 	@BeforeClass
 	public static void setUpClass()
 	{
@@ -47,13 +57,6 @@ public class SimpleSWRLParserTest {
 
 	@AfterClass
 	public static void tearDownClass()
-	{
-	}
-	final ISWRLTermFactory<String, String, String, String> _swrlFactory = new SWRLTermFactory<>();
-	SimpleSWRLParser _parser;
-
-
-	public SimpleSWRLParserTest()
 	{
 	}
 

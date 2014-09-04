@@ -23,11 +23,11 @@ package de.dhke.projects.cutil.collections.aspect;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -65,7 +65,7 @@ public class AspectMapKeySetTest
 	@Before
 	public void setUp()
 	{
-		_baseMap = new HashMap<>();
+		_baseMap = new TreeMap<>();
 		_baseMap.put("A", "1");
 		_baseMap.put("B", "2");
 		_baseMap.put("C", "3");
@@ -140,11 +140,10 @@ public class AspectMapKeySetTest
 	{
 		final List<String> testList = new ArrayList<>(Arrays.asList("A", "B", "C", "D"));
 		Iterator<String> iter = _keySet.iterator();
-		iter.next();
 		String key = iter.next();
 		iter.remove();
 		testList.removeAll(_keySet);
-		
+
 		assertEquals(1, testList.size());
 		assertTrue(testList.contains(key));
 
@@ -187,7 +186,7 @@ public class AspectMapKeySetTest
 	@Test
 	public void testToArray_GenericType()
 	{
-		String[] array = _keySet.toArray(new String[0]);
+		String[] array = _keySet.toArray(new String[_keySet.size()]);
 		Arrays.sort(array);
 		assertArrayEquals(new String[]{"A", "B", "C", "D"}, array);
 	}
@@ -271,7 +270,6 @@ public class AspectMapKeySetTest
 		assertFalse(_keySet.contains("E"));
 		assertEquals(2, _aspectMap.size());
 
-
 		List<Map.Entry<String, String>> targetEntries = new ArrayList<>();
 		targetEntries.add(new DefaultMapEntry<>("A", "1"));
 		targetEntries.add(new DefaultMapEntry<>("D", "4"));
@@ -348,7 +346,7 @@ public class AspectMapKeySetTest
 
 	}
 
-		/**
+	/**
 	 * Test of clear method, of class AspectMapKeySet.
 	 */
 	@Test

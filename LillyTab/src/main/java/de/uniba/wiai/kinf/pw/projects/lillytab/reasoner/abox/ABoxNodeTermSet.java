@@ -18,12 +18,14 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.collections.aspect.CollectionEvent;
 import de.dhke.projects.cutil.collections.aspect.CollectionItemEvent;
 import de.dhke.projects.cutil.collections.cow.CopyOnWriteSortedSet;
+import de.dhke.projects.cutil.collections.factories.TreeSetFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIndividualReference;
@@ -33,41 +35,66 @@ import java.util.Collection;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-
 /**
  *
  * @param <I> The type for nominals
  * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
- * 
+ * <p/>
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends TermSet<I, L, K, R>
-{
+	extends TermSet<I, L, K, R> {
+
 	public ABoxNodeTermSet(final ABoxNode<?, I, L, K, R> sender)
 	{
-		this(CopyOnWriteSortedSet.decorate(new TreeSet<IDLTerm<I, L, K, R>>()), sender);
+		this(
+			CopyOnWriteSortedSet.decorate(new TreeSet<IDLTerm<I, L, K, R>>(), new TreeSetFactory<IDLTerm<I, L, K, R>>()),
+			sender);
 	}
+
 
 	public ABoxNodeTermSet(final SortedSet<IDLTerm<I, L, K, R>> baseSet, final ABoxNode<?, I, L, K, R> sender)
 	{
 		super(TermTypes.ANY, baseSet, sender);
 	}
 
-	@SuppressWarnings("unchecked")
-	ABoxNode<?, I, L, K, R> getNode()
-	{
-		return (ABoxNode<?, I, L, K, R>) getSender();
-	}
 
-	public ABoxNodeTermSet<I, L, K, R> clone(final ABoxNode<?, I, L, K, R> newNode)
+		public ABoxNodeTermSet<I, L, K, R> clone(final ABoxNode<?, I, L, K, R> newNode)
 	{
-		final CopyOnWriteSortedSet<IDLTerm<I, L, K, R>> klonedSet =
-			((CopyOnWriteSortedSet<IDLTerm<I, L, K, R>>) getDecoratee()).clone();
+		final CopyOnWriteSortedSet<IDLTerm<I, L, K, R>> klonedSet = ((CopyOnWriteSortedSet<IDLTerm<I, L, K, R>>) getDecoratee()).clone();
 		return new ABoxNodeTermSet<>(klonedSet, newNode);
 	}
+
+
+	@Override
+	public void notifyAfterElementAdded(final CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
+	{
+		final ABoxNode<?, I, L, K, R> source = getNode();
+		final ABox<I, L, K, R> abox = source.getABox();
+
+		if (abox != null) {
+			if (e.getItem() instanceof IDLIndividualReference) {
+				final IDLIndividualReference<I, L, K, R> iRef = (IDLIndividualReference<I, L, K, R>) e.getItem();
+				assert source instanceof IndividualABoxNode;
+				@SuppressWarnings("unchecked")
+				final IndividualABoxNode<I, L, K, R> iNode = (IndividualABoxNode<I, L, K, R>) source;
+
+				iNode._names.add(iRef.getIndividual());
+			} else if (e.getItem() instanceof IDLLiteralReference) {
+				final IDLLiteralReference<I, L, K, R> lRef = (IDLLiteralReference<I, L, K, R>) e.getItem();
+				assert source instanceof LiteralABoxNode;
+				@SuppressWarnings("unchecked")
+				final LiteralABoxNode<I, L, K, R> iNode = (LiteralABoxNode<I, L, K, R>) source;
+
+				iNode._names.add(lRef.getLiteral());
+			}
+			abox.notifyTermAdded(source, e.getItem());
+		}
+		super.notifyAfterElementAdded(e);
+	}
+
 
 	@Override
 	protected void notifyBeforeElementAdded(
@@ -95,33 +122,6 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 		}
 	}
 
-	@Override
-	public void notifyAfterElementAdded(
-		final CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
-	{
-		final ABoxNode<?, I, L, K, R> source = getNode();
-		final ABox<I, L, K, R> abox = source.getABox();
-
-		if (abox != null) {
-			if (e.getItem() instanceof IDLIndividualReference) {
-				final IDLIndividualReference<I, L, K, R> iRef = (IDLIndividualReference<I, L, K, R>) e.getItem();
-				assert source instanceof IndividualABoxNode;
-				@SuppressWarnings("unchecked")
-				final IndividualABoxNode<I, L, K, R> iNode = (IndividualABoxNode<I, L, K, R>) source;
-
-				iNode._names.add(iRef.getIndividual());
-			} else if (e.getItem() instanceof IDLLiteralReference) {
-				final IDLLiteralReference<I, L, K, R> lRef = (IDLLiteralReference<I, L, K, R>) e.getItem();
-				assert source instanceof LiteralABoxNode;
-				@SuppressWarnings("unchecked")
-				final LiteralABoxNode<I, L, K, R> iNode = (LiteralABoxNode<I, L, K, R>) source;
-
-				iNode._names.add(lRef.getLiteral());
-			}
-			abox.notifyTermAdded(source, e.getItem());
-		}
-		super.notifyAfterElementAdded(e);
-	}
 
 	@Override
 	protected void notifyAfterElementRemoved(
@@ -141,6 +141,7 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 		super.notifyAfterElementRemoved(ev);
 	}
 
+
 	@Override
 	protected void notifyAfterCollectionCleared(
 		CollectionEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> ev)
@@ -157,5 +158,13 @@ public class ABoxNodeTermSet<I extends Comparable<? super I>, L extends Comparab
 			abox.notifyTermSetCleared(node);
 		}
 		super.notifyAfterCollectionCleared(ev);
+	}
+
+
+	@SuppressWarnings("unchecked")
+	 ABoxNode<?, I, L, K, R> getNode(
+		)
+	{
+		return (ABoxNode<?, I, L, K, R>) getSender();
 	}
 }

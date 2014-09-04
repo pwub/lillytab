@@ -18,35 +18,39 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.factories;
 
+import java.util.Collection;
 import java.util.Comparator;
-import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
-
 
 /**
  *
  * @author Peter Wullinger <java@dhke.de>
  */
 public class TreeSetFactory<E>
-	implements ICollectionFactory<E, Set<E>>
-{
+	implements ICollectionFactory<E, SortedSet<E>> {
+
 	private final Comparator<? super E> _comparator;
+
 
 	public TreeSetFactory(final Comparator<? super E> comparator)
 	{
 		_comparator = comparator;
 	}
 
+
 	public TreeSetFactory()
 	{
 		_comparator = null;
 	}
 
+
 	@Override
-	public Set<E> getInstance()
+	public SortedSet<E> getInstance()
 	{
 		if (_comparator == null)
 			return new TreeSet<>();
@@ -54,13 +58,14 @@ public class TreeSetFactory<E>
 			return new TreeSet<>(_comparator);
 	}
 
+
 	@Override
-	public Set<E> getInstance(final Set<E> baseCollection)
+	public SortedSet<E> getInstance(final Collection<? extends E> baseCollection)
 	{
 		if (_comparator == null)
 			return new TreeSet<>(baseCollection);
 		else {
-			Set<E> treeSet = getInstance();
+			final SortedSet<E> treeSet = getInstance();
 			treeSet.addAll(baseCollection);
 			return treeSet;
 		}

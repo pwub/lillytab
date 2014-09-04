@@ -21,6 +21,7 @@
  **/
 package de.dhke.projects.cutil.collections.factories;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -55,7 +56,7 @@ public class HashSetFactory<E>
 	}
 
 	@Override
-	public Set<E> getInstance(final Set<E> baseCollection)
+	public Set<E> getInstance(final Collection<? extends E> baseCollection)
 	{
 		return new HashSet<>(baseCollection);
 	}

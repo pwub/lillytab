@@ -90,8 +90,10 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 *
 	 * @return The newly created IABoxNode.
 	 *
+	 * @throws ENodeMergeException Node merging was performed and an unrecoverable error occured while merging.
 	 */
-	IDatatypeABoxNode<I, L, K, R> createDatatypeNode();
+	IDatatypeABoxNode<I, L, K, R> createDatatypeNode()
+		throws ENodeMergeException;
 
 	/**
 	 * Create a new, anonymous individual (non-datatype node and add it to the current ABox. Individual nodes
@@ -227,7 +229,7 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	/**
 	 * @return A factory used to create a set of {@link NodeID}s.
 	 */
-	ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory();
+	ICollectionFactory<NodeID, ? extends Set<NodeID>> getNodeIDSetFactory();
 
 	/**
 	 * Determine, if {@literal node1} and {@literal node2} can be merged.

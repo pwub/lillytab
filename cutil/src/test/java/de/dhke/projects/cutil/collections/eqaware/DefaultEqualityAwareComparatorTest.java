@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.eqaware;
 
 import org.junit.After;
@@ -34,63 +35,36 @@ import org.junit.Test;
  */
 public class DefaultEqualityAwareComparatorTest {
 
-	class SampleComparable
-		implements Comparable<SampleComparable> {
-
-		public SampleComparable(int order, int value)
-		{
-			_order = order;
-			_value = value;
-		}
-		private int _order;
-		private int _value;
-
-		public int compareTo(SampleComparable other)
-		{
-			return other._order - _order;
-		}
-
-		@Override
-		public boolean equals(Object obj)
-		{
-			if (this == obj)
-				return true;
-			if ((obj instanceof SampleComparable) && (obj.getClass().isInstance(this))) {
-				return _value == ((SampleComparable) obj)._value;
-			} else
-				return false;
-		}
-
-		@Override
-		public int hashCode()
-		{
-			return _value;
-		}
-	}
-
 	public DefaultEqualityAwareComparatorTest()
 	{
 	}
 
+
 	@BeforeClass
-	public static void setUpClass() throws Exception
+	public static void setUpClass()
+		throws Exception
 	{
 	}
 
+
 	@AfterClass
-	public static void tearDownClass() throws Exception
+	public static void tearDownClass()
+		throws Exception
 	{
 	}
+
 
 	@Before
 	public void setUp()
 	{
 	}
 
+
 	@After
 	public void tearDown()
 	{
 	}
+
 
 	/**
 	 * Test of compare method, of class DefaultEqualityAwareComparator.
@@ -119,5 +93,45 @@ public class DefaultEqualityAwareComparatorTest {
 		assertTrue(comparator.compare(c1_1, c2_1) > 0);
 		assertTrue(comparator.compare(c1_1, c2_0) > 0);
 		assertTrue(comparator.compare(c2_0, c1_1) < 0);
+	}
+
+	class SampleComparable
+		implements Comparable<SampleComparable> {
+
+		private int _order;
+		private int _value;
+
+
+		SampleComparable(int order, int value)
+		{
+			_order = order;
+			_value = value;
+		}
+
+
+		@Override
+		public int compareTo(SampleComparable other)
+		{
+			return other._order - _order;
+		}
+
+
+		@Override
+		public boolean equals(Object obj)
+		{
+			if (this == obj)
+				return true;
+			if ((obj instanceof SampleComparable) && (obj.getClass().isInstance(this))) {
+				return _value == ((SampleComparable) obj)._value;
+			} else
+				return false;
+		}
+
+
+		@Override
+		public int hashCode()
+		{
+			return _value;
+		}
 	}
 }

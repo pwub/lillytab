@@ -38,7 +38,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.IBranchAc
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.TermAddBranchAction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLUnion;
@@ -65,7 +65,6 @@ public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends C
 	extends AbstractCompleter<I, L, K, R>
 	implements ICompleter<I, L, K, R>
 {
-	private static final Logger _logger = LoggerFactory.getLogger(SemanticUnionCompleter.class);
 	/**
 	 * The largest union size supported. Semantic branching creates pow(2, MAX_UNION_SIZE) branches for unions of that
 	 * size.
@@ -75,6 +74,7 @@ public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends C
 	 *
 	 */
 	public static final int MAX_UNION_SIZE = 16;
+	private static final Logger _logger = LoggerFactory.getLogger(SemanticUnionCompleter.class);
 
 	public SemanticUnionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
@@ -114,11 +114,11 @@ public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends C
 					} else {
 						/* create semantic branches */
 						final int max = (1 << size);
-						final List<IDLRestriction<I, L, K, R>> posDescs = new ArrayList<>();
-						final List<IDLRestriction<I, L, K, R>> negDescs = new ArrayList<>();
+						final List<IDLNodeTerm<I, L, K, R>> posDescs = new ArrayList<>();
+						final List<IDLNodeTerm<I, L, K, R>> negDescs = new ArrayList<>();
 						final IDLTermFactory<I, L, K, R> termFactory = node.getABox().getDLTermFactory();
-						for (IDLRestriction<I, L, K, R> posDesc : union.getTerms()) {
-							final IDLRestriction<I, L, K, R> simpPosDesc = TermUtil.simplify(posDesc, termFactory);
+						for (IDLNodeTerm<I, L, K, R> posDesc : union.getTerms()) {
+							final IDLNodeTerm<I, L, K, R> simpPosDesc = TermUtil.simplify(posDesc, termFactory);
 							posDescs.add(simpPosDesc);
 							negDescs.add(TermUtil.negate(simpPosDesc, termFactory));
 						}
@@ -127,7 +127,7 @@ public class SemanticUnionCompleter<I extends Comparable<? super I>, L extends C
 						assert size == posDescs.size();
 						/* bits == 0 is not a valid expansion. All others are. */
 						for (int bits = 1; bits < max; ++bits) {
-							final Set<IDLRestriction<I, L, K, R>> addDescs = new TreeSet<>();
+							final Set<IDLNodeTerm<I, L, K, R>> addDescs = new TreeSet<>();
 							for (int i = 0; i < size; ++i) {
 								if (((bits >> i) & 1) == 0) {
 									addDescs.add(negDescs.get(i));

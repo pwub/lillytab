@@ -25,7 +25,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
+
 
 /**
  *
@@ -36,17 +37,15 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class DLClassReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	implements IDLClassReference<I, L, K, R> {
-
+public class DLClassReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements IDLClassReference<I, L, K, R>
+{
 	private final K _klass;
-
 
 	public DLClassReference(final K klass)
 	{
 		_klass = klass;
 	}
-
 
 	@Override
 	public K getElement()
@@ -54,13 +53,11 @@ public class DLClassReference<I extends Comparable<? super I>, L extends Compara
 		return _klass;
 	}
 
-
 	@Override
 	public int hashCode()
 	{
 		return _klass.hashCode();
 	}
-
 
 	@Override
 	public boolean equals(final Object obj)
@@ -71,7 +68,6 @@ public class DLClassReference<I extends Comparable<? super I>, L extends Compara
 		return ((obj instanceof IDLClassReference) && getElement().equals(((IDLClassReference) obj).getElement()));
 	}
 
-
 	@Override
 	public String toString()
 	{
@@ -79,21 +75,12 @@ public class DLClassReference<I extends Comparable<? super I>, L extends Compara
 		return _klass.toString();
 	}
 
-
-	@Override
-	public String toString(IToStringFormatter entityFormatter)
-	{
-		return entityFormatter.toString(_klass);
-	}
-
-
 	@Override
 	public DLClassReference<I, L, K, R> clone()
 	{
 		return this;
 		// return new DLClassReference<I, L, K, R>(_klass);
 	}
-
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -108,13 +95,11 @@ public class DLClassReference<I extends Comparable<? super I>, L extends Compara
 		}
 	}
 
-
 	@Override
 	public DLTermOrder getDLTermOrder()
 	{
 		return DLTermOrder.DL_CLASS_REFERENCE;
 	}
-
 
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
@@ -122,10 +107,15 @@ public class DLClassReference<I extends Comparable<? super I>, L extends Compara
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_CLASS_REFERENCE);
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_CLASS_REFERENCE);
+	}
+
+	@Override
+	public void accept(final IDLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
 	}
 }

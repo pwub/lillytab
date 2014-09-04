@@ -160,11 +160,90 @@ public class OWLAPILoader
 		}
 	}
 	/// </editor-fold>
+	public static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLDescription(
+		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory, final OWLObjectOneOf owlOneOf)
+	{
+		/*
+		 * object one of
+		 */
+		final Set<IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> nomimals = new HashSet<>();
+		for (OWLIndividual individual : owlOneOf.getIndividuals()) {
+			IDLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = termFactory.
+				getDLIndividualReference(individual);
+			nomimals.add(nominal);
+		}
+		final IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc;
+		assert !nomimals.isEmpty();
+		if (nomimals.size() == 1) {
+			desc = nomimals.iterator().next();
+		} else {
+			desc = termFactory.getDLObjectUnion(nomimals);
+		}
+		return desc;
+	}
+
+	public static IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
+		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory, final OWLDataOneOf owlOneOf)
+	{
+		/*
+		 * data one of
+		 */
+		final Set<IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> literals = new HashSet<>();
+		for (OWLLiteral literal : owlOneOf.getValues()) {
+			IDLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = termFactory.
+				getDLLiteralReference(literal);
+			literals.add(nominal);
+		}
+
+		final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc;
+		assert !literals.isEmpty();
+		if (literals.size() == 1) {
+			desc = literals.iterator().next();
+		} else {
+			desc = termFactory.getDLDataUnion(literals);
+		}
+		return desc;
+	}
+
+	public IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> fillABox(
+		final OWLOntology ontology, final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetAbox) throws ENodeMergeException, EInconsistencyException
+	{
+		for (OWLAxiom axiom : ontology.getAxioms()) {
+			try {
+				processAxiom(targetAbox, axiom);
+			} catch (IllegalArgumentException ex) {
+				if (isIsIgnoreUnsupportedAxioms()) {
+					_logger.warn(String.format("Unknown axiom of type '%s' ignored.", axiom.getClass()), ex);
+				} else {
+					throw ex;
+				}
+			}
+		}
+
+		return targetAbox;
+	}
+
+	/**
+	 * @return the _isIgnoreUnsupportedAxioms
+	 */
+	public boolean isIsIgnoreUnsupportedAxioms(
+		)
+	{
+		return _isIgnoreUnsupportedAxioms;
+	}
+
+	/**
+	 * @param isIgnoreUnsupportedAxioms the _isIgnoreUnsupportedAxioms to set
+	 */
+	public void setIsIgnoreUnsupportedAxioms(
+		boolean isIgnoreUnsupportedAxioms)
+	{
+		this._isIgnoreUnsupportedAxioms = isIgnoreUnsupportedAxioms;
+	}
 
 	/// <editor-fold defaultstate="collapsed" desc="makeDLDescription()">
 	private static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLBooleanClassExpression owlDesc)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLBooleanClassExpression owlDesc)
 		throws EInconsistentRBoxException
 	{
 		if (owlDesc instanceof OWLObjectComplementOf) {
@@ -313,53 +392,6 @@ public class OWLAPILoader
 			toString());
 	}
 
-	public static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLDescription(
-		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory,
-		final OWLObjectOneOf owlOneOf)
-	{
-		/*
-		 * object one of
-		 */
-		final Set<IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> nomimals = new HashSet<>();
-		for (OWLIndividual individual : owlOneOf.getIndividuals()) {
-			IDLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = termFactory.
-				getDLIndividualReference(individual);
-			nomimals.add(nominal);
-		}
-		final IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc;
-		assert !nomimals.isEmpty();
-		if (nomimals.size() == 1) {
-			desc = nomimals.iterator().next();
-		} else {
-			desc = termFactory.getDLObjectUnion(nomimals);
-		}
-		return desc;
-	}
-
-	public static IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLRestrictionTerm(
-		final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> termFactory,
-		final OWLDataOneOf owlOneOf)
-	{
-		/*
-		 * data one of
-		 */
-		final Set<IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> literals = new HashSet<>();
-		for (OWLLiteral literal : owlOneOf.getValues()) {
-			IDLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nominal = termFactory.
-				getDLLiteralReference(literal);
-			literals.add(nominal);
-		}
-
-		final IDLDataRange<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> desc;
-		assert !literals.isEmpty();
-		if (literals.size() == 1) {
-			desc = literals.iterator().next();
-		} else {
-			desc = termFactory.getDLDataUnion(literals);
-		}
-		return desc;
-	}
-
 	private static IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> makeDLClassDescription(
 		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLClassExpression owlDesc)
 		throws EInconsistentRBoxException
@@ -386,8 +418,7 @@ public class OWLAPILoader
 
 	/// <editor-fold defaultstate="collapsed" desc="axiom processing">
 	private static void processClassAssertionAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLClassAssertionAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLClassAssertionAxiom axiom)
 		throws ENodeMergeException, EInconsistencyException
 	{
 		final OWLIndividual individual = axiom.getIndividual();
@@ -401,8 +432,7 @@ public class OWLAPILoader
 	}
 
 	private static void processDataPropertyAssertionAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLDataPropertyAssertionAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLDataPropertyAssertionAxiom axiom)
 		throws ENodeMergeException, EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getTBox().
@@ -426,8 +456,7 @@ public class OWLAPILoader
 	}
 
 	private static void processDataPropertyDomainAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLDataPropertyDomainAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLDataPropertyDomainAxiom axiom)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -442,8 +471,7 @@ public class OWLAPILoader
 	}
 
 	private static void processDataPropertyRangeAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLDataPropertyRangeAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLDataPropertyRangeAxiom axiom)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -458,8 +486,7 @@ public class OWLAPILoader
 	}
 
 	private static void processDisjointClassesAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLDisjointClassesAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLDisjointClassesAxiom axiom)
 		throws EInconsistentRBoxException
 	{
 		/**
@@ -505,8 +532,7 @@ public class OWLAPILoader
 	}
 
 	private static void processEquivalentClassesAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLEquivalentClassesAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLEquivalentClassesAxiom axiom)
 		throws EInconsistentRBoxException
 	{
 		for (OWLSubClassOfAxiom subClassAxiom : axiom.asOWLSubClassOfAxioms()) {
@@ -514,9 +540,7 @@ public class OWLAPILoader
 		}
 	}
 
-	private static void processObjectPropertyAssertionAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLObjectPropertyAssertionAxiom axiom)
+	private static void processObjectPropertyAssertionAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLObjectPropertyAssertionAxiom axiom)
 		throws ENodeMergeException, EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -540,8 +564,7 @@ public class OWLAPILoader
 	}
 
 	private static void processObjectPropertyDomainAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLObjectPropertyDomainAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLObjectPropertyDomainAxiom axiom)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -556,8 +579,7 @@ public class OWLAPILoader
 	}
 
 	private static void processObjectPropertyRangeAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLObjectPropertyRangeAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLObjectPropertyRangeAxiom axiom)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -571,8 +593,8 @@ public class OWLAPILoader
 		rbox.getRoleRanges().put(property, makeDLClassDescription(abox, owlRange));
 	}
 
-	private static void processSubClassAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-											 final OWLSubClassOfAxiom axiom)
+	private static void processSubClassAxiom(
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLSubClassOfAxiom axiom)
 		throws EInconsistentRBoxException
 	{
 		final IDLClassExpression<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sub = makeDLClassDescription(
@@ -588,8 +610,7 @@ public class OWLAPILoader
 	}
 
 	private static void processTransitiveObjectPropertyAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLTransitiveObjectPropertyAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLTransitiveObjectPropertyAxiom axiom)
 		throws EInconsistencyException
 	{
 		final OWLProperty<?, ?> property = axiom.getProperty().asOWLObjectProperty();
@@ -598,8 +619,7 @@ public class OWLAPILoader
 	}
 
 	private static void processSymmetricObjectPropertyAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLSymmetricObjectPropertyAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLSymmetricObjectPropertyAxiom axiom)
 		throws EInconsistencyException
 	{
 		final OWLProperty<?, ?> property = axiom.getProperty().asOWLObjectProperty();
@@ -608,8 +628,7 @@ public class OWLAPILoader
 	}
 
 	private static void processFunctionalDataPropertyAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLFunctionalDataPropertyAxiom axiom)
+		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLFunctionalDataPropertyAxiom axiom)
 		throws EInconsistencyException
 	{
 		final OWLProperty<?, ?> property = axiom.getProperty().asOWLDataProperty();
@@ -617,9 +636,7 @@ public class OWLAPILoader
 		abox.getAssertedRBox().setRoleProperty(property, RoleProperty.FUNCTIONAL);
 	}
 
-	private static void processFunctionalObjectPropertyAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLFunctionalObjectPropertyAxiom axiom)
+	private static void processFunctionalObjectPropertyAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLFunctionalObjectPropertyAxiom axiom)
 		throws EInconsistencyException
 	{
 		final OWLProperty<?, ?> property = axiom.getProperty().asOWLObjectProperty();
@@ -627,9 +644,7 @@ public class OWLAPILoader
 		abox.getAssertedRBox().setRoleProperty(property, RoleProperty.FUNCTIONAL);
 	}
 
-	private static void processSubObjectPropertyOfAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLSubObjectPropertyOfAxiom ax)
+	private static void processSubObjectPropertyOfAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLSubObjectPropertyOfAxiom ax)
 		throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
@@ -654,10 +669,7 @@ public class OWLAPILoader
 		rbox.addSubRole(supProp, subProp);
 	}
 
-	private static void processSubDataPropertyOfAxiom(
-		final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-		final OWLSubDataPropertyOfAxiom ax)
-		throws EInconsistencyException
+	private static void processSubDataPropertyOfAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLSubDataPropertyOfAxiom ax) throws EInconsistencyException
 	{
 		final IAssertedRBox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rbox = abox.getAssertedRBox();
 
@@ -680,9 +692,7 @@ public class OWLAPILoader
 		rbox.addSubRole(supProp, subProp);
 	}
 
-	private static void processAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox,
-									 final OWLAxiom axiom)
-		throws EInconsistencyException, ENodeMergeException
+	private static void processAxiom(final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> abox, final OWLAxiom axiom) throws EInconsistencyException, ENodeMergeException
 	{
 		/*
 		 * ABox axioms
@@ -739,40 +749,5 @@ public class OWLAPILoader
 			throw new IllegalArgumentException("Unsupported axiom type: " + axiom.getClass());
 		}
 	}
-/// </editor-fold>
-
-	public IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> fillABox(final OWLOntology ontology,
-																				  final IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetAbox)
-		throws ENodeMergeException, EInconsistencyException
-	{
-		for (OWLAxiom axiom : ontology.getAxioms()) {
-			try {
-				processAxiom(targetAbox, axiom);
-			} catch (IllegalArgumentException ex) {
-				if (isIsIgnoreUnsupportedAxioms()) {
-					_logger.warn(String.format("Unknown axiom of type '%s' ignored.", axiom.getClass()), ex);
-				} else {
-					throw ex;
-				}
-			}
-		}
-
-		return targetAbox;
+	/// </editor-fold>
 	}
-
-	/**
-	 * @return the _isIgnoreUnsupportedAxioms
-	 */
-	public boolean isIsIgnoreUnsupportedAxioms()
-	{
-		return _isIgnoreUnsupportedAxioms;
-	}
-
-	/**
-	 * @param isIgnoreUnsupportedAxioms the _isIgnoreUnsupportedAxioms to set
-	 */
-	public void setIsIgnoreUnsupportedAxioms(boolean isIgnoreUnsupportedAxioms)
-	{
-		this._isIgnoreUnsupportedAxioms = isIgnoreUnsupportedAxioms;
-	}
-}

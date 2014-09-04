@@ -37,9 +37,13 @@ import java.util.Map;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class ABoxUtil {
+public class ABoxUtil { ABoxUtil()
+	{
+	}
 
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> boolean isLinkConsistent(final IABox<I, L, K, R> abox)
+
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  boolean isLinkConsistent(
+		final IABox<I, L, K, R> abox)
 	{
 		for (final IABoxNode<I, L, K, R> node : abox) {
 			for (final Map.Entry<R, NodeID> predEntry : MultiMapEntryIterable.decorate(node.getRABox().
@@ -69,7 +73,8 @@ public class ABoxUtil {
 
 
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  void checkLinkConsistency(
-		final IABox<I, L, K, R> abox) throws EInconsistentABoxException
+		final IABox<I, L, K, R> abox)
+		throws EInconsistentABoxException
 	{
 		for (final IABoxNode<I, L, K, R> node : abox) {
 			final NodeID nodeID = node.getNodeID();
@@ -104,10 +109,8 @@ public class ABoxUtil {
 		}
 	}
 
-
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  void checkNodeMapConsistency(
-		final IABox<I, L, K, R> abox)
-		throws EInconsistentABoxException
+ public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> void checkNodeMapConsistency(
+		final IABox<I, L, K, R> abox) throws EInconsistentABoxException
 	{
 
 		for (Map.Entry<Object, IABoxNode<I, L, K, R>> me : abox.getNodeMap().entrySet()) {
@@ -126,10 +129,5 @@ public class ABoxUtil {
 					"NodeID name %s does not link back to node with same name: %s", me.getKey(), node));
 			}
 		}
-	}
-
- ABoxUtil(
-		)
-	{
 	}
 }

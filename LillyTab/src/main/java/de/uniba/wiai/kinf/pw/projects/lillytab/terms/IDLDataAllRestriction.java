@@ -33,7 +33,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IDLDataAllRestriction<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IDLDataAllRestriction<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends IDLAllRestriction<I, L, K, R>, IDLDataRestriction<I, L, K, R>
 {
 	@Override

@@ -71,15 +71,15 @@ public class WasModifiedMultiMap<K, V, M extends MultiMap<K, V>>
 		return _modified;
 	}
 	
-	protected void setModified()
-	{
-		_modified = true;		
-	}
-	
 	@Override
 	public void clearModified()
 	{
 		_modified = false;
+	}
+	
+		protected void setModified()
+	{
+		_modified = true;		
 	}
 
 

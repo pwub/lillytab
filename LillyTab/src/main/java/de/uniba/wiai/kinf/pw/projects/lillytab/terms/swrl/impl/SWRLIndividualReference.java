@@ -25,7 +25,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividualReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+
 
 /**
  *
@@ -34,17 +34,15 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLIndividualReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	implements ISWRLIndividualReference<I, L, K, R> {
-
+public class SWRLIndividualReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements ISWRLIndividualReference<I, L, K, R>
+{
 	private final I _individual;
-
 
 	protected SWRLIndividualReference(I individual)
 	{
 		_individual = individual;
 	}
-
 
 	@Override
 	public ISWRLIndividualReference<I, L, K, R> clone()
@@ -57,7 +55,6 @@ public class SWRLIndividualReference<I extends Comparable<? super I>, L extends 
 	{
 		return _individual;
 	}
-
 
 	@Override
 	public int compareTo(final ISWRLArgument<I, L, K, R> o)
@@ -76,20 +73,11 @@ public class SWRLIndividualReference<I extends Comparable<? super I>, L extends 
 		}
 	}
 
-
 	@Override
 	public String toString()
 	{
 		return _individual.toString();
 	}
-
-
-	@Override
-	public String toString(IToStringFormatter formatter)
-	{
-		return formatter.toString(_individual);
-	}
-
 
 	@Override
 	public boolean equals(Object obj)
@@ -104,7 +92,6 @@ public class SWRLIndividualReference<I extends Comparable<? super I>, L extends 
 			return false;
 		}
 	}
-
 
 	@Override
 	public int hashCode()

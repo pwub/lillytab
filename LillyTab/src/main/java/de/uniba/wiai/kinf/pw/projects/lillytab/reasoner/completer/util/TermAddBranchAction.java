@@ -29,7 +29,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.Branch;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.INodeConsistencyChecker;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
@@ -49,12 +49,12 @@ public class TermAddBranchAction<I extends Comparable<? super I>, L extends Comp
 	extends AbstractBranchAction<I, L, K, R>
 	implements IBranchAction<I, L, K, R> {
 
-	private final Set<IDLRestriction<I, L, K, R>> _descriptions;
+	private final Set<IDLNodeTerm<I, L, K, R>> _descriptions;
 
 
 	public TermAddBranchAction(final TermEntry<I, L, K, R> parentEntry,
 							   final IABoxNode<I, L, K, R> targetNode,
-							   final IDLRestriction<I, L, K, R> description)
+							   final IDLNodeTerm<I, L, K, R> description)
 	{
 		this(parentEntry, targetNode, Collections.singleton(description));
 
@@ -62,7 +62,7 @@ public class TermAddBranchAction<I extends Comparable<? super I>, L extends Comp
 
 
 	public TermAddBranchAction(final TermEntry<I, L, K, R> parentEntry, NodeID targetNodeID,
-							   IDLRestriction<I, L, K, R> description)
+							   IDLNodeTerm<I, L, K, R> description)
 	{
 		this(parentEntry, targetNodeID, Collections.singleton(description));
 
@@ -70,7 +70,7 @@ public class TermAddBranchAction<I extends Comparable<? super I>, L extends Comp
 
 
 	public TermAddBranchAction(final TermEntry<I, L, K, R> parentEntry, NodeID targetNodeID,
-							   Collection<IDLRestriction<I, L, K, R>> descriptions)
+							   Collection<IDLNodeTerm<I, L, K, R>> descriptions)
 	{
 		super(parentEntry, targetNodeID);
 		_descriptions = new TreeSet<>(descriptions);
@@ -79,7 +79,7 @@ public class TermAddBranchAction<I extends Comparable<? super I>, L extends Comp
 
 	public TermAddBranchAction(final TermEntry<I, L, K, R> parentEntry,
 							   IABoxNode<I, L, K, R> targetNode,
-							   Collection<IDLRestriction<I, L, K, R>> descriptions)
+							   Collection<IDLNodeTerm<I, L, K, R>> descriptions)
 	{
 		this(parentEntry, targetNode.getNodeID(), descriptions);
 	}
@@ -96,10 +96,14 @@ public class TermAddBranchAction<I extends Comparable<? super I>, L extends Comp
 		final IABoxNode<I, L, K, R> currentNode = abox.getNode(targetNodeID);
 	
 		/* update dependency map */
-		for (IDLRestriction<I, L, K, R> desc : _descriptions) {
+		for (IDLNodeTerm<I, L, K, R> desc : _descriptions) {
 			if (!branch.getABox().getDependencyMap().containsKey(currentNode, desc)) {
-				// do NOT track parent relationship across OR branching.
-				// abox.getDependencyMap().addParent(currentNode.getNodeID(), desc, getParentEntry());
+				/**
+				 * We track parent relationships across branches.
+				 * Branch-crossing relations need to be filtered for dependency directed backtracking
+				 * (i.e. culprit detection).
+				 */
+				abox.getDependencyMap().addParent(currentNode.getNodeID(), desc, getParentEntry());
 
 				/**
 				 * Add the newly added term to the list of governing terms if its an atomic term.
@@ -116,7 +120,7 @@ public class TermAddBranchAction<I extends Comparable<? super I>, L extends Comp
 	/**
 	 * @return The set of new descriptions
 	 */
-	public Set<IDLRestriction<I, L, K, R>> getDescriptions()
+	public Set<IDLNodeTerm<I, L, K, R>> getDescriptions()
 	{
 		return Collections.unmodifiableSet(_descriptions);
 	}

@@ -26,15 +26,21 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 
+
 /**
- *
+ * Many methods (often uncessarily) required a {@link Collection} to
+ * be passed, even though they ever only iterate over the parameter's contents.
+ * < /p>
+ * <em>WARNING</em>When {@link #size() } is called, the underlying iterable
+ * is iterated over to count the available items. You cannot use {@link #size() }
+ * with iterables that do not support consistent, repeated iteration.
+ * 
  * @author Peter Wullinger <java@dhke.de>
  */
 public class CollectionFromIterable<T>
 	extends AbstractCollection<T>
 	implements IDecorator<Iterable<T>>, Collection<T>
 {
-	private final Iterable<T> _iterable;
 	/**
 	 * Cached size.
 	 * 
@@ -45,8 +51,9 @@ public class CollectionFromIterable<T>
 	 **/
 	static final int CACHE_SIZE_ENABLE = -1;
 	static final int CACHE_SIZE_DISABLE = -2;
+	private final Iterable<T> _iterable;
 	private int _cachedSize = CACHE_SIZE_ENABLE;
-	
+
 	protected CollectionFromIterable(final Iterable<T> iterable, final boolean cacheSize)
 	{
 		_iterable = iterable;
@@ -55,9 +62,9 @@ public class CollectionFromIterable<T>
 		else
 			_cachedSize = CACHE_SIZE_DISABLE;
 	}
-	
+
 	public static <T> CollectionFromIterable<T> decorate(final Iterable<T> iterable, final boolean cacheSize)
-	{		
+	{
 		return new CollectionFromIterable<>(iterable, cacheSize);
 	}
 
@@ -74,9 +81,9 @@ public class CollectionFromIterable<T>
 			return _cachedSize;
 		else {
 			int size = 0;
-			for (T item: _iterable)
+			for (T item : _iterable)
 				++size;
-			
+
 			if (_cachedSize == CACHE_SIZE_ENABLE)
 				_cachedSize = size;
 			return size;
@@ -88,5 +95,4 @@ public class CollectionFromIterable<T>
 	{
 		return _iterable;
 	}
-
 }

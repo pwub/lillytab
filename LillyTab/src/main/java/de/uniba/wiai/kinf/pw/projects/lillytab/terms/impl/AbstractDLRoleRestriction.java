@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.commons.collections15.list.FixedSizeList;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -39,13 +40,11 @@ import org.apache.commons.collections15.list.FixedSizeList;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public abstract class AbstractDLRoleRestriction
-<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, ResTerm extends IDLTerm<I, L, K, R>>
-	extends AbstractUnaryOperator<ResTerm>
-	implements IDLRoleOperator<I, L, K, R> {
-
+public abstract class AbstractDLRoleRestriction<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, ResTerm extends IDLTerm<I, L, K, R>>
+	extends AbstractDLUnaryOperator<I, L, K, R, ResTerm>
+	implements IDLRoleOperator<I, L, K, R>
+{
 	private final List<R> _roles;
-
 
 	protected AbstractDLRoleRestriction(final DLTermOrder termOrder, final String operatorName, final R role,
 										final ResTerm d)
@@ -56,7 +55,6 @@ public abstract class AbstractDLRoleRestriction
 		_roles = FixedSizeList.decorate(roles);
 	}
 
-
 	protected AbstractDLRoleRestriction(final DLTermOrder termOrder, final String operatorName, final R role)
 	{
 		super(termOrder, operatorName);
@@ -65,12 +63,10 @@ public abstract class AbstractDLRoleRestriction
 		_roles = FixedSizeList.decorate(roles);
 	}
 
-
 	public R getRole()
 	{
 		return _roles.get(0);
 	}
-
 
 	@Override
 	public List<R> getRoles()
@@ -78,12 +74,10 @@ public abstract class AbstractDLRoleRestriction
 		return Collections.unmodifiableList(_roles);
 	}
 
-
 	public R getElement()
 	{
 		return _roles.get(0);
 	}
-
 
 	@Override
 	public int hashCode()
@@ -94,7 +88,6 @@ public abstract class AbstractDLRoleRestriction
 		}
 		return hCode;
 	}
-
 
 	@Override
 	public boolean equals(final Object obj)
@@ -114,7 +107,6 @@ public abstract class AbstractDLRoleRestriction
 			return false;
 		}
 	}
-
 
 	@Override
 	public String toString()

@@ -35,7 +35,7 @@ public final class CastTransformer<I, O>
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public final O transform(I input)
+	public O transform(I input)
 	{
 		return (O) input;
 	}

@@ -16,7 +16,6 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
@@ -50,7 +49,6 @@ public class SWRLTermFactory<I extends Comparable<? super I>, L extends Comparab
 	public SWRLTermFactory()
 	{
 	}
-
 
 	@Override
 	public ISWRLIndividualReference<I, L, K, R> getSWRLIndividualReference(final I individual)

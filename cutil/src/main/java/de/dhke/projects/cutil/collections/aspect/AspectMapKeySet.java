@@ -36,39 +36,6 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 public class AspectMapKeySet<K, V, M extends Map<K, V>>
 	implements Set<K>
 {
-	private class Itr
-		implements Iterator<K>
-	{
-		private final Iterator<K> _keyIterator;
-		private K _current = null;
-
-		Itr()
-		{
-			_keyIterator = _aspectMap.getDecoratee().keySet().iterator();
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return _keyIterator.hasNext();
-		}
-
-		@Override
-		public K next()
-		{
-			_current = _keyIterator.next();
-			return _current;
-		}
-
-		@Override
-		public void remove()
-		{
-			Map.Entry<K, V> entry = new DefaultMapEntry<>(_current, _aspectMap.get(_current));
-			CollectionItemEvent<Entry<K, V>, Map<K, V>> ev = _aspectMap.notifyBeforeElementRemoved(_aspectMap, entry);
-			_keyIterator.remove();
-			_aspectMap.notifyAfterElementRemoved(ev);
-		}
-	}
 	private final AspectMap<K, V, M> _aspectMap;
 	private final Set<K> _keySet;
 
@@ -140,7 +107,35 @@ public class AspectMapKeySet<K, V, M extends Map<K, V>>
 		throw new UnsupportedOperationException("Cannot add to keyset");
 	}
 
-	private boolean batchRemove(final Collection<?> c, final boolean retain)
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		return batchRemove(c, true);
+	}
+
+	@Override
+	public boolean removeAll(final Collection<?> c)
+	{
+		return batchRemove(c, false);
+	}
+
+	@Override
+	public void clear()
+	{
+		if (!isEmpty()) {
+			CollectionEvent<Map.Entry<K, V>, Map<K, V>> ev = _aspectMap.notifyBeforeCollectionCleared(_aspectMap);
+			_keySet.clear();
+			_aspectMap.notifyAfterCollectionCleared(ev);
+		}
+	}
+
+	@Override
+	public String toString()	
+	{
+		return _keySet.toString();
+	}
+
+		private boolean batchRemove(final Collection<?> c, final boolean retain)
 	{
 		for (K key: _keySet) {
 			if (c.contains(key) != retain) {
@@ -162,32 +157,37 @@ public class AspectMapKeySet<K, V, M extends Map<K, V>>
 		}
 		return wasRemoved;
 	}
-
-	@Override
-	public boolean retainAll(final Collection<?> c)
+	private class Itr
+		implements Iterator<K>
 	{
-		return batchRemove(c, true);
-	}
+		private final Iterator<K> _keyIterator;
+		private K _current = null;
 
-	@Override
-	public boolean removeAll(final Collection<?> c)
-	{
-		return batchRemove(c, false);
-	}
-
-	@Override
-	public void clear()	
-	{
-		if (!isEmpty()) {
-			CollectionEvent<Map.Entry<K, V>, Map<K, V>> ev = _aspectMap.notifyBeforeCollectionCleared(_aspectMap);
-			_keySet.clear();
-			_aspectMap.notifyAfterCollectionCleared(ev);
+		Itr()
+		{
+			_keyIterator = _aspectMap.getDecoratee().keySet().iterator();
 		}
-	}
 
-	@Override
-	public String toString()
-	{
-		return _keySet.toString();
+		@Override
+		public boolean hasNext()
+		{
+			return _keyIterator.hasNext();
+		}
+
+		@Override
+		public K next()
+		{
+			_current = _keyIterator.next();
+			return _current;
+		}
+
+		@Override
+		public void remove()
+		{
+			Map.Entry<K, V> entry = new DefaultMapEntry<>(_current, _aspectMap.get(_current));
+			CollectionItemEvent<Entry<K, V>, Map<K, V>> ev = _aspectMap.notifyBeforeElementRemoved(_aspectMap, entry);
+			_keyIterator.remove();
+			_aspectMap.notifyAfterElementRemoved(ev);
+		}
 	}
 }

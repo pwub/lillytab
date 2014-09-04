@@ -18,11 +18,12 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.cow;
 
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
-import de.dhke.projects.cutil.collections.factories.TreeSortedSetFactory;
+import de.dhke.projects.cutil.collections.factories.TreeSetFactory;
 import java.util.Arrays;
 import java.util.SortedSet;
 import org.junit.After;
@@ -32,38 +33,44 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
 /**
  *
  * @author Peter Wullinger <java@dhke.de>
  */
-public class GenericCopyOnWriteSortedSetTest
-{
-	private final ICollectionFactory<String, SortedSet<String>> _factory = new TreeSortedSetFactory<>();
+public class CopyOnWriteSortedSetTest {
+
+	private final ICollectionFactory<String, SortedSet<String>> _factory = new TreeSetFactory<>();
 	private SortedSet<String> _baseMap;
 	private CopyOnWriteSortedSet<String> _cowSet;
 
-	public GenericCopyOnWriteSortedSetTest()
+
+	public CopyOnWriteSortedSetTest()
 	{
 	}
+
 
 	@BeforeClass
-	public static void setUpClass() throws Exception
+	public static void setUpClass()
+		throws Exception
 	{
 	}
 
+
 	@AfterClass
-	public static void tearDownClass() throws Exception
+	public static void tearDownClass()
+		throws Exception
 	{
 	}
+
 
 	@Before
 	public void setUp()
 	{
 		_baseMap = _factory.getInstance();
 		_baseMap.addAll(Arrays.asList("2", "3", "4"));
-		_cowSet = new CopyOnWriteSortedSet<>(_baseMap);
+		_cowSet = new CopyOnWriteSortedSet<>(_baseMap, _factory);
 	}
+
 
 	@After
 	public void tearDown()
@@ -71,6 +78,7 @@ public class GenericCopyOnWriteSortedSetTest
 		_cowSet = null;
 		_baseMap = null;
 	}
+
 
 	/**
 	 * Test of comparator method, of class GenericCopyOnWriteSortedSet.
@@ -80,6 +88,7 @@ public class GenericCopyOnWriteSortedSetTest
 	{
 		assertNull(_cowSet.comparator());
 	}
+
 
 	/**
 	 * Test of subSet method, of class GenericCopyOnWriteSortedSet.
@@ -99,6 +108,7 @@ public class GenericCopyOnWriteSortedSetTest
 		assertFalse(_baseMap.contains("3.1"));
 	}
 
+
 	/**
 	 * Test of headSet method, of class GenericCopyOnWriteSortedSet.
 	 */
@@ -115,6 +125,7 @@ public class GenericCopyOnWriteSortedSetTest
 		assertTrue(_cowSet.contains("1"));
 		assertFalse(_baseMap.contains("1"));
 	}
+
 
 	/**
 	 * Test of tailSet method, of class GenericCopyOnWriteSortedSet.
@@ -133,6 +144,7 @@ public class GenericCopyOnWriteSortedSetTest
 		assertFalse(_baseMap.contains("5"));
 	}
 
+
 	/**
 	 * Test of first method, of class GenericCopyOnWriteSortedSet.
 	 */
@@ -144,6 +156,7 @@ public class GenericCopyOnWriteSortedSetTest
 		assertEquals("3", _cowSet.first());
 		assertEquals("2", _baseMap.first());
 	}
+
 
 	/**
 	 * Test of last method, of class GenericCopyOnWriteSortedSet.

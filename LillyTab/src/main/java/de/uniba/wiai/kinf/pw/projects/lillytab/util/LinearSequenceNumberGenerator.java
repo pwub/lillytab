@@ -33,12 +33,6 @@ public class LinearSequenceNumberGenerator
 	implements Iterator<Integer>, Cloneable {
 	private static LinearSequenceNumberGenerator _globalInstance = new LinearSequenceNumberGenerator();
 
-
-	public static LinearSequenceNumberGenerator getGlobalInstance()
-	{
-		return _globalInstance;
-	}
-
 	private int _currentValue;
 
 
@@ -51,6 +45,12 @@ public class LinearSequenceNumberGenerator
 	public LinearSequenceNumberGenerator(final int startValue)
 	{
 		_currentValue = startValue;
+	}
+
+
+		public static LinearSequenceNumberGenerator getGlobalInstance()
+	{
+		return _globalInstance;
 	}
 
 

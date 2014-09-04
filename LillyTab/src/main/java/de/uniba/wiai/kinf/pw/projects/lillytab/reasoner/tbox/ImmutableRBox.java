@@ -10,7 +10,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 
 
@@ -59,7 +59,7 @@ public class ImmutableRBox<I extends Comparable<? super I>, L extends Comparable
 	}
 
 	@Override
-	public Collection<IDLRestriction<I, L, K, R>> getRoleRanges(R role)
+	public Collection<IDLNodeTerm<I, L, K, R>> getRoleRanges(R role)
 	{
 		return _rbox.getRoleRanges(role);
 	}

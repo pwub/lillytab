@@ -216,7 +216,7 @@ public class AspectMultiMapValueCollectionTest
 	@Test
 	public void testToArray_GenericType()
 	{
-		assertArrayEquals(_baseMap.values().toArray(new String[0]), _values.toArray(new String[0]));
+		assertArrayEquals(_baseMap.values().toArray(new String[0]), _values.toArray(new String[_values.size()]));
 	}
 
 	/**

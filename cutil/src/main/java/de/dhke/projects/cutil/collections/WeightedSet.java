@@ -66,6 +66,7 @@ public class WeightedSet<K>
 		return _backend.containsValue(value);
 	}
 
+	@Override
 	public Double get(Object key)
 	{
 		Double value = _backend.get(key);

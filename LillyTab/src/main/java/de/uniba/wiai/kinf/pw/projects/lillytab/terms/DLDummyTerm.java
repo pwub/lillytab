@@ -21,7 +21,8 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
+
 
 /**
  *
@@ -35,16 +36,14 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public final class DLDummyTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IDLTerm<I, L, K, R> {
-
+	implements IDLTerm<I, L, K, R>
+{
 	private final DLTermOrder _termType;
-
 
 	public DLDummyTerm(DLTermOrder termType)
 	{
 		_termType = termType;
 	}
-
 
 	@Override
 	public DLTermOrder getDLTermOrder()
@@ -52,13 +51,11 @@ public final class DLDummyTerm<I extends Comparable<? super I>, L extends Compar
 		return _termType;
 	}
 
-
 	@Override
 	public DLDummyTerm<I, L, K, R> clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int compareTo(IDLTerm<I, L, K, R> o)
@@ -66,13 +63,11 @@ public final class DLDummyTerm<I extends Comparable<? super I>, L extends Compar
 		return getDLTermOrder().compareTo(o);
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return this;
 	}
-
 
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()
@@ -80,14 +75,9 @@ public final class DLDummyTerm<I extends Comparable<? super I>, L extends Compar
 		return this;
 	}
 
-
 	@Override
-	public String toString(IToStringFormatter entityFormatter)
-	{		
-		final StringBuilder sb = new StringBuilder();
-		sb.append("DLDummyTerm(");
-		sb.append(getDLTermOrder());
-		sb.append(")");
-		return sb.toString();
+	public void accept(IDLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
 	}
 }

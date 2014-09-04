@@ -461,23 +461,6 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			advance();
 		}
 
-		private void advance()
-		{
-			if (CollectionUtil.isNullOrEmpty(_roleIter)) {
-				if (CollectionUtil.isNullOrEmpty(_assertedIter)) {
-					_currentPair = null;
-				} else {
-					final Map.Entry<R, NodeID> nextEntry = _assertedIter.next();
-					final IRBox<I, L, K, R> rbox = _node.getABox().getRBox();
-					_roleIter = rbox.getSuperRoles(nextEntry.getKey()).iterator();
-					_currentPair = Pair.wrap(_roleIter.next(), nextEntry.getValue());
-				}
-			} else {
-				final NodeID nodeID = _currentPair.getSecond();
-				_currentPair = Pair.wrap(_roleIter.next(), nodeID);
-			}
-		}
-
 		@Override
 		public boolean hasNext()
 		{
@@ -500,6 +483,23 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		public void remove()
 		{
 			throw new UnsupportedOperationException();
+		}
+
+				private void advance()
+		{
+			if (CollectionUtil.isNullOrEmpty(_roleIter)) {
+				if (CollectionUtil.isNullOrEmpty(_assertedIter)) {
+					_currentPair = null;
+				} else {
+					final Map.Entry<R, NodeID> nextEntry = _assertedIter.next();
+					final IRBox<I, L, K, R> rbox = _node.getABox().getRBox();
+					_roleIter = rbox.getSuperRoles(nextEntry.getKey()).iterator();
+					_currentPair = Pair.wrap(_roleIter.next(), nextEntry.getValue());
+				}
+			} else {
+				final NodeID nodeID = _currentPair.getSecond();
+				_currentPair = Pair.wrap(_roleIter.next(), nodeID);
+			}
 		}
 	}
 }

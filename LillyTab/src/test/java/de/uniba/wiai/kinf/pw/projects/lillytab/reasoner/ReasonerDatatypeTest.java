@@ -69,20 +69,6 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
  */
 public class ReasonerDatatypeTest {
 
-
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
 	private OWLOntologyManager _ontoManager = OWLManager.createOWLOntologyManager();
 	private String _ontologyURI = "http://www.example.org/ontologies/";
 	private PrefixManager _nsManager = new DefaultPrefixManager(_ontologyURI);
@@ -96,6 +82,18 @@ public class ReasonerDatatypeTest {
 	private IReasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _reasoner;
 
 	public ReasonerDatatypeTest()
+	{
+	}
+
+
+	@BeforeClass
+	public static void setUpClass() throws Exception
+	{
+	}
+
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -116,10 +114,11 @@ public class ReasonerDatatypeTest {
 		_abox = null;
 		_reasoner = null;
 	}
-
+	
 
 	@Test(expected = EInconsistencyException.class)
-	public void testDataOneOfWrongLiteral() throws OWLOntologyCreationException, OWLOntologyChangeException, EInconsistencyException, EReasonerException
+	public void testDataOneOfWrongLiteral()
+		throws OWLOntologyCreationException, OWLOntologyChangeException, EInconsistencyException, EReasonerException
 	{
 		/* regression test */
 		final Set<OWLAxiom> axioms = new HashSet<>();
@@ -164,10 +163,8 @@ public class ReasonerDatatypeTest {
 		_reasoner.checkConsistency(_abox);
 	}	
 	
-
 	@Test(expected = EInconsistencyException.class)
-	public void testDataIntersection()
-		throws ParseException, ENodeMergeException, ENodeMergeException, EReasonerException, EInconsistencyException, OWLOntologyCreationException
+	public void testDataIntersection() throws ParseException, ENodeMergeException, ENodeMergeException, EReasonerException, EInconsistencyException, OWLOntologyCreationException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();

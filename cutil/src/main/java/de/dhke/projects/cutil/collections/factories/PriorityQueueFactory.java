@@ -21,6 +21,7 @@
  **/
 package de.dhke.projects.cutil.collections.factories;
 
+import java.util.Collection;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -40,7 +41,7 @@ public class PriorityQueueFactory<E>
 	}
 
 	@Override
-	public Queue<E> getInstance(final Queue<E> baseCollection)
+	public Queue<E> getInstance(final Collection<? extends E> baseCollection)
 	{
 		return new PriorityQueue<>(baseCollection);
 	}

@@ -37,7 +37,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLDataNegation<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractUnaryOperator<IDLDataRange<I, L, K, R>>
+	extends AbstractDLUnaryOperator<I, L, K, R, IDLDataRange<I, L, K, R>>
 	implements IDLDataNegation<I, L, K, R> {
 
 	public final static String OPERATOR_NAME = "NOT";

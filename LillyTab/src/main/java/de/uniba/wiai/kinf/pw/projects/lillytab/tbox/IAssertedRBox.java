@@ -24,7 +24,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.tbox;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import org.apache.commons.collections15.MultiMap;
 
 /**
@@ -232,7 +232,7 @@ public interface IAssertedRBox<I extends Comparable<? super I>, L extends Compar
 	 *
 	 * @return a {@link MultiMap} defining range restrictions for roles.
 	 */
-	MultiMap<R, IDLRestriction<I, L, K, R>> getRoleRanges();
+	MultiMap<R, IDLNodeTerm<I, L, K, R>> getRoleRanges();
 
 
 	@Override

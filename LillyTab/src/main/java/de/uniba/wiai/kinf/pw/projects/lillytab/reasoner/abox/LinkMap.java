@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.Pair;
@@ -26,10 +27,11 @@ import de.dhke.projects.cutil.collections.aspect.AspectMultiMap;
 import de.dhke.projects.cutil.collections.aspect.CollectionEvent;
 import de.dhke.projects.cutil.collections.aspect.CollectionItemEvent;
 import de.dhke.projects.cutil.collections.cow.CopyOnWriteMultiMap;
-import de.dhke.projects.cutil.collections.factories.MultiTreeSetHashMapFactory;
+import de.dhke.projects.cutil.collections.factories.MultiHashMapFactory;
+import de.dhke.projects.cutil.collections.factories.TreeSetFactory;
 import de.dhke.projects.cutil.collections.iterator.MultiMapEntryIterable;
 import de.dhke.projects.cutil.collections.map.EmptyMultiMap;
-import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
+import de.dhke.projects.cutil.collections.map.GenericMultiHashMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ILinkMap;
@@ -40,7 +42,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.collections15.MultiMap;
-
 
 /**
  *
@@ -53,8 +54,8 @@ import org.apache.commons.collections15.MultiMap;
  */
 public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AspectMultiMap<R, NodeID, MultiMap<R, NodeID>>
-	implements ILinkMap<I, L, K, R>, Cloneable
-{
+	implements ILinkMap<I, L, K, R>, Cloneable {
+
 	public LinkMap(
 		final IABoxNode<I, L, K, R> node,
 		boolean always_empty)
@@ -62,12 +63,16 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		super(new EmptyMultiMap<R, NodeID>(), node);
 	}
 
-	public LinkMap(
-		final IABoxNode<I, L, K, R> node)
+
+	public LinkMap(final IABoxNode<I, L, K, R> node)
 	{
-		super(CopyOnWriteMultiMap.decorate(new MultiTreeSetHashMap<R, NodeID>(),
-										   new MultiTreeSetHashMapFactory<R, NodeID>()), node);
+		super(new CopyOnWriteMultiMap<>(
+			new GenericMultiHashMap<R, NodeID>(new TreeSetFactory<NodeID>()),
+			new MultiHashMapFactory<R, NodeID>(new TreeSetFactory<NodeID>())),
+			  node);
+
 	}
+
 
 	protected LinkMap(
 		final IABoxNode<I, L, K, R> node,
@@ -76,6 +81,7 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		super(baseMap, node);
 	}
 
+
 	@SuppressWarnings("unchecked")
 	@Override
 	public IABoxNode<I, L, K, R> getNode()
@@ -83,11 +89,13 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		return (IABoxNode<I, L, K, R>) getSender();
 	}
 
+
 	@Override
 	public NodeID put(final R role, final IABoxNode<I, L, K, R> node)
 	{
 		return put(role, node.getNodeID());
 	}
+
 
 	@Override
 	public boolean putAll(R key,
@@ -102,32 +110,6 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		return added;
 	}
 
-	@Override
-	protected void notifyAfterElementAdded(CollectionItemEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> ev)
-	{
-		super.notifyAfterElementAdded(ev);
-		final IABoxNode<I, L, K, R> source = getNode();
-		final IABox<I, L, K, R> abox = source.getABox();
-		assert abox != null;
-		final Map.Entry<R, NodeID> entry = ev.getItem();
-		final IABoxNode<I, L, K, R> target = abox.getNode(entry.getValue());
-		assert target != null;
-		if (isSuccessorMap(source, ev.getCollection())) {
-			if (!target.getRABox().getAssertedPredecessors().containsValue(entry.getKey(), source.getNodeID())) {
-				target.getRABox().getAssertedPredecessors().put(entry.getKey(), source.getNodeID());
-			}
-		} else if (isPredecessorMap(source, ev.getCollection())) {
-			if (!target.getRABox().getAssertedSuccessors().containsValue(entry.getKey(), source.getNodeID())) {
-				target.getRABox().getAssertedSuccessors().put(entry.getKey(), source.getNodeID());
-			}
-		} else {
-			throw new IllegalArgumentException(String.format("Unsupported collection `%s'", ev.getCollection()));
-		}
-		abox.touchNode(source);
-		abox.touchNode(target);
-
-		super.notifyAfterElementAdded(ev);
-	}
 
 	@Override
 	public void notifyAfterElementRemoved(final CollectionItemEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> e)
@@ -160,6 +142,7 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 
 		super.notifyAfterElementRemoved(e);
 	}
+
 
 	@Override
 	public void notifyBeforeCollectionCleared(CollectionEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> e)
@@ -202,37 +185,8 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		super.notifyBeforeCollectionCleared(e);
 	}
 
-	@Override
-	protected void notifyAfterCollectionCleared(
-		CollectionEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> ev)
-	{
-		getNode().getABox().touchNodes(getNode().getABox());
-	}
 
-	private boolean isSuccessorMap(final IABoxNode<I, L, K, R> node, final MultiMap<R, NodeID> map)
-	{
-		return map == node.getRABox().getAssertedSuccessors();
-	}
-
-	private boolean isPredecessorMap(final IABoxNode<I, L, K, R> node,
-									 final MultiMap<R, NodeID> map)
-	{
-		return map == node.getRABox().getAssertedPredecessors();
-	}
-
-	private Collection<Pair<R, IABoxNode<I, L, K, R>>> getAllEntries(
-		final IABox<I, L, K, R> abox,
-		final MultiMap<R, NodeID> map)
-	{
-		final List<Pair<R, IABoxNode<I, L, K, R>>> list = new ArrayList<>(map.
-			size());
-		for (Map.Entry<R, NodeID> mapEntry : MultiMapEntryIterable.decorate(map.entrySet())) {
-			list.add(Pair.wrap(mapEntry.getKey(), abox.getNode(mapEntry.getValue())));
-		}
-		return list;
-	}
-
-	public LinkMap<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode)
+		public LinkMap<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode)
 	{
 		final LinkMap<I, L, K, R> newMap;
 		if (getDecoratee() instanceof EmptyMultiMap) {
@@ -246,5 +200,65 @@ public class LinkMap<I extends Comparable<? super I>, L extends Comparable<? sup
 		}
 
 		return newMap;
+	}
+
+
+	@Override
+	protected void notifyAfterElementAdded(
+		CollectionItemEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> ev)
+	{
+		super.notifyAfterElementAdded(ev);
+		final IABoxNode<I, L, K, R> source = getNode();
+		final IABox<I, L, K, R> abox = source.getABox();
+		assert abox != null;
+		final Map.Entry<R, NodeID> entry = ev.getItem();
+		final IABoxNode<I, L, K, R> target = abox.getNode(entry.getValue());
+		assert target != null;
+		if (isSuccessorMap(source, ev.getCollection())) {
+			if (!target.getRABox().getAssertedPredecessors().containsValue(entry.getKey(), source.getNodeID())) {
+				target.getRABox().getAssertedPredecessors().put(entry.getKey(), source.getNodeID());
+			}
+		} else if (isPredecessorMap(source, ev.getCollection())) {
+			if (!target.getRABox().getAssertedSuccessors().containsValue(entry.getKey(), source.getNodeID())) {
+				target.getRABox().getAssertedSuccessors().put(entry.getKey(), source.getNodeID());
+			}
+		} else {
+			throw new IllegalArgumentException(String.format("Unsupported collection `%s'", ev.getCollection()));
+		}
+		abox.touchNode(source);
+		abox.touchNode(target);
+
+		super.notifyAfterElementAdded(ev);
+	}
+
+
+	@Override
+	protected void notifyAfterCollectionCleared(CollectionEvent<Entry<R, NodeID>, MultiMap<R, NodeID>> ev)
+	{
+		getNode().getABox().touchNodes(getNode().getABox());
+	}
+
+
+	private boolean isSuccessorMap(final IABoxNode<I, L, K, R> node, final MultiMap<R, NodeID> map)
+	{
+		return map == node.getRABox().getAssertedSuccessors();
+	}
+
+
+	private boolean isPredecessorMap(
+		final IABoxNode<I, L, K, R> node, final MultiMap<R, NodeID> map)
+	{
+		return map == node.getRABox().getAssertedPredecessors();
+	}
+
+
+	private Collection<Pair<R, IABoxNode<I, L, K, R>>> getAllEntries(final IABox<I, L, K, R> abox, final MultiMap<R, NodeID> map)
+	{
+		final List<Pair<R, IABoxNode<I, L, K, R>>> list = new ArrayList<>(map.
+			size());
+		for (Map.Entry<R, NodeID> mapEntry : MultiMapEntryIterable.decorate(map.entrySet())) {
+			list.add(Pair.wrap(mapEntry.getKey(), abox.getNode(mapEntry.getValue())));
+		}
+		return list;
 	}
 }

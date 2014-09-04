@@ -31,7 +31,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataUnion;
 import static de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTermList.sortAndEnsureUnique;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.Collection;
-import java.util.Collections;
 import org.apache.commons.collections15.SetUtils;
 
 /**
@@ -44,7 +43,7 @@ import org.apache.commons.collections15.SetUtils;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLDataUnion<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractOperatorTerm<IDLDataRange<I, L, K, R>>
+	extends AbstractDLOperatorTerm<I, L, K, R, IDLDataRange<I, L, K, R>>
 	implements IDLDataUnion<I, L, K, R> {
 
 	public static final String OPERATOR_NAME = "OR";

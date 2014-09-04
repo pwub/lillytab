@@ -24,23 +24,21 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLLiteralReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	implements ISWRLLiteralReference<I, L, K, R> {
-
+public class SWRLLiteralReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements ISWRLLiteralReference<I, L, K, R>
+{
 	private final L _literal;
-
 
 	protected SWRLLiteralReference(L literal)
 	{
 		_literal = literal;
 	}
-
 
 	@Override
 	public ISWRLLiteralReference<I, L, K, R> clone()
@@ -71,20 +69,11 @@ public class SWRLLiteralReference<I extends Comparable<? super I>, L extends Com
 		}
 	}
 
-
 	@Override
 	public String toString()
 	{
 		return _literal.toString();
 	}
-
-
-	@Override
-	public String toString(IToStringFormatter formatter)
-	{
-		return formatter.toString(_literal);
-	}
-
 
 	@Override
 	public boolean equals(Object obj)
@@ -99,7 +88,6 @@ public class SWRLLiteralReference<I extends Comparable<? super I>, L extends Com
 			return false;
 		}
 	}
-
 
 	@Override
 	public int hashCode()

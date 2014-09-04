@@ -203,7 +203,7 @@ public class AspectMultiMapKeySetTest
 	@Test
 	public void testToArray_GenericType()
 	{
-		assertArrayEquals(_baseMap.keySet().toArray(new String[0]), _keySet.toArray(new String[0]));
+		assertArrayEquals(_baseMap.keySet().toArray(new String[0]), _keySet.toArray(new String[_keySet.size()]));
 	}
 
 	/**

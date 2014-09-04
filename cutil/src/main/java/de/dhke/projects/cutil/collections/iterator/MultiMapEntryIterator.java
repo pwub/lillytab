@@ -64,7 +64,44 @@ public class MultiMapEntryIterator<K, V>
 	}
 
 
-	private Map.Entry<K, V> advance()
+	public static <K, V> MultiMapEntryIterator<K, V> decorate(final MultiMap<K, V> baseMap)
+	{
+		return new MultiMapEntryIterator<>(baseMap.entrySet());
+	}
+
+
+	public static <K, V> MultiMapEntryIterator<K, V> decorate(final Iterable<Map.Entry<K, Collection<V>>> baseIterable)
+	{
+		return new MultiMapEntryIterator<>(baseIterable);
+	}
+
+
+	@Override
+	public  boolean hasNext()
+	{
+		return _currentEntry != null;
+	}
+
+
+	@Override
+	public Entry<K, V> next()
+	{
+		final Entry<K, V> currentEntry = advance();
+		if (currentEntry == null)
+			throw new NoSuchElementException("No more multimap entries");
+		else
+			return currentEntry;
+	}
+
+
+	@Override
+	public void remove()
+	{
+		throw new UnsupportedOperationException("Not supported yet.");
+	}
+
+
+		private Map.Entry<K, V> advance()
 	{
 		Map.Entry<K, V> currentEntry = _currentEntry;
 		if (_currentValueCollection != null) {
@@ -88,42 +125,5 @@ public class MultiMapEntryIterator<K, V>
 			}
 		}
 		return currentEntry;
-	}
-
-
-	public static <K, V> MultiMapEntryIterator<K, V> decorate(final MultiMap<K, V> baseMap)
-	{
-		return new MultiMapEntryIterator<>(baseMap.entrySet());
-	}
-
-
-	public static <K, V> MultiMapEntryIterator<K, V> decorate(final Iterable<Map.Entry<K, Collection<V>>> baseIterable)
-	{
-		return new MultiMapEntryIterator<>(baseIterable);
-	}
-
-
-	@Override
-	public boolean hasNext()
-	{
-		return _currentEntry != null;
-	}
-
-
-	@Override
-	public Entry<K, V> next()
-	{
-		final Entry<K, V> currentEntry = advance();
-		if (currentEntry == null)
-			throw new NoSuchElementException("No more multimap entries");
-		else
-			return currentEntry;
-	}
-
-
-	@Override
-	public void remove()
-	{
-		throw new UnsupportedOperationException("Not supported yet.");
 	}
 }

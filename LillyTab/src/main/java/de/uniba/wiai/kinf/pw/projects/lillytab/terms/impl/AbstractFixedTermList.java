@@ -97,27 +97,10 @@ public class AbstractFixedTermList<Term extends ITerm>
 		return equals(this, obj);
 	}
 
-	protected static <T extends Comparable<? super T> & ITerm> void sortAndEnsureUnique(
-		AbstractFixedTermList<T> t,
-		final int minimumSize)
-	{
-		Collections.sort(t.getModifiableTermList());
-		final Iterator<T> iter = t.getModifiableTermList().iterator();
-		T prev = null;
-		while (iter.hasNext()) {
-			final T cur = iter.next();
-			if ((prev != null) && prev.equals(cur)) {
-				prev = cur;
-				iter.remove();
-			}
-		}
-		if (t.size() < minimumSize)
-			throw new IllegalArgumentException("Need at least " + minimumSize + " distinct arguments");
-	}
-
 	/// <editor-fold defaultstate="collapsed" desc="ITermList<Term>">
 	@Override
-	public List<ITerm> getTermList()
+public  List<ITerm> getTermList(
+		)
 	{
 		return TransformedList.decorate(this, new Transformer<Term, ITerm>()
 		{
@@ -128,7 +111,6 @@ public class AbstractFixedTermList<Term extends ITerm>
 			}
 		});
 	}
-
 	public List<Term> getModifiableTermList()
 	{
 		return _modifiableBackend;
@@ -171,7 +153,7 @@ public class AbstractFixedTermList<Term extends ITerm>
 	}
 
 	@Override
-	public boolean add(final Term e)
+	public  boolean add(final Term e)
 	{
 		throw new UnsupportedOperationException("Cannot modify AbstractFixedTermList");
 	}
@@ -292,7 +274,7 @@ public class AbstractFixedTermList<Term extends ITerm>
 	 * @return {@literal true} if {@literal o1} is equal to {@literal tl0}
 	 *
 	 */
-	public static <T extends ITerm> boolean equals(ITermList<T> tl0, Object o1)
+		public static <T extends ITerm> boolean equals(ITermList<T> tl0, Object o1)
 	{
 		if ((o1 instanceof ITermList) && (tl0 != null) && (o1 != null)) {
 			@SuppressWarnings("unchecked")
@@ -313,11 +295,27 @@ public class AbstractFixedTermList<Term extends ITerm>
 	}
 
 	@Override
-	public List<Term> subList(final int fromIndex, final int toIndex)
+	public  List<Term> subList(final int fromIndex, final int toIndex)
 	{
 		return getUnmodifiableBackend().subList(fromIndex, toIndex);
 	}
 	/// </editor-fold>
+	
+		protected static <T extends Comparable<? super T> & ITerm> void sortAndEnsureUnique(AbstractFixedTermList<T> t, final int minimumSize)
+	{
+		Collections.sort(t.getModifiableTermList());
+		final Iterator<T> iter = t.getModifiableTermList().iterator();
+		T prev = null;
+		while (iter.hasNext()) {
+			final T cur = iter.next();
+			if ((prev != null) && prev.equals(cur)) {
+				prev = cur;
+				iter.remove();
+			}
+		}
+		if (t.size() < minimumSize)
+			throw new IllegalArgumentException("Need at least " + minimumSize + " distinct arguments");
+	}
 
 	/**
 	 * @return the _unmodifiableBackend

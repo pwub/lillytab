@@ -25,7 +25,6 @@ import de.dhke.projects.cutil.collections.factories.HashMapFactory;
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
 import de.dhke.projects.cutil.collections.factories.IMapFactory;
 import de.dhke.projects.cutil.collections.factories.TreeSetFactory;
-import de.dhke.projects.cutil.collections.factories.TreeSortedSetFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntryFactory;
@@ -49,8 +48,8 @@ import java.util.SortedSet;
 public final class ABoxCommon<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  {
 	private final LinearSequenceNumberGenerator _aboxIDFactory = new LinearSequenceNumberGenerator();
 	private final IDLTermFactory<I, L, K, R> _termFactory;
-	private final ICollectionFactory<NodeID, Set<NodeID>> _nodeIDSetFactory = new TreeSetFactory<>();
-	private final ICollectionFactory<IABoxNode<I, L, K, R>, SortedSet<IABoxNode<I, L, K, R>>> _nodeSetFactory = new TreeSortedSetFactory<>();
+	private final ICollectionFactory<NodeID, SortedSet<NodeID>> _nodeIDSetFactory = new TreeSetFactory<>();
+	private final ICollectionFactory<IABoxNode<I, L, K, R>, SortedSet<IABoxNode<I, L, K, R>>> _nodeSetFactory = new TreeSetFactory<>();
 	private final IMapFactory<Object, IABoxNode<I, L, K, R>, Map<Object, IABoxNode<I, L, K, R>>> _nodeMapFactory = new HashMapFactory<>();
 	private final TermEntryFactory<I, L, K, R> _termEntryFactory = new TermEntryFactory<>();
 
@@ -81,7 +80,7 @@ public final class ABoxCommon<I extends Comparable<? super I>, L extends Compara
 	/**
 	 * @return the nodeIDSetFactory
 	 */
-	public ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory()
+	public ICollectionFactory<NodeID, ? extends Set<NodeID>> getNodeIDSetFactory()
 	{
 		return _nodeIDSetFactory;
 	}

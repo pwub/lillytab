@@ -58,6 +58,7 @@ public class AspectCollectionHistoryListener<E, C>
 	}
 
 
+	@Override
 	public void beforeElementAdded(CollectionItemEvent<E, C> e)
 	{
 		if (vetoAdd)
@@ -67,6 +68,7 @@ public class AspectCollectionHistoryListener<E, C>
 	}
 
 
+	@Override
 	public void beforeElementRemoved(CollectionItemEvent<E, C> e)
 	{
 		if (vetoRemove)
@@ -76,6 +78,7 @@ public class AspectCollectionHistoryListener<E, C>
 	}
 
 
+	@Override
 	public void beforeElementReplaced(CollectionItemReplacedEvent<E, C> e)
 	{
 		if (vetoReplace)
@@ -85,6 +88,7 @@ public class AspectCollectionHistoryListener<E, C>
 	}
 
 
+	@Override
 	public void beforeCollectionCleared(CollectionEvent<E, C> e)
 	{
 		if (vetoClear)
@@ -94,24 +98,28 @@ public class AspectCollectionHistoryListener<E, C>
 	}
 
 
+	@Override
 	public void afterElementAdded(CollectionItemEvent<E, C> e)
 	{
 		afterAddEvents.add(e);
 	}
 
 
+	@Override
 	public void afterElementRemoved(CollectionItemEvent<E, C> e)
 	{
 		afterRemoveEvents.add(e);
 	}
 
 
+	@Override
 	public void afterElementReplaced(CollectionItemReplacedEvent<E, C> e)
 	{
 		afterReplaceEvents.add(e);
 	}
 
 
+	@Override
 	public void afterCollectionCleared(CollectionEvent<E, C> e)
 	{
 		afterClearEvents.add(e);

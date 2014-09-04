@@ -31,8 +31,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
 import static de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTermList.sortAndEnsureUnique;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.Collection;
-import java.util.Collections;
 import org.apache.commons.collections15.SetUtils;
+
 
 /**
  *
@@ -47,11 +47,10 @@ import org.apache.commons.collections15.SetUtils;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class DLObjectUnion<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractOperatorTerm<IDLClassExpression<I, L, K, R>>
-	implements IDLObjectUnion<I, L, K, R> {
-
+	extends AbstractDLOperatorTerm<I, L, K, R, IDLClassExpression<I, L, K, R>>
+	implements IDLObjectUnion<I, L, K, R>
+{
 	public static final String OPERATOR_NAME = "OR";
-
 
 	public DLObjectUnion(final Collection<? extends IDLClassExpression<I, L, K, R>> ds)
 	{
@@ -68,7 +67,6 @@ public class DLObjectUnion<I extends Comparable<? super I>, L extends Comparable
 		}
 	}
 
-
 	public DLObjectUnion(final IDLClassExpression<I, L, K, R> d0, final IDLClassExpression<I, L, K, R> d1)
 	{
 		super(DLTermOrder.DL_OBJECT_UNION, OPERATOR_NAME, 2);
@@ -78,13 +76,11 @@ public class DLObjectUnion<I extends Comparable<? super I>, L extends Comparable
 		sortAndEnsureUnique(this, 2);
 	}
 
-
 	@Override
 	public ITermList<IDLClassExpression<I, L, K, R>> getTerms()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int hashCode()
@@ -92,7 +88,6 @@ public class DLObjectUnion<I extends Comparable<? super I>, L extends Comparable
 		/* no need to override hashcode */
 		return super.hashCode() + SetUtils.hashCodeForSet(this);
 	}
-
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -109,13 +104,11 @@ public class DLObjectUnion<I extends Comparable<? super I>, L extends Comparable
 			return false;
 	}
 
-
 	@Override
 	public DLObjectUnion<I, L, K, R> clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int compareTo(final IDLTerm<I, L, K, R> o)
@@ -128,13 +121,11 @@ public class DLObjectUnion<I extends Comparable<? super I>, L extends Comparable
 		return compare;
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_OBJECT_UNION);
 	}
-
 
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()

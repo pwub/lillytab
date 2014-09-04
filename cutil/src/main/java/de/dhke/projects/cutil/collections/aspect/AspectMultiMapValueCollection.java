@@ -38,74 +38,9 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 public class AspectMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 	implements Collection<V>
 {
-	private class Itr
-		implements Iterator<V>
-	{
-		private final Iterator<K> _keyIterator;
-		private Iterator<V> _valueIterator;
-		private V _current;
-
-		Itr()
-		{
-			if (_key == null) {
-				_keyIterator = _aspectMap.keySet().iterator();
-			} else {
-				_keyIterator = null;
-				assert _aspectMap.getDecoratee() != null;
-				_valueIterator = _aspectMap.getDecoratee().iterator(_key);
-			}
-		}
-
-		private boolean updateIterator()
-		{
-			if (CollectionUtil.isNullOrEmpty(_valueIterator)) {
-				while ((! CollectionUtil.isNullOrEmpty(_keyIterator)) && CollectionUtil.isNullOrEmpty(_valueIterator)) {
-					_key = _keyIterator.next();
-					_valueIterator = _aspectMap.getDecoratee().iterator(_key);
-				}
-				if (CollectionUtil.isNullOrEmpty(_valueIterator))
-					_valueIterator = null;
-				return _valueIterator != null;
-			} else {
-				return true;
-			}
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return updateIterator();
-		}
-
-		@Override
-		public V next()
-		{
-			if (!updateIterator())
-				throw new NoSuchElementException();
-			else {
-				_current = _valueIterator.next();
-				return _current;
-			}
-		}
-
-		@Override
-		public void remove()
-		{
-			Map.Entry<K, V> entry = new DefaultMapEntry<>(_key, _current);
-			CollectionItemEvent<Map.Entry<K, V>, MultiMap<K, V>> ev = _aspectMap.notifyBeforeElementRemoved(_aspectMap,
-																											entry);
-			_valueIterator.remove();
-			_aspectMap.notifyAfterElementRemoved(ev);
-		}
-	}
-	private K _key;
+	private final K _key;
 	private final AspectMultiMap<K, V, M> _aspectMap;
 	private Collection<V> _cachedValueCollection = null;
-
-	public Collection<V> getOriginalValueCollection()
-	{
-		return _cachedValueCollection;
-	}
 
 	protected AspectMultiMapValueCollection(final AspectMultiMap<K, V, M> aspectMap)
 	{
@@ -119,6 +54,11 @@ public class AspectMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 		_aspectMap = aspectMap;
 		_key = key;
 		_cachedValueCollection = _aspectMap.getDecoratee().get(key);
+	}
+
+	public Collection<V> getOriginalValueCollection()
+	{
+		return _cachedValueCollection;
 	}
 
 	@Override
@@ -202,14 +142,70 @@ public class AspectMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 		throw new UnsupportedOperationException("Cannot add to value collection");
 	}
 
-	/*
-	private static boolean containsAny(Collection<?> collection, Collection<?> testCollection)
+	@Override
+	public boolean removeAll(final Collection<?> c)
 	{
-	for (Object o: testCollection)
-	if (collection.contains(o))
-	return true;
-	return false;
+		return batchRemove(c, false);
 	}
+
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		return batchRemove(c, true);
+	}
+
+	@Override
+	public void clear()
+	{
+		if (!isEmpty()) {
+			if (_key == null) {
+				/* no key, delete the complete collection */
+				CollectionEvent<Map.Entry<K, V>, MultiMap<K, V>> ev = _aspectMap.notifyBeforeCollectionCleared(
+					_aspectMap);
+				getOriginalValueCollection().clear();
+				_aspectMap.notifyAfterCollectionCleared(ev);
+			} else {
+				/* key, delete items one by one */
+				Iterator<V> iter = iterator();
+				while (iter.hasNext()) {
+					iter.next();
+					iter.remove();
+				}
+			}
+		}
+	}
+
+	@Override
+	public boolean equals(final Object obj)
+	{
+		if (this == obj)
+			return true;
+		return getOriginalValueCollection().equals(obj);
+	}
+
+	@Override
+	public int hashCode()
+	{
+		int hCode = 0;
+		for (V value : this)
+			hCode += value.hashCode();
+		return hCode;
+	}
+
+	@Override
+	public String toString()
+	{
+		return getOriginalValueCollection().toString();
+	}
+
+	/*
+	 private static boolean containsAny(Collection<?> collection, Collection<?> testCollection)
+	 {
+	 for (Object o: testCollection)
+	 if (collection.contains(o))
+	 return true;
+	 return false;
+	 }
 	 */
 	private boolean batchRemove(final Collection<?> c, final boolean retain)
 	{
@@ -257,58 +253,68 @@ public class AspectMultiMapValueCollection<K, V, M extends MultiMap<K, V>>
 		return wasRemoved;
 	}
 
-	@Override
-	public boolean removeAll(final Collection<?> c)
-	{
-		return batchRemove(c, false);
-	}
 
-	@Override
-	public boolean retainAll(final Collection<?> c)
+	private class Itr
+		implements Iterator<V>
 	{
-		return batchRemove(c, true);
-	}
+		private final Iterator<K> _keyIterator;
+		private Iterator<V> _valueIterator;
+		private V _current;
+		private K _iterKey;
 
-	@Override
-	public void clear()
-	{
-		if (!isEmpty()) {
+		Itr()
+		{
 			if (_key == null) {
-				/* no key, delete the complete collection */
-				CollectionEvent<Map.Entry<K, V>, MultiMap<K, V>> ev = _aspectMap.notifyBeforeCollectionCleared(_aspectMap);
-				getOriginalValueCollection().clear();
-				_aspectMap.notifyAfterCollectionCleared(ev);
+				_keyIterator = _aspectMap.keySet().iterator();
+				_iterKey = null;
 			} else {
-				/* key, delete items one by one */
-				Iterator<V> iter = iterator();
-				while (iter.hasNext()) {
-					iter.next();
-					iter.remove();
-				}
+				_keyIterator = null;
+				_iterKey = _key;
+				assert _aspectMap.getDecoratee() != null;
+				_valueIterator = _aspectMap.getDecoratee().iterator(_key);
 			}
 		}
-	}
 
-	@Override
-	public boolean equals(final Object obj)
-	{
-		if (this == obj)
-			return true;
-		return getOriginalValueCollection().equals(obj);
-	}
+		@Override
+		public boolean hasNext()
+		{
+			return updateIterator();
+		}
 
-	@Override
-	public int hashCode()
-	{
-		int hCode = 0;
-		for (V value : this)
-			hCode += value.hashCode();
-		return hCode;
-	}
+		@Override
+		public V next()
+		{
+			if (!updateIterator())
+				throw new NoSuchElementException();
+			else {
+				_current = _valueIterator.next();
+				return _current;
+			}
+		}
 
-	@Override
-	public String toString()
-	{
-		return getOriginalValueCollection().toString();
+		@Override
+		public void remove()
+		{
+			Map.Entry<K, V> entry = new DefaultMapEntry<>(_iterKey, _current);
+			CollectionItemEvent<Map.Entry<K, V>, MultiMap<K, V>> ev = _aspectMap.notifyBeforeElementRemoved(_aspectMap,
+																											entry);
+			_valueIterator.remove();
+			_aspectMap.notifyAfterElementRemoved(ev);
+		}
+
+		private boolean updateIterator()
+		{
+			if (CollectionUtil.isNullOrEmpty(_valueIterator)) {
+				while ((!CollectionUtil.isNullOrEmpty(_keyIterator)) && CollectionUtil.isNullOrEmpty(_valueIterator)) {
+					_iterKey = _keyIterator.next();
+					_valueIterator = _aspectMap.getDecoratee().iterator(_iterKey);
+				}
+				if (CollectionUtil.isNullOrEmpty(_valueIterator))
+					_valueIterator = null;
+				return _valueIterator != null;
+			} else {
+				return true;
+			}
+		}
 	}
 }

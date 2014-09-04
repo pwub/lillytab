@@ -36,17 +36,20 @@ public class StackQueue<E>
 {
 	static final long serialVersionUID = -4126903274780274845L;
 
+	@Override
 	public boolean offer(E e)
 	{
 		push(e);
 		return true;
 	}
 
+	@Override
 	public E remove()
 	{
 		return pop();
 	}
 
+	@Override
 	public E poll()
 	{
 		if (isEmpty())
@@ -55,6 +58,7 @@ public class StackQueue<E>
 			return pop();
 	}
 
+	@Override
 	public E element()
 	{
 		if (isEmpty())

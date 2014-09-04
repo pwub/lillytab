@@ -42,29 +42,6 @@ public class ImmutableEntrySet<K, V>
 	private final Transformer<K, K> _keyTransformer;
 	private final Transformer<V, V> _valueTransformer;
 
-	private final class EntryTransformer
-		implements Transformer<Map.Entry<K, V>, Map.Entry<K, V>>
-	{
-		@Override
-		public Entry<K, V> transform(Entry<K, V> input)
-		{
-			K key;
-			if (_keyTransformer != null)
-				key = _keyTransformer.transform(input.getKey());
-			else
-				key = input.getKey();
-
-			V value;
-			if (_valueTransformer != null)
-				value = _valueTransformer.transform(input.getValue());
-			else
-				value = input.getValue();
-
-			return new DefaultMapEntry<>(key, value);
-		}
-
-	}
-
 	protected ImmutableEntrySet(final Set<Map.Entry<K, V>> backEntrySet, final Transformer<K, K> keyTransformer, final Transformer<V, V> valueTransformer)
 	{
 		_backEntrySet = backEntrySet;
@@ -171,6 +148,29 @@ public class ImmutableEntrySet<K, V>
 	public void clear()
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableMultiMapEntrySet.");
+	}
+
+	private final class EntryTransformer
+		implements Transformer<Map.Entry<K, V>, Map.Entry<K, V>>
+	{
+		@Override
+		public Entry<K, V> transform(Entry<K, V> input)
+		{
+			K key;
+			if (_keyTransformer != null)
+				key = _keyTransformer.transform(input.getKey());
+			else
+				key = input.getKey();
+
+			V value;
+			if (_valueTransformer != null)
+				value = _valueTransformer.transform(input.getValue());
+			else
+				value = input.getValue();
+
+			return new DefaultMapEntry<>(key, value);
+		}
+
 	}
 
 }

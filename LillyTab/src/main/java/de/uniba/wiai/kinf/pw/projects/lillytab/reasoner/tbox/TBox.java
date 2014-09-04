@@ -125,11 +125,88 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _generation;
 	}
 
+	@Override
+	public IRBox<I, L, K, R> getRBox()
+	{
+		return _rbox;
+	}
+
+	@Override
+	public IAssertedRBox<I, L, K, R> getAssertedRBox()
+	{
+		return _rbox.getAssertedRBox();
+	}
+
+	@Override
+	public String toString(String prefix)
+	{
+		// XXX - rewrite
+		return toString();
+	}
+
+	/**
+	 *
+	 * @return {@literal true} if the current TBox needs to be recalculated before the next access.
+	 */
+		public boolean isNeedRecalculate()
+	{
+		return _needRecalculate;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void notifyAfterElementAdded(CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
+	{
+		setNeedRecalculate();
+		super.notifyAfterElementAdded(e);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void notifyAfterElementRemoved(CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
+	{
+		setNeedRecalculate();
+		super.notifyAfterElementRemoved(e);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void notifyAfterElementReplaced(CollectionItemReplacedEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
+	{
+		setNeedRecalculate();
+		super.notifyAfterElementReplaced(e);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void notifyAfterCollectionCleared(
+		CollectionEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
+	{
+		setNeedRecalculate();
+		super.notifyAfterCollectionCleared(e);
+	}
+
+	@Override
+	public TBox<I, L, K, R> clone(
+		)
+	{
+		/* XXX - TBox is not cloned, yet */
+		return this;
+	}
+
+	@Override
+	public ITBox<I, L, K, R> getImmutable(
+		)
+	{
+		return new ImmutableTBox<>(this);
+	}
+
 	/**
 	 *  Recalculate the internal state from the term set. <p /> Should only be called, when needed, i.e. when the
 	 * term set was changed since the last access. 
 	 */
-	private void recalculateIfNeeded()
+		private void recalculateIfNeeded(
+		)
 	{
 		if (_needRecalculate) {
 			_unfolding.clear();
@@ -175,7 +252,7 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-	private void handleImplication(IDLClassExpression<I, L, K, R> desc)
+		private void handleImplication(IDLClassExpression<I, L, K, R> desc)
 	{
 		/**
 		 * if description is an implication AND the left hand side is a simple class or nominal reference, update the
@@ -196,88 +273,11 @@ public class TBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-	@Override
-	public IRBox<I, L, K, R> getRBox()
-	{
-		return _rbox;
-	}
-
-	@Override
-	public IAssertedRBox<I, L, K, R> getAssertedRBox()
-	{
-		return _rbox.getAssertedRBox();
-	}
-
-	@Override
-	public String toString(String prefix)
-	{
-		// XXX - rewrite
-		return toString();
-	}
-
-	/**
-	 *
-	 * @return {@literal true} if the current TBox needs to be recalculated before the next access.
-	 */
-	public boolean isNeedRecalculate()
-	{
-		return _needRecalculate;
-	}
-
 	/**
 	 * signal that the current termset needs to be recalculated.
 	 */
-	private void setNeedRecalculate()
+		private void setNeedRecalculate()
 	{
 		_needRecalculate = true;
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void notifyAfterElementAdded(
-		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
-	{
-		setNeedRecalculate();
-		super.notifyAfterElementAdded(e);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void notifyAfterElementRemoved(
-		CollectionItemEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
-	{
-		setNeedRecalculate();
-		super.notifyAfterElementRemoved(e);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void notifyAfterElementReplaced(
-		CollectionItemReplacedEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
-	{
-		setNeedRecalculate();
-		super.notifyAfterElementReplaced(e);
-	}
-
-	@SuppressWarnings("unchecked")
-	@Override
-	public void notifyAfterCollectionCleared(
-		CollectionEvent<IDLTerm<I, L, K, R>, Collection<IDLTerm<I, L, K, R>>> e)
-	{
-		setNeedRecalculate();
-		super.notifyAfterCollectionCleared(e);
-	}
-
-	@Override
-	public TBox<I, L, K, R> clone()
-	{
-		/* XXX - TBox is not cloned, yet */
-		return this;
-	}
-
-	@Override
-	public ITBox<I, L, K, R> getImmutable()
-	{
-		return new ImmutableTBox<>(this);
 	}
 }

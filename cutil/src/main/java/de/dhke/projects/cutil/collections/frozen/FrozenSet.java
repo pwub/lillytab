@@ -38,6 +38,9 @@ public class FrozenSet<T>
 {
 	private final Set<T> _baseSet;
 
+
+	private int _hashValue = 0;
+
 	public FrozenSet(final Collection<? extends T> source)
 	{
 		final int capacity = source.size();
@@ -134,9 +137,6 @@ public class FrozenSet<T>
 	{
 		throw new UnsupportedOperationException("Unable to modify FrozenSet");
 	}
-
-
-	private int _hashValue = 0;
 	@Override
 	public int hashCode()
 	{

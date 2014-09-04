@@ -28,11 +28,11 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 /**
  *
@@ -45,11 +45,10 @@ import java.util.List;
  */
 public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractList<ISWRLArgument<I, L, K, R>>
-	implements ISWRLRoleAtom<I, L, K, R> {
-
+	implements ISWRLRoleAtom<I, L, K, R>
+{
 	private final R _role;
 	private final List<ISWRLArgument<I, L, K, R>> _arguments;
-
 
 	protected SWRLRoleAtom(R role, ISWRLIArgument<I, L, K, R> first,
 						   ISWRLArgument<I, L, K, R> second)
@@ -59,13 +58,11 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 		_arguments = new ArrayList<>(Arrays.asList(first, second));
 	}
 
-
 	@Override
 	public R getRole()
 	{
 		return _role;
 	}
-
 
 	@Override
 	public ISWRLIArgument<I, L, K, R> getFirstIndividual()
@@ -73,13 +70,11 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 		return (ISWRLIArgument<I, L, K, R>) get(0);
 	}
 
-
 	@Override
 	public ISWRLArgument<I, L, K, R> getSecondIndividual()
 	{
 		return get(1);
 	}
-
 
 	@Override
 	public ISWRLArgument<I, L, K, R> get(int index)
@@ -87,20 +82,17 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 		return _arguments.get(index);
 	}
 
-
 	@Override
 	public int size()
 	{
 		return 2;
 	}
 
-
 	@Override
 	public ITerm clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public boolean equals(Object obj)
@@ -116,7 +108,6 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 			return false;
 	}
 
-
 	@Override
 	public int compareTo(ISWRLTerm<I, L, K, R> o)
 	{
@@ -131,7 +122,6 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 		return compare;
 	}
 
-
 	@Override
 	public String toString()
 	{
@@ -143,24 +133,6 @@ public abstract class SWRLRoleAtom<I extends Comparable<? super I>, L extends Co
 		for (ISWRLArgument<I, L, K, R> individual : this) {
 			sb.append(" ");
 			sb.append(individual.toString());
-		}
-		sb.append(")");
-		return sb.toString();
-	}
-
-
-	@Override
-	public String toString(IToStringFormatter formatter)
-	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append("(");
-
-		/* workaround hack around OWLapis 3.0s new behaviour to output full IRIs for OWLNamedObjects */
-		/* Cast: netbeans/compiler workaround */
-		sb.append(formatter.toString(getRole()));
-		for (ISWRLArgument<I, L, K, R> individual : this) {
-			sb.append(" ");
-			sb.append(individual);
 		}
 		sb.append(")");
 		return sb.toString();

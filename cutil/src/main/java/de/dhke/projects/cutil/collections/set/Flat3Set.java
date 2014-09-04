@@ -49,63 +49,7 @@ public class Flat3Set<T>
 	private Object[] _itemArray;
 	private Set<T> _backSet;
 
-	private static <T> T[] arrayRemove(final T[] array, int removePos)
-	{
-		@SuppressWarnings("unchecked")
-		final T[] newArray = (T[]) new Object[array.length - 1];
-		int j = 0;
-		for (int i = 0; i < array.length; ++i) {
-			if (i != removePos) {
-				newArray[j] = array[i];
-				++j;
-			}
-		}
-		return newArray;
-	}
-
-
-	class ArrayItr
-		implements Iterator<T>
-	{
-		int pos;
-
-		ArrayItr()
-		{
-			pos = -1;
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return pos < _itemArray.length - 1;
-		}
-
-		@Override
-		@SuppressWarnings("unchecked")
-		public T next()
-		{
-			if (_itemArray == null)
-				throw new ConcurrentModificationException();
-			else {
-				++pos;
-				if (pos < _itemArray.length)
-					return (T) _itemArray[pos];
-				else
-					throw new NoSuchElementException();
-			}
-		}
-
-		@Override
-		public void remove()
-		{
-			if (pos >= 0) {
-				arrayRemove(_itemArray, pos);
-			} else
-				throw new IllegalStateException("Iterator before first element");
-		}
-	}
-
-	public Flat3Set(final Collection<? extends T> coll)
+	public  Flat3Set(final Collection<? extends T> coll)
 	{
 		if (coll.size() > MAX_ARRAY_SIZE) {
 			_backSet = new HashSet<>(coll);
@@ -123,7 +67,7 @@ public class Flat3Set<T>
 		this(Arrays.asList(items));
 	}
 
-	public Flat3Set()
+		public Flat3Set()
 	{
 		this(0);
 	}
@@ -202,7 +146,7 @@ public class Flat3Set<T>
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public boolean add(T e)
+	public  boolean add(T e)
 	{
 		if (contains(e))
 			return false;
@@ -298,5 +242,61 @@ public class Flat3Set<T>
 	public String toString()
 	{
 		return CollectionUtil.deepToString(this);
+	}
+
+		private static <T> T[] arrayRemove(final T[] array, int removePos)
+	{
+		@SuppressWarnings("unchecked")
+		final T[] newArray = (T[]) new Object[array.length - 1];
+		int j = 0;
+		for (int i = 0; i < array.length; ++i) {
+			if (i != removePos) {
+				newArray[j] = array[i];
+				++j;
+			}
+		}
+		return newArray;
 	}	
+
+
+	class ArrayItr
+		implements Iterator<T>
+	{
+		int pos;
+
+		ArrayItr()
+		{
+			pos = -1;
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return pos < _itemArray.length - 1;
+		}
+
+		@Override
+		@SuppressWarnings("unchecked")
+		public T next()
+		{
+			if (_itemArray == null)
+				throw new ConcurrentModificationException();
+			else {
+				++pos;
+				if (pos < _itemArray.length)
+					return (T) _itemArray[pos];
+				else
+					throw new NoSuchElementException();
+			}
+		}
+
+		@Override
+		public void remove()
+		{
+			if (pos >= 0) {
+				arrayRemove(_itemArray, pos);
+			} else
+				throw new IllegalStateException("Iterator before first element");
+		}
+	}
 }

@@ -66,6 +66,7 @@ public class AspectMultiMap<K, V, M extends MultiMap<K, V>>
 	}
 
 
+	@Override
 	public V remove(final Object key, final Object item)
 	{
 		@SuppressWarnings("unchecked")
@@ -118,14 +119,11 @@ public class AspectMultiMap<K, V, M extends MultiMap<K, V>>
 	public V put(final K key, final V value)
 	{
 		Map.Entry<K, V> entry = new DefaultMapEntry<>(key, value);
-		/**
-		 * this is not really right, because we do not know, if the item is going to be removed,
-		 * because it depends on the semantics of the underlying map.
-		 **/
-		notifyBeforeElementRemoved(this, entry);
 		CollectionItemEvent<Map.Entry<K, V>, MultiMap<K, V>> ev = notifyBeforeElementAdded(this, entry);
 		final V oldValue = _baseMap.put(key, value);
-		notifyAfterElementAdded(ev);
+		/* Notify after add only if the element was actually added */
+		if (oldValue != null)
+			notifyAfterElementAdded(ev);
 		return oldValue;
 	}
 
@@ -168,12 +166,6 @@ public class AspectMultiMap<K, V, M extends MultiMap<K, V>>
 	public boolean containsKey(final Object key)
 	{
 		return getDecoratee().containsKey(key);
-	}
-
-	private void prepareAdd(final K key, final V value)
-	{
-		Map.Entry<K, V> evEntry = new DefaultMapEntry<>(key, value);
-		notifyBeforeElementAdded(this, evEntry);
 	}
 
 	@Override
@@ -287,5 +279,11 @@ public class AspectMultiMap<K, V, M extends MultiMap<K, V>>
 	public String toString()
 	{
 		return _baseMap.toString();
+	}
+
+		private void prepareAdd(final K key, final V value)
+	{
+		Map.Entry<K, V> evEntry = new DefaultMapEntry<>(key, value);
+		notifyBeforeElementAdded(this, evEntry);
 	}
 }

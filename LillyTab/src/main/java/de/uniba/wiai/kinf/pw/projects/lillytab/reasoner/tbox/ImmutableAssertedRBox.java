@@ -12,7 +12,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import org.apache.commons.collections15.MultiMap;
 
 
@@ -108,7 +108,7 @@ public class ImmutableAssertedRBox<I extends Comparable<? super I>, L extends Co
 	}
 
 	@Override
-	public MultiMap<R, IDLRestriction<I, L, K, R>> getRoleRanges()
+	public MultiMap<R, IDLNodeTerm<I, L, K, R>> getRoleRanges()
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableAssertedRBox");
 	}

@@ -37,7 +37,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.BranchCre
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.TermAddBranchAction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLUnion;
 import java.util.Iterator;
@@ -92,7 +92,7 @@ public class UnionCompleter<I extends Comparable<? super I>, L extends Comparabl
 					getEntry(node, desc);
 
 				if (!CollectionUtil.containsOne(node.getTerms(), union.getTerms())) {
-					for (IDLRestriction<I, L, K, R> subTerm : union.getTerms()) {
+					for (IDLNodeTerm<I, L, K, R> subTerm : union.getTerms()) {
 						branchActions.add(new TermAddBranchAction<>(parentTerm, node, subTerm));
 					}
 					assert !branchActions.isEmpty();

@@ -36,11 +36,6 @@ public class AspectCollectionNotifier<E, C>
 	private final Object _sender;
 	private List<ICollectionListener<E, C>> _listeners = new LinkedList<>();
 
-	protected Object getSender()
-	{
-		return _sender;
-	}
-
 	protected AspectCollectionNotifier()
 	{
 		_sender = this;
@@ -54,6 +49,11 @@ public class AspectCollectionNotifier<E, C>
 	public List<ICollectionListener<E, C>> getListeners()
 	{
 		return _listeners;
+	}
+
+	protected Object getSender()
+	{
+		return _sender;
 	}
 
 	protected void setListeners(final List<ICollectionListener<E, C>> listeners)

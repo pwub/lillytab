@@ -6,7 +6,6 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
@@ -20,7 +19,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.BeforeClass;

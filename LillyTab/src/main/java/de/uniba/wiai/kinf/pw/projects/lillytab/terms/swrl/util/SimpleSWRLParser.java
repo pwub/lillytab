@@ -38,55 +38,12 @@ import java.util.List;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SimpleSWRLParser {
-
-	private static void checkNextToken(final TokenIterator tokenIter, final String expected)
-		throws ParseException
-	{
-		String nextToken = tokenIter.next();
-		final boolean isEqual = nextToken.equalsIgnoreCase(expected);
-		if (!isEqual) {
-			throw new ParseException(String.format("Expected Token `%s', got `%s'", expected, nextToken),
-									 (int) tokenIter.getPosition());
-		}
-	}
 	final ISWRLTermFactory<String, String, String, String> _swrlFactory;
 
 
 	public SimpleSWRLParser(final ISWRLTermFactory<String, String, String, String> swrlFactory)
 	{
 		_swrlFactory = swrlFactory;
-	}
-
-
-	private ISWRLArgument<String, String, String, String> parseIndividual(final TokenIterator tokenIter)
-		throws ParseException
-	{
-		String token = tokenIter.next();
-
-		if (token.equalsIgnoreCase("?")) {
-			final String varName = tokenIter.next();
-			return _swrlFactory.getSWRLVariable(varName);
-		} else if (token.equals("{")) {
-			final String indName;
-			String next = tokenIter.next();
-			final boolean isDataLiteral;
-			if (next.equals("\"")) {
-				isDataLiteral = true;
-				indName = tokenIter.next();
-				checkNextToken(tokenIter, "\"");
-			} else {
-				isDataLiteral = false;
-				indName = next;
-			}
-			checkNextToken(tokenIter, "}");
-			if (isDataLiteral)
-				return _swrlFactory.getSWRLLiteralReference(indName);
-			else
-				return _swrlFactory.getSWRLIndividualReference(indName);
-
-		} else {
-			throw new ParseException("Expected individual", (int) tokenIter.getPosition());
-		}
 	}
 
 
@@ -175,5 +132,49 @@ public class SimpleSWRLParser {
 		throws ParseException
 	{
 		return parseRule(new TokenIterator(input));
+	}
+
+
+	private static void checkNextToken(final TokenIterator tokenIter, final String expected)
+		throws ParseException
+	{
+		String nextToken = tokenIter.next();
+		final boolean isEqual = nextToken.equalsIgnoreCase(expected);
+		if (!isEqual) {
+			throw new ParseException(String.format("Expected Token `%s', got `%s'", expected, nextToken),
+									 (int) tokenIter.getPosition());
+		}
+	}
+
+
+	private ISWRLArgument<String, String, String, String> parseIndividual(final TokenIterator tokenIter)
+		throws ParseException
+	{
+		String token = tokenIter.next();
+
+		if (token.equalsIgnoreCase("?")) {
+			final String varName = tokenIter.next();
+			return _swrlFactory.getSWRLVariable(varName);
+		} else if (token.equals("{")) {
+			final String indName;
+			String next = tokenIter.next();
+			final boolean isDataLiteral;
+			if (next.equals("\"")) {
+				isDataLiteral = true;
+				indName = tokenIter.next();
+				checkNextToken(tokenIter, "\"");
+			} else {
+				isDataLiteral = false;
+				indName = next;
+			}
+			checkNextToken(tokenIter, "}");
+			if (isDataLiteral)
+				return _swrlFactory.getSWRLLiteralReference(indName);
+			else
+				return _swrlFactory.getSWRLIndividualReference(indName);
+
+		} else {
+			throw new ParseException("Expected individual", (int) tokenIter.getPosition());
+		}
 	}
 }

@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections;
 
 import java.util.Collection;
@@ -42,6 +43,7 @@ public class CollectionUtil {
 	 * @param <E>
 	 * @param sup
 	 * @param parts
+	 * <p/>
 	 * @return {@literal true} if at least one item of {@literal parts} was found in {@literal sup}.
 	 */
 	public static <E> boolean containsOne(final Collection<E> sup, final Collection<? extends E> parts)
@@ -59,8 +61,9 @@ public class CollectionUtil {
 	 * Pick all elements from the iterable {@literal items} and convert their string representation into a
 	 * {@literal separator}-separated single string.
 	 *
-	 * @param items The source item collection
+	 * @param items     The source item collection
 	 * @param separator	The separator string between items
+	 * <p/>
 	 * @return A String containing the concatenated string representations of the elements in {@literal items}.
 	 */
 	public static String join(final Iterable<?> items, final String separator)
@@ -79,12 +82,15 @@ public class CollectionUtil {
 		return sequence.toString();
 	}
 
+
 	public static String deepToString(final Collection<?> collection)
 	{
 		return deepToString(collection, "[", "]", ", ");
 	}
 
-	public static String deepToString(final Collection<?> collection, final String left, final String right, final String sep)
+
+	public static String deepToString(final Collection<?> collection, final String left, final String right,
+									  final String sep)
 	{
 		final StringBuilder sb = new StringBuilder(3 * collection.size());
 		sb.append(left);
@@ -168,5 +174,23 @@ public class CollectionUtil {
 	public static boolean isNullOrEmpty(final Collection<?> collection)
 	{
 		return (collection == null) || (collection.isEmpty());
+	}
+
+
+	public static <T> boolean isNullOrContains(final Collection<?> collection, final T item)
+	{
+		return ((collection == null) || collection.contains(item));
+	}
+
+
+	public static <T> boolean isNotNullAndContains(final Collection<?> collection, final T item)
+	{
+		return ((collection == null) && collection.contains(item));
+	}
+
+
+	public static <T> boolean isNullOrContainsNot(final Collection<?> collection, final T item)
+	{
+		return ((collection == null) && (!collection.contains(item)));
 	}
 }

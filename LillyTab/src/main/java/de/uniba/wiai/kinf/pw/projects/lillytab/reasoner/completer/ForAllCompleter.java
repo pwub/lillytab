@@ -41,8 +41,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLAllRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLDataAllRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectAllRestriction;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.Iterator;
@@ -121,7 +121,7 @@ public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparab
 				if (desc instanceof IDLAllRestriction) {
 					final IDLAllRestriction<I, L, K, R> allRestriction = (IDLAllRestriction<I, L, K, R>) desc;
 					final R role = allRestriction.getRole();
-					final IDLRestriction<I, L, K, R> forAllTerm = allRestriction.getTerm();
+					final IDLNodeTerm<I, L, K, R> forAllTerm = allRestriction.getTerm();
 
 					Iterator<NodeID> successorIter = node.getRABox().getSuccessors(role).iterator();
 					while ((successorIter != null) && successorIter.hasNext()) {
@@ -129,9 +129,7 @@ public class ForAllCompleter<I extends Comparable<? super I>, L extends Comparab
 						IABoxNode<I, L, K, R> succ = abox.getNode(succID);
 						assert succ != null;
 						/* update dependency map */
-						if (!abox.getDependencyMap().containsKey(succ, forAllTerm)) {
-							abox.getDependencyMap().addParent(succ, forAllTerm, node, desc);
-						}
+						abox.getDependencyMap().addParent(succ, forAllTerm, node, desc);
 
 						try {
 							NodeMergeInfo<I, L, K, R> mergeInfo;

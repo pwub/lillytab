@@ -57,14 +57,6 @@ public class TokenIterator {
 	}
 
 
-	private int getNextChar() throws IOException
-	{
-		int nextChar = _reader.read();
-		++_nRead;
-		return nextChar;
-	}
-
-
 	public boolean hasNext()
 	{
 		return (!_pushedTokens.isEmpty()) || (_nextChar != -1);
@@ -83,8 +75,7 @@ public class TokenIterator {
 	}
 
 
-	public String next()
-		throws ParseException
+	public String next() throws ParseException
 	{
 		if (!hasNext()) {
 			throw new NoSuchElementException();
@@ -120,5 +111,13 @@ public class TokenIterator {
 	public void remove()
 	{
 		throw new UnsupportedOperationException("Cannot remove from TokenIterator");
+	}
+
+
+	private int getNextChar() throws IOException
+	{
+		int nextChar = _reader.read();
+		++_nRead;
+		return nextChar;
 	}
 }

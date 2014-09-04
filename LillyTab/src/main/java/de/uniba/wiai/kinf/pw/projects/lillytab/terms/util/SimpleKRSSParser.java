@@ -22,7 +22,7 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.util;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.text.ParseException;
@@ -34,17 +34,6 @@ import java.text.ParseException;
  */
 public class SimpleKRSSParser
 {
-
-	private static void checkNextToken(final TokenIterator tokenIter, final String expected)
-		throws ParseException
-	{
-		String nextToken = tokenIter.next();
-		final boolean isEqual = nextToken.equalsIgnoreCase(expected);
-		if (!isEqual) {
-			throw new ParseException(String.format("Expected Token `%s', got `%s'", expected, nextToken),
-									 (int) tokenIter.getPosition());
-		}
-	}
 	private final IDLTermFactory<String, String, String, String> _termFactory;
 
 	public SimpleKRSSParser(final IDLTermFactory<String, String, String, String> termFactory)
@@ -57,13 +46,13 @@ public class SimpleKRSSParser
 		this(new SimpleStringDLTermFactory());
 	}
 
-	public IDLRestriction<String, String, String, String> parseRestriction(final String input)
+	public IDLNodeTerm<String, String, String, String> parseRestriction(final String input)
 		throws ParseException
 	{
 		return parseRestriction(new TokenIterator(input));
 	}
 
-	public IDLRestriction<String, String, String, String> parseRestriction(final TokenIterator tokenIter)
+	public IDLNodeTerm<String, String, String, String> parseRestriction(final TokenIterator tokenIter)
 		throws ParseException
 	{
 		String next1 = tokenIter.next();
@@ -116,7 +105,7 @@ public class SimpleKRSSParser
 					}
 					case "some": {
 						final String role = tokenIter.next();
-						final IDLRestriction<String, String, String, String> t = parseRestriction(tokenIter);
+						final IDLNodeTerm<String, String, String, String> t = parseRestriction(tokenIter);
 						checkNextToken(tokenIter, ")");
 						if (t instanceof IDLDataRange) {
 							return _termFactory.getDLDataSomeRestriction(role,
@@ -130,7 +119,7 @@ public class SimpleKRSSParser
 					}
 					case "only": {
 						final String role = tokenIter.next();
-						final IDLRestriction<String, String, String, String> t = parseRestriction(tokenIter);
+						final IDLNodeTerm<String, String, String, String> t = parseRestriction(tokenIter);
 						checkNextToken(tokenIter, ")");
 						if (t instanceof IDLDataRange) {
 							return _termFactory.getDLDataAllRestriction(role,
@@ -157,5 +146,16 @@ public class SimpleKRSSParser
 		throws ParseException
 	{
 		return parse(new TokenIterator(input));
+	}
+
+	private static void checkNextToken(final TokenIterator tokenIter, final String expected)
+		throws ParseException
+	{
+		String nextToken = tokenIter.next();
+		final boolean isEqual = nextToken.equalsIgnoreCase(expected);
+		if (!isEqual) {
+			throw new ParseException(String.format("Expected Token `%s', got `%s'", expected, nextToken),
+									 (int) tokenIter.getPosition());
+		}
 	}
 }

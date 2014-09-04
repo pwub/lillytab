@@ -61,25 +61,25 @@ public class PairMap<First, Second, Tag>
 	@Override
 	public boolean containsKey(final First first, final Second second)
 	{
-		return _baseMap.containsKey(Pair.wrap(first, second));
+		return containsKey(Pair.wrap(first, second));
 	}
 
 	@Override
 	public Tag get(final First first, final Second second)
 	{
-		return _baseMap.get(Pair.wrap(first, second));
+		return get(Pair.wrap(first, second));
 	}
 
 	@Override
-	public Tag remove(final First first, final Second second)
+	public Tag removePair(final First first, final Second second)
 	{
-		return _baseMap.remove(Pair.wrap(first, second));
+		return remove(Pair.wrap(first, second));
 	}
 
 	@Override
 	public Tag put(final First first, final Second second, final Tag tag)
 	{
-		return _baseMap.put(Pair.wrap(first, second), tag);
+		return put(Pair.wrap(first, second), tag);
 	}
 
 	@Override

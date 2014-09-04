@@ -37,12 +37,13 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.AbstractC
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer.util.ICompleter;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIntersection;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLObjectIntersection;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import java.util.Iterator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 /**
  *
@@ -55,22 +56,19 @@ import org.slf4j.LoggerFactory;
  */
 public class IntersectionCompleter<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractCompleter<I, L, K, R>
-	implements ICompleter<I, L, K, R> {
-
+	implements ICompleter<I, L, K, R>
+{
 	private static final Logger _logger = LoggerFactory.getLogger(IntersectionCompleter.class);
-
 
 	public IntersectionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker, final boolean trace)
 	{
 		super(cChecker, trace);
 	}
 
-
 	public IntersectionCompleter(final INodeConsistencyChecker<I, L, K, R> cChecker)
 	{
 		this(cChecker, false);
 	}
-
 
 	/**
 	 *
@@ -109,17 +107,15 @@ public class IntersectionCompleter<I extends Comparable<? super I>, L extends Co
 
 			IDLIntersection<I, L, K, R> intersection = (IDLIntersection<I, L, K, R>) term;
 
+			/* update dependency map and move governing term */
+			boolean wasGovTerm = abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().
+				getEntry(node, intersection));
+
 			/* if not all subterms are already part of the concept set */
 			if ((!node.getTerms().containsAll(intersection.getTerms()))) {
 
-				/* update dependency map and move governing term */
-				boolean wasGovTerm = abox.getDependencyMap().getGoverningTerms().remove(abox.getTermEntryFactory().
-					getEntry(node, intersection));
-
-				for (IDLRestriction<I, L, K, R> subTerm : intersection.getTerms()) {
-					if (!abox.getDependencyMap().containsKey(node, subTerm)) {
-						abox.getDependencyMap().addParent(node, subTerm, node, intersection);
-					}
+				for (IDLNodeTerm<I, L, K, R> subTerm : intersection.getTerms()) {
+					abox.getDependencyMap().addParent(node, subTerm, node, intersection);
 					if (wasGovTerm)
 						abox.getDependencyMap().addGoverningTerm(node, subTerm);
 				}

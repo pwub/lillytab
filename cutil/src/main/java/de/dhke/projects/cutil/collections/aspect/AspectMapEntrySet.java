@@ -39,41 +39,6 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 public class AspectMapEntrySet<K, V, M extends Map<K, V>>
 	implements Set<Map.Entry<K, V>>
 {
-	private class Itr
-		implements Iterator<Map.Entry<K, V>>
-	{
-		private final Iterator<Map.Entry<K, V>> _entryIterator;
-		private Map.Entry<K, V> _current = null;
-
-		private Itr()
-		{
-			super();
-			_entryIterator = _aspectMap.getDecoratee().entrySet().iterator();
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return _entryIterator.hasNext();
-		}
-
-		@Override
-		public Entry<K, V> next()
-		{
-			_current = _entryIterator.next();
-			return _current;
-		}
-
-		@Override
-		public void remove()
-		{
-			CollectionItemEvent<Map.Entry<K, V>, Map<K, V>> ev = new CollectionItemEvent<Map.Entry<K, V>, Map<K, V>>(
-				this, _aspectMap, new DefaultMapEntry<>(_current));
-			_aspectMap.notifyBeforeElementRemoved(ev);
-			_entryIterator.remove();
-			_aspectMap.notifyAfterElementRemoved(ev);
-		}
-	}
 	private final AspectMap<K, V, M> _aspectMap;
 	private final Set<Map.Entry<K, V>> _entrySet;
 
@@ -154,30 +119,6 @@ public class AspectMapEntrySet<K, V, M extends Map<K, V>>
 		throw new UnsupportedOperationException("Cannot add to entry set");
 	}
 
-	private boolean batchRemove(final Collection<?> c, final boolean retain)
-	{
-		for (Map.Entry<K, V> entry : this) {
-			if (c.contains(entry) != retain) {
-				CollectionItemEvent<Map.Entry<K, V>, Map<K, V>> ev = new CollectionItemEvent<Entry<K, V>, Map<K, V>>(
-					this, _aspectMap, new DefaultMapEntry<>(entry));
-				_aspectMap.notifyBeforeElementRemoved(ev);
-			}
-		}
-		boolean wasRemoved = false;
-		Iterator<Map.Entry<K, V>> iter = _entrySet.iterator();
-		while (iter.hasNext()) {
-			Map.Entry<K, V> entry = iter.next();
-			if (c.contains(entry) != retain) {
-				CollectionItemEvent<Map.Entry<K, V>, Map<K, V>> ev = new CollectionItemEvent<Entry<K, V>, Map<K, V>>(
-					this, _aspectMap, new DefaultMapEntry<>(entry));
-				iter.remove();
-				_aspectMap.notifyAfterElementRemoved(ev);
-				wasRemoved = true;
-			}
-		}
-		return wasRemoved;
-	}
-
 	@Override
 	public boolean retainAll(final Collection<?> c)
 	{
@@ -206,5 +147,64 @@ public class AspectMapEntrySet<K, V, M extends Map<K, V>>
 	public String toString()
 	{
 		return _entrySet.toString();
+	}
+
+		private boolean batchRemove(final Collection<?> c, final boolean retain)
+	{
+		for (Map.Entry<K, V> entry : this) {
+			if (c.contains(entry) != retain) {
+				CollectionItemEvent<Map.Entry<K, V>, Map<K, V>> ev = new CollectionItemEvent<Entry<K, V>, Map<K, V>>(
+					this, _aspectMap, new DefaultMapEntry<>(entry));
+				_aspectMap.notifyBeforeElementRemoved(ev);
+			}
+		}
+		boolean wasRemoved = false;
+		Iterator<Map.Entry<K, V>> iter = _entrySet.iterator();
+		while (iter.hasNext()) {
+			Map.Entry<K, V> entry = iter.next();
+			if (c.contains(entry) != retain) {
+				CollectionItemEvent<Map.Entry<K, V>, Map<K, V>> ev = new CollectionItemEvent<Entry<K, V>, Map<K, V>>(
+					this, _aspectMap, new DefaultMapEntry<>(entry));
+				iter.remove();
+				_aspectMap.notifyAfterElementRemoved(ev);
+				wasRemoved = true;
+			}
+		}
+		return wasRemoved;
+	}
+	private class Itr
+		implements Iterator<Map.Entry<K, V>>
+	{
+		private final Iterator<Map.Entry<K, V>> _entryIterator;
+		private Map.Entry<K, V> _current = null;
+
+		private Itr()
+		{
+			super();
+			_entryIterator = _aspectMap.getDecoratee().entrySet().iterator();
+		}
+
+		@Override
+		public boolean hasNext()
+		{
+			return _entryIterator.hasNext();
+		}
+
+		@Override
+		public Entry<K, V> next()
+		{
+			_current = _entryIterator.next();
+			return _current;
+		}
+
+		@Override
+		public void remove()
+		{
+			CollectionItemEvent<Map.Entry<K, V>, Map<K, V>> ev = new CollectionItemEvent<Map.Entry<K, V>, Map<K, V>>(
+				this, _aspectMap, new DefaultMapEntry<>(_current));
+			_aspectMap.notifyBeforeElementRemoved(ev);
+			_entryIterator.remove();
+			_aspectMap.notifyAfterElementRemoved(ev);
+		}
 	}
 }

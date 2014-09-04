@@ -40,47 +40,6 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
 public class AspectMultiMapKeySet<K, V, M extends MultiMap<K, V>>
 	implements Set<K>
 {
-	private class Itr
-		implements Iterator<K>
-	{
-		private final Iterator<K> _keyIter;
-		private K _current;
-
-		Itr()
-		{
-			_keyIter = _keySet.iterator();
-			_current = null;
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return _keyIter.hasNext();
-		}
-
-		@Override
-		public K next()
-		{
-			_current = _keyIter.next();
-			return _current;
-		}
-
-		@Override
-		public void remove()
-		{
-			/* we operate on copy in the case the MultiMap returns the real value collection */
-			Collection<V> values = new ArrayList<>(_aspectMap.getDecoratee().get(_current));
-			for (V value : values) {
-				Map.Entry<K, V> entry = new DefaultMapEntry<>(_current, value);
-				_aspectMap.notifyBeforeElementRemoved(_aspectMap, entry);
-			}
-			_keyIter.remove();
-			for (V value : values) {
-				Map.Entry<K, V> entry = new DefaultMapEntry<>(_current, value);
-				_aspectMap.notifyAfterElementRemoved(_aspectMap, entry);
-			}
-		}
-	}
 	private final AspectMultiMap<K, V, M> _aspectMap;
 	private final Set<K> _keySet;
 
@@ -155,7 +114,30 @@ public class AspectMultiMapKeySet<K, V, M extends MultiMap<K, V>>
 		throw new UnsupportedOperationException("Cannot add to key set");
 	}
 
-	private boolean batchRemove(final Collection<?> c, final boolean retain)
+	@Override
+	public boolean retainAll(final Collection<?> c)
+	{
+		return batchRemove(c, true);
+	}
+
+	@Override
+	public boolean removeAll(final Collection<?> c)
+	{
+		return batchRemove(c, false);
+	}
+
+	@Override
+	public void clear()
+	{
+		if (!isEmpty()) {
+			/* assumption: clearing the keyset also clears the map */
+			_aspectMap.notifyBeforeCollectionCleared(_aspectMap);
+			_keySet.clear();
+			_aspectMap.notifyAfterCollectionCleared(_aspectMap);
+		}
+	}
+
+		private boolean batchRemove(final Collection<?> c, final boolean retain)
 	{
 		for (K key : _keySet) {
 			if (c.contains(key) != retain) {
@@ -184,27 +166,45 @@ public class AspectMultiMapKeySet<K, V, M extends MultiMap<K, V>>
 		}
 		return wasRemoved;
 	}
-
-	@Override
-	public boolean retainAll(final Collection<?> c)
+	private class Itr
+		implements Iterator<K>
 	{
-		return batchRemove(c, true);
-	}
+		private final Iterator<K> _keyIter;
+		private K _current;
 
-	@Override
-	public boolean removeAll(final Collection<?> c)
-	{
-		return batchRemove(c, false);
-	}
+		Itr()
+		{
+			_keyIter = _keySet.iterator();
+			_current = null;
+		}
 
-	@Override
-	public void clear()
-	{
-		if (!isEmpty()) {
-			/* assumption: clearing the keyset also clears the map */
-			_aspectMap.notifyBeforeCollectionCleared(_aspectMap);
-			_keySet.clear();
-			_aspectMap.notifyAfterCollectionCleared(_aspectMap);
+		@Override
+		public boolean hasNext()
+		{
+			return _keyIter.hasNext();
+		}
+
+		@Override
+		public K next()
+		{
+			_current = _keyIter.next();
+			return _current;
+		}
+
+		@Override
+		public void remove()
+		{
+			/* we operate on copy in the case the MultiMap returns the real value collection */
+			Collection<V> values = new ArrayList<>(_aspectMap.getDecoratee().get(_current));
+			for (V value : values) {
+				Map.Entry<K, V> entry = new DefaultMapEntry<>(_current, value);
+				_aspectMap.notifyBeforeElementRemoved(_aspectMap, entry);
+			}
+			_keyIter.remove();
+			for (V value : values) {
+				Map.Entry<K, V> entry = new DefaultMapEntry<>(_current, value);
+				_aspectMap.notifyAfterElementRemoved(_aspectMap, entry);
+			}
 		}
 	}
 }

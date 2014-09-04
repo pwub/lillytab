@@ -195,7 +195,7 @@ public class AspectCollectionTest
 	@Test
 	public void testToArray_GenericType()
 	{
-		assertArrayEquals(new Integer[]{1, 2, 3, 4}, _aspectCollection.toArray(new Integer[0]));
+		assertArrayEquals(new Integer[]{1, 2, 3, 4}, _aspectCollection.toArray(new Integer[_aspectCollection.size()]));
 	}
 
 

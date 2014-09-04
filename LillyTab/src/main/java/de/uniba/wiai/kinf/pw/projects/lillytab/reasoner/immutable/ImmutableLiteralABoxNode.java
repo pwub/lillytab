@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
@@ -27,7 +28,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.SortedSet;
-
 
 /**
  *
@@ -40,24 +40,27 @@ import java.util.SortedSet;
  */
 public class ImmutableLiteralABoxNode<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends ImmutableABoxNode<L, I, L, K, R>
-	implements IDatatypeABoxNode<I, L, K, R>
-{
+	implements IDatatypeABoxNode<I, L, K, R> {
+
+	public ImmutableLiteralABoxNode(final IDatatypeABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
+	{
+		super(baseNode, abox);
+	}
+
+
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableLiteralABoxNode<I, L, K, R> decorate(
 		final IDatatypeABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
 	{
 		return new ImmutableLiteralABoxNode<>(baseNode, abox);
 	}
- ImmutableLiteralABoxNode(
-		final IDatatypeABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
-	{
-		super(baseNode, abox);
-	}
+
 
 	@Override
 	public SortedSet<L> getNames()
 	{
 		return ((IDatatypeABoxNode<I, L, K, R>) getBaseNode()).getNames();
 	}
+
 
 	@Override
 	public L getPrimaryName()
@@ -66,9 +69,11 @@ public class ImmutableLiteralABoxNode<I extends Comparable<? super I>, L extends
 
 	}
 
+
 	@Override
 	public NodeMergeInfo<I, L, K, R> addDataTerm(
-		IDLDataRange<I, L, K, R> desc) throws ENodeMergeException
+		IDLDataRange<I, L, K, R> desc)
+		throws ENodeMergeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}

@@ -23,15 +23,15 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IBinaryOperator;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 
 /**
  *
  * @param <Term> The type of the wrapped terms
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class AbstractBinaryDLOperator<Term extends ITerm>
-	extends AbstractOperatorTerm<Term>
+public abstract class AbstractBinaryDLOperator<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, Term extends IDLTerm<I, L, K, R>>
+	extends AbstractDLOperatorTerm<I, L, K, R, Term>
 	implements IBinaryOperator<Term> {
 
 	public AbstractBinaryDLOperator(final DLTermOrder termOrder, final String operatorName)

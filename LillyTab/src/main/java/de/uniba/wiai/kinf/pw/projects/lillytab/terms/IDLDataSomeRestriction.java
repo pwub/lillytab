@@ -23,6 +23,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -33,8 +34,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IDLDataSomeRestriction<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends IDLSomeRestriction<I, L, K, R>, IDLDataRestriction<I, L, K, R> {
-
+	extends IDLSomeRestriction<I, L, K, R>, IDLDataRestriction<I, L, K, R>
+{
 	@Override
 	IDLDataRange<I, L, K, R> getTerm();
 }

@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
+
 /**
  *
  *
@@ -28,7 +29,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * @param <Term>
  */
 public interface IOperatorTerm<Term extends ITerm>
-	extends ITermList<Term> {
-
+	extends ITermList<Term>
+{
 	String getOperatorName();
 }

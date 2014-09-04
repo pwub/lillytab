@@ -28,6 +28,7 @@ final class DefaultEqualityAwareComparator<T>
 	implements Comparator<T>
 {
 	@SuppressWarnings(value = "unchecked")
+	@Override
 	public int compare(T o1, T o2)
 	{
 		int compare;

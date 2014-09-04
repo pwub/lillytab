@@ -44,12 +44,6 @@ import java.util.Collection;
  */
 public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements IRABox<I, L, K, R>, IDecorator<IRABox<I, L, K, R>> {
-
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableRABox<I, L, K, R> decorate(
-		final IRABox<I, L, K, R> baseLinkMap)
-	{
-		return new ImmutableRABox<>(baseLinkMap);
-	}
 	private final IABoxNode<I, L, K, R> _immutableNode;
 	private final IRABox<I, L, K, R> _baseLinkMap;
 	private final ImmutableTransformer<IABoxNode<I, L, K, R>> _immutableNodeTransformer = new ImmutableTransformer<>();
@@ -69,6 +63,12 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 	{
 		_immutableNode = immutableNode;
 		_baseLinkMap = baseLinkMap;
+	}
+
+
+		public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableRABox<I, L, K, R> decorate(final IRABox<I, L, K, R> baseLinkMap)
+	{
+		return new ImmutableRABox<>(baseLinkMap);
 	}
 
 

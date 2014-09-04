@@ -59,7 +59,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -86,15 +85,22 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	private static final long serialVersionUID = 3990522176232016954L;
 	private static final boolean TO_STRING_ID_ONLY = false;
 	/**
-	 * ABoxCommon contains the information common to a set of ABoxes, avoiding duplication.
-	 *
-	 */
-	private final ABoxCommon<I, L, K, R> _common;
-	/**
 	 * node id sequence generator
 	 *
 	 */
 	protected final LinearSequenceNumberGenerator _nodeIDGenerator;
+	/**
+	 * The node map maps both node names and {@link NodeID}s to nodes.
+	 *
+	 * XXX - this is currently protected for access from {@link ABoxNodeSet}. To go away.
+	 *
+	 */
+	protected final Map<Object, IABoxNode<I, L, K, R>> _nodeMap;
+	/**
+	 * ABoxCommon contains the information common to a set of ABoxes, avoiding duplication.
+	 *
+	 */
+	private final ABoxCommon<I, L, K, R> _common;
 	/**
 	 * The number of the last valid TBox generation used.
 	 *
@@ -110,13 +116,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 *
 	 */
 	private final ABoxNodeSet<I, L, K, R> _nodes;
-	/**
-	 * The node map maps both node names and {@link NodeID}s to nodes.
-	 *
-	 * XXX - this is currently protected for access from {@link ABoxNodeSet}. To go away.
-	 *
-	 */
-	protected final Map<Object, IABoxNode<I, L, K, R>> _nodeMap;
 	/**
 	 * The ABox-internal state blocking state cache used by {@link IBlockingStrategy}.
 	 *
@@ -192,11 +191,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 	/// </editor-fold>	
 
-	ABoxCommon<I, L, K, R> getCommon()
-	{
-		return _common;
-	}
-
 	@Override
 	public TBox<I, L, K, R> getTBox()
 	{
@@ -228,12 +222,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="Cloneable">
-	/**
-	 * Create a writable clone of the current ABox.
-	 *
-	 * @return An independent clone of the current {@link IABox}.
-	 */
 	@Override
 	public ABox<I, L, K, R> clone()
 	{
@@ -242,196 +230,9 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 	/// </editor-fold>
 
-	/// <editor-fold defaultstate="collapsed" desc="node merging">
-	private void moveSuccessors(final IABoxNode<I, L, K, R> source,
-								final IABoxNode<I, L, K, R> target,
-								NodeMergeInfo<I, L, K, R> mergeInfo)
-		throws ENodeMergeException
-	{
-		/**
-		 * Rewrite outgoing links
-		 *
-		 * We simply add any outgoing link from the source node to the target node. Reflexive links are handled
-		 * explicitly.
-		 *
-		 * Note: With the link map now being a {@link MultiTreeSetHashMap}, the duplicate checks are actually no longer
-		 * necessary. Keep them in place anyway, as they are not too costly and should avoid any problems for future
-		 * changes.
-		 *
-		 */
-		final NodeID sourceID = source.getNodeID();
-		final Iterator<Map.Entry<R, Collection<NodeID>>> succIter = source.getRABox().getAssertedSuccessors().
-			entrySet().iterator();
-		while (succIter.hasNext()) {
-			/**
-			 * Iterate over the source's successors and copy the links over to the target.
-			 *
-			 * Reflexive references (to source) need to be rewritten to point to target, instead.
-			 */
-			final Map.Entry<R, Collection<NodeID>> successorEntry = succIter.next();
-			final R role = successorEntry.getKey();
-			/* save the successor IDs in case the remove updates through */
-			final Collection<NodeID> succs = new ArrayList<>(successorEntry.getValue());
-			/* remove the link */
-			succIter.remove();
-			for (NodeID successorID : succs) {
-				if (successorID.equals(sourceID)) {
-					final NodeID targetID = target.getNodeID();
-					/* handle reflexive references, avoid duplicate links */
-					if (target instanceof IDatatypeABoxNode) {
-						throw new ENodeMergeException(target, source, "Cannot add successor to datatype node");
-					} else if (!target.getRABox().getAssertedSuccessors().containsValue(role, targetID)) {
-						target.getRABox().getAssertedSuccessors().put(role, targetID);
-						mergeInfo.setModified(target);
-					}
-				} else {
-					if (target instanceof IDatatypeABoxNode) {
-						throw new ENodeMergeException(target, source, "Cannot add successor to datatype node");
-					}
-
-					final IABoxNode<I, L, K, R> succ = getNode(successorID);
-					/**
-					 * Try to remove the backlink from the successor and mark the successors as modified, if a change
-					 * was made.
-					 *
-					 */
-					if (succ.getRABox().getAssertedPredecessors().remove(role, sourceID) != null) {
-						mergeInfo.setModified(succ);
-					}
-
-					/*
-					 * avoid duplicate links
-					 */
-					if (!target.getRABox().getAssertedSuccessors().containsValue(role, successorID)) {
-						target.getRABox().getAssertedSuccessors().put(role, successorID);
-						mergeInfo.setModified(target);
-					}
-				}
-			}
-		}
-	}
-
-	private void movePredecessors(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target,
-								  NodeMergeInfo<I, L, K, R> mergeInfo)
-	{
-		/**
-		 * Rewrite incoming links.
-		 *
-		 */
-		final NodeID sourceID = source.getNodeID();
-		final NodeID targetID = target.getNodeID();
-
-		final Iterator<Map.Entry<R, Collection<NodeID>>> predIter = source.getRABox().getAssertedPredecessors().
-			entrySet().iterator();
-		while (predIter.hasNext()) {
-			final Map.Entry<R, Collection<NodeID>> predEntry = predIter.next();
-			final R role = predEntry.getKey();
-
-			/* save predecessors ids in case the remove operation updates through */
-			final Collection<NodeID> preds = new ArrayList<>(predEntry.getValue());
-			/* remove the link */
-			for (NodeID predID : preds) {
-				assert getNode(predID).getRABox().getAssertedSuccessors().containsValue(role, sourceID);
-			}
-
-			predIter.remove();
-			for (NodeID predID : preds) {
-				if (!predID.equals(sourceID)) {
-					/* remove source link */
-					IABoxNode<I, L, K, R> pred = getNode(predID);
-					assert pred != null;
-					/* link is already gone via the remove above */
-					if (pred.getRABox().getAssertedSuccessors().containsValue(role, sourceID)) {
-
-						assert !pred.getRABox().getAssertedSuccessors().containsValue(role, sourceID);
-					}
-					mergeInfo.setModified(pred);
-					mergeInfo.setModified(source);
-					pred.getRABox().getAssertedSuccessors().put(role, targetID);
-					mergeInfo.setModified(target);
-				}
-			}
-		}
-	}
-
-	private void updateDependencyMap(IABoxNode<I, L, K, R> source,
-									 IABoxNode<I, L, K, R> target)
-	{
-		/**
-		 * Dependency map tracking
-		 *
-		 * We need to update all entries that match the source node to point to the target node.
-		 *
-		 */
-		final Collection<Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>> newEntries = new ArrayList<>();
-		final Collection<Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>> removeEntries = new ArrayList<>();
-		final Collection<TermEntry<I, L, K, R>> newGovTerms = new ArrayList<>();
-
-		final DependencyMap<I, L, K, R> dependencyMap = getDependencyMap();
-		final TermEntryFactory<I, L, K, R> termEntryFactory = getTermEntryFactory();
-		final Iterator<Map.Entry<TermEntry<I, L, K, R>, Collection<TermEntry<I, L, K, R>>>> entryIter = dependencyMap.
-			entrySet().iterator();
-
-		final NodeID sourceID = source.getNodeID();
-		final NodeID targetID = target.getNodeID();
-
-		while (entryIter.hasNext()) {
-			boolean replace = false;
-			final Map.Entry<TermEntry<I, L, K, R>, Collection<TermEntry<I, L, K, R>>> mapEntry = entryIter.
-				next();
-			final TermEntry<I, L, K, R> childEntry = mapEntry.getKey();
-			NodeID newNodeID = childEntry.getNodeID();
-			if (newNodeID.equals(sourceID)) {
-				replace = true;
-				newNodeID = targetID;
-			}
-			for (TermEntry<I, L, K, R> parentEntry : mapEntry.getValue()) {
-				NodeID newParentNodeID = parentEntry.getNodeID();
-				if (parentEntry.getNodeID().equals(sourceID)) {
-					replace = true;
-					newParentNodeID = targetID;
-				}
-				if (replace) {
-					removeEntries.add(Pair.wrap(mapEntry.getKey(), parentEntry));
-					final TermEntry<I, L, K, R> newChildEntry = termEntryFactory.getEntry(
-						newNodeID,
-						childEntry.getTerm());
-					final TermEntry<I, L, K, R> newParentEntry = termEntryFactory.getEntry(
-						newParentNodeID,
-						parentEntry.getTerm());
-
-					newEntries.add(Pair.wrap(newChildEntry, newParentEntry));
-				}
-			}
-		}
-		for (Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>> removeEntry : removeEntries) {
-			dependencyMap.remove(removeEntry.getFirst(), removeEntry.getSecond());
-		}
-		removeEntries.clear();
-		for (Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>> newEntry : newEntries) {
-			dependencyMap.put(newEntry.getFirst(), newEntry.getSecond());
-		}
-		newEntries.clear();
-
-		final Iterator<TermEntry<I, L, K, R>> govTermIter = dependencyMap.getGoverningTerms().iterator();
-		while (govTermIter.hasNext()) {
-			final TermEntry<I, L, K, R> govTerm = govTermIter.next();
-			if (govTerm.getNodeID().equals(sourceID)) {
-				govTermIter.remove();
-				final TermEntry<I, L, K, R> newTerm = termEntryFactory.getEntry(targetID, govTerm.getTerm());
-				newGovTerms.add(newTerm);
-			}
-		}
-
-		/* update dependency map with new temrs */
-		for (TermEntry<I, L, K, R> govTerm : newGovTerms) {
-			dependencyMap.addGoverningTerm(govTerm);
-		}
-	}
 
 	@Override
-	public boolean canMerge(IABoxNode<I, L, K, R> node1,
-							IABoxNode<I, L, K, R> node2)
+	public boolean canMerge(IABoxNode<I, L, K, R> node1, IABoxNode<I, L, K, R> node2)
 	{
 		if ((node1 instanceof IDatatypeABoxNode) != (node2 instanceof IDatatypeABoxNode)) {
 			return false;
@@ -458,10 +259,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 * @param node2 The second node to join.
 	 * @return Merge information about the node join
 	 * @throws ENodeMergeException
-	 */
-	@Override
-	public NodeMergeInfo<I, L, K, R> mergeNodes(final IABoxNode<I, L, K, R> node1,
-												final IABoxNode<I, L, K, R> node2)
+	 */@Override
+	public NodeMergeInfo<I, L, K, R> mergeNodes(final IABoxNode<I, L, K, R> node1, final IABoxNode<I, L, K, R> node2)
 		throws ENodeMergeException
 	{
 		/**
@@ -567,8 +366,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 * @param source The source node of the node merge (the node to disappear)
 	 * @param target The target node of the node merge
 	 */
-	public void notifyNodeMergeListeners(final IABoxNode<I, L, K, R> source,
-										 final IABoxNode<I, L, K, R> target)
+	public void notifyNodeMergeListeners(final IABoxNode<I, L, K, R> source, final IABoxNode<I, L, K, R> target)
 	{
 		Collection<INodeMergeListener<I, L, K, R>> listeners = getNodeMergeListeners();
 		if (!listeners.isEmpty()) {
@@ -588,11 +386,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 	/// <editor-fold defaultstate="collapsed" desc="Collection factories">
 	@Override
-	public ICollectionFactory<NodeID, Set<NodeID>> getNodeIDSetFactory()
+	public ICollectionFactory<NodeID, ? extends Set<NodeID>> getNodeIDSetFactory()
 	{
 		return _common.getNodeIDSetFactory();
 	}
-
+	
 	@Override
 	public IDLTermFactory<I, L, K, R> getDLTermFactory()
 	{
@@ -612,7 +410,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	{
 		return toString("");
 	}
-
 	public String toString(final int indent)
 	{
 		char[] fill = new char[indent];
@@ -683,10 +480,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		/* XXX - returns a modifiable node map */
 		return Collections.unmodifiableMap(_nodeMap);
 	}
-
 	@Override
-	public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode)
-		throws ENodeMergeException
+	public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMergeException
 	{
 		if (isDatatypeNode) {
 			return createDatatypeNode();
@@ -696,8 +491,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	@Override
-	public IIndividualABoxNode<I, L, K, R> createIndividualNode()
-		throws ENodeMergeException
+	public IIndividualABoxNode<I, L, K, R> createIndividualNode() throws ENodeMergeException
 	{
 		final int newID = _nodeIDGenerator.next();
 		final IndividualABoxNode<I, L, K, R> newNode = new IndividualABoxNode<>(this, newID);
@@ -707,17 +501,16 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	@Override
-	public IDatatypeABoxNode<I, L, K, R> createDatatypeNode()
+	public IDatatypeABoxNode<I, L, K, R> createDatatypeNode() throws ENodeMergeException
 	{
 		final int newID = _nodeIDGenerator.next();
-		final LiteralABoxNode<I, L, K, R> newNode = new LiteralABoxNode<>(this, newID);
+		final LiteralABoxNode<I, L, K, R> newNode = new LiteralABoxNode<>(this, newID);		
 		add(newNode);
+		newNode.addDataTerm(getDLTermFactory().getDLTopDatatype());
 		return newNode;
 	}
-
 	@Override
-	public IDatatypeABoxNode<I, L, K, R> getOrAddDatatypeNode(L literal)
-		throws ENodeMergeException
+	public IDatatypeABoxNode<I, L, K, R> getOrAddDatatypeNode(L literal) throws ENodeMergeException
 	{
 		if (_nodeMap.containsKey(literal)) {
 			return (IDatatypeABoxNode<I, L, K, R>) _nodeMap.get(literal);
@@ -776,7 +569,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="SortedSet<ABoxNode<I, L, K, R>>">
 	@Override
 	public int size()
 	{
@@ -802,7 +594,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 		return iter;
 	}
-
 	@Override
 	public Object[] toArray()
 	{
@@ -834,7 +625,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	@Override
-	public boolean addAll(final Collection<? extends IABoxNode<I, L, K, R>> c)
+	public  boolean addAll(final Collection<? extends IABoxNode<I, L, K, R>> c)
 	{
 		return _nodes.addAll(c);
 	}
@@ -858,7 +649,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	/// </editor-fold>
-	/// <editor-fold defaultstate="collapsed" desc="deep compare">
 	@Override
 	public int deepHashCode()
 	{
@@ -967,29 +757,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _termSetListeners;
 	}
 
-	protected TermChangeEvent<I, L, K, R> notifyTermAdded(final IABoxNode<I, L, K, R> node,
-														  final IDLTerm<I, L, K, R> term)
-	{
-		if (term instanceof IDLIndividualReference) {
-			_nodeMap.put(((IDLIndividualReference<I, L, K, R>) term).getIndividual(), node);
-		} else if (term instanceof IDLLiteralReference) {
-			_nodeMap.put(((IDLLiteralReference<I, L, K, R>) term).getLiteral(), node);
-		}
-
-		final TermChangeEvent<I, L, K, R> ev = new TermChangeEvent<>(this, node, term);
-
-		touchNode(node);
-
-		if (!_termSetListeners.isEmpty()) {
-			for (ITermSetListener<I, L, K, R> listener : _termSetListeners) {
-				listener.termAdded(ev);
-			}
-		}
-		return ev;
-	}
-
-	public TermChangeEvent<I, L, K, R> notifyTermRemoved(final IABoxNode<I, L, K, R> node,
-														 final IDLTerm<I, L, K, R> term)
+		public TermChangeEvent<I, L, K, R> notifyTermRemoved(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term)
 	{
 		if (term instanceof IDLIndividualReference) {
 			_nodeMap.remove(((IDLIndividualReference<I, L, K, R>) term).getIndividual());
@@ -1007,7 +775,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return ev;
 	}
-
 	public ABoxNodeEvent<I, L, K, R> notifyTermSetCleared(final IABoxNode<I, L, K, R> node)
 	{
 		final ABoxNodeEvent<I, L, K, R> ev = new ABoxNodeEvent<>(this, node);
@@ -1042,7 +809,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return ImmutableABox.decorate(this);
 	}
 	/// </editor-fold>
-
 	@Override
 	public boolean containsAllTermEntries(Collection<TermEntry<I, L, K, R>> entries)
 	{
@@ -1075,7 +841,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	{
 		return !getNonGeneratingQueue().isEmpty();
 	}
-
 	@Override
 	public boolean hasMoreGeneratingNodes()
 	{
@@ -1107,7 +872,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return wasRemoved;
 	}
-
 	@Override
 	public boolean removeFromQueues(final Collection<NodeID> nodeIDs)
 	{
@@ -1117,7 +881,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		wasRemoved |= getNonGeneratingQueue().removeAll(nodeIDs);
 		return wasRemoved;
 	}
-
 	@Override
 	public boolean removeNodesFromQueues(final Collection<? extends IABoxNode<I, L, K, R>> nodes)
 	{
@@ -1129,7 +892,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return wasRemoved;
 	}
 
-	public boolean clearQueues()
+		public boolean clearQueues()
 	{
 		boolean cleared = false;
 		if (!_nonGeneratingQueue.isEmpty()) {
@@ -1153,21 +916,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	public IABoxNode<I, L, K, R> nextGeneratingNode()
 	{
 		return nextNode(_generatingQueue);
-	}
-
-	private IABoxNode<I, L, K, R> nextNode(final Collection<NodeID> queue)
-	{
-		checkTBoxGeneration();
-
-		IABoxNode<I, L, K, R> nextNode = null;
-		while ((nextNode == null) && (!queue.isEmpty())) {
-			final Iterator<NodeID> iter = queue.iterator();
-			assert iter.hasNext();
-			final NodeID nextNodeID = iter.next();
-			iter.remove();
-			nextNode = getNode(nextNodeID);
-		}
-		return nextNode;
 	}
 
 	/**
@@ -1253,6 +1001,227 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return wasAdded;
 	}
 	/// </editor-fold>
+	
+		protected TermChangeEvent<I, L, K, R> notifyTermAdded(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term)
+	{
+		if (term instanceof IDLIndividualReference) {
+			_nodeMap.put(((IDLIndividualReference<I, L, K, R>) term).getIndividual(), node);
+		} else if (term instanceof IDLLiteralReference) {
+			_nodeMap.put(((IDLLiteralReference<I, L, K, R>) term).getLiteral(), node);
+		}
+
+		final TermChangeEvent<I, L, K, R> ev = new TermChangeEvent<>(this, node, term);
+
+		touchNode(node);
+
+		if (!_termSetListeners.isEmpty()) {
+			for (ITermSetListener<I, L, K, R> listener : _termSetListeners) {
+				listener.termAdded(ev);
+			}
+		}
+		return ev;
+	}
+
+	ABoxCommon<I, L, K, R> getCommon()
+	{
+		return _common;
+	}
+
+	/// <editor-fold defaultstate="collapsed" desc="node merging">
+		private void moveSuccessors(final IABoxNode<I, L, K, R> source, final IABoxNode<I, L, K, R> target, NodeMergeInfo<I, L, K, R> mergeInfo) throws ENodeMergeException
+	{
+		/**
+		 * Rewrite outgoing links
+		 *
+		 * We simply add any outgoing link from the source node to the target node. Reflexive links are handled
+		 * explicitly.
+		 *
+		 * Note: With the link map now being a {@link MultiTreeSetHashMap}, the duplicate checks are actually no longer
+		 * necessary. Keep them in place anyway, as they are not too costly and should avoid any problems for future
+		 * changes.
+		 *
+		 */
+		final NodeID sourceID = source.getNodeID();
+		final Iterator<Map.Entry<R, Collection<NodeID>>> succIter = source.getRABox().getAssertedSuccessors().
+			entrySet().iterator();
+		while (succIter.hasNext()) {
+			/**
+			 * Iterate over the source's successors and copy the links over to the target.
+			 *
+			 * Reflexive references (to source) need to be rewritten to point to target, instead.
+			 */
+			final Map.Entry<R, Collection<NodeID>> successorEntry = succIter.next();
+			final R role = successorEntry.getKey();
+			/* save the successor IDs in case the remove updates through */
+			final Collection<NodeID> succs = new ArrayList<>(successorEntry.getValue());
+			/* remove the link */
+			succIter.remove();
+			for (NodeID successorID : succs) {
+				if (successorID.equals(sourceID)) {
+					final NodeID targetID = target.getNodeID();
+					/* handle reflexive references, avoid duplicate links */
+					if (target instanceof IDatatypeABoxNode) {
+						throw new ENodeMergeException(target, source, "Cannot add successor to datatype node");
+					} else if (!target.getRABox().getAssertedSuccessors().containsValue(role, targetID)) {
+						target.getRABox().getAssertedSuccessors().put(role, targetID);
+						mergeInfo.setModified(target);
+					}
+				} else {
+					if (target instanceof IDatatypeABoxNode) {
+						throw new ENodeMergeException(target, source, "Cannot add successor to datatype node");
+					}
+
+					final IABoxNode<I, L, K, R> succ = getNode(successorID);
+					/**
+					 * Try to remove the backlink from the successor and mark the successors as modified, if a change
+					 * was made.
+					 *
+					 */
+					if (succ.getRABox().getAssertedPredecessors().remove(role, sourceID) != null) {
+						mergeInfo.setModified(succ);
+					}
+
+					/*
+					 * avoid duplicate links
+					 */
+					if (!target.getRABox().getAssertedSuccessors().containsValue(role, successorID)) {
+						target.getRABox().getAssertedSuccessors().put(role, successorID);
+						mergeInfo.setModified(target);
+					}
+				}
+			}
+		}
+	}
+
+		private void movePredecessors(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target, NodeMergeInfo<I, L, K, R> mergeInfo)
+	{
+		/**
+		 * Rewrite incoming links.
+		 *
+		 */
+		final NodeID sourceID = source.getNodeID();
+		final NodeID targetID = target.getNodeID();
+
+		final Iterator<Map.Entry<R, Collection<NodeID>>> predIter = source.getRABox().getAssertedPredecessors().
+			entrySet().iterator();
+		while (predIter.hasNext()) {
+			final Map.Entry<R, Collection<NodeID>> predEntry = predIter.next();
+			final R role = predEntry.getKey();
+
+			/* save predecessors ids in case the remove operation updates through */
+			final Collection<NodeID> preds = new ArrayList<>(predEntry.getValue());
+			/* remove the link */
+			for (NodeID predID : preds) {
+				assert getNode(predID).getRABox().getAssertedSuccessors().containsValue(role, sourceID);
+			}
+
+			predIter.remove();
+			for (NodeID predID : preds) {
+				if (!predID.equals(sourceID)) {
+					/* remove source link */
+					IABoxNode<I, L, K, R> pred = getNode(predID);
+					assert pred != null;
+					/* link is already gone via the remove above */
+					if (pred.getRABox().getAssertedSuccessors().containsValue(role, sourceID)) {
+
+						assert !pred.getRABox().getAssertedSuccessors().containsValue(role, sourceID);
+					}
+					mergeInfo.setModified(pred);
+					mergeInfo.setModified(source);
+					pred.getRABox().getAssertedSuccessors().put(role, targetID);
+					mergeInfo.setModified(target);
+				}
+			}
+		}
+	}
+
+		private void updateDependencyMap(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target)
+	{
+		/**
+		 * Dependency map tracking
+		 *
+		 * We need to update all entries that match the source node to point to the target node.
+		 *
+		 */
+		final Collection<Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>> newEntries = new ArrayList<>();
+		final Collection<Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>> removeEntries = new ArrayList<>();
+		final Collection<TermEntry<I, L, K, R>> newGovTerms = new ArrayList<>();
+
+		final DependencyMap<I, L, K, R> dependencyMap = getDependencyMap();
+		final TermEntryFactory<I, L, K, R> termEntryFactory = getTermEntryFactory();
+		final Iterator<Map.Entry<TermEntry<I, L, K, R>, Collection<TermEntry<I, L, K, R>>>> entryIter = dependencyMap.entrySet().iterator();
+
+		final NodeID sourceID = source.getNodeID();
+		final NodeID targetID = target.getNodeID();
+
+		while (entryIter.hasNext()) {
+			boolean replace = false;
+			final Map.Entry<TermEntry<I, L, K, R>, Collection<TermEntry<I, L, K, R>>> mapEntry = entryIter.
+				next();
+			final TermEntry<I, L, K, R> childEntry = mapEntry.getKey();
+			NodeID newNodeID = childEntry.getNodeID();
+			if (newNodeID.equals(sourceID)) {
+				replace = true;
+				newNodeID = targetID;
+			}
+			for (TermEntry<I, L, K, R> parentEntry : mapEntry.getValue()) {
+				NodeID newParentNodeID = parentEntry.getNodeID();
+				if (parentEntry.getNodeID().equals(sourceID)) {
+					replace = true;
+					newParentNodeID = targetID;
+				}
+				if (replace) {
+					removeEntries.add(Pair.wrap(mapEntry.getKey(), parentEntry));
+					final TermEntry<I, L, K, R> newChildEntry = termEntryFactory.getEntry(
+						newNodeID,
+						childEntry.getTerm());
+					final TermEntry<I, L, K, R> newParentEntry = termEntryFactory.getEntry(
+						newParentNodeID,
+						parentEntry.getTerm());
+
+					newEntries.add(Pair.wrap(newChildEntry, newParentEntry));
+				}
+			}
+		}
+		for (Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>> removeEntry : removeEntries) {
+			dependencyMap.remove(removeEntry.getFirst(), removeEntry.getSecond());
+		}
+		removeEntries.clear();
+		for (Pair<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>> newEntry : newEntries) {
+			dependencyMap.put(newEntry.getFirst(), newEntry.getSecond());
+		}
+		newEntries.clear();
+
+		final Iterator<TermEntry<I, L, K, R>> govTermIter = dependencyMap.getGoverningTerms().iterator();
+		while (govTermIter.hasNext()) {
+			final TermEntry<I, L, K, R> govTerm = govTermIter.next();
+			if (govTerm.getNodeID().equals(sourceID)) {
+				govTermIter.remove();
+				final TermEntry<I, L, K, R> newTerm = termEntryFactory.getEntry(targetID, govTerm.getTerm());
+				newGovTerms.add(newTerm);
+			}
+		}
+
+		/* update dependency map with new temrs */
+		for (TermEntry<I, L, K, R> govTerm : newGovTerms) {
+			dependencyMap.addGoverningTerm(govTerm);
+		}
+	}
+
+		private IABoxNode<I, L, K, R> nextNode(final Collection<NodeID> queue)
+	{
+		checkTBoxGeneration();
+
+		IABoxNode<I, L, K, R> nextNode = null;
+		while ((nextNode == null) && (!queue.isEmpty())) {
+			final Iterator<NodeID> iter = queue.iterator();
+			assert iter.hasNext();
+			final NodeID nextNodeID = iter.next();
+			iter.remove();
+			nextNode = getNode(nextNodeID);
+		}
+		return nextNode;
+	}
 
 	private void checkTBoxGeneration()
 	{

@@ -19,50 +19,19 @@
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
  **/
-package de.uniba.wiai.kinf.pw.projects.lillytab.util;
+package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
-import java.util.WeakHashMap;
 
 /**
  *
+ * @param <I> The type for individuals/nominals
+ * @param <L> The type for literals
+ * @param <K> The type for DL classes
+ * @param <R> The type for properties (roles)
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class LabelCache
-	implements IToStringFormatter {
-
-
-	public static LabelCache decorate(final IToStringFormatter baseFormatter)
-	{
-		return new LabelCache(baseFormatter);
-	}
-
-	private final IToStringFormatter _baseFormatter;
-	private final WeakHashMap<Object, String> _labelCache = new WeakHashMap<>();
-
-
-	@Deprecated
-	public LabelCache(final IToStringFormatter baseFormatter)
-	{
-		_baseFormatter = baseFormatter;
-	}
-
-
-	@Override
-	public String toString(Object obj)
-	{
-		String label = _labelCache.get(obj);
-		if (label == null) {
-			label = _baseFormatter.toString(obj);
-			_labelCache.put(obj, label);
-		}
-		return label;
-	}
-
-
-	@Override
-	public void append(StringBuilder sb, Object obj)
-	{
-		final String label = toString(obj);
-		sb.append(label);
-	}
+public interface IDLNodeTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends IDLTerm<I, L, K, R>
+{
 }

@@ -7,12 +7,9 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRangeAtom;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.ISWRLTermVisitor;
 
 /**
  * @param <I> The type for individuals/nominals
@@ -58,19 +55,6 @@ public class SWRLDataRangeAtom<I extends Comparable<? super I>, L extends Compar
 
 
 	@Override
-	public String toString(IToStringFormatter formatter)
-	{
-		final StringBuffer sb = new StringBuffer();
-		sb.append("(");
-		sb.append(_range.toString(formatter));
-		sb.append(" ");
-		sb.append(_individual.toString(formatter));
-		sb.append(")");
-		return sb.toString();
-	}
-
-
-	@Override
 	public String toString()
 	{
 		final StringBuffer sb = new StringBuffer();
@@ -95,5 +79,32 @@ public class SWRLDataRangeAtom<I extends Comparable<? super I>, L extends Compar
 				compare = getIndividual().compareTo(other.getIndividual());
 		}
 		return compare;
+	}
+
+
+	@Override
+	public void accept(final ISWRLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
+	}
+
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj)
+			return true;
+		else if (obj instanceof ISWRLDataRangeAtom) {
+			final ISWRLDataRangeAtom<?, ?, ?, ?> other = (ISWRLDataRangeAtom<?, ?, ?, ?>) obj;
+			return getDataRange().equals(other.getDataRange()) && getIndividual().equals(other.getIndividual());
+		} else
+			return false;
+	}
+
+
+	@Override
+	public int hashCode()
+	{
+		return 2417 * getDataRange().hashCode() + 1049 * getIndividual().hashCode();
 	}
 }

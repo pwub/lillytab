@@ -39,16 +39,14 @@ import java.util.SortedSet;
  */
 public class ImmutableIndividualABoxNode<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends ImmutableABoxNode<I, I, L, K, R>
-	implements IIndividualABoxNode<I, L, K, R> {
-
-	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableIndividualABoxNode<I, L, K, R> decorate(
+	implements IIndividualABoxNode<I, L, K, R> { ImmutableIndividualABoxNode(
 		final IIndividualABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
 	{
-		return new ImmutableIndividualABoxNode<>(baseNode, abox);
-	}
-	 ImmutableIndividualABoxNode(final IIndividualABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
-	{
 		super(baseNode, abox);
+	}
+	 public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableIndividualABoxNode<I, L, K, R> decorate(final IIndividualABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
+	{
+		return new ImmutableIndividualABoxNode<>(baseNode, abox);
 	}
 	
 

@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.map;
 
 import de.dhke.projects.cutil.Pair;
@@ -29,10 +30,30 @@ import java.util.HashMap;
  * @author Peter Wullinger <java@dhke.de>
  */
 public class PairHashMap<First, Second, Tag>
-	extends PairMap<First, Second, Tag>
-{
+	extends PairMap<First, Second, Tag> {
+
 	public PairHashMap()
 	{
 		super(new HashMap<Pair<First, Second>, Tag>());
+	}
+
+
+	@Override
+	public String toString()
+	{
+		final StringBuilder sb = new StringBuilder();
+		sb.append("{");
+		boolean first = true;
+		for (Pair<First, Second> keyPair : keySet()) {
+			if (first)
+				first = false;
+			else
+				sb.append(", ");
+			sb.append(keyPair);
+			sb.append(": ");
+			sb.append(get(keyPair));
+		}
+		sb.append("}");
+		return sb.toString();
 	}
 }

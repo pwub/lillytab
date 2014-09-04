@@ -54,11 +54,16 @@ import org.junit.Test;
 public class ABoxCloneTest {
 	private static IABoxFactory<String, String, String, String> _aboxFactory;
 	private static SimpleKRSSParser _parser;
+	private IABox<String, String, String, String> _abox;
+
+
+	public ABoxCloneTest()
+	{
+	}
 
 
 	@BeforeClass
-	public static void setUpClass()
-		throws Exception
+	public static void setUpClass() throws Exception
 	{
 		final IDLTermFactory<String, String, String, String> termFactory = new SimpleStringDLTermFactory();
 		_aboxFactory = new ABoxFactory<>(termFactory);
@@ -67,17 +72,10 @@ public class ABoxCloneTest {
 
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
+	public static void tearDownClass() throws Exception
 	{
 		_aboxFactory = null;
 		_parser = null;
-	}
-	private IABox<String, String, String, String> _abox;
-
-
-	public ABoxCloneTest()
-	{
 	}
 
 
@@ -96,7 +94,8 @@ public class ABoxCloneTest {
 
 
 	@Test
-	public void testNodeClone() throws EInconsistentABoxException
+	public void testNodeClone()
+		throws EInconsistentABoxException
 	{
 		final IABoxNode<String, String, String, String> node = _abox.createNode(false);
 
@@ -110,7 +109,8 @@ public class ABoxCloneTest {
 
 
 	@Test
-	public void testNodeCloneChange() throws EInconsistencyException
+	public void testNodeCloneChange()
+		throws EInconsistencyException
 	{
 		final IABoxNode<String, String, String, String> node = _abox.createNode(false);
 		final IABox<String, String, String, String> klone = _abox.clone();

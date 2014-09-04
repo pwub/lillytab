@@ -29,15 +29,14 @@ final class EqualityAwareComparator<T>
 	implements Comparator<T>, IDecorator<Comparator<? super T>>
 {
 	private final Comparator<? super T> _baseComparator;
+  EqualityAwareComparator(final Comparator<? super T> baseComparator)
+	{
+		_baseComparator = baseComparator;
+	}
 
 	public static <T> EqualityAwareComparator<T> decorate(final Comparator<T> baseComparator)
 	{
 		return new EqualityAwareComparator<>(baseComparator);
-	}
-
-	EqualityAwareComparator(final Comparator<? super T> baseComparator)
-	{
-		_baseComparator = baseComparator;
 	}
 
 	@Override

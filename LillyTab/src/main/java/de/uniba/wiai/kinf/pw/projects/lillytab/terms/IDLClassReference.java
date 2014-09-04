@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
+
 /**
  * 
  * Reference to an description logics class.
@@ -34,6 +35,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IDLClassReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends IDLClassExpression<I, L, K, R>, IDLElementReference<K>, IAtom {
+public interface IDLClassReference<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends IDLClassExpression<I, L, K, R>, IDLElementReference<K>, IAtom
+{
 }

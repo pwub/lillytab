@@ -22,14 +22,16 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox;
 
+import de.dhke.projects.cutil.collections.factories.EnumSetFactory;
+import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
+import de.dhke.projects.cutil.collections.factories.SortedListSetFactory;
+import de.dhke.projects.cutil.collections.factories.TreeSetFactory;
 import de.dhke.projects.cutil.collections.iterator.MultiMapEntryIterator;
-import de.dhke.projects.cutil.collections.map.MultiEnumSetHashMap;
-import de.dhke.projects.cutil.collections.map.MultiSortedListSetHashMap;
-import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
+import de.dhke.projects.cutil.collections.map.GenericMultiHashMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.*;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.lang.ref.WeakReference;
 import java.util.*;
 import org.apache.commons.collections15.MultiMap;
@@ -50,8 +52,8 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 	// <editor-fold defaultstate="collapsed" desc="private variables">
 	private final WeakReference<ITBox<I, L, K, R>> _tboxRef;
 	private final RBox<I, L, K, R> _rbox;
-	private final MultiMap<R, IDLClassExpression<I, L, K, R>> _roleDomains = new MultiTreeSetHashMap<>();
-	private final MultiMap<R, IDLRestriction<I, L, K, R>> _roleRanges = new MultiTreeSetHashMap<>();
+	private final MultiMap<R, IDLClassExpression<I, L, K, R>> _roleDomains;
+	private final MultiMap<R, IDLNodeTerm<I, L, K, R>> _roleRanges;
 	private final MultiMap<R, R> _inverseRoles;
 	private final MultiMap<R, R> _equivalentRoles;
 	private final MultiMap<R, R> _subRoles;
@@ -68,55 +70,24 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 		super();
 		_tboxRef = new WeakReference<>(tbox);
 
+		_roleDomains = new GenericMultiHashMap<>(new TreeSetFactory<IDLClassExpression<I, L, K, R>>());
+		_roleRanges = new GenericMultiHashMap<>(new TreeSetFactory<IDLNodeTerm<I, L, K, R>>());
+
+		final ICollectionFactory<R, ? extends Collection<R>> roleSetFactory = new SortedListSetFactory<>();
+
 		_roleTypeMap = new HashMap<>();
-		_typeRoleMap = new MultiSortedListSetHashMap<>();
+		_typeRoleMap = new GenericMultiHashMap<>(roleSetFactory);
 
-		_rolePropertyMap = new MultiEnumSetHashMap<>(RoleProperty.class);
-		_propertyRoleMap = new MultiTreeSetHashMap<>();
+		_rolePropertyMap = new GenericMultiHashMap<>(new EnumSetFactory<>(RoleProperty.class));
+		_propertyRoleMap = new GenericMultiHashMap<>(roleSetFactory);
 
-		_inverseRoles = new MultiSortedListSetHashMap<>();
-		_equivalentRoles = new MultiSortedListSetHashMap<>();
+		_inverseRoles = new GenericMultiHashMap<>(roleSetFactory);
+		_equivalentRoles = new GenericMultiHashMap<>(roleSetFactory);
 
-		_subRoles = new MultiSortedListSetHashMap<>();
-		_superRoles = new MultiSortedListSetHashMap<>();
+		_subRoles = new GenericMultiHashMap<>(roleSetFactory);
+		_superRoles = new GenericMultiHashMap<>(roleSetFactory);
 
 		_rbox = new RBox<>(this);
-	}
-
-
-	protected MultiMap<R, R> getEquivalentRoles()
-	{
-		return _equivalentRoles;
-	}
-
-
-	protected MultiMap<R, R> getSubRoles()
-	{
-		return _subRoles;
-	}
-
-
-	protected MultiMap<R, R> getSuperRoles()
-	{
-		return _superRoles;
-	}
-
-
-	protected MultiMap<R, R> getInverseRoles()
-	{
-		return _inverseRoles;
-	}
-
-
-	protected MultiMap<R, RoleProperty> getRoleProperties()
-	{
-		return _rolePropertyMap;
-	}
-
-
-	protected MultiMap<RoleProperty, R> getPropertyRoles()
-	{
-		return _propertyRoleMap;
 	}
 
 
@@ -128,8 +99,7 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 
 
 	@Override
-	public boolean addRole(R role, RoleType roleType)
-		throws EInconsistentRBoxException
+	public boolean addRole(R role, RoleType roleType) throws EInconsistentRBoxException
 	{
 		if (roleType == null) {
 			throw new IllegalArgumentException("roleType cannot be null");
@@ -233,18 +203,17 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 		}
 	}
 
-	// <editor-fold defaultstate="collapsed" desc="R Type Management">
 
+	// <editor-fold defaultstate="collapsed" desc="R Type Management">
 	@Override
-	public Collection<R> getRoles(RoleType type)
+public Collection<R> getRoles(RoleType type)
 	{
 		return Collections.unmodifiableCollection(_typeRoleMap.get(type));
 	}
 
 
 	@Override
-	public void setRoleType(R role, RoleType roleType)
-		throws EInconsistentRBoxException
+	public void setRoleType(R role, RoleType roleType) throws EInconsistentRBoxException
 	{
 		final RoleType preRoleType = _roleTypeMap.get(role);
 		final IRBox<I, L, K, R> rbox = getRBox();
@@ -305,12 +274,10 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 		}
 	}
 
-	// </editor-fold>
-	// <editor-fold defaultstate="collapsed" desc="R Property Management">
 
+	// </editor-fold>
 	@Override
-	public boolean setRoleProperty(R role, RoleProperty property)
-		throws EInconsistentRBoxException
+	public boolean setRoleProperty(R role, RoleProperty property) throws EInconsistentRBoxException
 	{
 		if (!_roleTypeMap.containsKey(role)) {
 			throw new IllegalArgumentException(String.format("Must set role type for role `%s', first", role));
@@ -375,7 +342,6 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 		}
 	}
 
-
 	@Override
 	public boolean hasRoleProperty(R role, RoleProperty property)
 	{
@@ -394,9 +360,9 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 		}
 	}
 	// </editor-fold>
+	
 
 	// <editor-fold defaultstate="collapsed" desc="Domain and Range management">
-
 	@Override
 	public MultiMap<R, IDLClassExpression<I, L, K, R>> getRoleDomains()
 	{
@@ -405,14 +371,13 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 
 
 	@Override
-	public MultiMap<R, IDLRestriction<I, L, K, R>> getRoleRanges()
+	public MultiMap<R, IDLNodeTerm<I, L, K, R>> getRoleRanges()
 	{
 		return _roleRanges;
 	}
 
-
 	@Override
-	public Collection<IDLRestriction<I, L, K, R>> getRoleRanges(R role)
+	public Collection<IDLNodeTerm<I, L, K, R>> getRoleRanges(R role)
 	{
 		return _roleRanges.get(role);
 	}
@@ -424,8 +389,8 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 		return _roleDomains.get(role);
 	}
 
-	/// </editor-fold>
 
+	/// </editor-fold>
 	@Override
 	public boolean removeEquivalentRole(R first, R second)
 	{
@@ -450,8 +415,7 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 
 
 	@Override
-	public boolean addEquivalentRole(R first, R second)
-		throws EInconsistentRBoxException
+	public boolean addEquivalentRole(R first, R second) throws EInconsistentRBoxException
 	{
 		final IRBox<I, L, K, R> rbox = getRBox();
 		if (rbox.isInverseRole(first, second)) {
@@ -478,7 +442,6 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 			}
 		}
 	}
-
 
 	@Override
 	public Set<R> getEquivalentRoles(R role)
@@ -519,8 +482,7 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 
 
 	@Override
-	public boolean addInverseRole(final R first, final R second)
-		throws EInconsistentRBoxException
+	public boolean addInverseRole(final R first, final R second) throws EInconsistentRBoxException
 	{
 		final IRBox<I, L, K, R> rbox = getRBox();
 		if (first.equals(second)) {
@@ -556,7 +518,6 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 			return true;
 		}
 	}
-
 
 	@Override
 	public Set<R> getInverseRoles(R role)
@@ -631,8 +592,7 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 
 
 	@Override
-	public boolean addSubRole(R sup, R sub)
-		throws EInconsistentRBoxException
+	public boolean addSubRole(R sup, R sub) throws EInconsistentRBoxException
 	{
 		if (isInverseRole(sup, sub)) {
 			throw new EInconsistentRBoxException(this, String.format(
@@ -665,13 +625,6 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 	}
 
 
-	private void recalculate()
-		throws EInconsistentRBoxException
-	{
-		_rbox.recalculate();
-	}
-
-
 	@Override
 	public IAssertedRBox<I, L, K, R> getAssertedRBox()
 	{
@@ -679,7 +632,7 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 	}
 
 
-	public RBox<I, L, K, R> getRBox()
+		public RBox<I, L, K, R> getRBox()
 	{
 		return _rbox;
 	}
@@ -727,5 +680,47 @@ public class AssertedRBox<I extends Comparable<? super I>, L extends Comparable<
 	public IAssertedRBox<I, L, K, R> getImmutable()
 	{
 		return new ImmutableAssertedRBox<>(getTBox(), getRBox(), getAssertedRBox());
+	}
+
+
+	protected MultiMap<R, R> getEquivalentRoles()
+	{
+		return _equivalentRoles;
+	}
+
+
+		protected MultiMap<R, R> getSubRoles()
+	{
+		return _subRoles;
+	}
+
+
+	protected MultiMap<R, R> getSuperRoles()
+	{
+		return _superRoles;
+	}
+
+
+		protected MultiMap<R, R> getInverseRoles()
+	{
+		return _inverseRoles;
+	}
+
+
+		protected MultiMap<R, RoleProperty> getRoleProperties()
+	{
+		return _rolePropertyMap;
+	}
+
+
+		protected MultiMap<RoleProperty, R> getPropertyRoles()
+	{
+		return _propertyRoleMap;
+	}
+
+
+		private void recalculate() throws EInconsistentRBoxException
+	{
+		_rbox.recalculate();
 	}
 }

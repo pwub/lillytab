@@ -59,9 +59,39 @@ public class OWLAPISWRLLoader
 		return _swrlFactory;
 	}
 
-	private ISWRLIArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> handleIndividual(
-		final SWRLIArgument arg,
-		final BidiMap<IRI, String> varNames)
+	public ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> convertRule(
+		final SWRLRule sourceRule)
+	{
+		final BidiMap<IRI, String> varNames = new DualHashBidiMap<>();
+		final Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> bodyAtoms = convertAtoms(
+			sourceRule.getBody(),
+			varNames);
+		final Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> headAtoms = convertAtoms(
+			sourceRule.getHead(),
+			varNames);
+		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetRule = _swrlFactory.getSWRLRule(
+			SWRLTermUtil.joinIntoIntersection(headAtoms, _swrlFactory),
+			SWRLTermUtil.joinIntoIntersection(bodyAtoms, _swrlFactory));
+		return targetRule;
+	}
+
+	public Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> getRules(
+		final OWLOntology onto)
+	{
+		final Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> rules =
+			new TreeSet<>();
+
+		for (OWLLogicalAxiom logAx : onto.getLogicalAxioms()) {
+			if (logAx instanceof SWRLRule) {
+				final SWRLRule rule = (SWRLRule) logAx;
+				final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetRule = convertRule(rule);
+				rules.add(targetRule);
+			}
+		}
+		return rules;
+	}
+
+	private ISWRLIArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> handleIndividual(final SWRLIArgument arg, final BidiMap<IRI, String> varNames)
 	{
 		if (arg instanceof SWRLVariable) {
 			final SWRLVariable var = (SWRLVariable) arg;
@@ -81,8 +111,7 @@ public class OWLAPISWRLLoader
 	}
 
 	private ISWRLDArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> handleData(
-		final SWRLDArgument arg,
-		final BidiMap<IRI, String> varNames)
+		final SWRLDArgument arg, final BidiMap<IRI, String> varNames)
 	{
 		if (arg instanceof SWRLVariable) {
 			final SWRLVariable var = (SWRLVariable) arg;
@@ -123,9 +152,7 @@ public class OWLAPISWRLLoader
 		return varName;
 	}
 
-	private Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> convertAtoms(
-		final Collection<SWRLAtom> sourceAtoms,
-		final BidiMap<IRI, String> varNames)
+	private Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> convertAtoms(final Collection<SWRLAtom> sourceAtoms, final BidiMap<IRI, String> varNames)
 	{
 		final Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> targetAtoms = new TreeSet<>();
 		for (SWRLAtom sourceAtom : sourceAtoms) {
@@ -191,35 +218,5 @@ public class OWLAPISWRLLoader
 			}
 		}
 		return targetAtoms;
-	}
-
-	public ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> convertRule(final SWRLRule sourceRule)
-	{
-		final BidiMap<IRI, String> varNames = new DualHashBidiMap<>();
-		final Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> bodyAtoms = convertAtoms(
-			sourceRule.getBody(),
-			varNames);
-		final Set<ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> headAtoms = convertAtoms(
-			sourceRule.getHead(),
-			varNames);
-		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetRule = _swrlFactory.getSWRLRule(
-			SWRLTermUtil.joinIntoIntersection(headAtoms, _swrlFactory),
-			SWRLTermUtil.joinIntoIntersection(bodyAtoms, _swrlFactory));
-		return targetRule;
-	}
-
-	public Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> getRules(final OWLOntology onto)
-	{
-		final Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> rules =
-			new TreeSet<>();
-
-		for (OWLLogicalAxiom logAx : onto.getLogicalAxioms()) {
-			if (logAx instanceof SWRLRule) {
-				final SWRLRule rule = (SWRLRule) logAx;
-				final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> targetRule = convertRule(rule);
-				rules.add(targetRule);
-			}
-		}
-		return rules;
 	}
 }

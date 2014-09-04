@@ -25,7 +25,8 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.ISWRLTermVisitor;
+
 
 /**
  *
@@ -35,11 +36,10 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SWRLClassAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements ISWRLClassAtom<I, L, K, R> {
-
+	implements ISWRLClassAtom<I, L, K, R>
+{
 	private final K _klass;
 	private final ISWRLIArgument<I, L, K, R> _individual;
-
 
 	protected SWRLClassAtom(final K klass, final ISWRLIArgument<I, L, K, R> individual)
 	{
@@ -47,13 +47,11 @@ public class SWRLClassAtom<I extends Comparable<? super I>, L extends Comparable
 		_individual = individual;
 	}
 
-
 	@Override
 	public ISWRLClassAtom<I, L, K, R> clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public K getKlass()
@@ -61,20 +59,17 @@ public class SWRLClassAtom<I extends Comparable<? super I>, L extends Comparable
 		return _klass;
 	}
 
-
 	@Override
 	public ISWRLIArgument<I, L, K, R> getIndividual()
 	{
 		return _individual;
 	}
 
-
 	@Override
 	public int hashCode()
 	{
 		return 7 * _klass.hashCode() + _individual.hashCode();
 	}
-
 
 	@Override
 	public boolean equals(final Object obj)
@@ -92,7 +87,6 @@ public class SWRLClassAtom<I extends Comparable<? super I>, L extends Comparable
 
 	}
 
-
 	@Override
 	public String toString()
 	{
@@ -105,26 +99,11 @@ public class SWRLClassAtom<I extends Comparable<? super I>, L extends Comparable
 		return sb.toString();
 	}
 
-
-	@Override
-	public String toString(IToStringFormatter formatter)
-	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		sb.append(formatter.toString(_klass));
-		sb.append(" ");
-		sb.append(_individual.toString(formatter));
-		sb.append(")");
-		return sb.toString();
-	}
-
-
 	@Override
 	public SWRLTermOrder getSWRLTermOrder()
 	{
 		return SWRLTermOrder.SWRL_AFTER_CLASS_ATOM;
 	}
-
 
 	@Override
 	public int compareTo(final ISWRLTerm<I, L, K, R> o)
@@ -143,5 +122,11 @@ public class SWRLClassAtom<I extends Comparable<? super I>, L extends Comparable
 			}
 		}
 		return compare;
+	}
+
+	@Override
+	public void accept(final ISWRLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
 	}
 }

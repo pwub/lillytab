@@ -30,7 +30,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -71,12 +71,6 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 	}
 
 
-	protected IABoxNode<I, L, K, R> getBaseNode()
-	{
-		return _baseNode;
-	}
-
-
 	@Override
 	public NodeID getNodeID()
 	{
@@ -112,7 +106,7 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 	}
 
 
-	public void setABox(final IABox<I, L, K, R> abox)
+		public void setABox(final IABox<I, L, K, R> abox)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
@@ -178,9 +172,7 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 
 
 	@Override
-	public NodeMergeInfo<I, L, K, R> addTerm(
-		IDLRestriction<I, L, K, R> term)
-		throws ENodeMergeException, EIllegalTermTypeException
+	public NodeMergeInfo<I, L, K, R> addTerm(IDLNodeTerm<I, L, K, R> term) throws ENodeMergeException, EIllegalTermTypeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
@@ -188,9 +180,16 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addTerms(
-		Collection<? extends IDLRestriction<I, L, K, R>> terms)
+		Collection<? extends IDLNodeTerm<I, L, K, R>> terms)
 		throws ENodeMergeException, EIllegalTermTypeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
+	}
+
+
+		protected IABoxNode<I, L, K, R> getBaseNode(
+		)
+	{
+		return _baseNode;
 	}
 }

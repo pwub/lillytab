@@ -22,25 +22,26 @@
 package de.dhke.projects.cutil.collections.factories;
 
 import de.dhke.projects.cutil.collections.set.SortedListSet;
+import java.util.Collection;
 import java.util.Set;
 
 /**
  *
- * @param <T> 
+ * @param <E> 
  * @author Peter Wullinger <java@dhke.de>
  */
-public class SortedListSetFactory<T extends Comparable<? super T>>
-	implements ICollectionFactory<T, Set<T>>
+public class SortedListSetFactory<E extends Comparable<? super E>>
+	implements ICollectionFactory<E, Set<E>>
 {
 
 	@Override
-	public Set<T> getInstance()
+	public Set<E> getInstance()
 	{
 		return new SortedListSet<>();
 	}
 
 	@Override
-	public Set<T> getInstance(final Set<T> baseCollection)
+	public Set<E> getInstance(final Collection<? extends E> baseCollection)
 	{
 		return new SortedListSet<>(baseCollection);
 	}

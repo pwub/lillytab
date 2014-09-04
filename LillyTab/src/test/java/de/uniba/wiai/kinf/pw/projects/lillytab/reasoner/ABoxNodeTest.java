@@ -62,20 +62,6 @@ import org.junit.Test;
  */
 public class ABoxNodeTest {
 
-
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
 	private IDLTermFactory<String, String, String, String> _termFactory;
 	private IABoxFactory<String, String, String, String> _aboxFactory;
 	private IABox<String, String, String, String> _abox;
@@ -88,6 +74,18 @@ public class ABoxNodeTest {
 	}
 
 
+	@BeforeClass
+	public static void setUpClass()
+		throws Exception
+	{
+	}
+
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
+	{
+	}
+
 	@Before
 	public void setUp()
 		throws EReasonerException, EInconsistencyException
@@ -99,7 +97,6 @@ public class ABoxNodeTest {
 		_aboxNode = _abox.getOrAddIndividualNode("Node");
 		_aboxNode.addTerm(_termFactory.getDLClassReference("A"));
 	}
-
 
 	@After
 	public void tearDown()
@@ -115,8 +112,7 @@ public class ABoxNodeTest {
 	 * Test of clone method, of class IABoxNode.
 	 */
 	@Test
-	public void testClone()
-		throws ENodeMergeException
+	public void testClone() throws ENodeMergeException
 	{
 		final IABox<String, String, String, String> box2 = _aboxFactory.createABox();
 		final IABoxNode<String, String, String, String> klone = _aboxNode.clone(box2);
@@ -158,12 +154,12 @@ public class ABoxNodeTest {
 		assertSame(_abox, _aboxNode.getABox());
 	}
 
-
 	/**
 	 * Test of getSuccessorPairs method, of class IABoxNode.
 	 */
 	@Test
-	public void testGetSuccessors() throws EReasonerException, ENodeMergeException
+	public void testGetSuccessors()
+		throws EReasonerException, ENodeMergeException
 	{
 		final IABox<String, String, String, String> box2 = _aboxFactory.createABox();
 		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
@@ -173,12 +169,12 @@ public class ABoxNodeTest {
 		assertTrue(klone.getRABox().getAssertedSuccessors().get("r").contains(node2.getNodeID()));
 	}
 
-
 	/**
 	 * Test of getPredecessorPairs method, of class IABoxNode.
 	 */
 	@Test
-	public void testGetPredecessors() throws EReasonerException, ENodeMergeException
+	public void testGetPredecessors()
+		throws EReasonerException, ENodeMergeException
 	{
 		final IABox<String, String, String, String> box2 = _aboxFactory.createABox();
 		final IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
@@ -187,6 +183,7 @@ public class ABoxNodeTest {
 
 		assertTrue(node2.getRABox().getAssertedPredecessors().get("r").contains(_aboxNode.getNodeID()));
 	}
+
 
 	@Test
 	public void testDeepHashCode()
@@ -215,6 +212,7 @@ public class ABoxNodeTest {
 		node2.getRABox().getAssertedSuccessors().put("r", node3.getNodeID());
 		assertTrue(node1.deepHashCode() == node2.deepHashCode());
 	}
+
 
 	@Test
 	public void testDeepEquals()

@@ -22,7 +22,8 @@
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
+
 
 /**
  *
@@ -36,14 +37,13 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IDLTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends ITerm, Comparable<IDLTerm<I, L, K, R>> {
-
+	extends ITerm, Comparable<IDLTerm<I, L, K, R>>
+{
 	/**
 	 * @return A dummy term that sorts BEFORE all terms of the current type.
 	 *
 	 */
 	IDLTerm<I, L, K, R> getBefore();
-
 
 	/**
 	 * @return A dummy term that sorts AFTER all terms of the current type.
@@ -51,21 +51,9 @@ public interface IDLTerm<I extends Comparable<? super I>, L extends Comparable<?
 	 */
 	IDLTerm<I, L, K, R> getAfter();
 
-
 	DLTermOrder getDLTermOrder();
 
-
-	/**
-	 * Convert the current term into a String using the provided {
-	 *
-	 * @see IToStringFormatter} to format external entities (OWL objects).
-	 *
-	 * @param entityFormatter
-	 * <p/>
-	 * @return
-	 */
-	String toString(final IToStringFormatter entityFormatter);
-
-
 	IDLTerm<I, L, K, R> clone();
+
+	void accept(final IDLTermVisitor<I, L, K, R> visitor);
 }

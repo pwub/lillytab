@@ -18,46 +18,50 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.cow;
 
-import de.dhke.projects.cutil.collections.factories.HashSetFactory;
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
 import java.util.Set;
 
 /**
  *
  * @param <E>
+ * @param <S>
+ *            <p/>
  * @author Peter Wullinger <java@dhke.de>
  */
 public class CopyOnWriteSet<E>
-	extends GenericCopyOnWriteSet<E, Set<E>>
-	implements Cloneable
-{
-	protected CopyOnWriteSet(final Set<E> baseSet, final ICollectionFactory<E, Set<E>> factory)
+	extends CopyOnWriteCollection<E>
+	implements Set<E> {
+
+	protected CopyOnWriteSet(final Set<E> wrappedSet, final ICollectionFactory<E, ? extends Set<E>> factory)
 	{
-		super(baseSet, factory);
+		super(wrappedSet, factory);
 	}
 
-	protected CopyOnWriteSet(final Set<E> baseSet)
-	{
-		super(baseSet, new HashSetFactory<E>());
-	}
-
-	public static <E> CopyOnWriteSet<E> decorate(final Set<E> baseSet, final ICollectionFactory<E, Set<E>> factory)
-	{
-		return new CopyOnWriteSet<>(baseSet, factory);
-	}
-
-	public static <E> CopyOnWriteSet<E> decorate(final Set<E> baseSet)
-	{
-		return new CopyOnWriteSet<>(baseSet);
-	}
 
 	@Override
-	public CopyOnWriteSet<E> clone()
+	public Set<E> getDecoratee()
 	{
-		final CopyOnWriteSet<E> klone = decorate(getDecoratee(), getFactory());
+		return (Set<E>) super.getDecoratee();
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	protected ICollectionFactory<E, ? extends Set<E>> getFactory()
+	{
+		return (ICollectionFactory<E, ? extends Set<E>>) super.getFactory(); //To change body of generated methods, choose Tools | Templates.
+	}
+
+
+	@Override
+	protected CopyOnWriteSet<E> clone()
+		throws CloneNotSupportedException
+	{
+		final CopyOnWriteSet<E> klone = new CopyOnWriteSet<>(getDecoratee(), getFactory());
 		resetWasCopied();
 		return klone;
 	}

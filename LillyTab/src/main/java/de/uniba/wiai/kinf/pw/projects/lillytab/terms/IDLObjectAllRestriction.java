@@ -31,7 +31,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IDLObjectAllRestriction<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IDLObjectAllRestriction<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends IDLAllRestriction<I, L, K, R>, IDLObjectRestriction<I, L, K, R>
-{	
+{
 }

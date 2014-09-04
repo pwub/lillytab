@@ -24,7 +24,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.tbox;
 
 import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
@@ -99,7 +99,7 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * <p/>
 	 * @return The role domains of {@literal role}.
 	 */
-	Collection<IDLRestriction<I, L, K, R>> getRoleRanges(final R role);
+	Collection<IDLNodeTerm<I, L, K, R>> getRoleRanges(final R role);
 
 
 	/**

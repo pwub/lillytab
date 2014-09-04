@@ -36,20 +36,6 @@ import org.junit.Test;
  */
 public class TermUtilTest {
 
-
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
 	private IDLTermFactory<String, String, String, String> _termFactory;
 	private SimpleKRSSParser _parser;
 
@@ -59,13 +45,23 @@ public class TermUtilTest {
 	}
 
 
+	@BeforeClass
+	public static void setUpClass() throws Exception
+	{
+	}
+
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
+	{
+	}
+
 	@Before
 	public void setUp()
 	{
 		_termFactory = new SimpleStringDLTermFactory();
 		_parser = new SimpleKRSSParser(_termFactory);
 	}
-
 
 	@After
 	public void tearDown()

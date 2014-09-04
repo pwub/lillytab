@@ -33,14 +33,14 @@ public class InverseComparator<T>
 {
 	private final Comparator<? super T> _baseComparator;
 
+	public  InverseComparator(final Comparator<? super T> baseComparator)
+	{
+		_baseComparator = baseComparator;
+	}
+
 	public static <T> InverseComparator<T> decorate(final Comparator<? super T> baseComparator)
 	{
 		return new InverseComparator<>(baseComparator);
-	}
-
-	public InverseComparator(final Comparator<? super T> baseComparator)
-	{
-		_baseComparator = baseComparator;
 	}
 
 	@Override

@@ -26,7 +26,7 @@ import de.dhke.projects.cutil.collections.set.Flat3Set;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.*;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDatatype;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AnyDataType;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -262,8 +262,9 @@ public class OWLAPIDataType
 	}
 
 	@Override
-	public String toString(IToStringFormatter entityFormatter)
+	public void accept(
+		IDLTermVisitor<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> visitor)
 	{
-		return toString();
+		visitor.visit(this);
 	}
 }

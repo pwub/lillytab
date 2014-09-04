@@ -36,7 +36,14 @@ public class GenericImmutableIterable<T, I extends Iterable<T>>
 	private final I _backIterable;
 	private final Transformer<T, T> _valueTransformer;
 
-	public Transformer<T, T> getValueTransformer()
+	protected GenericImmutableIterable(final I backIterable, final Transformer<T, T> valueTransformer)
+	{
+		assert backIterable != null;
+		_backIterable = backIterable;
+		_valueTransformer = valueTransformer;
+	}
+
+		public Transformer<T, T> getValueTransformer()
 	{
 		return _valueTransformer;
 	}
@@ -45,13 +52,6 @@ public class GenericImmutableIterable<T, I extends Iterable<T>>
 	public I getDecoratee()
 	{
 		return _backIterable;
-	}
-
-	protected GenericImmutableIterable(final I backIterable, final Transformer<T, T> valueTransformer)
-	{
-		assert backIterable != null;
-		_backIterable = backIterable;
-		_valueTransformer = valueTransformer;
 	}
 
 	public static <T, C extends Iterable<T>> GenericImmutableIterable<T, C> decorate(final C backColl)

@@ -40,24 +40,22 @@ import org.junit.Test;
  */
 public class TermEqualityTest {
 
+	private IDLTermFactory<String, String, String, String> _termFactory;
+
+
+	public TermEqualityTest()
+	{
+	}
+
 
 	@BeforeClass
-	public static void setUpClass()
-		throws Exception
+	public static void setUpClass() throws Exception
 	{
 	}
 
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
-	private IDLTermFactory<String, String, String, String> _termFactory;
-
-
-	public TermEqualityTest()
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -159,7 +157,6 @@ public class TermEqualityTest {
 		assertFalse(i0.equals(i3));
 		assertFalse(i3.equals(i0));
 	}
-
 
 	@Test
 	public void testSomeRestrictionEquality()

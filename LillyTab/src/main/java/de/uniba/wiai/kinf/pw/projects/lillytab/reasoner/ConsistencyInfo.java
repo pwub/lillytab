@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
+import de.dhke.projects.cutil.collections.ExtractorCollection;
 import de.dhke.projects.cutil.collections.frozen.FrozenFlat3Set;
 import de.dhke.projects.cutil.collections.set.Flat3Set;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
@@ -29,10 +30,14 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDependencyMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntry;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermEntryFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLUnion;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.collections15.Transformer;
+
 
 /**
  *
@@ -43,20 +48,13 @@ import java.util.Set;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> {
-
-	public enum ClashType {
-
-		CONSISTENT,
-		TRANSIENT,
-		FINAL
-	}
+public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+{
 	private ClashType _clashType;
 	/**
 	 * The culprit set contains information about the ... XXX
 	 */
 	private final Set<Set<Set<TermEntry<I, L, K, R>>>> _culprits;
-
 
 	public ConsistencyInfo(final ClashType clashType)
 	{
@@ -64,24 +62,20 @@ public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Co
 		_culprits = new HashSet<>();
 	}
 
-
 	public ConsistencyInfo()
 	{
 		this(ClashType.CONSISTENT);
 	}
-
 
 	public ClashType getClashType()
 	{
 		return _clashType;
 	}
 
-
 	public void setClashType(final ClashType clashType)
 	{
 		_clashType = clashType;
 	}
-
 
 	public void upgradeClashType(final ClashType minimumClashType)
 	{
@@ -90,18 +84,15 @@ public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Co
 		}
 	}
 
-
 	public boolean isInconsistent()
 	{
 		return _clashType != ClashType.CONSISTENT;
 	}
 
-
 	public boolean isFinallyInconsistent()
 	{
 		return _clashType == ClashType.FINAL;
 	}
-
 
 	@SafeVarargs
 	public final void addCulprits(final IABoxNode<I, L, K, R> node, IDLTerm<I, L, K, R>... culprits)
@@ -109,33 +100,23 @@ public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Co
 		addCulprits(node, Arrays.asList(culprits));
 	}
 
-
-	public void addCulprits(final IABoxNode<I, L, K, R> node,
-							final Collection<? extends IDLTerm<I, L, K, R>> culprits)
+	public void addCulprits(final IABoxNode<I, L, K, R> node, final Collection<? extends IDLTerm<I, L, K, R>> culprits)
 	{
 		final IABox<I, L, K, R> abox = node.getABox();
 		final TermEntryFactory<I, L, K, R> termEntryFactory = abox.getTermEntryFactory();
-		final IDependencyMap<I, L, K, R> depMap = abox.getDependencyMap();
 
-		final Set<Set<TermEntry<I, L, K, R>>> culpritsSet = new Flat3Set<>();
-		for (IDLTerm<I, L, K, R> culprit : culprits) {
-			TermEntry<I, L, K, R> culpritEntry = termEntryFactory.getEntry(node, culprit);
-			final Set<TermEntry<I, L, K, R>> altSet = new Flat3Set<>();
-			/* if we still have another culprit and if it is not part of the set of alternative culprits, yet */
-			while ((depMap != null) && (culpritEntry != null) && altSet.add(culpritEntry)) {
-				final Collection<TermEntry<I, L, K, R>> parentSet = depMap.getParents(culpritEntry);
-				/* if the culprit has only a single parent, it is an alternative */
-				if ((parentSet != null) && parentSet.isEmpty() || (parentSet.size() > 1)) {
-					culpritEntry = null;
-				} else {
-					culpritEntry = parentSet.iterator().next();
-				}
+		final Collection<TermEntry<I, L, K, R>> culpritEntries =
+			ExtractorCollection.decorate(culprits, new Transformer<IDLTerm<I, L, K, R>, TermEntry<I, L, K, R>>()
+		{
+			@Override
+			public TermEntry<I, L, K, R> transform(
+				IDLTerm<I, L, K, R> input)
+			{
+				return termEntryFactory.getEntry(node, input);
 			}
-			culpritsSet.add(new FrozenFlat3Set<>(altSet));
-		}
-		_culprits.add(new FrozenFlat3Set<>(culpritsSet));
+		});
+		addCulpritEntries(abox, Collections.singleton(culpritEntries));
 	}
-
 
 	public void addCulpritEntries(final IABox<I, L, K, R> abox,
 								  final Collection<? extends Collection<TermEntry<I, L, K, R>>> culpritEntrySets)
@@ -159,6 +140,10 @@ public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Co
 						currentEntry = null;
 					} else {
 						currentEntry = parentSet.iterator().next();
+						if (currentEntry.getTerm() instanceof IDLUnion) {
+							/* do not consider terms that are unions because we only want logical conclusions */
+							currentEntry = null;
+						}
 					}
 				}
 				culpritsSet.add(new FrozenFlat3Set<>(altSet));
@@ -167,13 +152,11 @@ public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Co
 		}
 	}
 
-
 	public void addCulpritEntries(final IABoxNode<I, L, K, R> node,
 								  final Collection<? extends Collection<TermEntry<I, L, K, R>>> culpritEntrySets)
 	{
 		addCulpritEntries(node.getABox(), culpritEntrySets);
 	}
-
 
 	/**
 	 * Determine if the {@literal abox} still has all terms that lead to the clash described by the current
@@ -206,14 +189,12 @@ public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Co
 		return false;
 	}
 
-
 	public ConsistencyInfo<I, L, K, R> updateFrom(final ConsistencyInfo<I, L, K, R> other)
 	{
 		upgradeClashType(other.getClashType());
 		_culprits.addAll(other._culprits);
 		return this;
 	}
-
 
 	@Override
 	public String toString()
@@ -227,5 +208,11 @@ public final class ConsistencyInfo<I extends Comparable<? super I>, L extends Co
 			sb.append("\n");
 		}
 		return sb.toString();
+	}
+	public enum ClashType
+	{
+		CONSISTENT,
+		TRANSIENT,
+		FINAL
 	}
 }

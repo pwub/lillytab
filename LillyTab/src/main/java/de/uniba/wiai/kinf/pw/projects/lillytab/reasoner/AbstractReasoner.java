@@ -116,42 +116,8 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 	}
 
 
-	private void propagateClassification(final byte cfMatrix[][], final int changedRow, final int changedCol)
-	{
-		/**
-		 * (cgMatrix[i][j] == 1) ==> (i ⊑ j) (cgMatrix[i][j] == -1) ==> ¬(i ⊑ j)
-		 */
-		final Queue<Point> queue = new LinkedList<>();
-		queue.add(new Point(changedRow, changedCol));
-
-		while (!queue.isEmpty()) {
-			final Point item = queue.remove();
-			_logger.trace("Propagating from change at %s", item);
-			final int i = item.x;
-			final int j = item.y;
-			final int ij = cfMatrix[i][j];
-			for (int s = 0; s < cfMatrix.length; ++s) {
-				if (ij == 1) {
-					if ((cfMatrix[s][i] == 1) && (cfMatrix[s][j] == 0)) {
-						/* i ⊑ j, s ⊑ i => s ⊑ j */
-						cfMatrix[s][j] = 1;
-						queue.add(new Point(s, j));
-					}
-				} else if (ij == -1) {
-					if ((cfMatrix[s][j] == 1) && (cfMatrix[i][s] == 0)) {
-						cfMatrix[i][s] = -1;
-						queue.add(new Point(s, j));
-					}
-				}
-			}
-		}
-	}
-
-
 	@Override
-	public final Collection<IDLImplies<I, L, K, R>> classify(
-		final IABox<I, L, K, R> abox)
-		throws EReasonerException, EInconsistencyException
+	public final Collection<IDLImplies<I, L, K, R>> classify(final IABox<I, L, K, R> abox) throws EReasonerException, EInconsistencyException
 	{
 		final Set<K> classes = abox.getClassesInSignature();
 		final List<K> classList = new ArrayList<>(classes);
@@ -259,6 +225,39 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 		}
 
 		return classifications;
+	}
+
+
+		private void propagateClassification(
+		final byte cfMatrix[][], final int changedRow, final int changedCol)
+	{
+		/**
+		 * (cgMatrix[i][j] == 1) ==> (i ⊑ j) (cgMatrix[i][j] == -1) ==> ¬(i ⊑ j)
+		 */
+		final Queue<Point> queue = new LinkedList<>();
+		queue.add(new Point(changedRow, changedCol));
+
+		while (!queue.isEmpty()) {
+			final Point item = queue.remove();
+			_logger.trace("Propagating from change at %s", item);
+			final int i = item.x;
+			final int j = item.y;
+			final int ij = cfMatrix[i][j];
+			for (int s = 0; s < cfMatrix.length; ++s) {
+				if (ij == 1) {
+					if ((cfMatrix[s][i] == 1) && (cfMatrix[s][j] == 0)) {
+						/* i ⊑ j, s ⊑ i => s ⊑ j */
+						cfMatrix[s][j] = 1;
+						queue.add(new Point(s, j));
+					}
+				} else if (ij == -1) {
+					if ((cfMatrix[s][j] == 1) && (cfMatrix[i][s] == 0)) {
+						cfMatrix[i][s] = -1;
+						queue.add(new Point(s, j));
+					}
+				}
+			}
+		}
 	}
 
 

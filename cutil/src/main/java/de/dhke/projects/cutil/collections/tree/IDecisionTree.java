@@ -119,6 +119,7 @@ public interface IDecisionTree<Data>
 
 		boolean hasData();
 
+		@Override
 		Data getData();
 
 		void remove();

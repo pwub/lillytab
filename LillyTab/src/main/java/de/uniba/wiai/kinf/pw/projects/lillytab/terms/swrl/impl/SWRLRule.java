@@ -31,29 +31,114 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRule;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
+
 
 /**
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SWRLRule<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements ISWRLRule<I, L, K, R> {
+	implements ISWRLRule<I, L, K, R>
+{
+	private final ISWRLTerm<I, L, K, R> _head;
+	private final ISWRLTerm<I, L, K, R> _body;
+	private final Set<ISWRLVariable<I, L, K, R>> _variables = new TreeSet<>();
 
-	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<String> extractVariableNames(
-		ISWRLTerm<I, L, K, R> term)
+	protected SWRLRule(final ISWRLTerm<I, L, K, R> head, final ISWRLTerm<I, L, K, R> body)
+	{
+		if ((!(head instanceof ISWRLClassAtom)) && (!(head instanceof ISWRLRoleAtom)) && (!(head instanceof ISWRLIntersection))) {
+			throw new IllegalArgumentException("Only atoms or intersections allowed on SWRL rule body");
+		} else {
+			_head = head;
+		}
+
+		if ((!(body instanceof ISWRLClassAtom)) && (!(body instanceof ISWRLRoleAtom)) && (!(body instanceof ISWRLIntersection))) {
+			throw new IllegalArgumentException("Only atoms or intersections allowed on SWRL rule body");
+		} else {
+			_body = body;
+		}
+
+		updateVariableSet();
+		checkRuleValidity();
+	}
+
+	@Override
+	public ISWRLTerm<I, L, K, R> getHead()
+	{
+		return _head;
+	}
+
+	@Override
+	public ISWRLTerm<I, L, K, R> getBody()
+	{
+		return _body;
+	}
+
+	@Override
+	public Collection<? extends ISWRLVariable<I, L, K, R>> getVariables()
+	{
+		return Collections.unmodifiableCollection(_variables);
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		}
+		if (obj instanceof ISWRLRule) {
+			ISWRLRule<?, ?, ?, ?> other = (ISWRLRule<?, ?, ?, ?>) obj;
+			return getBody().equals(other.getBody()) && getHead().equals(other.getHead());
+		} else {
+			return false;
+		}
+	}
+
+	@Override
+	public int hashCode(
+		)
+	{
+		return 13 + getBody().hashCode() + 41 * getHead().hashCode();
+	}
+
+	@Override
+	public String toString()
+	{
+		final StringBuilder sb = new StringBuilder();
+		sb.append(getHead());
+		sb.append(":- ");
+		sb.append(getBody());
+		sb.append(".");
+		return sb.toString();
+	}
+
+	@Override
+	public ISWRLRule<I, L, K, R> clone()
+	{
+		return this;
+	}
+
+	@Override
+	public int compareTo(ISWRLRule<I, L, K, R> o)
+	{
+		int compare = _head.compareTo(o.getHead());
+		if (compare == 0) {
+			compare = _body.compareTo(o.getBody());
+		}
+		return compare;
+	}
+
+		private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<String> extractVariableNames(ISWRLTerm<I, L, K, R> term)
 	{
 		Set<String> varNames = new TreeSet<>();
 		return extractVariableNames(term, varNames);
 	}
 
-
-	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<String> extractVariableNames(
-		ISWRLTerm<I, L, K, R> term, Set<String> varNames)
+	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<String> extractVariableNames(ISWRLTerm<I, L, K, R> term, Set<String> varNames)
 	{
 		if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")
@@ -72,14 +157,12 @@ public class SWRLRule<I extends Comparable<? super I>, L extends Comparable<? su
 		return varNames;
 	}
 
-
 	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<ISWRLVariable<I, L, K, R>> extractVariables(
 		ISWRLTerm<I, L, K, R> term)
 	{
 		Set<ISWRLVariable<I, L, K, R>> varNames = new TreeSet<>();
 		return extractVariables(term, varNames);
 	}
-
 
 	@SuppressWarnings("unchecked")
 	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Set<ISWRLVariable<I, L, K, R>> extractVariables(
@@ -109,29 +192,6 @@ public class SWRLRule<I extends Comparable<? super I>, L extends Comparable<? su
 		}
 		return vars;
 	}
-	private final ISWRLTerm<I, L, K, R> _head;
-	private final ISWRLTerm<I, L, K, R> _body;
-	private final Set<ISWRLVariable<I, L, K, R>> _variables = new TreeSet<>();
-
-
-	protected SWRLRule(final ISWRLTerm<I, L, K, R> head, final ISWRLTerm<I, L, K, R> body)
-	{
-		if ((!(head instanceof ISWRLClassAtom)) && (!(head instanceof ISWRLRoleAtom)) && (!(head instanceof ISWRLIntersection))) {
-			throw new IllegalArgumentException("Only atoms or intersections allowed on SWRL rule body");
-		} else {
-			_head = head;
-		}
-
-		if ((!(body instanceof ISWRLClassAtom)) && (!(body instanceof ISWRLRoleAtom)) && (!(body instanceof ISWRLIntersection))) {
-			throw new IllegalArgumentException("Only atoms or intersections allowed on SWRL rule body");
-		} else {
-			_body = body;
-		}
-
-		updateVariableSet();
-		checkRuleValidity();
-	}
-
 
 	private void checkRuleValidity()
 	{
@@ -142,93 +202,6 @@ public class SWRLRule<I extends Comparable<? super I>, L extends Comparable<? su
 //				throw new EInvalidTermException(String.format("Invalid SWRL Rule, variable %s in head, but not in body: %s", headVar, this));
 //		}
 	}
-
-
-	@Override
-	public ISWRLTerm<I, L, K, R> getHead()
-	{
-		return _head;
-	}
-
-
-	@Override
-	public ISWRLTerm<I, L, K, R> getBody()
-	{
-		return _body;
-	}
-
-
-	@Override
-	public Collection<? extends ISWRLVariable<I, L, K, R>> getVariables()
-	{
-		return Collections.unmodifiableCollection(_variables);
-	}
-
-
-	@Override
-	public boolean equals(
-		Object obj)
-	{
-		if (this == obj) {
-			return true;
-		}
-		if (obj instanceof ISWRLRule) {
-			ISWRLRule<?, ?, ?, ?> other = (ISWRLRule<?, ?, ?, ?>) obj;
-			return getBody().equals(other.getBody()) && getHead().equals(other.getHead());
-		} else {
-			return false;
-		}
-	}
-
-
-	@Override
-	public int hashCode()
-	{
-		return 13 + getBody().hashCode() + 41 * getHead().hashCode();
-	}
-
-
-	@Override
-	public String toString()
-	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append(getHead());
-		sb.append(":- ");
-		sb.append(getBody());
-		sb.append(".");
-		return sb.toString();
-	}
-
-
-	@Override
-	public String toString(final IToStringFormatter formatter)
-	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append(getHead().toString(formatter));
-		sb.append(":-");
-		sb.append(getBody().toString(formatter));
-		sb.append(".");
-		return sb.toString();
-	}
-
-
-	@Override
-	public ISWRLRule<I, L, K, R> clone()
-	{
-		return this;
-	}
-
-
-	@Override
-	public int compareTo(ISWRLRule<I, L, K, R> o)
-	{
-		int compare = _head.compareTo(o.getHead());
-		if (compare == 0) {
-			compare = _body.compareTo(o.getBody());
-		}
-		return compare;
-	}
-
 
 	private void updateVariableSet()
 	{

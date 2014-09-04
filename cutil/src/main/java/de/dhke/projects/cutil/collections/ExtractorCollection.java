@@ -26,31 +26,36 @@ import java.util.AbstractCollection;
 import java.util.Collection;
 import java.util.Iterator;
 import org.apache.commons.collections15.Transformer;
-import org.apache.commons.collections15.iterators.TransformIterator;
+import org.apache.commons.collections15.collection.TransformedCollection;
+
 
 /**
  * Wrapper collection that supports transformed reading from
  * another collection.
+ * <p/>
+ * Can bee seen as as the "reader" variant of {@link TransformedCollection},
+ * which transforms items <em>ADDED</em> to a collection.
  * 
  * @param <I> 
  * @param <O> 
- * @param <C> 
+ * 
  * @author Peter Wullinger <java@dhke.de>
  */
-public class ExtractorCollection<I, O, C extends Collection<I>>
+public class ExtractorCollection<I, O>
 	extends AbstractCollection<O>
-	implements Collection<O>, IDecorator<C>
+	implements Collection<O>, IDecorator<Collection<? extends I>>
 {
-	private final C _baseCollection;
+	private final Collection<? extends I> _baseCollection;
 	private final Transformer<I, O> _transformer;
 
-	protected ExtractorCollection(C baseCollection, Transformer<I, O> transformer)
+	protected ExtractorCollection(Collection<? extends I> baseCollection, Transformer<I, O> transformer)
 	{
 		_baseCollection = baseCollection;
 		_transformer = transformer;
 	}
 
-	public static <I, O, C extends Collection<I>> ExtractorCollection<I, O, C> decorate(C baseCollection, Transformer<I, O> transformer)
+	public static <I, O> ExtractorCollection<I, O> decorate(Collection<? extends I> baseCollection,
+															Transformer<I, O> transformer)
 	{
 		return new ExtractorCollection<>(baseCollection, transformer);
 	}
@@ -58,7 +63,7 @@ public class ExtractorCollection<I, O, C extends Collection<I>>
 	@Override
 	public Iterator<O> iterator()
 	{
-		return new TransformIterator<>(_baseCollection.iterator(), _transformer);
+		return new ExtractorIterator<>(_baseCollection.iterator(), _transformer);
 	}
 
 	@Override
@@ -67,9 +72,9 @@ public class ExtractorCollection<I, O, C extends Collection<I>>
 		return _baseCollection.size();
 	}
 
-	public C getDecoratee()
+	@Override
+	public Collection<? extends I> getDecoratee()
 	{
 		return _baseCollection;
 	}
-
 }

@@ -18,11 +18,13 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;
-import de.dhke.projects.cutil.collections.map.MultiTreeSetHashMap;
+import de.dhke.projects.cutil.collections.factories.TreeSetFactory;
+import de.dhke.projects.cutil.collections.map.GenericMultiHashMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDependencyMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
@@ -38,7 +40,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -50,18 +51,20 @@ import java.util.TreeSet;
  */
 // public class DependencyMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
 public class DependencyMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends MultiTreeSetHashMap<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>
-	implements IDependencyMap<I, L, K, R>
-{
+	extends GenericMultiHashMap<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>
+	implements IDependencyMap<I, L, K, R> {
+
 	private static final long serialVersionUID = 1947663804178866730L;
 	private final TermEntryFactory<I, L, K, R> _entryFactory;
 	private final Set<TermEntry<I, L, K, R>> _governingTerms = new TreeSet<>();
 
+
 	public DependencyMap(final TermEntryFactory<I, L, K, R> entryFactory)
 	{
-		super();
+		super(new TreeSetFactory<TermEntry<I, L, K, R>>());
 		_entryFactory = entryFactory;
 	}
+
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getParents(final TermEntry<I, L, K, R> entry)
@@ -75,12 +78,14 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 
 	}
 
+
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getParents(final NodeID nodeID,
 														final IDLTerm<I, L, K, R> term)
 	{
 		return getParents(_entryFactory.getEntry(nodeID, term));
 	}
+
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getParents(final IABoxNode<I, L, K, R> node,
@@ -101,6 +106,7 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 //		targetSet.addAll(directParents);
 //		
 //	}
+
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getParents(TermEntry<I, L, K, R> entry, boolean recursive)
 	{
@@ -120,12 +126,14 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		}
 	}
 
+
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getParents(IABoxNode<I, L, K, R> node,
 														IDLTerm<I, L, K, R> term, boolean recursive)
 	{
 		return getParents(node.getNodeID(), term, recursive);
 	}
+
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getParents(NodeID nodeID,
@@ -135,11 +143,13 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return getParents(entry, recursive);
 	}
 
+
 	@Override
 	public boolean containsKey(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term)
 	{
 		return containsKey(_entryFactory.getEntry(node, term));
 	}
+
 
 	@Override
 	public boolean containsValue(IABoxNode<I, L, K, R> node,
@@ -150,6 +160,7 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return containsValue(node.getNodeID(), term, parentNode.getNodeID(), parentTerm);
 	}
 
+
 	@Override
 	public boolean containsValue(NodeID nodeID,
 								 IDLTerm<I, L, K, R> term, NodeID parentNodeID,
@@ -158,12 +169,14 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return containsValue(_entryFactory.getEntry(nodeID, term), _entryFactory.getEntry(parentNodeID, parentTerm));
 	}
 
+
 	@Override
 	public void addParent(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term,
 						  final IABoxNode<I, L, K, R> parentNode, final IDLTerm<I, L, K, R> parentTerm)
 	{
 		addParent(node.getNodeID(), term, parentNode.getNodeID(), parentTerm);
 	}
+
 
 	@Override
 	public void addParent(final TermEntry<I, L, K, R> termEntry, final TermEntry<I, L, K, R> parentEntry)
@@ -173,12 +186,14 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		put(termEntry, parentEntry);
 	}
 
+
 	@Override
 	public void addParent(final TermEntry<I, L, K, R> termEntry, final NodeID parentNode,
 						  final IDLTerm<I, L, K, R> parentTerm)
 	{
 		addParent(termEntry, _entryFactory.getEntry(parentNode, parentTerm));
 	}
+
 
 	@Override
 	public void addParent(final NodeID nodeID, final IDLTerm<I, L, K, R> term,
@@ -187,6 +202,7 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		addParent(_entryFactory.getEntry(nodeID, term), parentEntry);
 	}
 
+
 	@Override
 	public void addParent(NodeID nodeID,
 						  IDLTerm<I, L, K, R> term, NodeID parentNodeID,
@@ -194,6 +210,7 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 	{
 		addParent(_entryFactory.getEntry(nodeID, term), _entryFactory.getEntry(parentNodeID, parentTerm));
 	}
+
 
 	@Override
 	public DependencyMap<I, L, K, R> clone()
@@ -204,11 +221,13 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return klone;
 	}
 
+
 	@Override
 	public IDependencyMap<I, L, K, R> getImmutable()
 	{
 		return ImmutableDependencyMap.decorate(this);
 	}
+
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getChildren(TermEntry<I, L, K, R> parent)
@@ -222,11 +241,13 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return children;
 	}
 
+
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getChildren(NodeID nodeID, IDLTerm<I, L, K, R> term)
 	{
 		return getChildren(_entryFactory.getEntry(nodeID, term));
 	}
+
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getChildren(IABoxNode<I, L, K, R> node,
@@ -235,23 +256,10 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return getChildren(node.getNodeID(), term);
 	}
 
-	private void getChildrenRecursive(
-		final TermEntry<I, L, K, R> entry,
-		final Collection<TermEntry<I, L, K, R>> targetSet)
-	{
-		targetSet.add(entry);
-		final Collection<TermEntry<I, L, K, R>> directChildren = getChildren(entry);
-		for (TermEntry<I, L, K, R> child : directChildren) {
-			if (!targetSet.contains(child)) {
-				getChildrenRecursive(child, targetSet);
-			}
-		}
-
-		targetSet.addAll(directChildren);
-	}
 
 	@Override
-	public Collection<TermEntry<I, L, K, R>> getChildren(TermEntry<I, L, K, R> entry, boolean recursive)
+	public Collection<TermEntry<I, L, K, R>> getChildren(
+		TermEntry<I, L, K, R> entry, boolean recursive)
 	{
 		if (recursive) {
 			final Set<TermEntry<I, L, K, R>> allChildren = new TreeSet<>();
@@ -262,19 +270,20 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		}
 	}
 
+
 	@Override
-	public Collection<TermEntry<I, L, K, R>> getChildren(IABoxNode<I, L, K, R> node,
-														 IDLTerm<I, L, K, R> term, boolean recursive)
+	public Collection<TermEntry<I, L, K, R>> getChildren(IABoxNode<I, L, K, R> node, IDLTerm<I, L, K, R> term, boolean recursive)
 	{
 		return getChildren(node.getNodeID(), term, recursive);
 	}
 
+
 	@Override
-	public Collection<TermEntry<I, L, K, R>> getChildren(NodeID nodeID,
-														 IDLTerm<I, L, K, R> term, boolean recursive)
+	public Collection<TermEntry<I, L, K, R>> getChildren(NodeID nodeID, IDLTerm<I, L, K, R> term, boolean recursive)
 	{
 		return getChildren(_entryFactory.getEntry(nodeID, term), recursive);
 	}
+
 
 	@Override
 	public boolean hasChild(TermEntry<I, L, K, R> parent, TermEntry<I, L, K, R> child)
@@ -283,19 +292,20 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return parents.contains(parent);
 	}
 
+
 	@Override
-	public boolean hasChild(NodeID parentNodeID, IDLTerm<I, L, K, R> parentTerm, NodeID childNodeID,
-							IDLTerm<I, L, K, R> childTerm)
+	public boolean hasChild(NodeID parentNodeID, IDLTerm<I, L, K, R> parentTerm, NodeID childNodeID, IDLTerm<I, L, K, R> childTerm)
 	{
 		return hasChild(_entryFactory.getEntry(parentNodeID, parentTerm), _entryFactory.getEntry(childNodeID, childTerm));
 	}
 
+
 	@Override
-	public boolean hasChild(IABoxNode<I, L, K, R> parentNode, IDLTerm<I, L, K, R> parentTerm,
-							IABoxNode<I, L, K, R> childNode, IDLTerm<I, L, K, R> childTerm)
+	public boolean hasChild(IABoxNode<I, L, K, R> parentNode, IDLTerm<I, L, K, R> parentTerm, IABoxNode<I, L, K, R> childNode, IDLTerm<I, L, K, R> childTerm)
 	{
 		return hasChild(parentNode.getNodeID(), parentTerm, childNode.getNodeID(), childTerm);
 	}
+
 
 	@Override
 	public String toString()
@@ -328,11 +338,13 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return sb.toString();
 	}
 
+
 	@Override
 	public TermEntryFactory<I, L, K, R> getTermEntryFactory()
 	{
 		return _entryFactory;
 	}
+
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getGoverningTerms()
@@ -340,25 +352,27 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return _governingTerms;
 	}
 
+
 	@Override
-	public boolean addGoverningTerm(IABoxNode<I, L, K, R> node,
-									IDLTerm<I, L, K, R> term)
+	public boolean addGoverningTerm(IABoxNode<I, L, K, R> node, IDLTerm<I, L, K, R> term)
 	{
 		return _governingTerms.add(_entryFactory.getEntry(node, term));
 	}
 
+
 	@Override
-	public boolean addGoverningTerm(NodeID nodeID,
-									IDLTerm<I, L, K, R> term)
+	public boolean addGoverningTerm(NodeID nodeID, IDLTerm<I, L, K, R> term)
 	{
 		return _governingTerms.add(_entryFactory.getEntry(nodeID, term));
 	}
+
 
 	@Override
 	public boolean addGoverningTerm(TermEntry<I, L, K, R> termEntry)
 	{
 		return _governingTerms.add(termEntry);
 	}
+
 
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getNodeRoots(final NodeID nodeID)
@@ -373,19 +387,20 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return nodeRoots;
 	}
 
+
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getNodeRoots(final IABoxNode<I, L, K, R> node)
 	{
 		return getNodeRoots(node.getNodeID());
 	}
 
+
 	@Override
-	public boolean hasGoverningTerm(
-		IABoxNode<I, L, K, R> node,
-		IDLTerm<I, L, K, R> term)
+	public boolean hasGoverningTerm(IABoxNode<I, L, K, R> node, IDLTerm<I, L, K, R> term)
 	{
 		return hasGoverningTerm(getTermEntryFactory().getEntry(node, term));
 	}
+
 
 	@Override
 	public boolean hasGoverningTerm(
@@ -394,12 +409,14 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return _governingTerms.contains(termEntry);
 	}
 
+
 	@Override
-	public boolean hasGoverningTerm(NodeID nodeID,
-									IDLTerm<I, L, K, R> term)
+	public boolean hasGoverningTerm(
+		NodeID nodeID, IDLTerm<I, L, K, R> term)
 	{
 		return hasGoverningTerm(getTermEntryFactory().getEntry(nodeID, term));
 	}
+
 
 	@Override
 	public boolean hasGoverningTerm(NodeID nodeID)
@@ -411,10 +428,25 @@ public class DependencyMap<I extends Comparable<? super I>, L extends Comparable
 		return false;
 	}
 
+
 	@Override
-	public boolean hasGoverningTerm(
-		IABoxNode<I, L, K, R> node)
+	public boolean hasGoverningTerm(IABoxNode<I, L, K, R> node)
 	{
 		return hasGoverningTerm(node.getNodeID());
+	}
+
+
+		private void getChildrenRecursive(
+		final TermEntry<I, L, K, R> entry, final Collection<TermEntry<I, L, K, R>> targetSet)
+	{
+		final Collection<TermEntry<I, L, K, R>> directChildren = getChildren(entry);
+		for (TermEntry<I, L, K, R> child : directChildren) {
+			if (!targetSet.contains(child)) {
+				targetSet.add(child);
+				getChildrenRecursive(child, targetSet);
+			}
+		}
+
+		targetSet.addAll(directChildren);
 	}
 }

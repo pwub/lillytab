@@ -164,7 +164,7 @@ public class AspectMultiMapEntrySetTest
 	@Test
 	public void testToArray_GenericType()
 	{
-		assertArrayEquals(_baseMap.entrySet().toArray(new Map.Entry[0]), _entrySet.toArray(new Map.Entry[0]));
+		assertArrayEquals(_baseMap.entrySet().toArray(new Map.Entry[0]), _entrySet.toArray(new Map.Entry[_entrySet.size()]));
 	}
 
 	/**

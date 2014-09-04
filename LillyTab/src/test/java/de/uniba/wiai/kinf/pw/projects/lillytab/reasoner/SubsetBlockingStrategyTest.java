@@ -62,17 +62,6 @@ import org.junit.Test;
  */
 public class SubsetBlockingStrategyTest
 {
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
 	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
 		_termFactory);
@@ -81,6 +70,17 @@ public class SubsetBlockingStrategyTest
 	private SubsetBlockingStrategy<String, String, String, String> _blockingStrategy;
 
 	public SubsetBlockingStrategyTest()
+	{
+	}
+
+	@BeforeClass
+	public static void setUpClass()
+		throws Exception
+	{
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -101,8 +101,7 @@ public class SubsetBlockingStrategyTest
 
 	/**
 	 * Test of getBlockedNodeIDs method, of class IABoxNode.
-	 */
-	@Test
+	 */	@Test
 	public void testGetBlockedNodes()
 		throws EInconsistentABoxException, EInconsistentRBoxException
 	{
@@ -117,7 +116,8 @@ public class SubsetBlockingStrategyTest
 	}
 
 	@Test
-	public void testCloneBlock() throws EInconsistentABoxException, EInconsistentRBoxException
+	public void testCloneBlock()
+		throws EInconsistentABoxException, EInconsistentRBoxException
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
@@ -137,6 +137,7 @@ public class SubsetBlockingStrategyTest
 	}
 
 	// This is an old test. Needs to be refactored.
+
 	//	/**
 	@Test
 	public void testIsBlocked()

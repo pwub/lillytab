@@ -29,8 +29,9 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIntersection;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.ISWRLTermVisitor;
 import java.util.Collection;
+
 
 /**
  *
@@ -42,11 +43,19 @@ import java.util.Collection;
  */
 public class SWRLIntersection<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractFixedTermList<ISWRLAtomicTerm<I, L, K, R>>
-	implements ISWRLIntersection<I, L, K, R> {
-
+	implements ISWRLIntersection<I, L, K, R>
+{
 	public final static String OPERATOR_NAME = "AND";
-
-
+	
+	public SWRLIntersection(final ISWRLAtomicTerm<I, L, K, R> a0, final ISWRLAtomicTerm<I, L, K, R> a1)
+	{
+		super(2);
+		getModifiableTermList().set(0, a0);
+		getModifiableTermList().set(1, a1);
+		/* ensure order */
+		sortAndEnsureUnique(this, 2);
+	}
+	
 	protected SWRLIntersection(final Collection<? extends ISWRLAtomicTerm<I, L, K, R>> as)
 	{
 		super(as.size());
@@ -61,32 +70,19 @@ public class SWRLIntersection<I extends Comparable<? super I>, L extends Compara
 			sortAndEnsureUnique(this, 2);
 		}
 	}
-
-
-	public SWRLIntersection(final ISWRLAtomicTerm<I, L, K, R> a0, final ISWRLAtomicTerm<I, L, K, R> a1)
-	{
-		super(2);
-		getModifiableTermList().set(0, a0);
-		getModifiableTermList().set(1, a1);
-		/* ensure order */
-		sortAndEnsureUnique(this, 2);
-	}
-
-
+	
 	@Override
 	public SWRLTermOrder getSWRLTermOrder()
 	{
 		return SWRLTermOrder.SWRL_INTERSECTION;
 	}
-
-
+	
 	@Override
 	public ISWRLIntersection<I, L, K, R> clone()
 	{
 		return this;
 	}
-
-
+	
 	@Override
 	public int compareTo(final ISWRLTerm<I, L, K, R> o)
 	{
@@ -97,15 +93,14 @@ public class SWRLIntersection<I extends Comparable<? super I>, L extends Compara
 		}
 		return compare;
 	}
-
-
+	
 	@Override
 	public String toString()
 	{
 		final StringBuilder sb = new StringBuilder();
 		sb.append("(");
 		sb.append(OPERATOR_NAME);
-
+		
 		for (ISWRLAtomicTerm<I, L, K, R> term : this) {
 			sb.append(" ");
 			sb.append(term.toString());
@@ -113,20 +108,16 @@ public class SWRLIntersection<I extends Comparable<? super I>, L extends Compara
 		sb.append(")");
 		return sb.toString();
 	}
-
-
+	
 	@Override
-	public String toString(IToStringFormatter formatter)
+	public void accept(
+		ISWRLTermVisitor<I, L, K, R> visitor)
 	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		sb.append(OPERATOR_NAME);
-
-		for (ISWRLAtomicTerm<I, L, K, R> term : this) {
-			sb.append(" ");
-			sb.append(term.toString(formatter));
+		visitor.visit(this);
+		visitor.visitEnter(this);
+		for (ISWRLAtomicTerm<I, L, K, R> subTerm : this) {
+			subTerm.accept(visitor);
 		}
-		sb.append(")");
-		return sb.toString();
+		visitor.visitLeave(this);
 	}
 }

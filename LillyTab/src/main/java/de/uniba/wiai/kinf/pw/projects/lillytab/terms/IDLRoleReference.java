@@ -30,5 +30,6 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * @param <R> The type for properties (roles)
  */
 public interface IDLRoleReference<R extends Comparable<? super R>>
-	extends IDLElementReference<R> {
+	extends IDLElementReference<R>
+{
 }

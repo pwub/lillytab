@@ -68,25 +68,23 @@ public class ABoxNotificationTest {
 	private static final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private static final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
 		_termFactory);
-
-
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
 	private IABox<String, String, String, String> _abox;
 	private TermSetCountListener _listener;
 
 
 	public ABoxNotificationTest()
+	{
+	}
+
+
+	@BeforeClass
+	public static void setUpClass() throws Exception
+	{
+	}
+
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -112,7 +110,8 @@ public class ABoxNotificationTest {
 
 
 	@Test
-	public void testTermAdded() throws EInconsistentABoxException
+	public void testTermAdded()
+		throws EInconsistentABoxException
 	{
 		final IABoxNode<String, String, String, String> node = _abox.createNode(false);
 		final IDLClassExpression<String, String, String, String> A = _termFactory.getDLClassReference("A");
@@ -132,7 +131,8 @@ public class ABoxNotificationTest {
 
 
 	@Test
-	public void testTermAddedTBox() throws EInconsistentABoxException
+	public void testTermAddedTBox()
+		throws EInconsistentABoxException
 	{
 		final IDLClassExpression<String, String, String, String> A = _termFactory.getDLClassReference("A");
 		final IDLClassExpression<String, String, String, String> B = _termFactory.getDLClassReference("B");

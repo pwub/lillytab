@@ -24,6 +24,8 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.impl;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLObjectRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.ISWRLTermVisitor;
+
 
 /**
  *
@@ -31,13 +33,12 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.SWRLTermOrder;
  */
 public class SWRLObjectRoleAtom<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends SWRLRoleAtom<I, L, K, R>
-	implements ISWRLObjectRoleAtom<I, L, K, R> {
-
+	implements ISWRLObjectRoleAtom<I, L, K, R>
+{
 	public SWRLObjectRoleAtom(R role, ISWRLIArgument<I, L, K, R> first, ISWRLIArgument<I, L, K, R> second)
 	{
 		super(role, first, second);
 	}
-
 
 	@Override
 	public ISWRLIArgument<I, L, K, R> getSecondIndividual()
@@ -45,10 +46,16 @@ public class SWRLObjectRoleAtom<I extends Comparable<? super I>, L extends Compa
 		return (ISWRLIArgument<I, L, K, R>) super.getSecondIndividual();
 	}
 
-
 	@Override
 	public SWRLTermOrder getSWRLTermOrder()
 	{
 		return SWRLTermOrder.SWRL_OBJECT_ROLE_ATOM;
+	}
+
+	@Override
+	public void accept(
+		ISWRLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
 	}
 }

@@ -85,20 +85,6 @@ import org.semanticweb.owlapi.vocab.XSDVocabulary;
  */
 public class OWLAPILoaderTest {
 
-
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
 	private OWLOntologyManager _ontoManager = OWLManager.createOWLOntologyManager();
 	private final String _ontologyURI = "http://www.example.org/ontologies/";
 	private PrefixManager _nsManager = new DefaultPrefixManager(_ontologyURI);
@@ -112,6 +98,18 @@ public class OWLAPILoaderTest {
 
 
 	public OWLAPILoaderTest()
+	{
+	}
+
+
+	@BeforeClass
+	public static void setUpClass() throws Exception
+	{
+	}
+
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
 	{
 	}
 
@@ -135,7 +133,8 @@ public class OWLAPILoaderTest {
 
 
 	@Test
-	public void testStringLiteral() throws OWLOntologyCreationException, OWLOntologyChangeException, EReasonerException, EInconsistencyException
+	public void testStringLiteral()
+		throws OWLOntologyCreationException, OWLOntologyChangeException, EReasonerException, EInconsistencyException
 	{
 		/* regression test */
 		final Set<OWLAxiom> axioms = new HashSet<>();
@@ -161,7 +160,8 @@ public class OWLAPILoaderTest {
 
 
 	@Test
-	public void testTrueBooleanLiteral() throws OWLOntologyCreationException, OWLOntologyChangeException, EReasonerException, EInconsistencyException
+	public void testTrueBooleanLiteral()
+		throws OWLOntologyCreationException, OWLOntologyChangeException, EReasonerException, EInconsistencyException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
 

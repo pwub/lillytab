@@ -22,9 +22,10 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLTermOrder;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IOperatorTerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
+
 
 /**
  * 
@@ -39,50 +40,45 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  * @param <Term> The type of the contained terms.
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class AbstractOperatorTerm<Term extends ITerm>
+public abstract class AbstractDLOperatorTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, Term extends IDLTerm<I, L, K, R>>
 	extends AbstractFixedTermList<Term>
-	implements IOperatorTerm<Term> {
-
+	implements IOperatorTerm<Term>, IDLTerm<I, L, K, R>
+{
 	private final String _operatorName;
 	private final DLTermOrder _dlTermOrder;
-
-
-	protected AbstractOperatorTerm(final DLTermOrder termOrder, final String operatorName, final int size)
+	
+	protected AbstractDLOperatorTerm(final DLTermOrder termOrder, final String operatorName, final int size)
 	{
 		super(size);
 		_operatorName = operatorName;
 		_dlTermOrder = termOrder;
 	}
-
-
+	
 	@Override
 	public String getOperatorName()
 	{
 		return _operatorName;
 	}
-
-
+	
 	@Override
 	public boolean equals(final Object obj)
 	{
 		if (this == obj) {
 			return true;
 		}
-
+		
 		return ((obj instanceof IOperatorTerm)
 			&& getOperatorName().equals(((IOperatorTerm) obj).getOperatorName())
 			&& super.equals(obj));
 	}
-
-
+	
 	@Override
 	public int hashCode()
 	{
 		int hCode = getOperatorName().hashCode();
 		return hCode + super.hashCode();
 	}
-
-
+	
 	@Override
 	public String toString()
 	{
@@ -96,24 +92,25 @@ public class AbstractOperatorTerm<Term extends ITerm>
 		sb.append(")");
 		return sb.toString();
 	}
-
-
-	public String toString(final IToStringFormatter entityFormatter)
-	{
-		StringBuilder sb = new StringBuilder();
-		sb.append("(");
-		sb.append(getOperatorName());
-		for (Term term : this) {
-			sb.append(" ");
-			sb.append(entityFormatter.toString(term));
-		}
-		sb.append(")");
-		return sb.toString();
-	}
-
-
+	
+	@Override
 	public DLTermOrder getDLTermOrder()
 	{
 		return _dlTermOrder;
+	}
+	
+	@Override
+	public abstract IDLTerm<I, L, K, R> clone();
+	
+	@Override
+	public void accept(
+		IDLTermVisitor<I, L, K, R> visitor)
+	{
+		visitor.visit(this);
+		visitor.visitEnter(this);
+		for (Term term : this) {
+			term.accept(visitor);
+		}
+		visitor.visitLeave(this);
 	}
 }

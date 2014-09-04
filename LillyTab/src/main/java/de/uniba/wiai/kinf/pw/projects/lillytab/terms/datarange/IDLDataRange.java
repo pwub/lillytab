@@ -21,7 +21,8 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
+
 
 /**
  *
@@ -33,5 +34,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRestriction;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IDLDataRange<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends IDLRestriction<I, L, K, R> {
+	extends IDLNodeTerm<I, L, K, R>
+{
 }

@@ -40,7 +40,7 @@ public class ArrayListCollectionFactory<E>
 	}
 
 	@Override
-	public Collection<E> getInstance(final Collection<E> baseCollection)
+	public Collection<E> getInstance(final Collection<? extends E> baseCollection)
 	{
 		return new ArrayList<>(baseCollection);
 	}

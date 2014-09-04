@@ -17,7 +17,6 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.io.OWLAPIDLTermFactory;
@@ -53,16 +52,6 @@ public class Main
 	implements Runnable {
 
 	static final Logger _logger = LoggerFactory.getLogger(Main.class);
-
-
-	/**
-	 * @param args the command line arguments
-	 */
-	public static void main(final String[] args)
-	{
-		Main main = new Main();
-		main.run();
-	}
 	private final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory;
 	private final IABoxFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _aboxFactory;
 	private final Reasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _reasoner;
@@ -81,14 +70,13 @@ public class Main
 	}
 
 
-	private void initLogger()
+	/**
+	 * @param args the command line arguments
+	 */
+	public static void main(final String[] args)
 	{
-		LogManager.getLogManager().reset();
-		java.util.logging.Logger.getLogger("").
-			setLevel(Level.ALL);
-		ConsoleHandler handler = new ConsoleHandler();
-		handler.setLevel(Level.FINER);
-		java.util.logging.Logger.getLogger("").addHandler(handler);
+		Main main = new Main();
+		main.run();
 	}
 
 
@@ -125,5 +113,16 @@ public class Main
 			_logger.error("error during Reasoning", ex);
 		}
 
+	}
+
+
+	private void initLogger()
+	{
+		LogManager.getLogManager().reset();
+		java.util.logging.Logger.getLogger("").
+			setLevel(Level.ALL);
+		ConsoleHandler handler = new ConsoleHandler();
+		handler.setLevel(Level.FINER);
+		java.util.logging.Logger.getLogger("").addHandler(handler);
 	}
 }

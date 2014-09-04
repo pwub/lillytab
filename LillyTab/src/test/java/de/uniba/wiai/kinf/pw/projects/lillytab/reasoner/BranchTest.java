@@ -38,7 +38,6 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
  *
  */
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
@@ -48,8 +47,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleKRSSParser;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.SimpleStringDLTermFactory;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collection;
 import org.junit.After;
 import org.junit.AfterClass;
 import static org.junit.Assert.*;
@@ -64,17 +61,6 @@ import org.junit.Test;
  */
 public class BranchTest
 {
-	@BeforeClass
-	public static void setUpClass()
-		throws Exception
-	{
-	}
-
-	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
 	private IABox<String, String, String, String> _abox;
 	private Branch<String, String, String, String> _branch;
 	private IDLTermFactory<String, String, String, String> _termFactory;
@@ -84,9 +70,19 @@ public class BranchTest
 	{
 	}
 
+	@BeforeClass
+	public static void setUpClass()
+		throws Exception
+	{
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception
+	{
+	}
+
 	@Before
-	public void setUp()
-		throws ParseException, EReasonerException, EInconsistencyException
+	public void setUp() throws ParseException, EReasonerException, EInconsistencyException
 	{
 		_termFactory = new SimpleStringDLTermFactory();
 		_aboxFactory = new ABoxFactory<>(_termFactory);

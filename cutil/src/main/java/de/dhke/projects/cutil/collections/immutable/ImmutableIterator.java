@@ -32,8 +32,14 @@ public class ImmutableIterator<T>
 	private final Iterator<T> _baseIter;
 	private final Transformer<T, T> _valueTransformer;
 	
+		public ImmutableIterator(final Iterator<T> baseIter, final Transformer<T, T> valueTransformer)
+	{
+		_baseIter = baseIter;
+		_valueTransformer = valueTransformer;
+	}
+
 	@Override
-	public Iterator<T> getDecoratee()
+	public  Iterator<T> getDecoratee()
 	{
 		return _baseIter;
 	}
@@ -43,16 +49,10 @@ public class ImmutableIterator<T>
 		return new ImmutableIterator<>(baseIter, null);
 	}
 
+
 	public static <T> ImmutableIterator<T> decorate(final Iterator<T> baseIter, final Transformer<T, T> valueTransformer)
 	{
 		return new ImmutableIterator<>(baseIter, valueTransformer);
-	}
-
-
-	public ImmutableIterator(final Iterator<T> baseIter, final Transformer<T, T> valueTransformer)
-	{
-		_baseIter = baseIter;
-		_valueTransformer = valueTransformer;
 	}
 
 	@Override

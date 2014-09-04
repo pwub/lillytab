@@ -79,23 +79,8 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 	}
 
 
-	private Set<TermEntry<I, L, K, R>> makeTermEntryPairSet(
-		final TermEntryFactory<I, L, K, R> factory,
-		final NodeID nodeID,
-		final IDLTerm<I, L, K, R> one, final IDLTerm<I, L, K, R> two)
-	{
-		final Set<TermEntry<I, L, K, R>> set = new Flat3Set<>(2);
-		set.add(factory.getEntry(nodeID, one));
-		set.add(factory.getEntry(nodeID, two));
-		return new FrozenSet<>(set);
-	}
-
-
 	public Set<Set<TermEntry<I, L, K, R>>> getInconsistentTermEntries(
-		final IDLTermFactory<I, L, K, R> termFactory,
-		final TermEntryFactory<I, L, K, R> termEntryFactory,
-		final Collection<? extends IDLTerm<I, L, K, R>> descs,
-		final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+		final IDLTermFactory<I, L, K, R> termFactory, final TermEntryFactory<I, L, K, R> termEntryFactory, final Collection<? extends IDLTerm<I, L, K, R>> descs, final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
 	{
 		final Set<Set<TermEntry<I, L, K, R>>> clashTermSets = new Flat3Set<>();
 
@@ -123,10 +108,7 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 
 
 	public Set<Set<TermEntry<I, L, K, R>>> getInconsistentExtraTermEntries(
-		final IDLTermFactory<I, L, K, R> termFactory,
-		final TermEntryFactory<I, L, K, R> termEntryFactory,
-		final Collection<? extends IDLTerm<I, L, K, R>> descs,
-		final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+		final IDLTermFactory<I, L, K, R> termFactory, final TermEntryFactory<I, L, K, R> termEntryFactory, final Collection<? extends IDLTerm<I, L, K, R>> descs, final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
 	{
 		final Set<Set<TermEntry<I, L, K, R>>> clashTermSets = new Flat3Set<>();
 
@@ -155,9 +137,7 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 
 
 	public Set<Set<TermEntry<I, L, K, R>>> getInconsistentTermEntries(
-		final IABox<I, L, K, R> abox,
-		final IABoxNode<I, L, K, R> node,
-		final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+		final IABox<I, L, K, R> abox, final IABoxNode<I, L, K, R> node, final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
 	{
 		final IDLTermFactory<I, L, K, R> termFactory = abox.getDLTermFactory();
 		final TermEntryFactory<I, L, K, R> termEntryFactory = abox.getTermEntryFactory();
@@ -166,19 +146,14 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 
 
 	public Set<Set<TermEntry<I, L, K, R>>> getInconsistentTermEntries(
-		final IABoxNode<I, L, K, R> node,
-		final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+		final IABoxNode<I, L, K, R> node, final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
 	{
 		return getInconsistentTermEntries(node.getABox(), node, extraDescs);
 	}
 
 
 	public Set<Set<TermEntry<I, L, K, R>>> getInconsistentTermEntries(
-		final IDLTermFactory<I, L, K, R> termFactory,
-		final TermEntryFactory<I, L, K, R> termEntryFactory,
-		final ITBox<I, L, K, R> tbox,
-		final IABoxNode<I, L, K, R> node,
-		final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+		final IDLTermFactory<I, L, K, R> termFactory, final TermEntryFactory<I, L, K, R> termEntryFactory, final ITBox<I, L, K, R> tbox, final IABoxNode<I, L, K, R> node, final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
 	{
 		final Set<Set<TermEntry<I, L, K, R>>> clashTermSets = new Flat3Set<>();
 		final Collection<Iterable<? extends IDLTerm<I, L, K, R>>> termColl = new ArrayList<>();
@@ -222,9 +197,7 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 
 
 	public Set<Set<TermEntry<I, L, K, R>>> getInconsistentExtraTermEntries(
-		final IABox<I, L, K, R> abox,
-		final IABoxNode<I, L, K, R> node,
-		final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+		final IABox<I, L, K, R> abox, final IABoxNode<I, L, K, R> node, final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
 	{
 		return getInconsistentExtraTermEntries(abox.getDLTermFactory(), abox.getTermEntryFactory(), abox.getTBox(), node,
 											   extraDescs);
@@ -232,11 +205,7 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 
 
 	public Set<Set<TermEntry<I, L, K, R>>> getInconsistentExtraTermEntries(
-		final IDLTermFactory<I, L, K, R> termFactory,
-		final TermEntryFactory<I, L, K, R> termEntryFactory,
-		final ITBox<I, L, K, R> tbox,
-		final IABoxNode<I, L, K, R> node,
-		final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+		final IDLTermFactory<I, L, K, R> termFactory, final TermEntryFactory<I, L, K, R> termEntryFactory, final ITBox<I, L, K, R> tbox, final IABoxNode<I, L, K, R> node, final Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
 	{
 		final Set<Set<TermEntry<I, L, K, R>>> clashTermSets = new Flat3Set<>();
 		final Collection<Iterable<? extends IDLTerm<I, L, K, R>>> termColl = new ArrayList<>();
@@ -274,7 +243,162 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 	}
 
 
-	private ConsistencyInfo<I, L, K, R> isProperDatatypeNode(final IABoxNode<I, L, K, R> node)
+	@SuppressWarnings("unchecked")
+	public ConsistencyInfo<I, L, K, R> isLinkConsistent(
+		final IABoxNode<I, L, K, R> node)
+	{
+		final IRABox<I, L, K, R> raBox = node.getRABox();
+		final IRBox<I, L, K, R> rBox = node.getABox().getTBox().getRBox();
+		final Collection<R> outRoles = raBox.getOutgoingRoles();
+		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
+		for (R outRole : outRoles) {
+			final boolean isDataProperty = (rBox.getRoleType(outRole) == RoleType.DATA_PROPERTY);
+			final boolean isFunctional = rBox.hasRoleProperty(outRole, RoleProperty.FUNCTIONAL);
+
+			int nSucc = 0;
+			for (IABoxNode<I, L, K, R> succ : raBox.getSuccessorNodes(outRole)) {
+				++nSucc;
+				if (isFunctional && (nSucc > 1)) {
+					cInfo.addCulprits(node, node.getABox().getDLTermFactory().getDLThing());
+					cInfo.upgradeClashType(ConsistencyInfo.ClashType.TRANSIENT);
+					return cInfo;
+				}
+				/**
+				 * datatype properties may only link to datatype nodes and object properies only to individual nodes
+				 *
+				 */
+				if (isDataProperty != (succ instanceof IDatatypeABoxNode)) {
+					cInfo.addCulprits(node, node.getABox().getDLTermFactory().getDLThing());
+					cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);
+					return cInfo;
+				}
+			}
+		}
+		return cInfo;
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isConsistent(IABox<I, L, K, R> abox, IABoxNode<I, L, K, R> node)
+	{
+		return isConsistent(abox, node, null);
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isConsistent(IABoxNode<I, L, K, R> node)
+	{
+		return isConsistent(node.getABox(), node);
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isConsistent(IABox<I, L, K, R> abox, IABoxNode<I, L, K, R> node, Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+	{
+		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
+		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentTermEntries(abox, node, extraDescs);
+		if (!inconsistent.isEmpty()) {
+			cInfo.addCulpritEntries(node, inconsistent);
+			cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);
+		}
+		if (cInfo.isFinallyInconsistent()) {
+			return cInfo;
+		}
+
+		cInfo.updateFrom(isProperDatatypeNode(node));
+		if (cInfo.isFinallyInconsistent()) {
+			return cInfo;
+		}
+
+		cInfo.updateFrom(isLinkConsistent(node));
+		return cInfo;
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isExtraConsistent(IABox<I, L, K, R> abox, IABoxNode<I, L, K, R> node, Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+	{
+		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
+		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentExtraTermEntries(abox, node,
+																							 extraDescs);
+		cInfo.addCulpritEntries(node, inconsistent);
+		if (cInfo.isFinallyInconsistent()) {
+			return cInfo;
+		}
+
+		cInfo.updateFrom(isProperDatatypeNode(node));
+		if (cInfo.isFinallyInconsistent()) {
+			return cInfo;
+		}
+
+		cInfo.updateFrom(isLinkConsistent(node));
+		return cInfo;
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isExtraConsistent(IABoxNode<I, L, K, R> node, Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+	{
+		return isExtraConsistent(null, node, extraDescs);
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isConsistent(IABoxNode<I, L, K, R> node, Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+	{
+		return isConsistent(node.getABox(), node, extraDescs);
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isConsistent(IDLTermFactory<I, L, K, R> termFactory, TermEntryFactory<I, L, K, R> termEntryFactory, Collection<? extends IDLTerm<I, L, K, R>> descs)
+	{
+		return isConsistent(termFactory, termEntryFactory, descs, null);
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isConsistent(IDLTermFactory<I, L, K, R> termFactory, TermEntryFactory<I, L, K, R> termEntryFactory, Collection<? extends IDLTerm<I, L, K, R>> descs, Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+	{
+		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
+		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentTermEntries(termFactory,
+																						termEntryFactory, descs,
+																						extraDescs);
+		if (!inconsistent.isEmpty()) {
+			cInfo.addCulpritEntries((IABox<I, L, K, R>) null, inconsistent);
+		}
+
+		return cInfo;
+
+	}
+
+
+	@Override
+	public ConsistencyInfo<I, L, K, R> isExtraConsistent(IDLTermFactory<I, L, K, R> termFactory, TermEntryFactory<I, L, K, R> termEntryFactory, Collection<? extends IDLTerm<I, L, K, R>> descs, Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
+	{
+		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
+		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentExtraTermEntries(termFactory,
+																							 termEntryFactory,
+																							 descs,
+																							 extraDescs);
+		if (!inconsistent.isEmpty()) {
+			cInfo.addCulpritEntries((IABox<I, L, K, R>) null, inconsistent);
+		}
+
+		return cInfo;
+	}
+
+
+		private Set<TermEntry<I, L, K, R>> makeTermEntryPairSet(final TermEntryFactory<I, L, K, R> factory, final NodeID nodeID, final IDLTerm<I, L, K, R> one, final IDLTerm<I, L, K, R> two)
+	{
+		final Set<TermEntry<I, L, K, R>> set = new Flat3Set<>(2);
+		set.add(factory.getEntry(nodeID, one));
+		set.add(factory.getEntry(nodeID, two));
+		return new FrozenSet<>(set);
+	}
+
+
+		private ConsistencyInfo<I, L, K, R> isProperDatatypeNode(final IABoxNode<I, L, K, R> node)
 	{
 		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
 		if (node instanceof IDatatypeABoxNode) {
@@ -345,166 +469,6 @@ public class NodeConsistencyChecker<I extends Comparable<? super I>, L extends C
 				}
 			}
 		}
-		return cInfo;
-	}
-
-
-	@SuppressWarnings("unchecked")
-	public ConsistencyInfo<I, L, K, R> isLinkConsistent(final IABoxNode<I, L, K, R> node)
-	{
-		final IRABox<I, L, K, R> raBox = node.getRABox();
-		final IRBox<I, L, K, R> rBox = node.getABox().getTBox().getRBox();
-		final Collection<R> outRoles = raBox.getOutgoingRoles();
-		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
-		for (R outRole : outRoles) {
-			final boolean isDataProperty = (rBox.getRoleType(outRole) == RoleType.DATA_PROPERTY);
-			final boolean isFunctional = rBox.hasRoleProperty(outRole, RoleProperty.FUNCTIONAL);
-
-			int nSucc = 0;
-			for (IABoxNode<I, L, K, R> succ : raBox.getSuccessorNodes(outRole)) {
-				++nSucc;
-				if (isFunctional && (nSucc > 1)) {
-					cInfo.addCulprits(node, node.getABox().getDLTermFactory().getDLThing());
-					cInfo.upgradeClashType(ConsistencyInfo.ClashType.TRANSIENT);
-					return cInfo;
-				}
-				/**
-				 * datatype properties may only link to datatype nodes and object properies only to individual nodes
-				 *
-				 */
-				if (isDataProperty != (succ instanceof IDatatypeABoxNode)) {
-					cInfo.addCulprits(node, node.getABox().getDLTermFactory().getDLThing());
-					cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);
-					return cInfo;
-				}
-			}
-		}
-		return cInfo;
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isConsistent(IABox<I, L, K, R> abox,
-													IABoxNode<I, L, K, R> node)
-	{
-		return isConsistent(abox, node, null);
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isConsistent(IABoxNode<I, L, K, R> node)
-	{
-		return isConsistent(node.getABox(), node);
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isConsistent(IABox<I, L, K, R> abox,
-													IABoxNode<I, L, K, R> node,
-													Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
-	{
-		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
-		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentTermEntries(abox, node, extraDescs);
-		if (!inconsistent.isEmpty()) {
-			cInfo.addCulpritEntries(node, inconsistent);
-			cInfo.upgradeClashType(ConsistencyInfo.ClashType.FINAL);
-		}
-		if (cInfo.isFinallyInconsistent()) {
-			return cInfo;
-		}
-
-		cInfo.updateFrom(isProperDatatypeNode(node));
-		if (cInfo.isFinallyInconsistent()) {
-			return cInfo;
-		}
-
-		cInfo.updateFrom(isLinkConsistent(node));
-		return cInfo;
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isExtraConsistent(IABox<I, L, K, R> abox,
-														 IABoxNode<I, L, K, R> node,
-														 Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
-	{
-		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
-		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentExtraTermEntries(abox, node,
-																							 extraDescs);
-		cInfo.addCulpritEntries(node, inconsistent);
-		if (cInfo.isFinallyInconsistent()) {
-			return cInfo;
-		}
-
-		cInfo.updateFrom(isProperDatatypeNode(node));
-		if (cInfo.isFinallyInconsistent()) {
-			return cInfo;
-		}
-
-		cInfo.updateFrom(isLinkConsistent(node));
-		return cInfo;
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isExtraConsistent(IABoxNode<I, L, K, R> node,
-														 Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
-	{
-		return isExtraConsistent(null, node, extraDescs);
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isConsistent(IABoxNode<I, L, K, R> node,
-													Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
-	{
-		return isConsistent(node.getABox(), node, extraDescs);
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isConsistent(IDLTermFactory<I, L, K, R> termFactory,
-													TermEntryFactory<I, L, K, R> termEntryFactory,
-													Collection<? extends IDLTerm<I, L, K, R>> descs)
-	{
-		return isConsistent(termFactory, termEntryFactory, descs, null);
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isConsistent(IDLTermFactory<I, L, K, R> termFactory,
-													TermEntryFactory<I, L, K, R> termEntryFactory,
-													Collection<? extends IDLTerm<I, L, K, R>> descs,
-													Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
-	{
-		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
-		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentTermEntries(termFactory,
-																						termEntryFactory, descs,
-																						extraDescs);
-		if (!inconsistent.isEmpty()) {
-			cInfo.addCulpritEntries((IABox<I, L, K, R>) null, inconsistent);
-		}
-
-		return cInfo;
-
-	}
-
-
-	@Override
-	public ConsistencyInfo<I, L, K, R> isExtraConsistent(IDLTermFactory<I, L, K, R> termFactory,
-														 TermEntryFactory<I, L, K, R> termEntryFactory,
-														 Collection<? extends IDLTerm<I, L, K, R>> descs,
-														 Collection<? extends IDLTerm<I, L, K, R>> extraDescs)
-	{
-		final ConsistencyInfo<I, L, K, R> cInfo = new ConsistencyInfo<>();
-		final Set<Set<TermEntry<I, L, K, R>>> inconsistent = getInconsistentExtraTermEntries(termFactory,
-																							 termEntryFactory,
-																							 descs,
-																							 extraDescs);
-		if (!inconsistent.isEmpty()) {
-			cInfo.addCulpritEntries((IABox<I, L, K, R>) null, inconsistent);
-		}
-
 		return cInfo;
 	}
 }

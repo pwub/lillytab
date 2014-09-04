@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -30,8 +31,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IDLObjectIntersection<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IDLObjectIntersection<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends IDLClassExpression<I, L, K, R>, ITermList<IDLClassExpression<I, L, K, R>>, IDLIntersection<I, L, K, R>
-
 {
 }

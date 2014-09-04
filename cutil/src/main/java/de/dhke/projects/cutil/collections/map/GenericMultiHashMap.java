@@ -18,61 +18,51 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.map;
 
+import de.dhke.projects.cutil.collections.factories.ArrayListFactory;
+import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
 import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Map;
-import org.apache.commons.collections15.MultiMap;
 import org.apache.commons.collections15.multimap.MultiHashMap;
 
 /**
  *
+ * A {@link MultiHashMap} that uses HashSets for key storage instead of array lists.
+ * <p/>
+ *
  * @author Peter Wullinger <java@dhke.de>
+ * @param <K> Key type
+ * @param <V> Value type
  */
-public class MultiEnumSetHashMap<K, E extends Enum<E>> 
-	extends MultiHashMap<K, E>
-{
-	private final Class<E> _class;
-	
-	public MultiEnumSetHashMap(final Class<E> klass)
+public class GenericMultiHashMap<K, V>
+	extends MultiHashMap<K, V> {
+
+	static final long serialVersionUID = 8236744137300969863L;
+	private final ICollectionFactory<V, ? extends Collection<V>> _collectionFactory;
+
+
+	public GenericMultiHashMap(final ICollectionFactory<V, ? extends Collection<V>> collectionFactory)
 	{
 		super();
-		_class = klass;
+		_collectionFactory = collectionFactory;
 	}
 
-	public MultiEnumSetHashMap(final Class<E> klass, Map<K, E> mapToCopy)
+
+	public GenericMultiHashMap()
 	{
-		super(mapToCopy);
-		_class = klass;
+		super();
+		_collectionFactory = new ArrayListFactory<>();
 	}
 
-	public MultiEnumSetHashMap(final Class<E> klass, MultiMap<K, E> mapToCopy)
-	{
-		super(mapToCopy);
-		_class = klass;
-	}
-
-	public MultiEnumSetHashMap(final Class<E> klass, int initialCapacity)
-	{
-		super(initialCapacity);
-		_class = klass;
-	}
-
-	public MultiEnumSetHashMap(final Class<E> klass, int initialCapacity, float loadFactory)
-	{
-		super(initialCapacity, loadFactory);
-		_class = klass;
-	}
 
 	@Override
-	@SuppressWarnings("unchecked")
-	protected Collection<E> createCollection(Collection<? extends E> coll)
+	protected Collection<V> createCollection(Collection<? extends V> coll)
 	{
 		if (coll != null)
-			return EnumSet.copyOf((Collection<E>)coll);
+			return _collectionFactory.getInstance(coll);
 		else
-			return EnumSet.noneOf(_class);
-	}	
+			return _collectionFactory.getInstance();
+	}
 }

@@ -45,6 +45,15 @@ import org.junit.Test;
  * @author peterw
  */
 public class SimpleKRSSParserTest {
+	private IABoxFactory<String, String, String, String> _aboxFactory;
+	private SimpleStringDLTermFactory _termFactory;
+	private SimpleKRSSParser _parser;
+	private IABox<String, String, String, String> _abox;
+	
+	
+	public SimpleKRSSParserTest()
+	{
+	}
 	
 
 	@BeforeClass
@@ -55,15 +64,6 @@ public class SimpleKRSSParserTest {
 
 	@AfterClass
 	public static void tearDownClass()
-	{
-	}
-	private IABoxFactory<String, String, String, String> _aboxFactory;
-	private SimpleStringDLTermFactory _termFactory;
-	private SimpleKRSSParser _parser;
-	private IABox<String, String, String, String> _abox;
-	
-	
-	public SimpleKRSSParserTest()
 	{
 	}
 	
@@ -86,7 +86,7 @@ public class SimpleKRSSParserTest {
 		_parser = null;
 		_termFactory = null;
 	}
-	
+
 
 	@Test
 	public void testParseNamedClass() throws ParseException
@@ -97,7 +97,6 @@ public class SimpleKRSSParserTest {
 		assertFalse(_termFactory.getDLLiteralReference("A").equals(_parser.parse("A")));
 	}
 	
-
 	@Test
 	public void testParseIndividual() throws ParseException
 	{

@@ -65,28 +65,6 @@ public class SortedListSet<T extends Comparable<? super T>>
 	}
 
 
-	private void removeDuplicates()
-	{
-		final Iterator<T> iter = _backingList.iterator();
-		T lastObj = null;		
-		/* remove duplicates */
-		while (iter.hasNext()) {
-			final T obj = iter.next();
-			if ((lastObj == obj) || ((obj != null) && obj.equals(lastObj)))
-				iter.remove();
-			lastObj = obj;
-		}
-	}
-	
-	private int getPosition(final T e)
-	{
-		if (_comparator == null)
-			return Collections.binarySearch(_backingList, e);
-		else
-			return Collections.binarySearch(_backingList, e, _comparator);		
-	}
-
-
 	@Override
 	public T get(int index)
 	{
@@ -125,11 +103,13 @@ public class SortedListSet<T extends Comparable<? super T>>
 		return added;
 	}
 
+
 	@Override
 	public boolean remove(Object o)
 	{
 		return _backingList.remove(o);
 	}
+
 
 	@Override
 	public boolean removeAll(Collection<?> c)
@@ -148,5 +128,26 @@ public class SortedListSet<T extends Comparable<? super T>>
 	public boolean contains(Object o)
 	{		
 		return getPosition((T)o) >= 0;
+	}
+
+		private void removeDuplicates()
+	{
+		final Iterator<T> iter = _backingList.iterator();
+		T lastObj = null;		
+		/* remove duplicates */
+		while (iter.hasNext()) {
+			final T obj = iter.next();
+			if ((lastObj == obj) || ((obj != null) && obj.equals(lastObj)))
+				iter.remove();
+			lastObj = obj;
+		}
+	}
+
+		private int getPosition(final T e)
+	{
+		if (_comparator == null)
+			return Collections.binarySearch(_backingList, e);
+		else
+			return Collections.binarySearch(_backingList, e, _comparator);		
 	}
 }

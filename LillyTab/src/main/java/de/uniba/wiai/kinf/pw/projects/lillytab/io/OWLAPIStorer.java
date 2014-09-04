@@ -13,7 +13,6 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataUnion;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDatatype;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AnyDataType;
 import java.util.Set;
-import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLDataFactory;
 import org.semanticweb.owlapi.model.OWLDataOneOf;
@@ -22,13 +21,6 @@ import org.semanticweb.owlapi.model.OWLIndividual;
 import org.semanticweb.owlapi.model.OWLLiteral;
 import org.semanticweb.owlapi.model.OWLProperty;
 import org.semanticweb.owlapi.vocab.OWL2Datatype;
-import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
-import org.semanticweb.owlapi.vocab.OWLXMLVocabulary;
-import uk.ac.manchester.cs.owl.owlapi.OWL2DatatypeImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryInternals;
-import uk.ac.manchester.cs.owl.owlapi.OWLDataFactoryInternalsImpl;
-import uk.ac.manchester.cs.owl.owlapi.OWLNaryDataRangeImpl;
 
 /**
  *

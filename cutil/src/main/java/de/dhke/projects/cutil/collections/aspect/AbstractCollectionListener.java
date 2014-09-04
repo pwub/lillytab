@@ -28,41 +28,49 @@ package de.dhke.projects.cutil.collections.aspect;
 public class AbstractCollectionListener<E, C>
 	implements ICollectionListener<E, C>
 {
+	@Override
 	public void beforeElementAdded(final CollectionItemEvent<E, C> e)
 	{
 	}
 
 
+	@Override
 	public void beforeElementRemoved(final CollectionItemEvent<E, C> e)
 	{
 	}
 
 
+	@Override
 	public void beforeElementReplaced(final CollectionItemReplacedEvent<E, C> e)
 	{
 	}
 
 
+	@Override
 	public void beforeCollectionCleared(final CollectionEvent<E, C> e)
 	{
 	}
 
 
+	@Override
 	public void afterElementAdded(final CollectionItemEvent<E, C> e)
 	{
 	}
 
 
+	@Override
 	public void afterElementRemoved(final CollectionItemEvent<E, C> e)
 	{
 	}
 
 
+	@Override
 	public void afterElementReplaced(final CollectionItemReplacedEvent<E, C> e)
 	{
 	}
 
 
+	@Override
 	public void afterCollectionCleared(final CollectionEvent<E, C> e)
 	{
 	}

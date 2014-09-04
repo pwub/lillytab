@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 
+
 /**
  * 
  * Represents a subconcept inclusion.
@@ -32,14 +33,12 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IDLImplies<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	extends IDLClassExpression<I, L, K, R>, IBinaryOperator<IDLClassExpression<I, L, K, R>> {
-
+public interface IDLImplies<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	extends IDLClassExpression<I, L, K, R>, IBinaryOperator<IDLClassExpression<I, L, K, R>>
+{
 	IDLClassExpression<I, L, K, R> getSubDescription();
 
-
 	IDLClassExpression<I, L, K, R> getSuperDescription();
-
 
 	/**
 	 * 

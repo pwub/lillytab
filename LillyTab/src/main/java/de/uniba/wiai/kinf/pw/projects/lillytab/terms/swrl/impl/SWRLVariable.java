@@ -25,7 +25,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLIndividualReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLVariable;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
+
 
 /**
  *
@@ -34,17 +34,15 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
  * @param <R> The type for properties (roles)
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public class SWRLVariable<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
-	implements ISWRLVariable<I, L, K, R> {
-
+public class SWRLVariable<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
+	implements ISWRLVariable<I, L, K, R>
+{
 	private final String _name;
-
 
 	protected SWRLVariable(final String name)
 	{
 		_name = name;
 	}
-
 
 	@Override
 	public String getVariableName()
@@ -52,19 +50,16 @@ public class SWRLVariable<I extends Comparable<? super I>, L extends Comparable<
 		return _name;
 	}
 
-
 	public String getObject()
 	{
 		return getVariableName();
 	}
-
 
 	@Override
 	public ISWRLVariable<I, L, K, R> clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public boolean equals(final Object obj)
@@ -81,13 +76,11 @@ public class SWRLVariable<I extends Comparable<? super I>, L extends Comparable<
 		}
 	}
 
-
 	@Override
 	public int hashCode()
 	{
 		return _name.hashCode();
 	}
-
 
 	@Override
 	public int compareTo(final ISWRLArgument<I, L, K, R> o)
@@ -106,20 +99,9 @@ public class SWRLVariable<I extends Comparable<? super I>, L extends Comparable<
 		}
 	}
 
-
 	@Override
 	public String toString()
 	{
 		return "?" + _name;
-	}
-
-
-	@Override
-	public String toString(IToStringFormatter formatter)
-	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append("?");
-		formatter.append(sb, _name);
-		return sb.toString();
 	}
 }

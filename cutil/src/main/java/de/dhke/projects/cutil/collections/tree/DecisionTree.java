@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.tree;
 
 import java.util.ArrayList;
@@ -35,85 +36,9 @@ import org.apache.commons.collections15.list.SetUniqueList;
  */
 public class DecisionTree<Data>
 	implements IDecisionTree<Data> {
-	/// <editor-fold defaultstate="collapsed" desc="Iterator">
 
-	class Itr
-		implements Iterator<Node<Data>> {
-
-		private Node<Data> _next;
-		private final Stack<Iterator<? extends Node<Data>>> iterStack = new Stack<>();
-
-		private Itr()
-		{
-			Iterator<? extends Node<Data>> iter = getRoot().getChildren().iterator();
-			if (iter.hasNext()) {
-				iterStack.push(iter);
-				final Node<Data> current = iter.next();
-				while (current.hasChildren()) {
-					iter = current.getChildren().iterator();
-					iterStack.push(iter);
-				}
-				_next = current;
-			} else if (getRoot().hasData()) {
-				_next = getRoot();
-			} else
-				_next = null;
-		}
-
-		@Override
-		public boolean hasNext()
-		{
-			return _next != null;
-		}
-
-		private void advance()
-		{
-			if (_next != null) {
-				_next = null;
-				while (_next == null) {
-					/* find the topmost iterator on the stack that still has a successor */
-					while ((!iterStack.isEmpty()) && (!iterStack.peek().hasNext()))
-						iterStack.pop();
-
-					if (iterStack.isEmpty()) {
-						/* we did not find an iterator on the stack that still has */
-						_next = null;
-						return;
-					} else {
-						Iterator<? extends Node<Data>> iter = iterStack.peek();
-						assert iter.hasNext();
-						Node<Data> current = iter.next();
-						while (current.hasChildren()) {
-							iter = current.getChildren().iterator();
-							iterStack.push(iter);
-							current = iter.next();
-						}
-						_next = current;
-					}
-				}
-			} else
-				_next = null;
-		}
-
-		@Override
-		public Node<Data> next()
-		{
-			if (_next != null) {
-				final Node<Data> next = _next;
-				advance();
-				return next;
-			} else
-				throw new NoSuchElementException("End of DecisionTree reached");
-		}
-
-		@Override
-		public void remove()
-		{
-			throw new UnsupportedOperationException("Not supported yet.");
-		}
-	}
-	/// </editor-fold>
 	private DTNode _root;
+
 
 	public DecisionTree()
 	{
@@ -121,6 +46,7 @@ public class DecisionTree<Data>
 
 
 	}
+
 
 	@Override
 	public Node<Data> getRoot()
@@ -130,6 +56,7 @@ public class DecisionTree<Data>
 
 	}
 
+
 	@Override
 	public List<? extends Node<Data>> getChildren(final Node<Data> parent)
 	{
@@ -137,6 +64,7 @@ public class DecisionTree<Data>
 
 
 	}
+
 
 	@Override
 	public boolean hasChildren(Node<Data> parent)
@@ -146,6 +74,7 @@ public class DecisionTree<Data>
 
 	}
 
+
 	@Override
 	public Node<Data> getParent(Node<Data> child)
 	{
@@ -153,6 +82,7 @@ public class DecisionTree<Data>
 
 
 	}
+
 
 	@Override
 	public boolean hasData(Node<Data> node)
@@ -162,11 +92,13 @@ public class DecisionTree<Data>
 
 	}
 
+
 	@Override
 	public Data getData(Node<Data> node)
 	{
 		return node.getData();
 	}
+
 
 	@Override
 	public Node<Data> fork(final Node<Data> sibling, Data data)
@@ -194,7 +126,8 @@ public class DecisionTree<Data>
 				 *
 				 * This way, the sibling reference remains intact and forking with
 				 * the same sibling should work as expected.
-				 **/
+				 *
+				 */
 				assert parentNode == null;
 				final DTNode newParent = new DTNode();
 				newParent.getChildren().add(siblingNode);
@@ -214,7 +147,7 @@ public class DecisionTree<Data>
 			return siblingNode;
 		}
 	}
-		
+
 
 	@Override
 	public Node<Data> branch(final Node<Data> sibling, final Data data)
@@ -254,14 +187,15 @@ public class DecisionTree<Data>
 				 *
 				 * This way, the sibling reference remains intact and forking with
 				 * the same sibling should work as expected.
-				 **/
+				 *
+				 */
 				assert parentNode == null;
 				final DTNode newParent = new DTNode();
 				newParent.getChildren().add(siblingNode);
 				siblingNode.setParent(newParent);
-				
+
 				final DTNode newNode = new DTNode(newParent, data);
-				newParent.getChildren().add(newNode);				
+				newParent.getChildren().add(newNode);
 
 				assert !newParent.hasData();
 				assert newParent.hasChildren();
@@ -280,7 +214,8 @@ public class DecisionTree<Data>
 		}
 
 	}
-	
+
+
 	@Override
 	public void remove(final Node<Data> node, final boolean pullChildren)
 	{
@@ -289,17 +224,20 @@ public class DecisionTree<Data>
 		// assert checkDecisionTree(this);
 	}
 
+
 	@Override
 	public void remove(final Node<Data> node)
 	{
 		remove(node, true);
 	}
 
+
 	/**
 	 * Remove the specified node from the decision tree.
-	 * @param removeNode The node to remove.
+	 * <p/>
+	 * @param removeNode   The node to remove.
 	 * @param pullChildren if {@literal true}, any children of {@literal removeNode} will be
-	 *	attached to {@literal removeNode}'s parent.
+	 *                        attached to {@literal removeNode}'s parent.
 	 */
 	private void removeReal(final Node<Data> removeNode, final boolean pullChildren)
 	{
@@ -307,7 +245,7 @@ public class DecisionTree<Data>
 			/* our parent node is not null, i.e. we are not the root */
 			final DTNode rmNode = (DTNode) removeNode;
 			final DTNode parent = rmNode.getParent();
-			
+
 			/* remove target node from tree */
 			assert parent.getChildren().contains(rmNode);
 
@@ -319,7 +257,7 @@ public class DecisionTree<Data>
 				/* pull down children to parent, if specified */
 				for (Node<Data> childNode : removeNode.getChildren()) {
 					parent.getChildren().add((DTNode) childNode);
-					((DTNode)childNode).setParent(parent);
+					((DTNode) childNode).setParent(parent);
 				}
 			}
 
@@ -331,7 +269,8 @@ public class DecisionTree<Data>
 				 * (2) remove the other child
 				 * (3) - if the other child is a leaf, move its data down to the parent, making it a leaf
 				 * (4) - if the other child is not a leaf, pull the children down.
-				 **/
+				 *
+				 */
 				final DTNode otherChild = parent.getChildren().iterator().next();
 
 				if (otherChild.hasChildren()) {
@@ -352,6 +291,7 @@ public class DecisionTree<Data>
 			throw new IllegalArgumentException("Cannot remove empty root node");
 	}
 
+
 	@Override
 	public List<? extends Node<Data>> getPath(final Node<Data> node)
 	{
@@ -366,6 +306,136 @@ public class DecisionTree<Data>
 		return path;
 	}
 
+
+	@Override
+	public String toString()
+	{
+		final StringBuilder sb = new StringBuilder();
+		sb.append(getClass().getSimpleName());
+		sb.append(getRoot().toString());
+
+		return sb.toString();
+	}
+
+
+	@Override
+	public Iterator<? extends Node<Data>> iterator()
+	{
+		return new Itr();
+
+	}
+
+
+	public static <Data> boolean checkDecisionTree(final IDecisionTree<Data> tree, final Node<Data> node)
+	{
+		if (node.hasChildren()) {
+			if (node.getChildren().size() < 2) {
+				throw new IllegalArgumentException("node " + node + " does not have at least two children");
+			} else {
+				for (Node<Data> child : node.getChildren()) {
+					if (child.getParent() != node)
+						throw new IllegalArgumentException(
+							"node " + child + " has incorrect parent pointer, should be " + node + ", but is " + child.getParent());
+					checkDecisionTree(tree, child);
+				}
+			}
+		} else if (!node.hasData())
+			throw new IllegalArgumentException("node " + node + " is not a leaf but has no data");
+		return true;
+	}
+
+
+	public static <Data> boolean checkDecisionTree(final IDecisionTree<Data> tree)
+	{
+		final Node<Data> root = tree.getRoot();
+		if (root.hasChildren())
+			checkDecisionTree(tree, root);
+		return true;
+	}
+
+	/// <editor-fold defaultstate="collapsed" desc="Iterator">
+	class Itr
+		implements Iterator<Node<Data>> {
+
+		private Node<Data> _next;
+		private final Stack<Iterator<? extends Node<Data>>> iterStack = new Stack<>();
+
+
+		private Itr()
+		{
+			Iterator<? extends Node<Data>> iter = getRoot().getChildren().iterator();
+			if (iter.hasNext()) {
+				iterStack.push(iter);
+				final Node<Data> current = iter.next();
+				while (current.hasChildren()) {
+					iter = current.getChildren().iterator();
+					iterStack.push(iter);
+				}
+				_next = current;
+			} else if (getRoot().hasData()) {
+				_next = getRoot();
+			} else
+				_next = null;
+		}
+
+
+		@Override
+		public boolean hasNext()
+		{
+			return _next != null;
+		}
+
+
+		private void advance()
+		{
+			if (_next != null) {
+				_next = null;
+				while (_next == null) {
+					/* find the topmost iterator on the stack that still has a successor */
+					while ((!iterStack.isEmpty()) && (!iterStack.peek().hasNext()))
+						iterStack.pop();
+
+					if (iterStack.isEmpty()) {
+						/* we did not find an iterator on the stack that still has */
+						_next = null;
+						return;
+					} else {
+						Iterator<? extends Node<Data>> iter = iterStack.peek();
+						assert iter.hasNext();
+						Node<Data> current = iter.next();
+						while (current.hasChildren()) {
+							iter = current.getChildren().iterator();
+							iterStack.push(iter);
+							current = iter.next();
+						}
+						_next = current;
+					}
+				}
+			} else
+				_next = null;
+		}
+
+
+		@Override
+		public Node<Data> next()
+		{
+			if (_next != null) {
+				final Node<Data> next = _next;
+				advance();
+				return next;
+			} else
+				throw new NoSuchElementException("End of DecisionTree reached");
+		}
+
+
+		@Override
+		public void remove()
+		{
+			throw new UnsupportedOperationException("Not supported yet.");
+		}
+	}
+	/// </editor-fold>
+
 	/// <editor-fold defaultstate="collapsed" desc="DTNode">
 	class DTNode
 		implements Node<Data> {
@@ -374,17 +444,20 @@ public class DecisionTree<Data>
 		private Data _data;
 		private List<DTNode> _children;
 
+
 		DTNode()
 		{
 			_parent = null;
 			_children = SetUniqueList.decorate(new ArrayList<DTNode>());
 		}
 
+
 		DTNode(final DTNode newParent)
 		{
 			_parent = newParent;
 			_children = SetUniqueList.decorate(new ArrayList<DTNode>());
 		}
+
 
 		DTNode(final DTNode newParent, final Data data)
 		{
@@ -393,16 +466,19 @@ public class DecisionTree<Data>
 			_children = SetUniqueList.decorate(new ArrayList<DTNode>());
 		}
 
+
 		@Override
 		public DTNode getParent()
 		{
 			return _parent;
 		}
 
+
 		protected void setParent(final DTNode newParent)
 		{
 			_parent = newParent;
 		}
+
 
 		@Override
 		public List<DTNode> getChildren()
@@ -410,11 +486,13 @@ public class DecisionTree<Data>
 			return _children;
 		}
 
+
 		@Override
 		public boolean hasChildren()
 		{
 			return !_children.isEmpty();
 		}
+
 
 		@Override
 		public boolean hasData()
@@ -422,11 +500,13 @@ public class DecisionTree<Data>
 			return _data != null;
 		}
 
+
 		@Override
 		public Data getData()
 		{
 			return _data;
 		}
+
 
 		protected void setData(final Data newData)
 		{
@@ -441,17 +521,20 @@ public class DecisionTree<Data>
 			}
 		}
 
+
 		@Override
 		public void remove()
 		{
 			DecisionTree.this.remove(this);
 		}
 
+
 		@Override
 		public List<? extends Node<Data>> getPath()
 		{
 			return DecisionTree.this.getPath(this);
 		}
+
 
 		@Override
 		public boolean equals(final Object obj)
@@ -468,6 +551,7 @@ public class DecisionTree<Data>
 				return false;
 		}
 
+
 		@Override
 		public int hashCode()
 		{
@@ -476,6 +560,7 @@ public class DecisionTree<Data>
 			else
 				return _data.hashCode();
 		}
+
 
 		@Override
 		public String toString()
@@ -492,11 +577,13 @@ public class DecisionTree<Data>
 				return "(null)";
 		}
 
+
 		@Override
 		public IDecisionTree.Node<Data> fork(Data data)
 		{
 			return DecisionTree.this.fork(this, data);
 		}
+
 
 		@Override
 		public IDecisionTree.Node<Data> branch(Data data)
@@ -505,46 +592,4 @@ public class DecisionTree<Data>
 		}
 	}
 	/// </editor-fold>
-
-	@Override
-	public String toString()
-	{
-		final StringBuilder sb = new StringBuilder();
-		sb.append(getClass().getSimpleName());
-		sb.append(getRoot().toString());
-
-		return sb.toString();
-	}
-
-	@Override
-	public Iterator<? extends Node<Data>> iterator()
-	{
-		return new Itr();
-
-	}
-	
-	public static <Data> boolean checkDecisionTree(final IDecisionTree<Data> tree, final Node<Data> node)
-	{
-		if (node.hasChildren()) {
-			if (node.getChildren().size() < 2) {
-				throw new IllegalArgumentException("node " + node + " does not have at least two children");
-			} else {
-				for (Node<Data> child : node.getChildren()) {
-					if (child.getParent() != node)
-						throw new IllegalArgumentException("node " + child + " has incorrect parent pointer, should be " + node + ", but is " + child.getParent());
-					checkDecisionTree(tree, child);
-				}
-			}
-		} else if (!node.hasData())
-			throw new IllegalArgumentException("node " + node + " is not a leaf but has no data");
-		return true;
-	}
-
-	public static <Data> boolean checkDecisionTree(final IDecisionTree<Data> tree)
-	{
-		final Node<Data> root = tree.getRoot();
-		if (root.hasChildren())
-			checkDecisionTree(tree, root);
-		return true;
-	}	
 }

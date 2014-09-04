@@ -45,6 +45,14 @@ public class NodeMergeInfoTest {
 
 	private static IDLTermFactory<String, String, String, String> _termFactory;
 	private static IABoxFactory<String, String, String, String> _aboxFactory;
+	private IABox<String, String, String, String> _abox;
+	private IABoxNode<String, String, String, String> _targetNode;
+	private IABoxNode<String, String, String, String> _mergedNode;
+
+
+	public NodeMergeInfoTest()
+	{
+	}
 
 
 	@BeforeClass
@@ -57,21 +65,11 @@ public class NodeMergeInfoTest {
 
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
+	public static void tearDownClass() throws Exception
 	{
 		_aboxFactory = null;
 		_termFactory = null;
 	}
-	private IABox<String, String, String, String> _abox;
-	private IABoxNode<String, String, String, String> _targetNode;
-	private IABoxNode<String, String, String, String> _mergedNode;
-
-
-	public NodeMergeInfoTest()
-	{
-	}
-
 
 	@Before
 	public void setUp()
@@ -83,7 +81,6 @@ public class NodeMergeInfoTest {
 
 
 	}
-
 
 	@After
 	public void tearDown()
@@ -110,7 +107,8 @@ public class NodeMergeInfoTest {
 	 * Test of getMergedNodes method, of class NodeMergeInfo.
 	 */
 	@Test
-	public void testGetMergedNodes() throws EReasonerException, ENodeMergeException
+	public void testGetMergedNodes()
+		throws EReasonerException, ENodeMergeException
 	{
 		final NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
 		assertTrue(mergeInfo.getMergedNodes().contains(_mergedNode));
@@ -133,8 +131,7 @@ public class NodeMergeInfoTest {
 	 * Test of getModifiedNodes method, of class NodeMergeInfo.
 	 */
 	@Test
-	public void testGetModifiedNodes()
-		throws EReasonerException, ENodeMergeException
+	public void testGetModifiedNodes() throws EReasonerException, ENodeMergeException
 	{
 		_mergedNode.addTerm(_termFactory.getDLClassReference("A"));
 
@@ -147,8 +144,7 @@ public class NodeMergeInfoTest {
 	 * Test of getInitialNode method, of class NodeMergeInfo.
 	 */
 	@Test
-	public void testGetInitialNode()
-		throws EReasonerException, ENodeMergeException
+	public void testGetInitialNode() throws EReasonerException, ENodeMergeException
 	{
 		final NodeMergeInfo<String, String, String, String> mergeInfo = _abox.mergeNodes(_targetNode, _mergedNode);
 		assertSame(mergeInfo.getInitialNode(), _mergedNode);

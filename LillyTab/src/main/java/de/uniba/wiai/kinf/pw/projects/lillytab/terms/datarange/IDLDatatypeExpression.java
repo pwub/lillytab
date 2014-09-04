@@ -24,6 +24,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange;
 import java.util.Collection;
 import java.util.Set;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -34,8 +35,8 @@ import java.util.Set;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IDLDatatypeExpression<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends IDLDataRange<I, L, K, R> {
-
+	extends IDLDataRange<I, L, K, R>
+{
 	/**
 	 * Determine, if the specified literal is a valid value for the specified datatype.
 	 *
@@ -43,7 +44,6 @@ public interface IDLDatatypeExpression<I extends Comparable<? super I>, L extend
 	 * @return
 	 */
 	public boolean isValidValue(final L literal);
-
 
 	/**
 	 * Determine, if the specified values are compatible with each other under the constraints of the current data type.
@@ -56,7 +56,6 @@ public interface IDLDatatypeExpression<I extends Comparable<? super I>, L extend
 	 */
 	@SuppressWarnings({"unchecked", "varargs"})
 	public boolean isCompatibleValue(final L lit1, final L lit2, final L... otherLits);
-
 
 	/**
 	 * Determine, if the specified values are compatible with each other under the constraints of the current data type.

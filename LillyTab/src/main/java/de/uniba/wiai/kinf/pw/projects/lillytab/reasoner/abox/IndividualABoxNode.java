@@ -102,8 +102,8 @@ public class IndividualABoxNode<I extends Comparable<? super I>, L extends Compa
 						addQueue.put(unfoldee, addTerm);
 					}
 				}
-				if ((parent != null) && (!depMap.containsKey(currentNode, term)) && (!term.equals(parent))) {
-					depMap.addParent(currentNode, term, currentNode, parent);
+				if ((parent != null) && (!addTerm.equals(parent))) {
+					depMap.addParent(currentNode, addTerm, currentNode, parent);
 				}
 			}
 		}

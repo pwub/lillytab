@@ -22,6 +22,7 @@
 package de.dhke.projects.cutil.collections.factories;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -40,7 +41,7 @@ public class ArrayListFactory<E>
 	}
 
 	@Override
-	public List<E> getInstance(final List<E> baseCollection)
+	public List<E> getInstance(final Collection<? extends E> baseCollection)
 	{
 		return new ArrayList<>(baseCollection);
 	}

@@ -21,28 +21,17 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
-import de.dhke.projects.cutil.collections.aspect.AbstractCollectionListener;
-import de.dhke.projects.cutil.collections.aspect.CollectionEvent;
-import de.dhke.projects.cutil.collections.aspect.CollectionItemEvent;
-import de.dhke.projects.cutil.collections.aspect.CollectionItemReplacedEvent;
 import de.dhke.projects.cutil.collections.map.TransitiveHashMap;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ABoxNodeEvent;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.INodeMergeListener;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ITermSetListener;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.TermChangeEvent;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLIndividualReference;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
 
 
 /**
@@ -121,33 +110,6 @@ public class Branch<I extends Comparable<? super I>, L extends Comparable<? supe
 		return _abox;
 	}
 
-	/**
-	 * Update the ABox of the current branch and update the branch-specified listeners of the ABoxes, if appropriate.
-	 *
-	 * @param abox The new ABox
-	 */
-	private void setABox(final IABox<I, L, K, R> abox)
-	{
-		if (abox != _abox) {
-			if (_abox != null) {
-				if (_mergeMap != null) {
-					assert _mergeListener != null;
-					_abox.getNodeMergeListeners().remove(_mergeListener);
-				}
-				assert !_abox.getNodeMergeListeners().contains(_mergeListener);
-			}
-			if (abox != null) {
-				/*
-				 * add node merge listener only if merge tracking is enabled
-				 */
-				if (_mergeMap != null) {
-					abox.getNodeMergeListeners().add(_mergeListener);
-				}
-			}
-			_abox = abox;
-		}
-	}
-
 	public ReasonerResult<I, L, K, R> dispose()
 	{
 		final IABox<I, L, K, R> abox = getABox();
@@ -179,27 +141,11 @@ public class Branch<I extends Comparable<? super I>, L extends Comparable<? supe
 	 * @deprecated
 	 */
 	@Deprecated
-	public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode)
-		throws ENodeMergeException
+public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMergeException
 	{
 		IABoxNode<I, L, K, R> newNode = getABox().createNode(isDatatypeNode);
 		assert getABox().contains(newNode);
 		return newNode;
-	}
-
-	/// <editor-fold defaultstate="collapsed" desc="Cloneable">
-	private IABox<I, L, K, R> cloneABox()
-	{
-		if (_abox != null) {
-			if (_mergeMap != null) {
-				_abox.getNodeMergeListeners().remove(_mergeListener);
-			};
-			final IABox<I, L, K, R> aboxClone = _abox.clone();
-			_abox.getNodeMergeListeners().add(_mergeListener);
-			return aboxClone;
-		} else {
-			return null;
-		}
 	}
 
 	@Override
@@ -223,13 +169,12 @@ public class Branch<I extends Comparable<? super I>, L extends Comparable<? supe
 		return toString("");
 	}
 
-	public String toString(int indent)
+		public String toString(int indent)
 	{
 		char[] fill = new char[indent];
 		Arrays.fill(fill, ' ');
 		return new String(fill);
 	}
-
 	public String toString(String prefix)
 	{
 		if (TO_STRING_ID_ONLY) {
@@ -264,6 +209,48 @@ public class Branch<I extends Comparable<? super I>, L extends Comparable<? supe
 		return Collections.unmodifiableMap(_mergeMap);
 	}
 	/// </editor-fold>
+	
+	/**
+	 * Update the ABox of the current branch and update the branch-specified listeners of the ABoxes, if appropriate.
+	 *
+	 * @param abox The new ABox
+	 */
+	private void setABox(final IABox<I, L, K, R> abox)
+	{
+		if (abox != _abox) {
+			if (_abox != null) {
+				if (_mergeMap != null) {
+					assert _mergeListener != null;
+					_abox.getNodeMergeListeners().remove(_mergeListener);
+				}
+				assert !_abox.getNodeMergeListeners().contains(_mergeListener);
+			}
+			if (abox != null) {
+				/*
+				 * add node merge listener only if merge tracking is enabled
+				 */
+				if (_mergeMap != null) {
+					abox.getNodeMergeListeners().add(_mergeListener);
+				}
+			}
+			_abox = abox;
+		}
+	}
+
+	/// <editor-fold defaultstate="collapsed" desc="Cloneable">
+	private IABox<I, L, K, R> cloneABox()
+	{
+		if (_abox != null) {
+			if (_mergeMap != null) {
+				_abox.getNodeMergeListeners().remove(_mergeListener);
+			};
+			final IABox<I, L, K, R> aboxClone = _abox.clone();
+			_abox.getNodeMergeListeners().add(_mergeListener);
+			return aboxClone;
+		} else {
+			return null;
+		}
+	}
 
 	/// <editor-fold defaultstate="collaped" desc="class NodeMergeListener">
 

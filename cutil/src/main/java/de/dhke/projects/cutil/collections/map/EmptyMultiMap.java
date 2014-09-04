@@ -38,14 +38,14 @@ import org.apache.commons.collections15.MultiMap;
 public class EmptyMultiMap<K, V>
 	implements MultiMap<K, V>
 {
+	public  EmptyMultiMap()
+	{
+
+	}
+
 	public static <K, V> EmptyMultiMap<K, V> instance()
 	{
 		return new EmptyMultiMap<>();
-	}
-
-	public EmptyMultiMap()
-	{
-
 	}
 
 	@Override

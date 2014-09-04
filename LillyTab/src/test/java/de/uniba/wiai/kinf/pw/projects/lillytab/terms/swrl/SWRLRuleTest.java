@@ -35,24 +35,22 @@ import org.junit.Test;
  */
 public class SWRLRuleTest {
 
+	private ISWRLTermFactory<String, String, String, String> _termFactory;
+
+
+	public SWRLRuleTest()
+	{
+	}
+
 
 	@BeforeClass
-	public static void setUpClass()
-		throws Exception
+	public static void setUpClass() throws Exception
 	{
 	}
 
 
 	@AfterClass
-	public static void tearDownClass()
-		throws Exception
-	{
-	}
-
-	private ISWRLTermFactory<String, String, String, String> _termFactory;
-
-
-	public SWRLRuleTest()
+	public static void tearDownClass() throws Exception
 	{
 	}
 

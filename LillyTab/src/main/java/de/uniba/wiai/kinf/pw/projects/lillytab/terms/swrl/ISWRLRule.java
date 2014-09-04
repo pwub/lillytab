@@ -22,8 +22,8 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITerm;
-import de.uniba.wiai.kinf.pw.projects.lillytab.util.IToStringFormatter;
 import java.util.Collection;
+
 
 /**
  *
@@ -35,16 +35,11 @@ import java.util.Collection;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface ISWRLRule<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends ITerm, Comparable<ISWRLRule<I, L, K, R>> {
-
+	extends ITerm, Comparable<ISWRLRule<I, L, K, R>>
+{
 	ISWRLTerm<I, L, K, R> getHead();
-
 
 	ISWRLTerm<I, L, K, R> getBody();
 
-
 	Collection<? extends ISWRLVariable<I, L, K, R>> getVariables();
-
-
-	String toString(final IToStringFormatter formatter);
 }

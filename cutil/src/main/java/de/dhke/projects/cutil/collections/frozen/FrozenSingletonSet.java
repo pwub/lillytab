@@ -33,35 +33,6 @@ import java.util.NoSuchElementException;
 public class FrozenSingletonSet<T> 
 	extends AbstractSet<T>
 {
-	/// <editor-fold defaultstate="collapsed" desc="class Itr">
-	class Itr 
-		implements Iterator<T>
-	{
-		private boolean _iswasNextCalled = false;
-		
-		@Override
-		public boolean hasNext()
-		{
-			return !_iswasNextCalled;
-				
-		}
-
-		@Override
-		public T next()
-		{
-			if (_iswasNextCalled)
-				return _item;
-			else
-				throw new NoSuchElementException();
-		}
-
-		@Override
-		public void remove()
-		{
-			throw new UnsupportedOperationException("Cannot modify a FixedSingletonSet");
-		}		
-	}
-	/// </editor-fold>
 	
 	private final T _item;	
 	
@@ -110,4 +81,33 @@ public class FrozenSingletonSet<T>
 		} else
 			return false;
 	}
+	/// <editor-fold defaultstate="collapsed" desc="class Itr">
+	class Itr 
+		implements Iterator<T>
+	{
+		private boolean _iswasNextCalled = false;
+		
+		@Override
+		public boolean hasNext()
+		{
+			return !_iswasNextCalled;
+				
+		}
+
+		@Override
+		public T next()
+		{
+			if (_iswasNextCalled)
+				return _item;
+			else
+				throw new NoSuchElementException();
+		}
+
+		@Override
+		public void remove()
+		{
+			throw new UnsupportedOperationException("Cannot modify a FixedSingletonSet");
+		}		
+	}
+	/// </editor-fold>
 }

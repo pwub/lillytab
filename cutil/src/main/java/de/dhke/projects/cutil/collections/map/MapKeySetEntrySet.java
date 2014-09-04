@@ -43,6 +43,149 @@ public class MapKeySetEntrySet<K, V>
 	implements Set<Map.Entry<K, V>>
 {
 	private final Map<K, V> _baseMap;
+	
+	protected MapKeySetEntrySet(final Map<K, V> baseMap)
+	{
+		_baseMap = baseMap;
+	}
+
+
+	@Override
+	public int size()
+	{
+		return _baseMap.size();
+	}
+
+
+	@Override
+	public boolean isEmpty()
+	{
+		return _baseMap.isEmpty();
+	}
+
+
+	@Override
+	public boolean contains(Object o)
+	{
+		if (o instanceof Map.Entry) {
+			if (o == null)
+				return false;
+			Map.Entry e = (Map.Entry)o;
+			if (e.getKey() == null)
+				return false;
+			final V value = _baseMap.get(e.getKey());
+			return (((e.getValue() == null) && (value == null))
+			|| (e.getValue() == value)
+			|| (e.getValue().equals(value)));
+		} else {
+			return false;
+		}
+	}
+
+
+	@Override
+	public Iterator<Entry<K, V>> iterator()
+	{
+		return new Itr();
+	}
+
+
+	@Override
+	public Object[] toArray()
+	{
+		return _baseMap.entrySet().toArray();
+	}
+
+
+	@Override
+	public <T> T[] toArray(T[] a)
+	{
+		return _baseMap.entrySet().toArray(a);
+	}
+
+
+	@Override
+	public boolean add(Entry<K, V> e)
+	{
+		final V oldValue = _baseMap.put(e.getKey(), e.getValue());
+		return (((e.getValue() != oldValue)
+		|| ((e.getValue() == null) && (oldValue != null))
+		|| (! e.getValue().equals(oldValue))));
+	}
+
+	@Override
+	public boolean remove(Object o)
+	{
+		if (o instanceof Map.Entry) {
+			final Map.Entry<?, ?> entry = (Map.Entry<?, ?>)o;			
+			boolean removed = _baseMap.containsKey(entry.getKey());
+			_baseMap.remove(entry.getKey());
+			assert !_baseMap.containsKey(entry.getKey());
+			return removed;
+		} else
+			return false;
+	}
+
+
+	@Override
+	public boolean containsAll(Collection<?> c)
+	{
+		for (Object o: c) {
+			if (! contains(o))
+				return false;
+		}
+		return true;
+	}
+
+
+	@Override
+	public boolean addAll(Collection<? extends Entry<K, V>> c)
+	{
+		boolean added = false;
+		for (Entry<K, V> entry: c)
+			added |= add(entry);
+		return added;
+	}
+
+
+	@Override
+	public boolean retainAll(Collection<?> c)
+	{
+		boolean removed = false;
+		Iterator<Entry<K, V>> iter = iterator();
+		while (iter.hasNext()) {
+			final Entry<K, V> entry = iter.next();
+			if (! c.contains(entry)) {
+				removed = true;
+				iter.remove();
+			}
+		}
+		return removed;
+	}
+
+
+	@Override
+	public boolean removeAll(Collection<?> c)
+	{
+		boolean removed = false;
+		Iterator<Entry<K, V>> iter = iterator();
+		while (iter.hasNext()) {
+			final Entry<K, V> entry = iter.next();
+			if (c.contains(entry)) {
+				removed = true;
+				iter.remove();
+			}
+		}
+		return removed;
+		
+	}
+
+
+	@Override
+	public void clear()
+	{
+		_baseMap.clear();;
+	}	
 
 	class Itr
 		implements Iterator<Map.Entry<K, V>> {
@@ -78,134 +221,4 @@ public class MapKeySetEntrySet<K, V>
 		}
 		
 	}
-	
-	protected MapKeySetEntrySet(final Map<K, V> baseMap)
-	{
-		_baseMap = baseMap;
-	}
-
-
-	public int size()
-	{
-		return _baseMap.size();
-	}
-
-
-	public boolean isEmpty()
-	{
-		return _baseMap.isEmpty();
-	}
-
-
-	public boolean contains(Object o)
-	{
-		if (o instanceof Map.Entry) {
-			if (o == null)
-				return false;
-			Map.Entry e = (Map.Entry)o;
-			if (e.getKey() == null)
-				return false;
-			final V value = _baseMap.get(e.getKey());
-			return (((e.getValue() == null) && (value == null))
-			|| (e.getValue() == value)
-			|| (e.getValue().equals(value)));
-		} else {
-			return false;
-		}
-	}
-
-
-	public Iterator<Entry<K, V>> iterator()
-	{
-		return new Itr();
-	}
-
-
-	public Object[] toArray()
-	{
-		return _baseMap.entrySet().toArray();
-	}
-
-
-	public <T> T[] toArray(T[] a)
-	{
-		return _baseMap.entrySet().toArray(a);
-	}
-
-
-	public boolean add(Entry<K, V> e)
-	{
-		final V oldValue = _baseMap.put(e.getKey(), e.getValue());
-		return (((e.getValue() != oldValue)
-		|| ((e.getValue() == null) && (oldValue != null))
-		|| (! e.getValue().equals(oldValue))));
-	}
-
-	public boolean remove(Object o)
-	{
-		if (o instanceof Map.Entry) {
-			final Map.Entry<?, ?> entry = (Map.Entry<?, ?>)o;			
-			boolean removed = _baseMap.containsKey(entry.getKey());
-			_baseMap.remove(entry.getKey());
-			assert !_baseMap.containsKey(entry.getKey());
-			return removed;
-		} else
-			return false;
-	}
-
-
-	public boolean containsAll(Collection<?> c)
-	{
-		for (Object o: c) {
-			if (! contains(o))
-				return false;
-		}
-		return true;
-	}
-
-
-	public boolean addAll(Collection<? extends Entry<K, V>> c)
-	{
-		boolean added = false;
-		for (Entry<K, V> entry: c)
-			added |= add(entry);
-		return added;
-	}
-
-
-	public boolean retainAll(Collection<?> c)
-	{
-		boolean removed = false;
-		Iterator<Entry<K, V>> iter = iterator();
-		while (iter.hasNext()) {
-			final Entry<K, V> entry = iter.next();
-			if (! c.contains(entry)) {
-				removed = true;
-				iter.remove();
-			}
-		}
-		return removed;
-	}
-
-
-	public boolean removeAll(Collection<?> c)
-	{
-		boolean removed = false;
-		Iterator<Entry<K, V>> iter = iterator();
-		while (iter.hasNext()) {
-			final Entry<K, V> entry = iter.next();
-			if (c.contains(entry)) {
-				removed = true;
-				iter.remove();
-			}
-		}
-		return removed;
-		
-	}
-
-
-	public void clear()
-	{
-		_baseMap.clear();;
-	}	
 }

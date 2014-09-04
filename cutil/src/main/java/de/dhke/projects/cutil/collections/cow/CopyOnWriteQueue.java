@@ -18,40 +18,70 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.cow;
 
 import de.dhke.projects.cutil.collections.factories.ICollectionFactory;
-import java.util.LinkedList;
 import java.util.Queue;
 
 /**
  *
+ * @param <E>
+ * @param <Q>
+ *            <p/>
  * @author Peter Wullinger <java@dhke.de>
  */
 public class CopyOnWriteQueue<E>
-	extends GenericCopyOnWriteQueue<E, Queue<E>>
-{
-	protected CopyOnWriteQueue(final Queue<E> baseQueue, final ICollectionFactory<E, Queue<E>> factory)
+	extends CopyOnWriteCollection<E>
+	implements Queue<E> {
+
+	protected CopyOnWriteQueue(final Queue<E> baseQueue, final ICollectionFactory<E, ? extends Queue<E>> factory)
 	{
 		super(baseQueue, factory);
 	}
-	
-	public static <E> CopyOnWriteQueue<E> decorate(final Queue<E> baseQueue, final ICollectionFactory<E, Queue<E>> factory)
+
+
+	@Override
+	public boolean offer(final E e)
 	{
-		return new CopyOnWriteQueue<>(baseQueue, new ICollectionFactory<E, Queue<E>>() {
+		copy();
+		return getDecoratee().offer(e);
+	}
 
-			@Override
-			public Queue<E> getInstance()
-			{
-				return new LinkedList<>();
-			}
 
-			@Override
-			public Queue<E> getInstance(final Queue<E> baseCollection)
-			{
-				return new LinkedList<>(baseCollection);
-			}
-		});
+	@Override
+	public E remove()
+	{
+		copy();
+		return getDecoratee().remove();
+	}
+
+
+	@Override
+	public E poll()
+	{
+		return getDecoratee().poll();
+	}
+
+
+	@Override
+	public E element()
+	{
+		return getDecoratee().element();
+	}
+
+
+	@Override
+	public E peek()
+	{
+		return getDecoratee().peek();
+	}
+
+
+	@Override
+	public Queue<E> getDecoratee()
+	{
+		return (Queue<E>) super.getDecoratee();
 	}
 }
