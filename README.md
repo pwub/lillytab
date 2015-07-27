@@ -11,12 +11,11 @@ workings of its tableau state.
 ## Current Features
 
 * documented access to ABox, TBox and RBox representation internals
-* OWLAPI 4 integration (since version 1.11)
 * modular architecture (add and replace tableau completers via API)
+* OWLAPI 4 integration (since version 1.11)
 * support for the DL SHOF(D) (which is OWL/DL minus qualified number restrictions and inverse roles)
 * various basic optimizations 
   * lazy unfolding
   * lazy saving (copy on write)
   * input term rewriting
   * dependency directed backtracking
-* tracing and logging
