@@ -8,6 +8,15 @@ To put it less formally, *LillyTab* is an *OWL2* reasoner (but with support for 
 A primary goal of LillyTab is to be extensible and inspectable, meaning it gives you easy access to the internal
 workings of its tableau state.
 
+This can be quite useful because the final (= saturated) state tableau algorithm exposes some
+interesting information about the ontology that can be used for further processing. 
+
+However, With most DL reasoners there is usually no documented way to get to this information
+Also, it is often not clear, if part of the information has been left out because of reasoner optimizations.
+LillyTab provides a solution for such problems (provided that you don't need inverse role or number restrictions).
+
+LillyTab is also a great DL teaching tool because of the simplicity of inspecting and printing reasoner state.
+
 ## Current Features
 
 * documented access to ABox, TBox and RBox representation internals
