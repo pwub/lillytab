@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -18,16 +18,17 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- *
- */
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.util;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasoner;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistencyException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.EReasonerException;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.ITermList;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLClassReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLArgument;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLAtomicTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
@@ -140,7 +141,7 @@ public class SWRLTermUtil
 		} else if (term instanceof ISWRLDataRangeAtom) {
 			final ISWRLDataRangeAtom<I, L, K, R> rangeAtom = (ISWRLDataRangeAtom<I, L, K, R>) term;
 			return swrlTermFactory.getSWRLDataRange(rangeAtom.getDataRange(), getMappedIndividual(rangeAtom.
-				getIndividual(), varMap));
+													getIndividual(), varMap));
 		} else if (term instanceof ITermList) {
 			@SuppressWarnings("unchecked")
 			final ITermList<ISWRLAtomicTerm<I, L, K, R>> list = (ITermList<ISWRLAtomicTerm<I, L, K, R>>) term;
@@ -257,7 +258,9 @@ public class SWRLTermUtil
 	}
 
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> compareTerms(
-		final ISWRLTerm<I, L, K, R> term1, final ISWRLTerm<I, L, K, R> term2, final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap, final IDLTermFactory<I, L, K, R> termFactory, final ISWRLTermFactory<I, L, K, R> swrlTermFactory)
+		final ISWRLTerm<I, L, K, R> term1, final ISWRLTerm<I, L, K, R> term2,
+		final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap,
+		final IDLTermFactory<I, L, K, R> termFactory, final ISWRLTermFactory<I, L, K, R> swrlTermFactory)
 	{
 		if (term1 instanceof ISWRLClassAtom) {
 			if (term2 instanceof ISWRLClassAtom) {
@@ -329,8 +332,18 @@ public class SWRLTermUtil
 	}
 
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLTerm<I, L, K, R> simplify(
-		final ISWRLTerm<I, L, K, R> inTerm, final IABox<I, L, K, R> abox, final IReasoner<I, L, K, R> reasoner, final ISWRLTermFactory<I, L, K, R> swrlFactory) throws EReasonerException, EInconsistencyException
+		final ISWRLTerm<I, L, K, R> inTerm, final IABox<I, L, K, R> abox, final IReasoner<I, L, K, R> reasoner,
+		final ISWRLTermFactory<I, L, K, R> swrlFactory) throws EReasonerException, EInconsistencyException
 	{
+		return simplify(inTerm, abox, reasoner, swrlFactory, true);
+	}
+
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ISWRLTerm<I, L, K, R> simplify(
+		final ISWRLTerm<I, L, K, R> inTerm, final IABox<I, L, K, R> abox, final IReasoner<I, L, K, R> reasoner,
+		final ISWRLTermFactory<I, L, K, R> swrlFactory, final boolean pruneTopElements) throws EReasonerException, EInconsistencyException
+	{
+		final IDLClassExpression<I, L, K, R> thing = abox.getDLTermFactory().getDLThing();
+
 		if (inTerm == null)
 			return null;
 		else if (inTerm instanceof ISWRLAtomicTerm) {
@@ -341,6 +354,21 @@ public class SWRLTermUtil
 			Iterator<ISWRLAtomicTerm<I, L, K, R>> subTermIter = subTerms.iterator();
 			while (subTermIter.hasNext()) {
 				final ISWRLAtomicTerm<I, L, K, R> subTerm = subTermIter.next();
+				if (pruneTopElements) {
+					if (subTerm instanceof ISWRLClassAtom) {
+						final ISWRLClassAtom<I, L, K, R> clsAtom = (ISWRLClassAtom<I, L, K, R>) subTerm;
+						if (clsAtom.getKlass().equals(thing)) {
+							subTermIter.remove();
+							continue;
+						}
+					} else if (subTerm instanceof ISWRLDataRangeAtom) {
+						final ISWRLDataRangeAtom<I, L, K, R> dataRange = (ISWRLDataRangeAtom<I, L, K, R>) subTerm;
+						if (dataRange.getDataRange().isTopDatatype()) {
+							subTermIter.remove();
+							continue;
+						}
+					}
+				}
 				for (ISWRLAtomicTerm<I, L, K, R> otherTerm : subTerms) {
 					if (!subTerm.equals(otherTerm)) {
 						if ((subTerm instanceof ISWRLClassAtom) && (otherTerm instanceof ISWRLClassAtom)) {
@@ -395,7 +423,8 @@ public class SWRLTermUtil
 	}
 
 	private static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> compareIndividuals(
-		final ISWRLArgument<I, L, K, R> ind1, final ISWRLArgument<I, L, K, R> ind2, final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap)
+		final ISWRLArgument<I, L, K, R> ind1, final ISWRLArgument<I, L, K, R> ind2,
+		final Map<ISWRLVariable<I, L, K, R>, ISWRLArgument<I, L, K, R>> varMap)
 	{
 		final ISWRLArgument<I, L, K, R> mappedInd1 = getMappedIndividual(ind1, varMap);
 		final ISWRLArgument<I, L, K, R> mappedInd2 = getMappedIndividual(ind2, varMap);

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -18,8 +18,7 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- *
- */
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyTerm;
@@ -33,6 +32,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.Collection;
 import org.apache.commons.collections15.SetUtils;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -44,10 +44,10 @@ import org.apache.commons.collections15.SetUtils;
  */
 public class DLDataUnion<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractDLOperatorTerm<I, L, K, R, IDLDataRange<I, L, K, R>>
-	implements IDLDataUnion<I, L, K, R> {
+	implements IDLDataUnion<I, L, K, R>
+{
 
 	public static final String OPERATOR_NAME = "OR";
-
 
 	public DLDataUnion(final Collection<? extends IDLDataRange<I, L, K, R>> ds)
 	{
@@ -64,7 +64,6 @@ public class DLDataUnion<I extends Comparable<? super I>, L extends Comparable<?
 		}
 	}
 
-
 	public DLDataUnion(final IDLDataRange<I, L, K, R> d0, final IDLDataRange<I, L, K, R> d1)
 	{
 		super(DLTermOrder.DL_DATA_UNION, OPERATOR_NAME, 2);
@@ -74,13 +73,11 @@ public class DLDataUnion<I extends Comparable<? super I>, L extends Comparable<?
 		sortAndEnsureUnique(this, 2);
 	}
 
-
 	@Override
 	public ITermList<IDLDataRange<I, L, K, R>> getTerms()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int hashCode()
@@ -88,7 +85,6 @@ public class DLDataUnion<I extends Comparable<? super I>, L extends Comparable<?
 		/* no need to override hashcode */
 		return super.hashCode() + SetUtils.hashCodeForSet(this);
 	}
-
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -105,13 +101,11 @@ public class DLDataUnion<I extends Comparable<? super I>, L extends Comparable<?
 			return false;
 	}
 
-
 	@Override
 	public DLDataUnion<I, L, K, R> clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int compareTo(final IDLTerm<I, L, K, R> o)
@@ -124,17 +118,36 @@ public class DLDataUnion<I extends Comparable<? super I>, L extends Comparable<?
 		return compare;
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_DATA_UNION);
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_DATA_UNION);
 	}
+
+	@Override
+	public boolean isTopDatatype()
+	{
+		for (IDLDataRange<I, L, K, R> range : this) {
+			if (range.isTopDatatype())
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isBottomDatatype()
+	{
+		for (IDLDataRange<I, L, K, R> range : this) {
+			if (!range.isBottomDatatype())
+				return false;
+		}
+		return true;
+	}
+
 }

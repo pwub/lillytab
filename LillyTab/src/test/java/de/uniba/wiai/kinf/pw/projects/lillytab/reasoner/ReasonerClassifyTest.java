@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -43,11 +43,13 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+
 /**
  *
  * @author peter
  */
-public class ReasonerClassifyTest {
+public class ReasonerClassifyTest
+{
 
 	private final IDLTermFactory<String, String, String, String> _termFactory = new SimpleStringDLTermFactory();
 	private final IABoxFactory<String, String, String, String> _aboxFactory = new ABoxFactory<>(
@@ -56,11 +58,9 @@ public class ReasonerClassifyTest {
 	private Reasoner<String, String, String, String> _reasoner;
 	private SimpleKRSSParser _parser;
 
-
 	public ReasonerClassifyTest()
 	{
 	}
-
 
 	@BeforeClass
 	public static void setUpClass()
@@ -72,12 +72,10 @@ public class ReasonerClassifyTest {
 		Logger.getLogger("").addHandler(handler);
 	}
 
-
 	@AfterClass
 	public static void tearDownClass()
 	{
 	}
-
 
 	@Before
 	public void setUp()
@@ -91,7 +89,6 @@ public class ReasonerClassifyTest {
 		_abox = _aboxFactory.createABox();
 	}
 
-
 	@After
 	public void tearDown()
 	{
@@ -99,7 +96,6 @@ public class ReasonerClassifyTest {
 		_abox = null;
 		_parser = null;
 	}
-
 
 	@Test
 	public void inconsistentClassify()
@@ -109,7 +105,6 @@ public class ReasonerClassifyTest {
 		_abox.getTBox().add(_parser.parse("(implies B A)"));
 		Collection<IDLImplies<String, String, String, String>> clsTerms = _reasoner.classify(_abox);
 	}
-
 
 	@Test
 	public void someRSubClassPropagationTest()
@@ -123,7 +118,6 @@ public class ReasonerClassifyTest {
 		assertFalse(clsTerms.contains(_parser.parse("(implies A A)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies B B)")));
 	}
-
 
 	@Test
 	public void onlySubClassPropagationTest()
@@ -140,7 +134,6 @@ public class ReasonerClassifyTest {
 		assertFalse(clsTerms.contains(_parser.parse("(implies B B)")));
 	}
 
-
 	@Test
 	public void complexSubClassPropagationTest()
 		throws ParseException, EReasonerException, EInconsistencyException
@@ -156,5 +149,17 @@ public class ReasonerClassifyTest {
 		assertFalse(clsTerms.contains(_parser.parse("(implies B D)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies A A)")));
 		assertFalse(clsTerms.contains(_parser.parse("(implies B B)")));
+	}
+
+	@Test
+	public void largeClassifyTest()
+		throws ParseException, EReasonerException, EInconsistencyException
+	{
+		final int nClasses = 100;
+		for (int i = 0; i < nClasses; ++i) {
+			_abox.getTBox().add(_parser.parse(String.format("(implies A%03d A%03d)", i, i + 1)));
+		}
+		_abox.getTBox().add(_parser.parse(String.format("(implies A%03d A000)", nClasses)));
+		Collection<IDLImplies<String, String, String, String>> clsTerms = _reasoner.classify(_abox);
 	}
 }

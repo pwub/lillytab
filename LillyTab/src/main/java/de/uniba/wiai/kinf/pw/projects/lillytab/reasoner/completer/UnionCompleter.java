@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -18,8 +18,7 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- *
- */
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.completer;
 
 import de.dhke.projects.cutil.collections.CollectionUtil;

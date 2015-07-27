@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -59,7 +59,7 @@ public class OWLAPISWRLLoaderTest
 	{
 		_ontoMan = OWLManager.createOWLOntologyManager();
 		_loader = new OWLAPISWRLLoader(new OWLAPIDLTermFactory(_ontoMan.getOWLDataFactory()),
-									   new SWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>());
+									   new SWRLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>());
 	}
 
 	@After
@@ -97,17 +97,17 @@ public class OWLAPISWRLLoaderTest
 			+ "</Ontology>\n";
 		final OWLOntologyDocumentSource ontoSource = new StringDocumentSource(owlXML);
 		final OWLOntology onto = _ontoMan.loadOntologyFromOntologyDocument(ontoSource);
-		final Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> rules = _loader.getRules(onto);
+		final Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>> rules = _loader.getRules(onto);
 		assertEquals(1, rules.size());
-		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rule = rules.iterator().next();
+		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> rule = rules.iterator().next();
 		assertTrue(rule.getBody() instanceof ISWRLClassAtom);
-		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) rule.
 			getBody();
 		assertTrue(body.getIndividual() instanceof ISWRLVariable);
-		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) body.
+		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) body.
 			getIndividual();
 		assertTrue(rule.getHead() instanceof ISWRLRoleAtom);
-		final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> head = (ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+		final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> head = (ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) rule.
 			getHead();
 		assertEquals(head.getFirstIndividual(), body.getIndividual());
 		assertTrue(head.getSecondIndividual() instanceof ISWRLIndividualReference);
@@ -140,20 +140,20 @@ public class OWLAPISWRLLoaderTest
 			+ "</Ontology>\n";
 		final OWLOntologyDocumentSource ontoSource = new StringDocumentSource(owlXML);
 		final OWLOntology onto = _ontoMan.loadOntologyFromOntologyDocument(ontoSource);
-		final Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> rules = _loader.getRules(onto);
+		final Set<ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>> rules = _loader.getRules(onto);
 		assertEquals(1, rules.size());
-		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rule = rules.iterator().next();
+		final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> rule = rules.iterator().next();
 		assertTrue(rule.getBody() instanceof ISWRLClassAtom);
-		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> body = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) rule.
 			getBody();
 		assertTrue(body.getIndividual() instanceof ISWRLVariable);
-		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) body.
+		final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) body.
 			getIndividual();
 		assertTrue(rule.getHead() instanceof ISWRLClassAtom);
-		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> head = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) rule.
+		final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> head = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) rule.
 			getHead();
 		assertTrue(head.getIndividual() instanceof ISWRLIndividualReference);
-		final ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nom = (ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) head.
+		final ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> nom = (ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) head.
 			getIndividual();
 	}
 }

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasoner;
@@ -69,17 +70,18 @@ import org.semanticweb.owlapi.vocab.OWL2Datatype;
  */
 public class ReasonerDatatypeTest {
 
-	private OWLOntologyManager _ontoManager = OWLManager.createOWLOntologyManager();
-	private String _ontologyURI = "http://www.example.org/ontologies/";
-	private PrefixManager _nsManager = new DefaultPrefixManager(_ontologyURI);
-	private OWLDataFactory _dataFactory = _ontoManager.getOWLDataFactory();
+	private final OWLOntologyManager _ontoManager = OWLManager.createOWLOntologyManager();
+	private final String _ontologyURI = "http://www.example.org/ontologies/";
+	private final PrefixManager _nsManager = new DefaultPrefixManager(null, null, _ontologyURI);
+	private final OWLDataFactory _dataFactory = _ontoManager.getOWLDataFactory();
 	private OWLAPILoader _loader;
-	private IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory = new OWLAPIDLTermFactory(
+	private final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _termFactory = new OWLAPIDLTermFactory(
 		_dataFactory);
-	private IABoxFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _aboxFactory = new ABoxFactory<>(
+	private final IABoxFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _aboxFactory = new ABoxFactory<>(
 		_termFactory);
-	private IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _abox;
-	private IReasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _reasoner;
+	private IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _abox;
+	private IReasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _reasoner;
+
 
 	public ReasonerDatatypeTest()
 	{
@@ -87,13 +89,15 @@ public class ReasonerDatatypeTest {
 
 
 	@BeforeClass
-	public static void setUpClass() throws Exception
+	public static void setUpClass()
+		throws Exception
 	{
 	}
 
 
 	@AfterClass
-	public static void tearDownClass() throws Exception
+	public static void tearDownClass()
+		throws Exception
 	{
 	}
 
@@ -114,7 +118,7 @@ public class ReasonerDatatypeTest {
 		_abox = null;
 		_reasoner = null;
 	}
-	
+
 
 	@Test(expected = EInconsistencyException.class)
 	public void testDataOneOfWrongLiteral()
@@ -125,12 +129,12 @@ public class ReasonerDatatypeTest {
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
 		final OWLLiteral litA = _dataFactory.getOWLLiteral("a");
 		final OWLLiteral litB = _dataFactory.getOWLLiteral("b");
-		
+
 		final OWLDataRange dataRange = _dataFactory.getOWLDataOneOf(litA);
 		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
 		final OWLDataPropertyRangeAxiom rangeAxiom = _dataFactory.getOWLDataPropertyRangeAxiom(dataProp, dataRange);
 		axioms.add(rangeAxiom);
-		
+
 		final OWLDataPropertyAssertionAxiom dpAssAx = _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, litB);
 		axioms.add(dpAssAx);
 
@@ -142,18 +146,19 @@ public class ReasonerDatatypeTest {
 
 
 	@Test(expected = EInconsistencyException.class)
-	public void testDatatypeNegationClash() throws OWLOntologyCreationException, OWLOntologyChangeException, EInconsistencyException, EReasonerException
+	public void testDatatypeNegationClash()
+		throws OWLOntologyCreationException, OWLOntologyChangeException, EInconsistencyException, EReasonerException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
 		final OWLLiteral litA = _dataFactory.getOWLLiteral("a");
 		final OWLLiteral litB = _dataFactory.getOWLLiteral("b");
-		
+
 		final OWLDataRange dataRange = _dataFactory.getOWLDataOneOf(litA);
 		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
 		final OWLDataPropertyRangeAxiom rangeAxiom = _dataFactory.getOWLDataPropertyRangeAxiom(dataProp, dataRange);
 		axioms.add(rangeAxiom);
-		
+
 		final OWLDataPropertyAssertionAxiom dpAssAx = _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, litB);
 		axioms.add(dpAssAx);
 
@@ -161,10 +166,13 @@ public class ReasonerDatatypeTest {
 
 		_loader.fillABox(onto, _abox);
 		_reasoner.checkConsistency(_abox);
-	}	
-	
+	}
+
+
 	@Test(expected = EInconsistencyException.class)
-	public void testDataIntersection() throws ParseException, ENodeMergeException, ENodeMergeException, EReasonerException, EInconsistencyException, OWLOntologyCreationException
+	public void testDataIntersection()
+		throws ParseException, ENodeMergeException, ENodeMergeException, EReasonerException, EInconsistencyException,
+		OWLOntologyCreationException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
@@ -176,112 +184,120 @@ public class ReasonerDatatypeTest {
 		final OWLDataSomeValuesFrom someValuesFrom = _dataFactory.getOWLDataSomeValuesFrom(dataProp, union);
 		final OWLClassAssertionAxiom clsAx = _dataFactory.getOWLClassAssertionAxiom(someValuesFrom, ind);
 		axioms.add(clsAx);
-		
+
 		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
 
 		_loader.fillABox(onto, _abox);
 		_reasoner.checkConsistency(_abox);
 
 	}
-	
+
+
 	@Test(expected = EInconsistencyException.class)
-	public void testDataNegation() throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
+	public void testDataNegation()
+		throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
-		
+
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
 		final OWLClassAssertionAxiom clsAssert = _dataFactory.getOWLClassAssertionAxiom(_dataFactory.getOWLThing(), ind);
 		axioms.add(clsAssert);
-				
+
 		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
-		final OWLDataPropertyAssertionAxiom propAssert 
+		final OWLDataPropertyAssertionAxiom propAssert
 			= _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, 1);
 		axioms.add(propAssert);
-		
+
 		final OWLDatatype intDatatype = _dataFactory.getIntegerOWLDatatype();
 		final OWLDataRange dataNegation = _dataFactory.getOWLDataComplementOf(intDatatype);
 		final OWLDataPropertyRangeAxiom rangeAx = _dataFactory.getOWLDataPropertyRangeAxiom(dataProp, dataNegation);
 		axioms.add(rangeAx);
-		
+
 		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
-		
-		_loader.fillABox(onto, _abox);
-		_reasoner.checkConsistency(_abox);
-	}
-	
-	@Test
-	public void testDataDoubleNegation() throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
-	{
-		final Set<OWLAxiom> axioms = new HashSet<>();
-		
-		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
-		final OWLClassAssertionAxiom clsAssert = _dataFactory.getOWLClassAssertionAxiom(_dataFactory.getOWLThing(), ind);
-		axioms.add(clsAssert);
-				
-		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
-		final OWLDataPropertyAssertionAxiom propAssert 
-			= _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, 1);
-		axioms.add(propAssert);
-		
-		final OWLDatatype intDatatype = _dataFactory.getIntegerOWLDatatype();
-		final OWLDataRange dataNegation = _dataFactory.getOWLDataComplementOf(intDatatype);
-		final OWLDataRange dataDoubleNegation = _dataFactory.getOWLDataComplementOf(dataNegation);
-		final OWLDataPropertyRangeAxiom rangeAx = _dataFactory.getOWLDataPropertyRangeAxiom(dataProp, dataDoubleNegation);
-		axioms.add(rangeAx);
-		
-		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
-		
+
 		_loader.fillABox(onto, _abox);
 		_reasoner.checkConsistency(_abox);
 	}
 
-	@Test(expected = EInconsistencyException.class)
-	public void testDataDoubleNegationClash() throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
+
+	@Test
+	public void testDataDoubleNegation()
+		throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
-		
+
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
 		final OWLClassAssertionAxiom clsAssert = _dataFactory.getOWLClassAssertionAxiom(_dataFactory.getOWLThing(), ind);
 		axioms.add(clsAssert);
-				
+
 		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
-		final OWLDataPropertyAssertionAxiom propAssert 
-			= _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, 0.1);
+		final OWLDataPropertyAssertionAxiom propAssert
+			= _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, 1);
 		axioms.add(propAssert);
-		
+
 		final OWLDatatype intDatatype = _dataFactory.getIntegerOWLDatatype();
 		final OWLDataRange dataNegation = _dataFactory.getOWLDataComplementOf(intDatatype);
 		final OWLDataRange dataDoubleNegation = _dataFactory.getOWLDataComplementOf(dataNegation);
 		final OWLDataPropertyRangeAxiom rangeAx = _dataFactory.getOWLDataPropertyRangeAxiom(dataProp, dataDoubleNegation);
 		axioms.add(rangeAx);
-		
+
 		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
-		
+
 		_loader.fillABox(onto, _abox);
 		_reasoner.checkConsistency(_abox);
 	}
-	
-	@Test
-	public void testDataDoubleIncludeInteger() throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
+
+
+	@Test(expected = EInconsistencyException.class)
+	public void testDataDoubleNegationClash()
+		throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
-		
+
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
 		final OWLClassAssertionAxiom clsAssert = _dataFactory.getOWLClassAssertionAxiom(_dataFactory.getOWLThing(), ind);
 		axioms.add(clsAssert);
-				
+
 		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
-		final OWLDataPropertyAssertionAxiom propAssert 
+		final OWLDataPropertyAssertionAxiom propAssert
+			= _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, 0.1);
+		axioms.add(propAssert);
+
+		final OWLDatatype intDatatype = _dataFactory.getIntegerOWLDatatype();
+		final OWLDataRange dataNegation = _dataFactory.getOWLDataComplementOf(intDatatype);
+		final OWLDataRange dataDoubleNegation = _dataFactory.getOWLDataComplementOf(dataNegation);
+		final OWLDataPropertyRangeAxiom rangeAx = _dataFactory.getOWLDataPropertyRangeAxiom(dataProp, dataDoubleNegation);
+		axioms.add(rangeAx);
+
+		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
+
+		_loader.fillABox(onto, _abox);
+		_reasoner.checkConsistency(_abox);
+	}
+
+
+	@Test
+	public void testDataDoubleIncludeInteger()
+		throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
+	{
+		final Set<OWLAxiom> axioms = new HashSet<>();
+
+		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
+		final OWLClassAssertionAxiom clsAssert = _dataFactory.getOWLClassAssertionAxiom(_dataFactory.getOWLThing(), ind);
+		axioms.add(clsAssert);
+
+		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
+		final OWLDataPropertyAssertionAxiom propAssert
 			= _dataFactory.getOWLDataPropertyAssertionAxiom(dataProp, ind, 1);
 		axioms.add(propAssert);
-		
+
 		final OWLDatatype doubleDatatype = _dataFactory.getDoubleOWLDatatype();
 		final OWLDataPropertyRangeAxiom rangeAx = _dataFactory.getOWLDataPropertyRangeAxiom(dataProp, doubleDatatype);
 		axioms.add(rangeAx);
-		
+
 		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
-		
+
 		_loader.fillABox(onto, _abox);
 		_reasoner.checkConsistency(_abox);
-	}	
+	}
 }

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -18,8 +18,7 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- *
- */
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.IReasoner;
@@ -47,6 +46,7 @@ import java.util.TreeSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -57,10 +57,10 @@ import org.slf4j.LoggerFactory;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class AbstractReasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IReasoner<I, L, K, R> {
+	implements IReasoner<I, L, K, R>
+{
 
 	private static final Logger _logger = LoggerFactory.getLogger(AbstractReasoner.class);
-
 
 	@Override
 	public boolean isSubClassOf(IABox<I, L, K, R> abox, K presumedSub, K presumedSuper)
@@ -71,7 +71,6 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 		return isSubClassOf(abox, subRef, superRef);
 	}
 
-
 	@Override
 	public boolean isConsistent(final IDLClassExpression<I, L, K, R> concept,
 								final IABoxFactory<I, L, K, R> aboxFactory)
@@ -81,14 +80,12 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 		return isConsistent(abox, concept);
 	}
 
-
 	@Override
 	public Collection<? extends IReasonerResult<I, L, K, R>> checkConsistency(final IABox<I, L, K, R> abox)
 		throws EReasonerException, EInconsistencyException
 	{
 		return checkConsistency(abox, true);
 	}
-
 
 	@Override
 	public boolean isConsistent(final IABox<I, L, K, R> abox, final IDLClassExpression<I, L, K, R> concept)
@@ -102,7 +99,6 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 		}
 	}
 
-
 	@Override
 	public boolean isConsistent(final IABox<I, L, K, R> abox)
 		throws EReasonerException, EInconsistencyException
@@ -114,7 +110,6 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 			return false;
 		}
 	}
-
 
 	@Override
 	public final Collection<IDLImplies<I, L, K, R>> classify(final IABox<I, L, K, R> abox) throws EReasonerException, EInconsistencyException
@@ -134,7 +129,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 				final IDLClassReference<I, L, K, R> clsRef = (IDLClassReference<I, L, K, R>) clsTerm;
 				int clsPos = Collections.binarySearch(classList, clsRef.getElement());
 				assert clsPos >= 0;
-				_logger.trace("%s is in initial ABox, marking.", clsRef);
+				_logger.trace("{} is in initial ABox, marking.", clsRef);
 				scMatrix[clsPos][clsPos] = 1;
 			}
 		}
@@ -144,7 +139,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 				scMatrix[i][i] = 1;
 				final IDLClassReference<I, L, K, R> klass = abox.getDLTermFactory().
 					getDLClassReference(classList.get(i));
-				_logger.trace("Testing satisfiability of %s", klass);
+				_logger.trace("Testing satisfiability of {}", klass);
 				final Collection<? extends IReasonerResult<I, L, K, R>> results = checkConsistency(abox, klass, true);
 			}
 		}
@@ -154,10 +149,10 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 			if ((imp.getSubDescription() instanceof IDLClassReference)
 				&& (imp.getSuperDescription() instanceof IDLClassReference)) {
 				int i = Collections.binarySearch(classList, ((IDLClassReference<I, L, K, R>) imp.
-					getSubDescription()).getElement());
+												 getSubDescription()).getElement());
 				int j = Collections.binarySearch(classList, ((IDLClassReference<I, L, K, R>) imp.
-					getSuperDescription()).getElement());
-				_logger.trace("%s implicitly asserted, marking", imp);
+												 getSuperDescription()).getElement());
+				_logger.trace("{} implicitly asserted, marking", imp);
 				scMatrix[i][j] = 1;
 			}
 		}
@@ -169,7 +164,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 						getDLClassReference(classList.get(row));
 					final IDLClassReference<I, L, K, R> superClass = baseABox.getDLTermFactory().
 						getDLClassReference(classList.get(col));
-					_logger.trace("Testing if (subClassOf %s %s)", subClass, superClass);
+					_logger.trace("Testing if (subClassOf {} {})", subClass, superClass);
 					boolean isSub = isSubClassOf(baseABox, subClass, superClass);
 
 					if (isSub) {
@@ -227,8 +222,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 		return classifications;
 	}
 
-
-		private void propagateClassification(
+	private void propagateClassification(
 		final byte cfMatrix[][], final int changedRow, final int changedCol)
 	{
 		/**
@@ -239,7 +233,7 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 
 		while (!queue.isEmpty()) {
 			final Point item = queue.remove();
-			_logger.trace("Propagating from change at %s", item);
+			_logger.trace("Propagating from change at {}", item);
 			final int i = item.x;
 			final int j = item.y;
 			final int ij = cfMatrix[i][j];
@@ -260,7 +254,6 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 		}
 	}
 
-
 	private byte[][] createSquareMatrixArray(final List<K> classList)
 	{
 		byte[][] scMatrix = new byte[classList.size()][];
@@ -270,7 +263,6 @@ public abstract class AbstractReasoner<I extends Comparable<? super I>, L extend
 		}
 		return scMatrix;
 	}
-
 
 	private byte[][] copy(final byte[][] src)
 	{

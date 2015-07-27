@@ -1,6 +1,24 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
+ *
+ * $Id$
+ *
+ * Use, modification and restribution of this file are covered by the
+ * terms of the Artistic License 2.0.
+ *
+ * You should have received a copy of the license terms in a file named
+ * "LICENSE" together with this software package.
+ *
+ * Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT
+ * HOLDER AND CONTRIBUTORS "AS IS' AND WITHOUT ANY EXPRESS OR IMPLIED
+ * WARRANTIES. THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR
+ * A PARTICULAR PURPOSE, OR NON-INFRINGEMENT ARE DISCLAIMED TO THE
+ * EXTENT PERMITTED BY YOUR LOCAL LAW. UNLESS REQUIRED BY LAW, NO
+ * COPYRIGHT HOLDER OR CONTRIBUTOR WILL BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
+ * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
+ * DAMAGE.
+ *
  */
 package de.uniba.wiai.kinf.pw.projects.lillytab.util.stringer;
 
@@ -16,6 +34,7 @@ import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLEntity;
 import org.semanticweb.owlapi.model.OWLOntology;
+import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
 
 /**
@@ -43,7 +62,7 @@ public class OWLObjectLabelStringer
 		boolean haveLabel = false;
 		final Set<OWLAnnotation> annotations = new HashSet<>();
 		for (OWLOntology ontology : _ontologies) {
-			annotations.addAll(entity.getAnnotations(ontology));
+			annotations.addAll(EntitySearcher.getAnnotations(entity, ontology));
 		}
 		for (OWLAnnotation annotation : annotations) {
 			if (annotation.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI())) {
@@ -73,12 +92,12 @@ public class OWLObjectLabelStringer
 		 * Try to build the label from the IRI if we do not yet have one.
 		 *
 		 */
-		if ((!haveLabel) && (entity.getIRI() != null)) {
+		if (!haveLabel) {
 			final IRI iri = entity.getIRI();
-			if ((iri.getFragment() != null) && (!iri.getFragment().isEmpty())) {
+			if (! iri.getRemainder().or("").isEmpty()) {
 				/* pick the fragment, if there is one */
 				haveLabel = true;
-				sb.append(entity.getIRI().getFragment());
+				sb.append(iri.getRemainder().get());
 			} else {
 				/* pick the last component of the IRI path, if available */
 				final Matcher m = IRI_PATHSEP_END_PATTERN.matcher(iri.toString());

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -75,16 +75,16 @@ public class OWLAPISWRLStorer
 		_dataFactory = dataFactory;
 	}
 
-	public SWRLAtom convertAtom(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceAtom)
+	public SWRLAtom convertAtom(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> sourceAtom)
 	{
 		final Map<String, IRI> varMap = new HashMap<>();
 
 		if (sourceAtom instanceof ISWRLClassAtom) {
-			final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> classAtom = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceAtom;
+			final ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> classAtom = (ISWRLClassAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceAtom;
 			return _dataFactory.
 				getSWRLClassAtom(classAtom.getKlass(), makeIndividual(varMap, classAtom.getIndividual()));
 		} else if (sourceAtom instanceof ISWRLRoleAtom) {
-			final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> roleAtom = (ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceAtom;
+			final ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> roleAtom = (ISWRLRoleAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceAtom;
 			roleAtom.getRole();
 
 			if (roleAtom.getRole() instanceof OWLObjectProperty) {
@@ -97,94 +97,94 @@ public class OWLAPISWRLStorer
 				return _dataFactory.getSWRLDataPropertyAtom((OWLDataProperty) roleAtom.getRole(), arg1, arg2);
 			} else {
 				throw new IllegalArgumentException(String.format("Unknown property type `%s'", roleAtom.getRole().
-					getClass()));
+																 getClass()));
 			}
 		} else if (sourceAtom instanceof ISWRLDataRangeAtom) {
-			final ISWRLDataRangeAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> rangeAtom =
-				(ISWRLDataRangeAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceAtom;
+			final ISWRLDataRangeAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> rangeAtom
+				= (ISWRLDataRangeAtom<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceAtom;
 			final SWRLDArgument arg = makeDataLiteral(varMap, rangeAtom.getIndividual());
 			final OWLDataRange dataRange = OWLAPIStorer.convertDataRange(_dataFactory, rangeAtom.getDataRange());
 			return _dataFactory.getSWRLDataRangeAtom(dataRange, arg);
 		} else {
 			throw new IllegalArgumentException(String.format("Unsupported SWRL atom type `%s'", sourceAtom.
-				getClass()));
+															 getClass()));
 		}
 	}
 
 	public Set<SWRLAtom> convertAtoms(
-		final Collection<? extends ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> sourceAtoms)
+		final Collection<? extends ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>> sourceAtoms)
 	{
 		SortedSet<SWRLAtom> atoms = new TreeSet<>();
-		for (ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceAtom : sourceAtoms) {
+		for (ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> sourceAtom : sourceAtoms) {
 			final SWRLAtom convertedAtom = convertAtom(sourceAtom);
 			atoms.add(convertedAtom);
 		}
 		return atoms;
 	}
 
-	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceRule,
+	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> sourceRule,
 								final Set<OWLAnnotation> annotations)
 	{
 		final Set<SWRLAtom> headTerms;
 		if (sourceRule.getHead() instanceof ISWRLIntersection) {
 			headTerms = convertAtoms(
-				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead());
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getHead());
 		} else {
 			headTerms = Collections.
 				singleton(convertAtom(
-				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead()));
+						(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getHead()));
 		}
 		final Set<SWRLAtom> bodyTerms;
 		if (sourceRule.getBody() instanceof ISWRLIntersection) {
 			bodyTerms = convertAtoms(
-				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody());
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getBody());
 		} else {
 			bodyTerms = Collections.
 				singleton(convertAtom(
-				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody()));
+						(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getBody()));
 		}
 		final SWRLRule rule = _dataFactory.getSWRLRule(bodyTerms, headTerms, annotations);
 		return rule;
 	}
 
-	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> sourceRule)
+	public SWRLRule convertRule(final ISWRLRule<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> sourceRule)
 	{
 		final Set<SWRLAtom> headTerms;
 		if (sourceRule.getHead() instanceof ISWRLIntersection) {
 			headTerms = convertAtoms(
-				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead());
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getHead());
 		} else {
 			headTerms = Collections.
 				singleton(convertAtom(
-				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getHead()));
+						(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getHead()));
 		}
 		final Set<SWRLAtom> bodyTerms;
 		if (sourceRule.getBody() instanceof ISWRLIntersection) {
 			bodyTerms = convertAtoms(
-				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody());
+				(ISWRLIntersection<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getBody());
 		} else {
 			bodyTerms = Collections.
 				singleton(convertAtom(
-				(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) sourceRule.getBody()));
+						(ISWRLAtomicTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) sourceRule.getBody()));
 		}
 		final SWRLRule rule = _dataFactory.getSWRLRule(bodyTerms, headTerms);
 		return rule;
 	}
 
 	private SWRLIArgument makeIndividual(final Map<String, IRI> varMap,
-										 final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> indRef)
+										 final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> indRef)
 	{
 		if (indRef instanceof ISWRLIndividualReference) {
-			final ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> nomRef = (ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
+			final ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> nomRef = (ISWRLIndividualReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) indRef;
 			if (nomRef.getIndividual() instanceof OWLIndividual) {
 				return _dataFactory.getSWRLIndividualArgument((OWLIndividual) nomRef.getIndividual());
 			} else {
 				throw new IllegalArgumentException(String.format("Unsupported nominal type `%s'",
 																 nomRef.getIndividual().
-					getClass()));
+																 getClass()));
 			}
 		} else if (indRef instanceof ISWRLVariable) {
-			final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
+			final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) indRef;
 
 			final String varName = var.getVariableName();
 			IRI varIRI = varMap.get(varName);
@@ -205,13 +205,13 @@ public class OWLAPISWRLStorer
 	}
 
 	private SWRLDArgument makeDataLiteral(final Map<String, IRI> varMap,
-										  final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> indRef)
+										  final ISWRLArgument<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> indRef)
 	{
 		if (indRef instanceof ISWRLLiteralReference) {
-			final ISWRLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> litRef = (ISWRLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
+			final ISWRLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> litRef = (ISWRLLiteralReference<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) indRef;
 			return _dataFactory.getSWRLLiteralArgument(litRef.getObject());
 		} else if (indRef instanceof ISWRLVariable) {
-			final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>) indRef;
+			final ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> var = (ISWRLVariable<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>) indRef;
 
 			final String varName = var.getVariableName();
 			IRI varIRI = varMap.get(varName);
@@ -230,4 +230,10 @@ public class OWLAPISWRLStorer
 			throw new IllegalArgumentException(String.format("Unsupported individual type `%s'", indRef.getClass()));
 		}
 	}
+
+	public OWLDataFactory getDataFactory()
+	{
+		return _dataFactory;
+	}
+
 }

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -121,4 +121,17 @@ public class DLLiteralReference<I extends Comparable<? super I>, L extends Compa
 	{
 		visitor.visit(this);
 	}
+
+	@Override
+	public boolean isTopDatatype()
+	{
+		return false;
+	}
+
+	@Override
+	public boolean isBottomDatatype()
+	{
+		return false;
+	}
+
 }

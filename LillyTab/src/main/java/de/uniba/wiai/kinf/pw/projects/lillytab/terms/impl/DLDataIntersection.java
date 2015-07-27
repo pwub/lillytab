@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -18,8 +18,7 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- *
- */
+ **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.DLDummyTerm;
@@ -32,6 +31,7 @@ import static de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.AbstractFixedTe
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import java.util.Collection;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -43,10 +43,10 @@ import java.util.Collection;
  */
 public class DLDataIntersection<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractDLOperatorTerm<I, L, K, R, IDLDataRange<I, L, K, R>>
-	implements IDLDataIntersection<I, L, K, R> {
+	implements IDLDataIntersection<I, L, K, R>
+{
 
 	public static final String OPERATOR_NAME = "AND";
-
 
 	public DLDataIntersection(final Collection<? extends IDLDataRange<I, L, K, R>> ds)
 	{
@@ -63,7 +63,6 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 		}
 	}
 
-
 	public DLDataIntersection(final IDLDataRange<I, L, K, R> d0, final IDLDataRange<I, L, K, R> d1)
 	{
 		super(DLTermOrder.DL_DATA_INTERSECTION, OPERATOR_NAME, 2);
@@ -73,13 +72,11 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 		sortAndEnsureUnique(this, 2);
 	}
 
-
 	@Override
 	public ITermList<IDLDataRange<I, L, K, R>> getTerms()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int hashCode()
@@ -87,7 +84,6 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 		/* no need to override hashcode */
 		return super.hashCode();
 	}
-
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -100,13 +96,11 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 		return ((obj instanceof IDLDataIntersection) && containsAll((IDLDataIntersection<I, L, K, R>) obj));
 	}
 
-
 	@Override
 	public DLDataIntersection<I, L, K, R> clone()
 	{
 		return this;
 	}
-
 
 	@Override
 	public int compareTo(final IDLTerm<I, L, K, R> o)
@@ -119,17 +113,36 @@ public class DLDataIntersection<I extends Comparable<? super I>, L extends Compa
 		return compare;
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_DATA_INTERSECTION);
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_DATA_INTERSECTION);
 	}
+
+	@Override
+	public boolean isBottomDatatype()
+	{
+		for (IDLDataRange<I, L, K, R> range : this) {
+			if (range.isBottomDatatype())
+				return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isTopDatatype()
+	{
+		for (IDLDataRange<I, L, K, R> range : this) {
+			if (!range.isTopDatatype())
+				return false;
+		}
+		return true;
+	}
+
 }

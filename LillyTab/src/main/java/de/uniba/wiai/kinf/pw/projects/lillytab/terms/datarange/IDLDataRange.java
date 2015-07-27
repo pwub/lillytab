@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -36,4 +36,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 public interface IDLDataRange<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends IDLNodeTerm<I, L, K, R>
 {
+	public boolean isTopDatatype();
+
+	public boolean isBottomDatatype();
 }

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Peter Wullinger
+ * (c) 2009-2014 Peter Wullinger
  *
  * $Id$
  *
@@ -18,8 +18,7 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- *
- */
+ **/
 package de.dhke.projects.cutil.collections.iterator;
 
 import de.dhke.projects.cutil.collections.map.GenericMultiHashMap;

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -18,7 +18,8 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 /**
@@ -85,16 +86,17 @@ import org.semanticweb.owlapi.vocab.XSDVocabulary;
  */
 public class OWLAPILoaderTest {
 
-	private OWLOntologyManager _ontoManager = OWLManager.createOWLOntologyManager();
+	private final OWLOntologyManager _ontoManager = OWLManager.createOWLOntologyManager();
 	private final String _ontologyURI = "http://www.example.org/ontologies/";
-	private PrefixManager _nsManager = new DefaultPrefixManager(_ontologyURI);
-	private OWLDataFactory _dataFactory = _ontoManager.getOWLDataFactory();
+	private final PrefixManager _nsManager = new DefaultPrefixManager(null, null, _ontologyURI);
+	private final OWLDataFactory _dataFactory = _ontoManager.getOWLDataFactory();
 	private OWLAPILoader _loader;
-	private final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _termFactory = new OWLAPIDLTermFactory(
+	private final IDLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _termFactory = new OWLAPIDLTermFactory(
 		_dataFactory);
-	private final IABoxFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _aboxFactory = new ABoxFactory<>(_termFactory);
-	private IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _abox;
-	private Reasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> _reasoner;
+	private final IABoxFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _aboxFactory = new ABoxFactory<>(
+		_termFactory);
+	private IABox<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _abox;
+	private Reasoner<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> _reasoner;
 
 
 	public OWLAPILoaderTest()
@@ -103,13 +105,15 @@ public class OWLAPILoaderTest {
 
 
 	@BeforeClass
-	public static void setUpClass() throws Exception
+	public static void setUpClass()
+		throws Exception
 	{
 	}
 
 
 	@AfterClass
-	public static void tearDownClass() throws Exception
+	public static void tearDownClass()
+		throws Exception
 	{
 	}
 
@@ -286,37 +290,37 @@ public class OWLAPILoaderTest {
 		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
 		_loader.fillABox(onto, _abox);
 
-		final Collection<? extends IReasonerResult<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> results = _reasoner.checkConsistency(
+		final Collection<? extends IReasonerResult<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>> results = _reasoner.checkConsistency(
 			_abox);
 	}
-	
+
 
 	@Test
 	public void testDataUnion()
 		throws OWLOntologyCreationException, ENodeMergeException, EInconsistencyException, EReasonerException
 	{
 		final Set<OWLAxiom> axioms = new HashSet<>();
-		
+
 		final OWLLiteral lit1 = _dataFactory.getOWLLiteral("a");
 		final OWLLiteral lit2 = _dataFactory.getOWLLiteral("b");
 		final OWLDataOneOf union = _dataFactory.getOWLDataOneOf(lit1, lit2);
-		
+
 		final OWLDataProperty dataProp = _dataFactory.getOWLDataProperty("dp", _nsManager);
-		
+
 		final OWLDataSomeValuesFrom dataPropAssertionAxiom = _dataFactory.getOWLDataSomeValuesFrom(dataProp,
-																										   union);
+																								   union);
 		final OWLIndividual ind = _dataFactory.getOWLAnonymousIndividual();
 		final OWLClassAssertionAxiom classAssertAx = _dataFactory.getOWLClassAssertionAxiom(dataPropAssertionAxiom, ind);
 		axioms.add(classAssertAx);
-		
+
 		_abox.getAssertedRBox().addRole(dataProp, RoleType.DATA_PROPERTY);
-		
+
 		final OWLOntology onto = _ontoManager.createOntology(axioms, IRI.create(_ontologyURI));
 		_loader.fillABox(onto, _abox);
 
-		final Collection<? extends IReasonerResult<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>> results = _reasoner.checkConsistency(
+		final Collection<? extends IReasonerResult<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>> results = _reasoner.checkConsistency(
 			_abox, false);
 		assertEquals(2, results.size());
-		
+
 	}
 }

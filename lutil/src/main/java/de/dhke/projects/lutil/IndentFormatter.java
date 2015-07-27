@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Peter Wullinger
  *
  * $Id$
  *
@@ -18,8 +18,7 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- *
- */
+ **/
 package de.dhke.projects.lutil;
 
 import java.util.HashMap;
@@ -41,6 +40,12 @@ public class IndentFormatter
 	public static final String INDENT_FINER = "########";
 	public static final String INDENT_FINEST = "############";
 	public static final String UNKNOWN_INDENT_STRING = "???";
+	private Map<String, String> _nameCache = new HashMap<>();
+
+
+	public IndentFormatter()
+	{
+	}
 
 
 	public static String multiplyString(final String item, final int count)
@@ -54,27 +59,7 @@ public class IndentFormatter
 	}
 
 
-	private static String levelToIndent(final Level level)
-	{
-		if (level == Level.SEVERE) {
-			return INDENT_SEVERE;
-		} else if (level == Level.WARNING) {
-			return INDENT_WARNING;
-		} else if (level == Level.INFO) {
-			return INDENT_INFO;
-		} else if (level == Level.FINE) {
-			return INDENT_FINE;
-		} else if (level == Level.FINER) {
-			return INDENT_FINER;
-		} else if (level == Level.FINEST) {
-			return INDENT_FINEST;
-		} else {
-			return "???";
-		}
-	}
-
-
-	public static String formatRight(String str, final int width)
+		public static String formatRight(String str, final int width)
 	{
 		final StringBuilder sb = new StringBuilder(width);
 		final int offset = str.length() - width;
@@ -87,12 +72,6 @@ public class IndentFormatter
 			}
 		}
 		return sb.toString();
-	}
-	private Map<String, String> _nameCache = new HashMap<>();
-
-
-	public IndentFormatter()
-	{
 	}
 
 
@@ -148,5 +127,25 @@ public class IndentFormatter
 		sb.append(record.getMessage());
 		sb.append("\n");
 		return sb.toString();
+	}
+
+
+	private static String levelToIndent(final Level level)
+	{
+		if (level == Level.SEVERE) {
+			return INDENT_SEVERE;
+		} else if (level == Level.WARNING) {
+			return INDENT_WARNING;
+		} else if (level == Level.INFO) {
+			return INDENT_INFO;
+		} else if (level == Level.FINE) {
+			return INDENT_FINE;
+		} else if (level == Level.FINER) {
+			return INDENT_FINER;
+		} else if (level == Level.FINEST) {
+			return INDENT_FINEST;
+		} else {
+			return "???";
+		}
 	}
 }

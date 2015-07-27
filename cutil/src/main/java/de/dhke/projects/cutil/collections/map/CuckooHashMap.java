@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+
 /**
  * Cuckoo Hash Map
  *
@@ -25,8 +26,11 @@ import java.util.Set;
  *
  * @author Joacim Alvergren
  */
-public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
-		Map<K, V> {
+public class CuckooHashMap<K, V>
+	extends AbstractMap<K, V>
+	implements
+	Map<K, V>
+{
 
 	static final int DEFAULT_INITIAL_CAPACITY = 16;
 	static final int MAXIMUM_CAPACITY = 1 << 30;
@@ -63,12 +67,12 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 	public CuckooHashMap(int initialCapacity, float loadFactor)
 	{
 		this(initialCapacity, loadFactor, new DefaultHashFunction<K>(2),
-				new DefaultHashFunction<K>(3));
+			 new DefaultHashFunction<K>(3));
 	}
 
 	@SuppressWarnings("unchecked")
 	public CuckooHashMap(int initialCapacity, float loadFactor,
-			HashFunction<K> h1, HashFunction<K> h2)
+						 HashFunction<K> h1, HashFunction<K> h2)
 	{
 		int capacity = 1;
 		while (capacity < initialCapacity)
@@ -85,7 +89,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 	public CuckooHashMap(Map<? extends K, ? extends V> m)
 	{
 		this(Math.max((int) (m.size() / DEFAULT_LOAD_FACTOR) + 1,
-				DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);
+					  DEFAULT_INITIAL_CAPACITY), DEFAULT_LOAD_FACTOR);
 	}
 
 	@Override
@@ -147,7 +151,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		return key == null ? (T) NULL_KEY : key;
 	}
 
-		static <T> T unmaskNull(T key)
+	static <T> T unmaskNull(T key)
 	{
 		return (key == NULL_KEY ? null : key);
 	}
@@ -162,16 +166,16 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		return loadFactor;
 	}
 
-		private int hash(HashFunction<K> func, Object key)
+	private int hash(HashFunction<K> func, Object key)
 	{
 		return func.hash(key, table.length);
 	}
 
-		private void init()
+	private void init()
 	{
 	}
 
-		private boolean insertEntry(Entry<K, V> e)
+	private boolean insertEntry(Entry<K, V> e)
 	{
 		int count = 0;
 		Entry<K, V> current = e;
@@ -239,12 +243,17 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		threshold = (int) (newCapacity * loadFactor);
 	}
 
-	public static interface HashFunction<T> {
+
+	public static interface HashFunction<T>
+	{
 
 		public int hash(Object key, int limit);
 	}
 
-	static class DefaultHashFunction<T> implements HashFunction<T> {
+
+	static class DefaultHashFunction<T>
+		implements HashFunction<T>
+	{
 
 		private static final Random ENGINE = new Random();
 		private int rounds;
@@ -272,7 +281,10 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		}
 	}
 
-	static class Entry<K, V> implements Map.Entry<K, V> {
+
+	static class Entry<K, V>
+		implements Map.Entry<K, V>
+	{
 
 		final K key;
 		V value;
@@ -316,7 +328,7 @@ public class CuckooHashMap<K, V> extends AbstractMap<K, V> implements
 		public final int hashCode()
 		{
 			return (key == null ? 0 : key.hashCode())
-					^ (value == null ? 0 : value.hashCode());
+				^ (value == null ? 0 : value.hashCode());
 		}
 
 		@Override

@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -49,7 +49,7 @@ import org.semanticweb.owlapi.vocab.XSDVocabulary;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class OWLAPIDataType
-	implements IDLDatatype<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>>
+	implements IDLDatatype<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>
 {
 	private static final BidiMap<IRI, XSDatatypeImpl> _dataTypeMap = new DualHashBidiMap<>();
 
@@ -189,13 +189,13 @@ public class OWLAPIDataType
 	}
 
 	@Override
-	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getBefore()
+	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_DATATYPE_EXPRESSION);
 	}
 
 	@Override
-	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> getAfter()
+	public IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> getAfter()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_DATATYPE_EXPRESSION);
 	}
@@ -213,7 +213,7 @@ public class OWLAPIDataType
 	}
 
 	@Override
-	public int compareTo(IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> o)
+	public int compareTo(IDLTerm<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> o)
 	{
 		int compare = getDLTermOrder().compareTo(o);
 		if (compare == 0) {
@@ -263,8 +263,23 @@ public class OWLAPIDataType
 
 	@Override
 	public void accept(
-		IDLTermVisitor<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> visitor)
+		IDLTermVisitor<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> visitor)
 	{
 		visitor.visit(this);
 	}
+
+	@Override
+	public boolean isTopDatatype()
+	{
+		/* literal/top is represented by its own separate class */
+		return false;
+	}
+
+	@Override
+	public boolean isBottomDatatype()
+	{
+		/* this does not exist, here */
+		return false;
+	}
+
 }

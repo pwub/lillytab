@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Peter Wullinger
+ * (c) 2009-2014 Peter Wullinger
  *
  * $Id$
  *

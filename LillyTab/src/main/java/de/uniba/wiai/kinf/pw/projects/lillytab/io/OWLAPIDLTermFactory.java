@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -33,7 +33,7 @@ import org.semanticweb.owlapi.model.OWLProperty;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class OWLAPIDLTermFactory
-	extends DLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty<?, ?>> {
+	extends DLTermFactory<OWLIndividual, OWLLiteral, OWLClass, OWLProperty> {
 
 	public OWLAPIDLTermFactory(OWLDataFactory dataFactory)
 	{

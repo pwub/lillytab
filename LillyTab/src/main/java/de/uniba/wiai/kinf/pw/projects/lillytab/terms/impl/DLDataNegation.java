@@ -1,5 +1,5 @@
 /**
- * (c) 2009-2013 Otto-Friedrich-University Bamberg
+ * (c) 2009-2014 Otto-Friedrich-University Bamberg
  *
  * $Id$
  *
@@ -27,6 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataNegation;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -38,16 +39,15 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
  */
 public class DLDataNegation<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractDLUnaryOperator<I, L, K, R, IDLDataRange<I, L, K, R>>
-	implements IDLDataNegation<I, L, K, R> {
+	implements IDLDataNegation<I, L, K, R>
+{
 
 	public final static String OPERATOR_NAME = "NOT";
-
 
 	public DLDataNegation(final IDLDataRange<I, L, K, R> d)
 	{
 		super(DLTermOrder.DL_DATA_NEGATION, OPERATOR_NAME, d);
 	}
-
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -56,7 +56,6 @@ public class DLDataNegation<I extends Comparable<? super I>, L extends Comparabl
 		return this;
 		// return new DLNegation<I, L, K, R>((IDLClassExpression<I, L, K, R>)getTerm().clone());
 	}
-
 
 	@Override
 	public int compareTo(final IDLTerm<I, L, K, R> o)
@@ -70,17 +69,28 @@ public class DLDataNegation<I extends Comparable<? super I>, L extends Comparabl
 		return compare;
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getBefore()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_BEFORE_DATA_NEGATION);
 	}
 
-
 	@Override
 	public IDLTerm<I, L, K, R> getAfter()
 	{
 		return new DLDummyTerm<>(DLTermOrder.DL_AFTER_DATA_NEGATION);
 	}
+
+	@Override
+	public boolean isTopDatatype()
+	{
+		return getTerm().isBottomDatatype();
+	}
+
+	@Override
+	public boolean isBottomDatatype()
+	{
+		return getTerm().isTopDatatype();
+	}
+
 }
