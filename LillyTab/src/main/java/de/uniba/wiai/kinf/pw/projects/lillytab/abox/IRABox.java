@@ -25,8 +25,9 @@ import de.dhke.projects.cutil.Pair;
 import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import java.util.Collection;
 
+
 /**
- * 
+ *
  * The (r)ole (a)ssertion (box) (RABox) contains the role assertions (links) between {@link IABoxNode}s.
  *
  * @param <I> The type for individuals/nominals
@@ -36,14 +37,13 @@ import java.util.Collection;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
-public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends IImmutable<IRABox<I, L, K, R>> {
 
 	IABoxNode<I, L, K, R> getNode();
 
-
 	/**
-	 * 
+	 *
 	 * Get the list of asserted role successors, i.e. those outgoing role links that are present in the actual
 	 * representation of the graph.
 	 * <p />
@@ -54,9 +54,8 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 	 */
 	ILinkMap<I, L, K, R> getAssertedSuccessors();
 
-
 	/**
-	 * 
+	 *
 	 * Get the list of asserted role predecessors, i.e. those incoming role links that are present in the actual
 	 * representation of the graph.
 	 * <p />
@@ -66,7 +65,6 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 	 * @return The asserted successors of the current node.
 	 */
 	ILinkMap<I, L, K, R> getAssertedPredecessors();
-
 
 	/**
 	 * Determine if the current node is connected to the {@literal successor} via an outgoing {@literal role} link.
@@ -78,7 +76,6 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 	 */
 	boolean hasSuccessor(final R role, final NodeID successor);
 
-
 	/**
 	 * Determine if the current node to any successor via the specified {@literal role}.
 	 *
@@ -87,7 +84,6 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 	 *
 	 */
 	boolean hasSuccessor(final R role);
-
 
 	/**
 	 * Determine if the current node is connected to any {@literal successor} via a {@literal role} link.
@@ -99,7 +95,6 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 	 */
 	boolean hasSuccessor(final R role, final IABoxNode<I, L, K, R> successor);
 
-
 	/**
 	 * Determine if the specified {@literal predecessor} is connected to the current node via a {@literal role} link.
 	 *
@@ -110,54 +105,45 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 	 */
 	boolean hasPredecessor(final R role, final NodeID predecessor);
 
-
 	boolean hasPredecessor(final R role);
-
 
 	boolean hasPredecessor(final R role, final IABoxNode<I, L, K, R> predecessor);
 
-
 	Collection<R> getOutgoingRoles();
 
+	Iterable<R> getOutgoingRoles(final IABoxNode<L, I, K, R> target);
+
+	Iterable<R> getOutgoingRoles(final NodeID target);
 
 	Collection<R> getIncomingRoles();
 
+	Iterable<R> getIncomingRoles(final IABoxNode<L, I, K, R> source);
+
+	Iterable<R> getIncomingRoles(final NodeID source);
 
 	Collection<NodeID> getSuccessors(final R role);
 
-
 	Collection<NodeID> getSuccessors();
-
 
 	Collection<NodeID> getPredecessors(final R role);
 
-
 	Collection<NodeID> getPredecessors();
-
 
 	Iterable<Pair<R, NodeID>> getPredecessorPairs();
 
-
 	Iterable<Pair<R, NodeID>> getSuccessorPairs();
-
 
 	Collection<IABoxNode<I, L, K, R>> getSuccessorNodes(final R role);
 
-
 	Collection<IABoxNode<I, L, K, R>> getSuccessorNodes();
-
 
 	Collection<IABoxNode<I, L, K, R>> getPredecessorNodes(final R role);
 
-
 	Collection<IABoxNode<I, L, K, R>> getPredecessorNodes();
-
 
 	IRABox<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode);
 
-
 	boolean deepEquals(final Object obj);
-
 
 	int deepHashCode();
 }

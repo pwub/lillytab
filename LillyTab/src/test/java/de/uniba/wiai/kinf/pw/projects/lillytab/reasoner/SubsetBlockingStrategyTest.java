@@ -107,7 +107,7 @@ public class SubsetBlockingStrategyTest
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false, true);
 		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_blockingStrategy.isBlocked(node2));
@@ -120,7 +120,7 @@ public class SubsetBlockingStrategyTest
 		throws EInconsistentABoxException, EInconsistentRBoxException
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
-		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false, true);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		Branch<String, String, String, String> branch = new Branch<>(_abox, true);
@@ -145,7 +145,7 @@ public class SubsetBlockingStrategyTest
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false, true);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		Branch<String, String, String, String> branch = new Branch<>(_abox, true);
@@ -161,7 +161,7 @@ public class SubsetBlockingStrategyTest
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false, true);
 		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		assertTrue(_blockingStrategy.isBlocked(node2));
@@ -186,7 +186,7 @@ public class SubsetBlockingStrategyTest
 	{
 		_abox.getRBox().getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertTrue(_blockingStrategy.getBlockedNodeIDs(_aboxNode).isEmpty());
-		IABoxNode<String, String, String, String> node2 = _abox.createNode(false);
+		IABoxNode<String, String, String, String> node2 = _abox.createNode(false, true);
 		_aboxNode.getRABox().getAssertedSuccessors().put("r", node2);
 		node2.addTerm(_termFactory.getDLClassReference("A"));
 		// Branch<String, String, String, String> branch = new Branch<String, String, String, String>(_abox);

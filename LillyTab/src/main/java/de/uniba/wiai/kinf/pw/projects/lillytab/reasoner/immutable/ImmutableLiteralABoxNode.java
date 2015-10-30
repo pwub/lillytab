@@ -28,6 +28,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDataRange;
 import java.util.SortedSet;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -46,20 +47,17 @@ public class ImmutableLiteralABoxNode<I extends Comparable<? super I>, L extends
 		super(baseNode, abox);
 	}
 
-
 	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableLiteralABoxNode<I, L, K, R> decorate(
 		final IDatatypeABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
 	{
 		return new ImmutableLiteralABoxNode<>(baseNode, abox);
 	}
 
-
 	@Override
 	public SortedSet<L> getNames()
 	{
 		return ((IDatatypeABoxNode<I, L, K, R>) getBaseNode()).getNames();
 	}
-
 
 	@Override
 	public L getPrimaryName()
@@ -68,12 +66,17 @@ public class ImmutableLiteralABoxNode<I extends Comparable<? super I>, L extends
 
 	}
 
-
 	@Override
 	public NodeMergeInfo<I, L, K, R> addDataTerm(
 		IDLDataRange<I, L, K, R> desc)
 		throws ENodeMergeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
+	}
+
+	@Override
+	public boolean isSynthentic()
+	{
+		return getBaseNode().isSynthentic();
 	}
 }

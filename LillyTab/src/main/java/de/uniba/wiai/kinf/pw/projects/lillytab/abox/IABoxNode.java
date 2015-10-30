@@ -27,6 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 import java.util.SortedSet;
 
+
 /**
  * {@link IABoxNode}s are the representation of individuals in a description logic tableaux.
  * <p />
@@ -65,24 +66,26 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 */
 	NodeID getNodeID();
 
-
 	/**
 	 * @return The (potentially empty) set of names associated with this node.
 	 */
 	SortedSet<?> getNames();
-
 
 	/**
 	 * @return The primary name or value of this node.
 	 */
 	Object getPrimaryName();
 
-
 	/**
-	 * @return {@literal true} If the current node has at least one name.
+	 * @return {@literal true} if the current node has at least one name.
 	 */
 	boolean isAnonymous();
 
+	/**
+	 * @return {@literal true} if the current node is synthentic, i.e. was generated
+	 * during a reasoner run.
+	 **/
+	boolean isSynthentic();
 
 	/**
 	 *
@@ -93,7 +96,6 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 */
 	ITermSet<I, L, K, R> getTerms();
 
-
 	/**
 	 * Get a collection of {@link TermEntry} representing the terms from the node's term set.
 	 *
@@ -101,7 +103,6 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 * @return A collection of {@link TermEntries} representing the terms of the current node.
 	 */
 	Collection<TermEntry<I, L, K, R>> getTermEntries();
-
 
 	/**
 	 *
@@ -113,7 +114,6 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 */
 	IRABox<I, L, K, R> getRABox();
 
-
 	/**
 	 * Create a copy of the current Node in the target ABox.
 	 *
@@ -122,14 +122,13 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 */
 	IABoxNode<I, L, K, R> clone(final IABox<I, L, K, R> newABox);
 
-
 	/**
 	 * @return The {@link IABox} this node is associated with.
 	 */
 	IABox<I, L, K, R> getABox();
 
 //	/**
-//	 * 
+//	 *
 //	 * Perform concept unfolding an all concept terms of the current node.
 //	 * <p />
 //	 * When the unfolding produces nominals references, node joins
@@ -142,14 +141,13 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 //	 * The caller is responsible for checking the returned {@link NodeMergeInfo},
 //	 * if the current node is still valid and react accordingly if further
 //	 * processing is required.
-//	 * 
+//	 *
 //	 *
 //	 * @return A {@link NodeMergeInfo} indicating the ID of the target node containing the unfoldings
 //	 * and information, if the target node was modified.
 //	 * @throws ENodeMergeException A node merge was required, but failed.
 //	 */
 //	NodeMergeInfo<I, L, K, R> unfoldAll() throws ENodeMergeException;
-
 	/**
 	 *
 	 * Calculate the hashcode of the current node by deep inspection of the node's contents.
@@ -160,7 +158,6 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 * @return The hashcode of the current node, calculated through deep inspection of the node's contents.
 	 */
 	int deepHashCode();
-
 
 	/**
 	 *
@@ -174,7 +171,6 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 */
 	boolean deepEquals(Object obj);
 
-
 	/**
 	 * Check, if the current node is a datatype node and thus cannot have successors.
 	 *
@@ -182,17 +178,13 @@ public interface IABoxNode<I extends Comparable<? super I>, L extends Comparable
 	 */
 	boolean isDatatypeNode();
 
-
 	String toString(String prefix);
-
 
 	@Override
 	IABoxNode<I, L, K, R> getImmutable();
 
-
 	NodeMergeInfo<I, L, K, R> addTerm(final IDLNodeTerm<I, L, K, R> term)
 		throws ENodeMergeException, EIllegalTermTypeException;
-
 
 	NodeMergeInfo<I, L, K, R> addTerms(final Collection<? extends IDLNodeTerm<I, L, K, R>> terms)
 		throws ENodeMergeException, EIllegalTermTypeException;

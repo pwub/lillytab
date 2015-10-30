@@ -27,6 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ILinkMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import java.util.Collection;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -37,28 +38,29 @@ import java.util.Collection;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  *
  */
-public class ImmutableLinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> 
+public class ImmutableLinkMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends ImmutableMultiMap<R, NodeID>
-	implements ILinkMap<I, L, K, R> { ImmutableLinkMap(final ILinkMap<I, L, K, R> baseMap)
+	implements ILinkMap<I, L, K, R> {
+
+	private final IABoxNode<I, L, K, R> _node;
+
+	protected ImmutableLinkMap(final ILinkMap<I, L, K, R> baseMap, final IABoxNode<I, L, K, R> node)
 	{
 		super(baseMap, null, null);
+		_node = node;
 	}
 
- public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableLinkMap<I, L, K, R> decorate(
-		final ILinkMap<I, L, K, R> baseMap)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableLinkMap<I, L, K, R> decorate(
+		final ILinkMap<I, L, K, R> baseMap, final IABoxNode<I, L, K, R> node)
 	{
-		return new ImmutableLinkMap<>(baseMap);
+		return new ImmutableLinkMap<>(baseMap, node);
 	}
-
 
 	@Override
-	@SuppressWarnings("unchecked")
 	public IABoxNode<I, L, K, R> getNode()
 	{
-		/* XXX - this maybe a loophole */
-		return ((ILinkMap<I, L, K, R>) getDecoratee()).getNode().getImmutable();
+		return _node;
 	}
-
 
 	@Override
 	public NodeID put(R role,
@@ -67,11 +69,30 @@ public class ImmutableLinkMap<I extends Comparable<? super I>, L extends Compara
 		throw new UnsupportedOperationException("Cannot modify Immutable link map");
 	}
 
-
 	@Override
 	public boolean putAll(R key,
 						  Collection<? extends IABoxNode<I, L, K, R>> values)
 	{
 		throw new UnsupportedOperationException("Cannot modify Immutable link map");
 	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		} else if (obj instanceof ImmutableLinkMap) {
+			final ImmutableLinkMap<?, ?, ?, ?> other = (ImmutableLinkMap<?, ?, ?, ?>) obj;
+			return getDecoratee().equals(other.getDecoratee());
+		} else {
+			return getDecoratee().equals(obj);
+		}
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getDecoratee().hashCode();
+	}
+
 }

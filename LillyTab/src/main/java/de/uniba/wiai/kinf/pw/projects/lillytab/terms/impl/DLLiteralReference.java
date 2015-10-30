@@ -116,8 +116,7 @@ public class DLLiteralReference<I extends Comparable<? super I>, L extends Compa
 	}
 
 	@Override
-	public void accept(
-		IDLTermVisitor<I, L, K, R> visitor)
+	public void accept(final IDLTermVisitor<I, L, K, R> visitor)
 	{
 		visitor.visit(this);
 	}

@@ -5,12 +5,12 @@
 	<parent>
 		<groupId>de.uniba.wiai.kinf.pw.projects.diss</groupId>
 		<artifactId>LillyTab-parent</artifactId>
-		<version>1.12-SNAPSHOT</version>
+		<version>1.13-SNAPSHOT</version>
 	</parent>
 	<groupId>de.uniba.wiai.kinf.pw.projects.lillytab</groupId>
 	<artifactId>LillyTab</artifactId>
 	<packaging>jar</packaging>
-	<version>1.12-SNAPSHOT</version>
+	<version>1.13-SNAPSHOT</version>
 	<name>LillyTab</name>
 	<url>http://lillytab.sourceforge.net</url>
 	
@@ -55,12 +55,12 @@
 		<dependency>
 			<groupId>de.dhke.projects.lutil</groupId>
 			<artifactId>lutil</artifactId>
-			<version>1.9-SNAPSHOT</version>
+			<version>1.13-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>de.dhke.projects.cutil</groupId>
 			<artifactId>cutil</artifactId>
-			<version>1.9-SNAPSHOT</version>
+			<version>1.13-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.relaxng</groupId>
@@ -69,7 +69,12 @@
 		</dependency>
 		<dependency>
 			<groupId>net.sourceforge.owlapi</groupId>
-			<artifactId>owlapi-distribution</artifactId>
+			<artifactId>owlapi-impl</artifactId>
+			<version>${owlapi.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.owlapi</groupId>
+			<artifactId>owlapi-apibinding</artifactId>
 			<version>${owlapi.version}</version>
 		</dependency>
 		<dependency>

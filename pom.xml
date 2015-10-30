@@ -4,23 +4,20 @@
 	<groupId>de.uniba.wiai.kinf.pw.projects.diss</groupId>
 	<artifactId>LillyTab-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>1.12-SNAPSHOT</version>
+	<version>1.13-SNAPSHOT</version>
 	<name>LillyTab-parent</name>
 	<url>http://maven.apache.org</url>
 
 	<properties>
 		<alignapi.version>4.4</alignapi.version>
 		<collections-generic.version>4.01</collections-generic.version>
-		<commons-lang.version>2.6</commons-lang.version>		
+		<commons-lang.version>2.6</commons-lang.version>
 		<commons-math.version>3.5</commons-math.version>
-		<JaCoP.version>3.2</JaCoP.version>
 		<java-getopt.version>1.0.13</java-getopt.version>
 		<jena.version>2.13.0</jena.version>
 		<jung.version>2.0.1</jung.version>
 		<junit.version>4.12</junit.version>
-		<lucene.version>5.2.1</lucene.version>
 		<owlapi.version>4.0.2</owlapi.version>
-		<paralellcolt.version>0.10.1</paralellcolt.version>
 		<relaxngDatatype.version>2011.1</relaxngDatatype.version>
 		<secondstring.version>201220620</secondstring.version>
 		<slf4j.version>1.7.12</slf4j.version>
@@ -42,8 +39,8 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<showWarnings>true</showWarnings>
 					<showDeprecation>true</showDeprecation>
 					<compilerArgument>-Xlint:unchecked</compilerArgument>

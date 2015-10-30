@@ -18,46 +18,59 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.set;
 
 import java.util.*;
 
 /**
  *
- * @param <T> 
+ * @param <T>
+ *            <p>
  * @author Peter Wullinger <java@dhke.de>
  */
 public class SortedListSet<T extends Comparable<? super T>>
 	extends AbstractList<T>
 	implements Set<T> {
 
-	private final Comparator<T> _comparator;	
-	private final List<T> _backingList;	
-	
+	private final Comparator<T> _comparator;
+	private final List<T> _backingList;
+
+
 	public SortedListSet(final Collection<? extends T> collection)
 	{
 		_comparator = null;
-		_backingList = new ArrayList<>(collection);
+		if (collection != null) {
+			_backingList = new ArrayList<>(collection);
+		} else {
+			_backingList = new ArrayList<>();
+		}
 		Collections.sort(_backingList);
 		removeDuplicates();
 	}
 
+
 	public SortedListSet(final Collection<? extends T> collection, final Comparator<T> comparator)
 	{
 		_comparator = comparator;
-		_backingList = new ArrayList<>(collection);
-		Collections.sort(_backingList, _comparator);
-		removeDuplicates();
+		if (collection != null) {
+			_backingList = new ArrayList<>(collection);
+			Collections.sort(_backingList, _comparator);
+			removeDuplicates();
+		} else {
+			_backingList = new ArrayList<>();
+		}
 	}
-	
-	
+
+
 	public SortedListSet(int initialCapacity)
 	{
 		_comparator = null;
 		_backingList = new ArrayList<>(initialCapacity);
 	}
-	
+
+
 	public SortedListSet()
 	{
 		_comparator = null;
@@ -83,7 +96,7 @@ public class SortedListSet<T extends Comparable<? super T>>
 	public boolean add(final T e)
 	{
 		int position = getPosition(e);
-		
+
 		if (position < 0) {
 			/* determine real insertion position from binarySearch() result */
 			position = -(position + 1);
@@ -98,7 +111,7 @@ public class SortedListSet<T extends Comparable<? super T>>
 	public boolean addAll(Collection<? extends T> c)
 	{
 		boolean added = false;
-		for (T item: c)
+		for (T item : c)
 			added |= add(item);
 		return added;
 	}
@@ -117,23 +130,26 @@ public class SortedListSet<T extends Comparable<? super T>>
 		return _backingList.removeAll(c);
 	}
 
+
 	@Override
 	public T remove(int index)
 	{
 		return _backingList.remove(index);
 	}
 
+
 	@Override
 	@SuppressWarnings("unchecked")
 	public boolean contains(Object o)
-	{		
-		return getPosition((T)o) >= 0;
+	{
+		return getPosition((T) o) >= 0;
 	}
 
-		private void removeDuplicates()
+
+	private void removeDuplicates()
 	{
 		final Iterator<T> iter = _backingList.iterator();
-		T lastObj = null;		
+		T lastObj = null;
 		/* remove duplicates */
 		while (iter.hasNext()) {
 			final T obj = iter.next();
@@ -143,11 +159,26 @@ public class SortedListSet<T extends Comparable<? super T>>
 		}
 	}
 
-		private int getPosition(final T e)
+
+	private int getPosition(final T e)
 	{
 		if (_comparator == null)
 			return Collections.binarySearch(_backingList, e);
 		else
-			return Collections.binarySearch(_backingList, e, _comparator);		
+			return Collections.binarySearch(_backingList, e, _comparator);
 	}
+
+
+	@Override
+	public Spliterator<T> spliterator()
+	{
+		return super.spliterator();
+	}
+
+
+	public List<T> getList()
+	{
+		return Collections.unmodifiableList(_backingList);
+	}
+
 }

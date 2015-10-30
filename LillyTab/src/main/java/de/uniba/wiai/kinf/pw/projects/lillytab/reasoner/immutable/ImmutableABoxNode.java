@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
+import de.dhke.projects.cutil.IDecorator;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.ENodeMergeException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
@@ -33,6 +34,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.abox.EIllegalTermTypeExc
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 import java.util.Collections;
+
 
 /**
  *
@@ -50,12 +52,12 @@ import java.util.Collections;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IABoxNode<I, L, K, R> {
+	implements IABoxNode<I, L, K, R>, IDecorator<IABoxNode<I, L, K, R>> {
 
 	private final IABoxNode<I, L, K, R> _baseNode;
 	private final IABox<I, L, K, R> _abox;
+	private int _deepHashCode = 0;
 	private int _hashCode = 0;
-
 
 	ImmutableABoxNode(final IABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
 	{
@@ -63,13 +65,11 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		_abox = abox;
 	}
 
-
 	@Override
 	public Collection<TermEntry<I, L, K, R>> getTermEntries()
 	{
 		return Collections.unmodifiableCollection(_baseNode.getTermEntries());
 	}
-
 
 	@Override
 	public NodeID getNodeID()
@@ -77,13 +77,11 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		return _baseNode.getNodeID();
 	}
 
-
 	@Override
 	public boolean isAnonymous()
 	{
 		return _baseNode.isAnonymous();
 	}
-
 
 	@Override
 	public ITermSet<I, L, K, R> getTerms()
@@ -91,13 +89,11 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		return _baseNode.getTerms().getImmutable();
 	}
 
-
 	@Override
 	public IABoxNode<I, L, K, R> clone(IABox<I, L, K, R> newABox)
 	{
 		return _baseNode.clone(newABox);
 	}
-
 
 	@Override
 	public IABox<I, L, K, R> getABox()
@@ -105,22 +101,19 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		return _abox;
 	}
 
-
-		public void setABox(final IABox<I, L, K, R> abox)
+	public void setABox(final IABox<I, L, K, R> abox)
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
 
-
 	@Override
 	public int deepHashCode()
 	{
-		if (_hashCode == 0) {
-			_hashCode = _baseNode.deepHashCode();
+		if (_deepHashCode == 0) {
+			_deepHashCode = _baseNode.deepHashCode();
 		}
-		return _hashCode;
+		return _deepHashCode;
 	}
-
 
 	@Override
 	public boolean deepEquals(Object obj)
@@ -128,13 +121,11 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		return _baseNode.deepEquals(obj);
 	}
 
-
 	@Override
 	public boolean isDatatypeNode()
 	{
 		return _baseNode.isDatatypeNode();
 	}
-
 
 	@Override
 	public String toString(String prefix)
@@ -142,13 +133,11 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		return _baseNode.toString(prefix);
 	}
 
-
 	@Override
 	public String toString()
 	{
 		return _baseNode.toString();
 	}
-
 
 	@Override
 	public int compareTo(IABoxNode<I, L, K, R> o)
@@ -156,27 +145,23 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		return _baseNode.compareTo(o);
 	}
 
-
 	@Override
 	public IABoxNode<I, L, K, R> getImmutable()
 	{
 		return this;
 	}
 
-
 	@Override
 	public IRABox<I, L, K, R> getRABox()
 	{
-		return ImmutableRABox.decorate(_baseNode.getRABox());
+		return ImmutableRABox.decorate(this, _baseNode.getRABox());
 	}
-
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addTerm(IDLNodeTerm<I, L, K, R> term) throws ENodeMergeException, EIllegalTermTypeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
-
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addTerms(
@@ -186,10 +171,37 @@ public abstract class ImmutableABoxNode<N extends Comparable<? super N>, I exten
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
 
-
-		protected IABoxNode<I, L, K, R> getBaseNode(
-		)
+	protected IABoxNode<I, L, K, R> getBaseNode()
 	{
 		return _baseNode;
 	}
+
+	@Override
+	public int hashCode()
+	{
+		if (_hashCode == 0) {
+			_hashCode = _baseNode.hashCode();
+		}
+		return _hashCode;
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		} else if (obj instanceof ImmutableABoxNode) {
+			final ImmutableABoxNode<?, ?, ?, ?, ?> other = (ImmutableABoxNode<?, ?, ?, ?, ?>) obj;
+			return getDecoratee().equals(other.getDecoratee());
+		} else {
+			return _baseNode.equals(obj);
+		}
+	}
+
+	@Override
+	public IABoxNode<I, L, K, R> getDecoratee()
+	{
+		return _baseNode;
+	}
+
 }

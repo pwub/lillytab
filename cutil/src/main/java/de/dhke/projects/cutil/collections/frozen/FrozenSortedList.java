@@ -37,7 +37,7 @@ public class FrozenSortedList<T extends Comparable<? super T>>
 	implements Comparable<FrozenSortedList<T>>
 {
 	final List<T> _elements;
-	
+
 	public FrozenSortedList(final Collection<? extends T> source)
 	{
 		final SortedListSet<T> elements = new SortedListSet<>(source);
@@ -74,12 +74,12 @@ public class FrozenSortedList<T extends Comparable<? super T>>
 	{
 		return SetUtils.hashCodeForSet(_elements);
 	}
-	
+
 	public List<T> getList()
 	{
 		return _elements;
 	}
-	
+
 	@Override
 	public boolean equals(Object o)
 	{
@@ -88,7 +88,7 @@ public class FrozenSortedList<T extends Comparable<? super T>>
 			return SetUtils.isEqualSet(_elements, c);
 		} else
 			return false;
-	}	
+	}
 
 
 	@Override
@@ -97,9 +97,10 @@ public class FrozenSortedList<T extends Comparable<? super T>>
 	{
 		for (Pair<T, T> pair: PairIterable.wrap(this, o)) {
 			int compare = pair.getFirst().compareTo(pair.getSecond());
-			if (compare != 0)
+			if (compare != 0) {
 				return compare;
+			}
 		}
-		return 0;
+		return Integer.compare(size(), o.size());
 	}
 }

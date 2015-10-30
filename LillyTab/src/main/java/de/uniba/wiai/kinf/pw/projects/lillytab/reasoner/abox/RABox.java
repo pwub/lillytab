@@ -26,6 +26,7 @@ import de.dhke.projects.cutil.collections.CollectionUtil;
 import de.dhke.projects.cutil.collections.ExtractorCollection;
 import de.dhke.projects.cutil.collections.MultiMapUtil;
 import de.dhke.projects.cutil.collections.iterator.MultiMapEntryIterator;
+import de.dhke.projects.cutil.collections.set.Flat3Set;
 import de.dhke.projects.cutil.collections.set.SortedListSet;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IDatatypeABoxNode;
@@ -49,8 +50,7 @@ import org.apache.commons.collections15.Transformer;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class RABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IRABox<I, L, K, R>
-{
+	implements IRABox<I, L, K, R> {
 	/// </editor-fold>
 	/**
 	 * The set of successor nodes, indexed by role.
@@ -210,62 +210,58 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 	public Collection<IABoxNode<I, L, K, R>> getSuccessorNodes(final R role)
 	{
 		return ExtractorCollection.decorate(getSuccessors(role),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
-		{
-			@Override
-			public IABoxNode<I, L, K, R> transform(NodeID input)
-			{
-				return _node.getABox().getNode(input);
-			}
-		});
+			new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+				@Override
+				public IABoxNode<I, L, K, R> transform(NodeID input)
+				{
+					return _node.getABox().getNode(input);
+				}
+			});
 	}
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getPredecessorNodes(final R role)
 	{
 		return ExtractorCollection.decorate(getPredecessors(role),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
-		{
-			@Override
-			public IABoxNode<I, L, K, R> transform(NodeID input)
-			{
-				return _node.getABox().getNode(input);
-			}
-		});
+			new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+				@Override
+				public IABoxNode<I, L, K, R> transform(NodeID input)
+				{
+					return _node.getABox().getNode(input);
+				}
+			});
 	}
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getPredecessorNodes()
 	{
 		return ExtractorCollection.decorate(getPredecessors(),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
-		{
-			@Override
-			public IABoxNode<I, L, K, R> transform(NodeID input)
-			{
-				return _node.getABox().getNode(input);
-			}
-		});
+			new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+				@Override
+				public IABoxNode<I, L, K, R> transform(NodeID input)
+				{
+					return _node.getABox().getNode(input);
+				}
+			});
 	}
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getSuccessorNodes()
 	{
 		return ExtractorCollection.decorate(getSuccessors(),
-											new Transformer<NodeID, IABoxNode<I, L, K, R>>()
-		{
-			@Override
-			public IABoxNode<I, L, K, R> transform(NodeID input)
-			{
-				return _node.getABox().getNode(input);
-			}
-		});
+			new Transformer<NodeID, IABoxNode<I, L, K, R>>() {
+				@Override
+				public IABoxNode<I, L, K, R> transform(NodeID input)
+				{
+					return _node.getABox().getNode(input);
+				}
+			});
 	}
 
 	@Override
 	public IRABox<I, L, K, R> getImmutable()
 	{
-		return ImmutableRABox.decorate(this);
+		return ImmutableRABox.decorate(_node.getImmutable(), this);
 	}
 
 	@Override
@@ -307,8 +303,7 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 	@Override
 	public Iterable<Pair<R, NodeID>> getSuccessorPairs()
 	{
-		return new Iterable<Pair<R, NodeID>>()
-		{
+		return new Iterable<Pair<R, NodeID>>() {
 			@Override
 			public Iterator<Pair<R, NodeID>> iterator()
 			{
@@ -320,8 +315,7 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 	@Override
 	public Iterable<Pair<R, NodeID>> getPredecessorPairs()
 	{
-		return new Iterable<Pair<R, NodeID>>()
-		{
+		return new Iterable<Pair<R, NodeID>>() {
 			@Override
 			public Iterator<Pair<R, NodeID>> iterator()
 			{
@@ -358,7 +352,7 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		assert newNode instanceof IABoxNode;
 
 		final RABox<I, L, K, R> klone = new RABox<>(newNode,
-													_predecessors.clone(newNode), _successors.clone(newNode));
+			_predecessors.clone(newNode), _successors.clone(newNode));
 		return klone;
 	}
 
@@ -399,14 +393,49 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 		return hashcode;
 	}
 
+	@Override
+	public Iterable<R> getOutgoingRoles(IABoxNode<L, I, K, R> target)
+	{
+		return getOutgoingRoles(target.getNodeID());
+	}
+
+	@Override
+	public Set<R> getOutgoingRoles(NodeID target)
+	{
+		final Set<R> roles = new Flat3Set<>();
+		for (Pair<R, NodeID> succPair : getSuccessorPairs()) {
+			if (succPair.getSecond().equals(target)) {
+				roles.add(succPair.getFirst());
+			}
+		}
+		return roles;
+	}
+
+	@Override
+	public Iterable<R> getIncomingRoles(IABoxNode<L, I, K, R> source)
+	{
+		return getIncomingRoles(source.getNodeID());
+	}
+
+	@Override
+	public Iterable<R> getIncomingRoles(NodeID source)
+	{
+		final Set<R> roles = new Flat3Set<>();
+		for (Pair<R, NodeID> predPair : getPredecessorPairs()) {
+			if (predPair.getSecond().equals(source)) {
+				roles.add(predPair.getFirst());
+			}
+		}
+		return roles;
+	}
+
 	/// <editor-fold defaultstate="collapsed" desc="class SubRoleAwareNodeIDIterator">
 
 	/**
 	 *
 	 */
 	final class SubRoleAwareNodeIDIterator
-		implements Iterator<NodeID>
-	{
+		implements Iterator<NodeID> {
 		private Iterator<NodeID> _iter;
 
 		SubRoleAwareNodeIDIterator(final R role, final MultiMap<R, NodeID> map)
@@ -449,8 +478,7 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 	 *
 	 */
 	final class SubRoleAwarePairIterator
-		implements Iterator<Pair<R, NodeID>>
-	{
+		implements Iterator<Pair<R, NodeID>> {
 		private Iterator<Map.Entry<R, NodeID>> _assertedIter;
 		private Iterator<R> _roleIter;
 		private Pair<R, NodeID> _currentPair;
@@ -485,7 +513,7 @@ public class RABox<I extends Comparable<? super I>, L extends Comparable<? super
 			throw new UnsupportedOperationException();
 		}
 
-				private void advance()
+		private void advance()
 		{
 			if (CollectionUtil.isNullOrEmpty(_roleIter)) {
 				if (CollectionUtil.isNullOrEmpty(_assertedIter)) {

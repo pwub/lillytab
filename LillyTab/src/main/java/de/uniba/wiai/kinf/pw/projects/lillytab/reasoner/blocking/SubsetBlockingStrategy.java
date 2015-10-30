@@ -45,8 +45,7 @@ import java.util.TreeSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractBlockingStrategy<I, L, K, R>
-{
+	extends AbstractBlockingStrategy<I, L, K, R> {
 
 	@Override
 	public Set<NodeID> validateBlocks(IABoxNode<I, L, K, R> blocker)
@@ -111,17 +110,20 @@ public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends C
 	 * @param target A potential blocker.
 	 * @return {@literal true} if {@literal target} is a potential blocking node for {@literal this} node.
 	 */
-		protected boolean isPotentialBlocker(final IABoxNode<I, L, K, R> blocker, final IABoxNode<I, L, K, R> target)
+	protected boolean isPotentialBlocker(final IABoxNode<I, L, K, R> blocker, final IABoxNode<I, L, K, R> target)
 	{
 		/**
-		 * This node is potentially blocking {@literal target}, 
-		 * if 
-		 * - it is an anonymous node
+		 * This node is potentially blocking {@literal target},
+		 * if
+		 * - the potential blocker is an anonymous node
+		 * - the target is synthetic
 		 * - if the target's set of concept terms is a superset of the blocker's (i.e. if target is less specific that the current node.)
-		 * 
+		 *
 		 * The size check is a very simple performance trick, that helps for some ontologies
 		 */
-		return blocker.isAnonymous() && blocker.getTerms().size() >= target.getTerms().size() && blocker.getTerms().
-			containsAll(target.getTerms());
+		return target.isSynthentic()
+			&& blocker.isAnonymous()
+			&& blocker.getTerms().size() >= target.getTerms().size()
+			&& blocker.getTerms().containsAll(target.getTerms());
 	}
 }

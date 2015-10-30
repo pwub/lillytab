@@ -31,6 +31,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IRABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
 import java.util.Collection;
 
+
 /**
  * * A proxy object to an {@link IRABox} that forbids changes to the underlying map. <p /> If an immutable is first
  * created and the underlying map is modified, afterwards, behaviour of the immutable is undefined.
@@ -48,15 +49,6 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 	private final IRABox<I, L, K, R> _baseLinkMap;
 	private final ImmutableTransformer<IABoxNode<I, L, K, R>> _immutableNodeTransformer = new ImmutableTransformer<>();
 
-
-	public ImmutableRABox(
-		final IRABox<I, L, K, R> baseLinkMap)
-	{
-		_immutableNode = baseLinkMap.getNode().getImmutable();
-		_baseLinkMap = baseLinkMap;
-	}
-
-
 	protected ImmutableRABox(
 		final IABoxNode<I, L, K, R> immutableNode,
 		final IRABox<I, L, K, R> baseLinkMap)
@@ -65,12 +57,12 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		_baseLinkMap = baseLinkMap;
 	}
 
-
-		public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableRABox<I, L, K, R> decorate(final IRABox<I, L, K, R> baseLinkMap)
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableRABox<I, L, K, R> decorate(
+		final IABoxNode<I, L, K, R> immutableNode,
+		final IRABox<I, L, K, R> baseLinkMap)
 	{
-		return new ImmutableRABox<>(baseLinkMap);
+		return new ImmutableRABox<>(immutableNode, baseLinkMap);
 	}
-
 
 	@Override
 	public IABoxNode<I, L, K, R> getNode()
@@ -78,20 +70,17 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _immutableNode;
 	}
 
-
 	@Override
 	public ILinkMap<I, L, K, R> getAssertedSuccessors()
 	{
-		return ImmutableLinkMap.decorate(_baseLinkMap.getAssertedSuccessors());
+		return ImmutableLinkMap.decorate(_baseLinkMap.getAssertedSuccessors(), _immutableNode);
 	}
-
 
 	@Override
 	public ILinkMap<I, L, K, R> getAssertedPredecessors()
 	{
-		return ImmutableLinkMap.decorate(_baseLinkMap.getAssertedSuccessors());
+		return ImmutableLinkMap.decorate(_baseLinkMap.getAssertedSuccessors(), _immutableNode);
 	}
-
 
 	@Override
 	public boolean hasSuccessor(final R role, final NodeID successor)
@@ -99,13 +88,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.hasSuccessor(role, successor);
 	}
 
-
 	@Override
 	public boolean hasSuccessor(final R role)
 	{
 		return _baseLinkMap.hasSuccessor(role);
 	}
-
 
 	@Override
 	public boolean hasSuccessor(final R role, final IABoxNode<I, L, K, R> successor)
@@ -113,13 +100,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.hasSuccessor(role, successor);
 	}
 
-
 	@Override
 	public boolean hasPredecessor(final R role, final NodeID predecessor)
 	{
 		return _baseLinkMap.hasPredecessor(role, predecessor);
 	}
-
 
 	@Override
 	public boolean hasPredecessor(final R role)
@@ -127,13 +112,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.hasPredecessor(role);
 	}
 
-
 	@Override
 	public boolean hasPredecessor(final R role, final IABoxNode<I, L, K, R> predecessor)
 	{
 		return _baseLinkMap.hasPredecessor(role, predecessor);
 	}
-
 
 	@Override
 	public Collection<R> getOutgoingRoles()
@@ -141,13 +124,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.getOutgoingRoles();
 	}
 
-
 	@Override
 	public Collection<R> getIncomingRoles()
 	{
 		return _baseLinkMap.getIncomingRoles();
 	}
-
 
 	@Override
 	public Collection<NodeID> getSuccessors(final R role)
@@ -155,13 +136,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.getSuccessors();
 	}
 
-
 	@Override
 	public Collection<NodeID> getSuccessors()
 	{
 		return _baseLinkMap.getSuccessors();
 	}
-
 
 	@Override
 	public Collection<NodeID> getPredecessors(final R role)
@@ -169,13 +148,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.getPredecessors(role);
 	}
 
-
 	@Override
 	public Collection<NodeID> getPredecessors()
 	{
 		return _baseLinkMap.getPredecessors();
 	}
-
 
 	@Override
 	public Iterable<Pair<R, NodeID>> getPredecessorPairs()
@@ -183,13 +160,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.getPredecessorPairs();
 	}
 
-
 	@Override
 	public Iterable<Pair<R, NodeID>> getSuccessorPairs()
 	{
 		return _baseLinkMap.getSuccessorPairs();
 	}
-
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getSuccessorNodes(final R role)
@@ -197,13 +172,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return GenericImmutableCollection.decorate(_baseLinkMap.getSuccessorNodes(role), _immutableNodeTransformer);
 	}
 
-
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getSuccessorNodes()
 	{
 		return GenericImmutableCollection.decorate(_baseLinkMap.getSuccessorNodes(), _immutableNodeTransformer);
 	}
-
 
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getPredecessorNodes(final R role)
@@ -211,13 +184,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return GenericImmutableCollection.decorate(_baseLinkMap.getPredecessorNodes(role), _immutableNodeTransformer);
 	}
 
-
 	@Override
 	public Collection<IABoxNode<I, L, K, R>> getPredecessorNodes()
 	{
 		return GenericImmutableCollection.decorate(_baseLinkMap.getPredecessorNodes(), _immutableNodeTransformer);
 	}
-
 
 	@Override
 	public IRABox<I, L, K, R> clone(final IABoxNode<I, L, K, R> newNode)
@@ -225,13 +196,11 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.clone(newNode);
 	}
 
-
 	@Override
 	public boolean deepEquals(final Object obj)
 	{
 		return _baseLinkMap.deepEquals(obj);
 	}
-
 
 	@Override
 	public int deepHashCode()
@@ -239,17 +208,59 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 		return _baseLinkMap.deepHashCode();
 	}
 
-
 	@Override
 	public IRABox<I, L, K, R> getImmutable()
 	{
 		return this;
 	}
 
-
 	@Override
 	public IRABox<I, L, K, R> getDecoratee()
 	{
 		return _baseLinkMap;
 	}
+
+	@Override
+	public Iterable<R> getOutgoingRoles(IABoxNode<L, I, K, R> target)
+	{
+		return _baseLinkMap.getOutgoingRoles(target);
+	}
+
+	@Override
+	public Iterable<R> getOutgoingRoles(NodeID target)
+	{
+		return _baseLinkMap.getOutgoingRoles(target);
+	}
+
+	@Override
+	public Iterable<R> getIncomingRoles(IABoxNode<L, I, K, R> source)
+	{
+		return _baseLinkMap.getIncomingRoles(source);
+	}
+
+	@Override
+	public Iterable<R> getIncomingRoles(NodeID source)
+	{
+		return _baseLinkMap.getOutgoingRoles();
+	}
+
+	@Override
+	public boolean equals(Object obj)
+	{
+		if (this == obj) {
+			return true;
+		} else if (obj instanceof ImmutableRABox) {
+			final ImmutableRABox<?, ?, ?, ?> other = (ImmutableRABox<?, ?, ?, ?>) obj;
+			return getDecoratee().equals(other.getDecoratee());
+		} else {
+			return getDecoratee().equals(obj);
+		}
+	}
+
+	@Override
+	public int hashCode()
+	{
+		return getDecoratee().hashCode();
+	}
+
 }

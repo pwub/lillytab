@@ -194,8 +194,8 @@ public class ReasonerRBoxTest {
 //		b.getRABox().getAssertedSuccessors().put("r", c.getNodeID());
 //		assertTrue(_reasoner.isConsistent(_abox));
 //	}
-
-
+//
+//
 //	@Test
 //	public void testInverseFunctionalInconsistentRoleDualLinks()
 //		throws ParseException, EReasonerException, ENodeMergeException, EInconsistencyException

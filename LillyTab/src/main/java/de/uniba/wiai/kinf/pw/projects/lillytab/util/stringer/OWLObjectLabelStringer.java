@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
 import org.semanticweb.owlapi.model.IRI;
 import org.semanticweb.owlapi.model.OWLAnnotation;
 import org.semanticweb.owlapi.model.OWLEntity;
+import org.semanticweb.owlapi.model.OWLLiteral;
+import org.semanticweb.owlapi.model.OWLObject;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.search.EntitySearcher;
 import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
@@ -41,7 +43,7 @@ import org.semanticweb.owlapi.vocab.OWLRDFVocabulary;
  *
  * @author Peter Wullinger <java@dhke.de>
  */
-@SupportsType({OWLEntity.class})
+@SupportsType({OWLEntity.class, OWLLiteral.class})
 public class OWLObjectLabelStringer
 	extends AbstractAnnotationStringer {
 
@@ -57,6 +59,15 @@ public class OWLObjectLabelStringer
 	}
 
 
+	public void append(final StringBuilder sb, final OWLLiteral literal)
+	{
+		sb.append(literal.getLiteral());
+		sb.append("^^");
+		sb.append(literal.getDatatype());
+
+	}
+
+
 	public void append(final StringBuilder sb, final OWLEntity entity)
 	{
 		boolean haveLabel = false;
@@ -66,10 +77,11 @@ public class OWLObjectLabelStringer
 		}
 		for (OWLAnnotation annotation : annotations) {
 			if (annotation.getProperty().getIRI().equals(OWLRDFVocabulary.RDFS_LABEL.getIRI())) {
-				String label = annotation.getValue().toString();
-				// strip data trailing datatype marker "^^xsd:", that gets appended by the OWLAPI.
-				label = DATATYPE_END_PATTERN.matcher(label).replaceAll("");
-
+				OWLLiteral labelLiteral = annotation.getValue().asLiteral().orNull();
+				String label = "";
+				if (labelLiteral != null) {
+					label = labelLiteral.getLiteral();
+				}
 				/* strip trailing and leading quotation marks if both are present */
 				if (label.startsWith("\"") && label.endsWith("\"")) {
 					label = label.substring(1, label.length() - 1);
@@ -94,7 +106,7 @@ public class OWLObjectLabelStringer
 		 */
 		if (!haveLabel) {
 			final IRI iri = entity.getIRI();
-			if (! iri.getRemainder().or("").isEmpty()) {
+			if (!iri.getRemainder().or("").isEmpty()) {
 				/* pick the fragment, if there is one */
 				haveLabel = true;
 				sb.append(iri.getRemainder().get());
@@ -121,11 +133,13 @@ public class OWLObjectLabelStringer
 	@Override
 	public void append(StringBuilder sb, Object obj, final IToStringConverter backStringer)
 	{
-		if (obj instanceof OWLEntity) {
-			final OWLEntity entity = (OWLEntity) obj;
-			append(sb, entity);
-		} else
-			append(sb, obj);
+		if (obj instanceof OWLLiteral) {
+			append(sb, (OWLLiteral) obj);
+		} else if (obj instanceof OWLEntity) {
+			append(sb, (OWLEntity) obj);
+		} else {
+			backStringer.append(sb, obj);
+		}
 	}
 
 

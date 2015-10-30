@@ -28,6 +28,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeMergeInfo;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLClassExpression;
 import java.util.SortedSet;
 
+
 /**
  *
  * @param <I> The type for individuals/nominals
@@ -39,24 +40,24 @@ import java.util.SortedSet;
  */
 public class ImmutableIndividualABoxNode<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends ImmutableABoxNode<I, I, L, K, R>
-	implements IIndividualABoxNode<I, L, K, R> { ImmutableIndividualABoxNode(
+	implements IIndividualABoxNode<I, L, K, R> {
+	ImmutableIndividualABoxNode(
 		final IIndividualABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
 	{
 		super(baseNode, abox);
 	}
-	 public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableIndividualABoxNode<I, L, K, R> decorate(final IIndividualABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
+
+	public static <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>> ImmutableIndividualABoxNode<I, L, K, R> decorate(
+		final IIndividualABoxNode<I, L, K, R> baseNode, final IABox<I, L, K, R> abox)
 	{
 		return new ImmutableIndividualABoxNode<>(baseNode, abox);
 	}
-	
-
 
 	@Override
 	public SortedSet<I> getNames()
 	{
 		return ((IIndividualABoxNode<I, L, K, R>) getBaseNode()).getNames();
 	}
-
 
 	@Override
 	public I getPrimaryName()
@@ -67,19 +68,22 @@ public class ImmutableIndividualABoxNode<I extends Comparable<? super I>, L exte
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addClassTerm(
-														   IDLClassExpression<I, L, K, R> desc) throws ENodeMergeException
+		IDLClassExpression<I, L, K, R> desc) throws ENodeMergeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
 
 	@Override
 	public NodeMergeInfo<I, L, K, R> addClassTerm(
-														   Iterable<? extends IDLClassExpression<I, L, K, R>> descs) throws ENodeMergeException
+		Iterable<? extends IDLClassExpression<I, L, K, R>> descs) throws ENodeMergeException
 	{
 		throw new UnsupportedOperationException("Cannot modify ImmutableABoxNode.");
 	}
 
+	@Override
+	public boolean isSynthentic()
+	{
+		return getBaseNode().isSynthentic();
+	}
 
-
-	
 }

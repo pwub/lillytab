@@ -54,12 +54,11 @@ import java.util.SortedSet;
  * @param <L> The type for literals
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
- * 
+ *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public interface IABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends Set<IABoxNode<I, L, K, R>>, IImmutable<IABox<I, L, K, R>>, Cloneable, Serializable
-{
+	extends Set<IABoxNode<I, L, K, R>>, IImmutable<IABox<I, L, K, R>>, Cloneable, Serializable {
 	/**
 	 * Retrieve the unique ID of the current ABox.
 	 *
@@ -90,6 +89,9 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode)
 		throws ENodeMergeException;
 
+	IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode, boolean isSynthetic)
+		throws ENodeMergeException;
+
 	/**
 	 * Create a new, anonymous node literal node. The returned node is empty.
 	 *
@@ -98,6 +100,9 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * @throws ENodeMergeException Node merging was performed and an unrecoverable error occured while merging.
 	 */
 	IDatatypeABoxNode<I, L, K, R> createDatatypeNode()
+		throws ENodeMergeException;
+
+	IDatatypeABoxNode<I, L, K, R> createDatatypeNode(boolean isSynthetic)
 		throws ENodeMergeException;
 
 	/**
@@ -118,6 +123,9 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 *
 	 */
 	IIndividualABoxNode<I, L, K, R> createIndividualNode()
+		throws ENodeMergeException;
+
+	IIndividualABoxNode<I, L, K, R> createIndividualNode(boolean isSynthetic)
 		throws ENodeMergeException;
 
 	/**
@@ -353,7 +361,7 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 //	 * }
 //	 * operation. <p /> Note, that callers should take care when modifying the listener list, because the list also
 //	 * may also contain internal listeners. In particular, it is not safe to assume that the list is initially empty.
-//	 * 
+//	 *
 //	 *
 //	 * @return The modifiable list of {@link IUnfoldListener}s.
 //	 */
@@ -369,7 +377,7 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * Determine if the current {@link IABox} contains the supplied {@link TermEntry}.	*
 	 *
 	 * @param entry the term entry to search for
-	 * @return {@literal true} if {@literal entry} is contained in the current {@link IABox}. 
+	 * @return {@literal true} if {@literal entry} is contained in the current {@link IABox}.
 	 *
 	 */
 	boolean containsTermEntry(final TermEntry<I, L, K, R> entry);
@@ -378,22 +386,38 @@ public interface IABox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * Determine if the current {@link IABox} contain all of the supplied {@link TermEntry}s.
 	 *
 	 * @param entries the term entries to look for.
-	 * @return {@literal true} if {@literal entry} all term entries in the current {@link IABox}. 
+	 * @return {@literal true} if {@literal entry} all term entries in the current {@link IABox}.
 	 *
 	 */
 	boolean containsAllTermEntries(final Collection<TermEntry<I, L, K, R>> entries);
 //	/**
 //	 * Perform lazy unfolding for all terms (for all nodes)
 //	 * contained in the current ABox.
-//	 * 
-//	 * @throws ENodeMergeException 
+//	 *
+//	 * @throws ENodeMergeException
 //	 **/
-//	public void unfoldAll() 
+//	public void unfoldAll()
 //		throws ENodeMergeException;
 
 	boolean hasMoreGeneratingNodes();
 
-	/// <editor-fold defaultstate="collapsed" desc="Node Queues">
+	/**
+	 * Determine if {@literal node} is synthetic.
+	 * @see IABoxNode#isSynthentic()
+	 * @param node
+	 * @return {@literal true} if {@literal node} is synthetic
+	 **/
+	public boolean isSynthetic(final IABoxNode<I, L, K, R> node);
+
+	/**
+	 * Determine if {@literal node} is synthetic.
+	 * @see IABoxNode#isSynthentic()
+	 * @param nodeID
+	 * @return {@literal true} if {@literal node} is synthetic
+	 **/
+	public boolean isSynthetic(final NodeID nodeID);
+
+/// <editor-fold defaultstate="collapsed" desc="Node Queues">
 	boolean hasMoreNonGeneratingNodes();
 
 	boolean removeFromQueues(

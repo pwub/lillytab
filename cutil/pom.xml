@@ -4,14 +4,14 @@
 	<groupId>de.dhke.projects.cutil</groupId>
 	<artifactId>cutil</artifactId>
 	<packaging>jar</packaging>
-	<version>1.12-SNAPSHOT</version>
+	<version>1.13-SNAPSHOT</version>
 	<name>cutil</name>
 	<url>http://maven.apache.org</url>
 
 	<parent>
 		<groupId>de.uniba.wiai.kinf.pw.projects.diss</groupId>
 		<artifactId>LillyTab-parent</artifactId>
-		<version>1.12-SNAPSHOT</version>	
+		<version>1.13-SNAPSHOT</version>	
 	</parent>
 	
 	<properties>

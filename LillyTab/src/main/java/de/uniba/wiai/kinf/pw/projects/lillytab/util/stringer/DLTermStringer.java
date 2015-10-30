@@ -67,8 +67,9 @@ public class DLTermStringer
 			sb.append(", ");
 			backStringer.append(sb, entry.getTerm(), backStringer);
 			sb.append(">");
-		} else
+		} else {
 			backStringer.append(sb, obj, backStringer);
+		}
 	}
 
 	class Stringer<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>

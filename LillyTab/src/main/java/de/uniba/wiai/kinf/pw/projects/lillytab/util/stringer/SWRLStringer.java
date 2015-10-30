@@ -26,22 +26,25 @@ import de.dhke.projects.cutil.stringer.IToStringConverter;
 import de.dhke.projects.cutil.stringer.SupportsType;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLClassAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLDataRangeAtom;
+import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLLiteralReference;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRoleAtom;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLRule;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.swrl.ISWRLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.ISWRLTermVisitor;
 
+
 /**
  *
  * @author Peter Wullinger <java@dhke.de>
  */
-@SupportsType({ISWRLTerm.class, ISWRLRule.class})
-public class SWRLTermStringer
+@SupportsType({ISWRLTerm.class, ISWRLRule.class, ISWRLLiteralReference.class})
+public class SWRLStringer
 	extends AbstractAnnotationStringer {
 
-	public SWRLTermStringer()
+	public SWRLStringer()
 	{
 	}
+
 
 	class Stringer<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 		implements ISWRLTermVisitor<I, L, K, R> {
@@ -50,20 +53,17 @@ public class SWRLTermStringer
 		private final StringBuilder _sb;
 		private final IToStringConverter _backStringer;
 
-
 		Stringer(final StringBuilder target, final IToStringConverter backStringer)
 		{
 			_sb = target;
 			_backStringer = backStringer;
 		}
 
-
 		Stringer(final IToStringConverter backStringer)
 		{
 			_sb = new StringBuilder();
 			_backStringer = backStringer;
 		}
-
 
 		@Override
 		public void visitEnter(final ISWRLTerm<I, L, K, R> term)
@@ -72,7 +72,6 @@ public class SWRLTermStringer
 			_sb.append("(");
 
 		}
-
 
 		@Override
 		public void visit(final ISWRLTerm<I, L, K, R> term)
@@ -86,16 +85,16 @@ public class SWRLTermStringer
 				_sb.append("(");
 				_backStringer.append(_sb, clsAtom.getKlass());
 				_sb.append(" ");
-				_sb.append(clsAtom.getIndividual());
+				_backStringer.append(_sb, clsAtom.getIndividual());
 				_sb.append(")");
 			} else if (term instanceof ISWRLRoleAtom) {
 				final ISWRLRoleAtom<I, L, K, R> roleAtom = (ISWRLRoleAtom<I, L, K, R>) term;
 				_sb.append("(");
 				_backStringer.append(_sb, roleAtom.getRole());
 				_sb.append(" ");
-				_sb.append(roleAtom.getFirstIndividual());
+				_backStringer.append(_sb, roleAtom.getFirstIndividual());
 				_sb.append(" ");
-				_sb.append(roleAtom.getSecondIndividual());
+				_backStringer.append(_sb, roleAtom.getSecondIndividual());
 				_sb.append(")");
 			} else if (term instanceof ISWRLDataRangeAtom) {
 				final ISWRLDataRangeAtom<I, L, K, R> rangeAtom = (ISWRLDataRangeAtom<I, L, K, R>) term;
@@ -107,7 +106,6 @@ public class SWRLTermStringer
 			}
 		}
 
-
 		@Override
 		public void visitLeave(final ISWRLTerm<I, L, K, R> term)
 		{
@@ -116,24 +114,27 @@ public class SWRLTermStringer
 		}
 	}
 
-
 	@Override
 	@SuppressWarnings("unchecked")
 	public void append(StringBuilder sb, Object obj, final IToStringConverter backStringer)
 	{
 		if (obj instanceof ISWRLTerm) {
-			final ISWRLTerm term = (ISWRLTerm) obj;
+			final ISWRLTerm<?, ?, ?, ?> term = (ISWRLTerm<?, ?, ?, ?>) obj;
 			final Stringer stringer = new Stringer(sb, backStringer);
 			term.accept(stringer);
 		} else if (obj instanceof ISWRLRule) {
-			final ISWRLRule rule = (ISWRLRule) obj;
+			final ISWRLRule<?, ?, ?, ?> rule = (ISWRLRule<?, ?, ?, ?>) obj;
 			final Stringer stringer = new Stringer(sb, backStringer);
 
 			append(sb, rule.getHead(), backStringer);
 			sb.append(":- ");
 			append(sb, rule.getBody(), backStringer);
 			sb.append(".");
-		} else
+		} else if (obj instanceof ISWRLLiteralReference) {
+			final ISWRLLiteralReference<?, ?, ?, ?> litRef = (ISWRLLiteralReference<?, ?, ?, ?>) obj;
+			backStringer.append(sb, litRef.getObject());
+		} else {
 			backStringer.append(sb, obj);
+		}
 	}
 }

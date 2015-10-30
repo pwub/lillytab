@@ -57,8 +57,7 @@ import org.slf4j.LoggerFactory;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public abstract class ABoxNode<N extends Comparable<? super N>, I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IABoxNode<I, L, K, R>, Cloneable
-{
+	implements IABoxNode<I, L, K, R>, Cloneable {
 	private static final Logger _logger = LoggerFactory.getLogger(ABoxNode.class);
 	// private final Map<DLTermOrder, IDLClassExpression<I, L, K, R>> _smallestTerms;
 	/**
@@ -388,4 +387,11 @@ public abstract class ABoxNode<N extends Comparable<? super N>, I extends Compar
 		}
 		return mergeInfo;
 	}
+
+	@Override
+	public boolean isSynthentic()
+	{
+		return _abox.isSynthetic(_id);
+	}
+
 }

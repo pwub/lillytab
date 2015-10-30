@@ -25,6 +25,7 @@ package de.dhke.projects.cutil;
  *
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
+@FunctionalInterface
 public interface INoArgsFactory<T> {
 	T getInstance();
 }

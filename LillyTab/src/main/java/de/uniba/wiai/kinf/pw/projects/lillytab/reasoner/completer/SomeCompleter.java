@@ -132,7 +132,7 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 				haveGenerated = false;
 			} else {
 				final boolean isDataProperty = abox.getTBox().getRBox().hasRoleType(role, RoleType.DATA_PROPERTY);
-				succ = abox.createNode(isDataProperty);
+				succ = abox.createNode(isDataProperty, true);
 
 				node.getRABox().getAssertedSuccessors().put(role, succ.getNodeID());
 				// abox.touchNode(node);
@@ -223,7 +223,7 @@ public class SomeCompleter<I extends Comparable<? super I>, L extends Comparable
 			final boolean isDataProperty = abox.getRBox().hasRoleType(role, RoleType.DATA_PROPERTY);
 
 			try {
-				IABoxNode<I, L, K, R> newNode = abox.createNode(isDataProperty);
+				IABoxNode<I, L, K, R> newNode = abox.createNode(isDataProperty, true);
 				/**
 				 * update dependency map
 				 */

@@ -127,27 +127,6 @@ public class Branch<I extends Comparable<? super I>, L extends Comparable<? supe
 		return ReasonerResult.create(abox, mergeMap);
 	}
 
-	/**
-	 * Create a new node in the specified branch and automatically add all global descriptions. <p /> The new node is
-	 * created anonymously at start, but the existence of nominals in the global descriptors may make it impossible to
-	 * create a truly anonymous node. If the global descriptors contain a {@link IDLIndividualReference}, a named node
-	 * will be returned instead of an anonymous node. Additionally, the named node may not be new, but be an existing
-	 * node from the {@link ABox}.
-	 *
-	 * @param isDatatypeNode
-	 * @return A (potentially new) node with a proper set of global descriptions.
-	 *
-	 * @throws ENodeMergeException
-	 * @deprecated
-	 */
-	@Deprecated
-public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMergeException
-	{
-		IABoxNode<I, L, K, R> newNode = getABox().createNode(isDatatypeNode);
-		assert getABox().contains(newNode);
-		return newNode;
-	}
-
 	@Override
 	public Branch<I, L, K, R> clone()
 	{
@@ -169,12 +148,13 @@ public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMerg
 		return toString("");
 	}
 
-		public String toString(int indent)
+	public String toString(int indent)
 	{
 		char[] fill = new char[indent];
 		Arrays.fill(fill, ' ');
 		return new String(fill);
 	}
+
 	public String toString(String prefix)
 	{
 		if (TO_STRING_ID_ONLY) {
@@ -209,7 +189,7 @@ public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMerg
 		return Collections.unmodifiableMap(_mergeMap);
 	}
 	/// </editor-fold>
-	
+
 	/**
 	 * Update the ABox of the current branch and update the branch-specified listeners of the ABoxes, if appropriate.
 	 *
@@ -255,8 +235,7 @@ public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMerg
 	/// <editor-fold defaultstate="collaped" desc="class NodeMergeListener">
 
 	final class NodeMergeListener
-		implements INodeMergeListener<I, L, K, R>
-	{
+		implements INodeMergeListener<I, L, K, R> {
 		@Override
 		public void beforeNodeMerge(IABoxNode<I, L, K, R> source,
 									IABoxNode<I, L, K, R> target)

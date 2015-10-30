@@ -18,9 +18,11 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections;
 
+import de.dhke.projects.cutil.collections.map.EmptyMultiMap;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
@@ -33,23 +35,26 @@ import org.apache.commons.collections15.SetUtils;
  * @author Peter Wullinger <java@dhke.de>
  */
 public final class MultiMapUtil {
+
 	private MultiMapUtil()
 	{
 	}
 
+
 	public static <K, V> boolean deepEquals(MultiMap<K, V> m1, MultiMap<? extends K, ? extends V> m2)
 	{
-		for (Map.Entry<K, Collection<V>> entry1: m1.entrySet()) {
-			if (! m2.containsKey(entry1.getKey()))
+		for (Map.Entry<K, Collection<V>> entry1 : m1.entrySet()) {
+			if (!m2.containsKey(entry1.getKey()))
 				return false;
 			else {
 				final Collection<? extends V> values2 = m2.get(entry1.getKey());
-				if ((! entry1.getValue().containsAll(values2)) || (! values2.containsAll(entry1.getValue())))
+				if ((!entry1.getValue().containsAll(values2)) || (!values2.containsAll(entry1.getValue())))
 					return false;
 			}
 		}
 		return m1.keySet().containsAll(m2.keySet());
 	}
+
 
 	public static <K, V> int deepHashCode(Map.Entry<K, Collection<V>> entry)
 	{
@@ -60,19 +65,20 @@ public final class MultiMapUtil {
 	public static <K, V> int deepHashCode(MultiMap<K, V> m)
 	{
 		int hashCode = 65537;
-		for (Map.Entry<K, Collection<V>> entry: m.entrySet()) {
+		for (Map.Entry<K, Collection<V>> entry : m.entrySet()) {
 			hashCode += 7 * deepHashCode(entry);
 		}
 		return hashCode;
 	}
-	
 
-	public static <V> Collection<V> getTransitive(final MultiMap<V, V> multiMap, final V key, final Collection<V> targetSet)
+
+	public static <V> Collection<V> getTransitive(final MultiMap<V, V> multiMap, final V key,
+												  final Collection<V> targetSet)
 	{
 		Collection<V> keyValues = multiMap.get(key);
 		if (keyValues != null) {
-			for (V keyValue: keyValues) {
-				if (! targetSet.contains(keyValue)) {
+			for (V keyValue : keyValues) {
+				if (!targetSet.contains(keyValue)) {
 					targetSet.add(keyValue);
 					targetSet.addAll(getTransitive(multiMap, keyValue, targetSet));
 				}
@@ -81,12 +87,18 @@ public final class MultiMapUtil {
 		return targetSet;
 	}
 
-	
+
 	public static <V> Collection<V> getTransitive(final MultiMap<V, V> multiMap, final V key)
-	{		
+	{
 		final Set<V> values = new HashSet<>();
 		getTransitive(multiMap, key, values);
 
 		return values;
-	}	
+	}
+
+
+	public static <K, V> MultiMap<K, V> emptyMultiMap()
+	{
+		return new EmptyMultiMap<>();
+	}
 }

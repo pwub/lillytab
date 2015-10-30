@@ -55,6 +55,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTermFactory;
 import de.uniba.wiai.kinf.pw.projects.lillytab.terms.util.TermUtil;
 import de.uniba.wiai.kinf.pw.projects.lillytab.util.LinearSequenceNumberGenerator;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -79,8 +80,7 @@ import java.util.TreeSet;
  * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
  */
 public class ABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	implements IABox<I, L, K, R>
-{
+	implements IABox<I, L, K, R> {
 	/// </editor-fold>
 	private static final long serialVersionUID = 3990522176232016954L;
 	private static final boolean TO_STRING_ID_ONLY = false;
@@ -116,6 +116,12 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 *
 	 */
 	private final ABoxNodeSet<I, L, K, R> _nodes;
+
+	/**
+	 * The IDs of synthentetic nodes
+	 **/
+	private final Set<NodeID> _synthenticNodes;
+
 	/**
 	 * The ABox-internal state blocking state cache used by {@link IBlockingStrategy}.
 	 *
@@ -143,6 +149,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	private final SortedSet<NodeID> _nonGeneratingQueue = new TreeSet<>();
 	private final SortedSet<NodeID> _generatingQueue = new TreeSet<>();
 
+	private WeakReference<IABox<I, L, K, R>> _immutable = null;
+
 	/// <editor-fold defaultstate="collapsed" desc="constructors">
 	public ABox(
 		final ABoxCommon<I, L, K, R> commons)
@@ -160,6 +168,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 		_tbox = new TBox<>(_common.getTermFactory());
 		_tboxGeneration = _tbox.getGeneration();
+		_synthenticNodes = _common.getNodeIDSetFactory().getInstance();
 	}
 
 	/**
@@ -171,6 +180,15 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 * @param blockingStateCache
 	 */
 	ABox(final ABox<I, L, K, R> klonee)
+	{
+		this(klonee, false);
+	}
+
+	/**
+	 * Create a new ABox, kloning from another ABox.
+	 * @param clearSynthentic should all nodes marked as non-synthetic
+	 */
+	ABox(final ABox<I, L, K, R> klonee, final boolean clearSynthentic)
 	{
 		_common = klonee._common;
 		_dependencyMap = klonee.getDependencyMap().clone();
@@ -188,8 +206,13 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		for (IABoxNode<I, L, K, R> node : klonee) {
 			add(node.clone(this));
 		}
+		if (clearSynthentic) {
+			_synthenticNodes = _common.getNodeIDSetFactory().getInstance();
+		} else {
+			_synthenticNodes = _common.getNodeIDSetFactory().getInstance(klonee._synthenticNodes);
+		}
 	}
-	/// </editor-fold>	
+	/// </editor-fold>
 
 	@Override
 	public TBox<I, L, K, R> getTBox()
@@ -230,7 +253,6 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 	/// </editor-fold>
 
-
 	@Override
 	public boolean canMerge(IABoxNode<I, L, K, R> node1, IABoxNode<I, L, K, R> node2)
 	{
@@ -259,7 +281,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	 * @param node2 The second node to join.
 	 * @return Merge information about the node join
 	 * @throws ENodeMergeException
-	 */@Override
+	 */
+	@Override
 	public NodeMergeInfo<I, L, K, R> mergeNodes(final IABoxNode<I, L, K, R> node1, final IABoxNode<I, L, K, R> node2)
 		throws ENodeMergeException
 	{
@@ -346,6 +369,11 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 			assert source.getRABox().getAssertedSuccessors().isEmpty();
 			assert source.getRABox().getAssertedPredecessors().isEmpty();
 
+			if ((!isSynthetic(source)) || (!isSynthetic(target))) {
+				_synthenticNodes.remove(target.getNodeID());
+			}
+			_synthenticNodes.remove(source.getNodeID());
+
 			/**
 			 * detach source node from ABox
 			 */
@@ -390,7 +418,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	{
 		return _common.getNodeIDSetFactory();
 	}
-	
+
 	@Override
 	public IDLTermFactory<I, L, K, R> getDLTermFactory()
 	{
@@ -410,6 +438,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	{
 		return toString("");
 	}
+
 	public String toString(final int indent)
 	{
 		char[] fill = new char[indent];
@@ -480,35 +509,61 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		/* XXX - returns a modifiable node map */
 		return Collections.unmodifiableMap(_nodeMap);
 	}
+
 	@Override
-	public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMergeException
+	public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode, final boolean isSynthetic) throws ENodeMergeException
 	{
 		if (isDatatypeNode) {
-			return createDatatypeNode();
+			return createDatatypeNode(isSynthetic);
 		} else {
-			return createIndividualNode();
+			return createIndividualNode(isSynthetic);
 		}
 	}
 
 	@Override
-	public IIndividualABoxNode<I, L, K, R> createIndividualNode() throws ENodeMergeException
+	public IIndividualABoxNode<I, L, K, R> createIndividualNode(final boolean isSynthetic) throws ENodeMergeException
 	{
 		final int newID = _nodeIDGenerator.next();
 		final IndividualABoxNode<I, L, K, R> newNode = new IndividualABoxNode<>(this, newID);
 		add(newNode);
+		if (isSynthetic) {
+			_synthenticNodes.add(newNode.getNodeID());
+		}
 		final NodeMergeInfo<I, L, K, R> mergeInfo = newNode.addClassTerm(getTBox().getGlobalDescriptions());
 		return (IndividualABoxNode<I, L, K, R>) mergeInfo.getCurrentNode();
 	}
 
 	@Override
-	public IDatatypeABoxNode<I, L, K, R> createDatatypeNode() throws ENodeMergeException
+	public IDatatypeABoxNode<I, L, K, R> createDatatypeNode(final boolean isSynthetic) throws ENodeMergeException
 	{
 		final int newID = _nodeIDGenerator.next();
-		final LiteralABoxNode<I, L, K, R> newNode = new LiteralABoxNode<>(this, newID);		
+		final LiteralABoxNode<I, L, K, R> newNode = new LiteralABoxNode<>(this, newID);
 		add(newNode);
+		if (isSynthetic) {
+			_synthenticNodes.add(newNode.getNodeID());
+		}
 		newNode.addDataTerm(getDLTermFactory().getDLTopDatatype());
 		return newNode;
 	}
+
+	@Override
+	public IABoxNode<I, L, K, R> createNode(boolean isDatatypeNode) throws ENodeMergeException
+	{
+		return createNode(isDatatypeNode, false);
+	}
+
+	@Override
+	public IDatatypeABoxNode<I, L, K, R> createDatatypeNode() throws ENodeMergeException
+	{
+		return createDatatypeNode(false);
+	}
+
+	@Override
+	public IIndividualABoxNode<I, L, K, R> createIndividualNode() throws ENodeMergeException
+	{
+		return createIndividualNode(false);
+	}
+
 	@Override
 	public IDatatypeABoxNode<I, L, K, R> getOrAddDatatypeNode(L literal) throws ENodeMergeException
 	{
@@ -594,6 +649,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 		return iter;
 	}
+
 	@Override
 	public Object[] toArray()
 	{
@@ -625,7 +681,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	@Override
-	public  boolean addAll(final Collection<? extends IABoxNode<I, L, K, R>> c)
+	public boolean addAll(final Collection<? extends IABoxNode<I, L, K, R>> c)
 	{
 		return _nodes.addAll(c);
 	}
@@ -704,15 +760,16 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		 */
 		for (IABoxNode<I, L, K, R> node : this) {
 			for (IDLTerm<I, L, K, R> desc : node.getTerms()) {
-				Set<IDLClassReference<I, L, K, R>> subTerms = TermUtil.collectSubTerms(desc,
-																					   IDLClassReference.class);
+				final Set<IDLClassReference<I, L, K, R>> subTerms
+					= (Set<IDLClassReference<I, L, K, R>>) TermUtil.collectSubTerms(desc, IDLClassReference.class);
 				for (IDLClassReference<I, L, K, R> subTermObj : subTerms) {
 					classes.add(subTermObj.getElement());
 				}
 			}
 		}
 		for (IDLTerm<I, L, K, R> term : getTBox()) {
-			Set<IDLClassReference<I, L, K, R>> subTerms = TermUtil.collectSubTerms(term, IDLClassReference.class);
+			final Set<IDLClassReference<I, L, K, R>> subTerms
+				= (Set<IDLClassReference<I, L, K, R>>) TermUtil.collectSubTerms(term, IDLClassReference.class);
 			for (IDLClassReference<I, L, K, R> subTermObj : subTerms) {
 				classes.add(subTermObj.getElement());
 			}
@@ -732,14 +789,16 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		 */
 		for (IABoxNode<I, L, K, R> node : this) {
 			for (IDLTerm<I, L, K, R> desc : node.getTerms()) {
-				Set<IDLRoleOperator<I, L, K, R>> subTerms = TermUtil.collectSubTerms(desc, IDLRoleOperator.class);
+				final Set<IDLRoleOperator<I, L, K, R>> subTerms
+					= (Set<IDLRoleOperator<I, L, K, R>>) TermUtil.collectSubTerms(desc, IDLRoleOperator.class);
 				for (IDLRoleOperator<I, L, K, R> subTerm : subTerms) {
 					roles.addAll(subTerm.getRoles());
 				}
 			}
 		}
 		for (IDLTerm<I, L, K, R> term : getTBox()) {
-			Set<IDLRoleOperator<I, L, K, R>> subTerms = TermUtil.collectSubTerms(term, IDLRoleOperator.class);
+			final Set<IDLRoleOperator<I, L, K, R>> subTerms
+				= (Set<IDLRoleOperator<I, L, K, R>>) TermUtil.collectSubTerms(term, IDLRoleOperator.class);
 			for (IDLRoleOperator<I, L, K, R> subTerm : subTerms) {
 				roles.addAll(subTerm.getRoles());
 			}
@@ -757,7 +816,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return _termSetListeners;
 	}
 
-		public TermChangeEvent<I, L, K, R> notifyTermRemoved(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term)
+	public TermChangeEvent<I, L, K, R> notifyTermRemoved(final IABoxNode<I, L, K, R> node,
+														 final IDLTerm<I, L, K, R> term)
 	{
 		if (term instanceof IDLIndividualReference) {
 			_nodeMap.remove(((IDLIndividualReference<I, L, K, R>) term).getIndividual());
@@ -775,6 +835,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return ev;
 	}
+
 	public ABoxNodeEvent<I, L, K, R> notifyTermSetCleared(final IABoxNode<I, L, K, R> node)
 	{
 		final ABoxNodeEvent<I, L, K, R> ev = new ABoxNodeEvent<>(this, node);
@@ -804,10 +865,18 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 	/// <editor-fold defaultstate="collapsed" desc="IImmutable">
 	@Override
-	public IABox<I, L, K, R> getImmutable()
+	public synchronized IABox<I, L, K, R> getImmutable()
 	{
-		return ImmutableABox.decorate(this);
+		IABox<I, L, K, R> immutable = null;
+		if (_immutable != null) {
+			immutable = _immutable.get();
+		} else {
+			immutable = ImmutableABox.decorate(this);
+			_immutable = new WeakReference<>(immutable);
+		}
+		return immutable;
 	}
+
 	/// </editor-fold>
 	@Override
 	public boolean containsAllTermEntries(Collection<TermEntry<I, L, K, R>> entries)
@@ -841,6 +910,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	{
 		return !getNonGeneratingQueue().isEmpty();
 	}
+
 	@Override
 	public boolean hasMoreGeneratingNodes()
 	{
@@ -872,6 +942,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 		return wasRemoved;
 	}
+
 	@Override
 	public boolean removeFromQueues(final Collection<NodeID> nodeIDs)
 	{
@@ -881,6 +952,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		wasRemoved |= getNonGeneratingQueue().removeAll(nodeIDs);
 		return wasRemoved;
 	}
+
 	@Override
 	public boolean removeNodesFromQueues(final Collection<? extends IABoxNode<I, L, K, R>> nodes)
 	{
@@ -892,7 +964,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return wasRemoved;
 	}
 
-		public boolean clearQueues()
+	public boolean clearQueues()
 	{
 		boolean cleared = false;
 		if (!_nonGeneratingQueue.isEmpty()) {
@@ -1001,8 +1073,9 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		return wasAdded;
 	}
 	/// </editor-fold>
-	
-		protected TermChangeEvent<I, L, K, R> notifyTermAdded(final IABoxNode<I, L, K, R> node, final IDLTerm<I, L, K, R> term)
+
+	protected TermChangeEvent<I, L, K, R> notifyTermAdded(final IABoxNode<I, L, K, R> node,
+														  final IDLTerm<I, L, K, R> term)
 	{
 		if (term instanceof IDLIndividualReference) {
 			_nodeMap.put(((IDLIndividualReference<I, L, K, R>) term).getIndividual(), node);
@@ -1028,7 +1101,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	}
 
 	/// <editor-fold defaultstate="collapsed" desc="node merging">
-		private void moveSuccessors(final IABoxNode<I, L, K, R> source, final IABoxNode<I, L, K, R> target, NodeMergeInfo<I, L, K, R> mergeInfo) throws ENodeMergeException
+	private void moveSuccessors(final IABoxNode<I, L, K, R> source, final IABoxNode<I, L, K, R> target,
+								NodeMergeInfo<I, L, K, R> mergeInfo) throws ENodeMergeException
 	{
 		/**
 		 * Rewrite outgoing links
@@ -1093,7 +1167,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-		private void movePredecessors(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target, NodeMergeInfo<I, L, K, R> mergeInfo)
+	private void movePredecessors(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target,
+								  NodeMergeInfo<I, L, K, R> mergeInfo)
 	{
 		/**
 		 * Rewrite incoming links.
@@ -1135,7 +1210,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-		private void updateDependencyMap(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target)
+	private void updateDependencyMap(IABoxNode<I, L, K, R> source, IABoxNode<I, L, K, R> target)
 	{
 		/**
 		 * Dependency map tracking
@@ -1149,7 +1224,8 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 		final DependencyMap<I, L, K, R> dependencyMap = getDependencyMap();
 		final TermEntryFactory<I, L, K, R> termEntryFactory = getTermEntryFactory();
-		final Iterator<Map.Entry<TermEntry<I, L, K, R>, Collection<TermEntry<I, L, K, R>>>> entryIter = dependencyMap.entrySet().iterator();
+		final Iterator<Map.Entry<TermEntry<I, L, K, R>, Collection<TermEntry<I, L, K, R>>>> entryIter = dependencyMap.
+			entrySet().iterator();
 
 		final NodeID sourceID = source.getNodeID();
 		final NodeID targetID = target.getNodeID();
@@ -1208,7 +1284,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 		}
 	}
 
-		private IABoxNode<I, L, K, R> nextNode(final Collection<NodeID> queue)
+	private IABoxNode<I, L, K, R> nextNode(final Collection<NodeID> queue)
 	{
 		checkTBoxGeneration();
 
@@ -1230,4 +1306,17 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 			_tboxGeneration = getTBox().getGeneration();
 		}
 	}
+
+	@Override
+	public boolean isSynthetic(final IABoxNode<I, L, K, R> node)
+	{
+		return isSynthetic(node.getNodeID());
+	}
+
+	@Override
+	public boolean isSynthetic(final NodeID nodeID)
+	{
+		return _synthenticNodes.contains(nodeID);
+	}
+
 }

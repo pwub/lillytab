@@ -27,6 +27,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLNodeTerm;
 import java.util.Collection;
 import java.util.NoSuchElementException;
 
+
 /**
  * @param <I> The type for individuals/nominals
  * @param <L> The type for literals
@@ -49,7 +50,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Collection<R> getEquivalentRoles(R role);
 
-
 	/**
 	 * Transitively get the inverse roles of the specified roles.
 	 * The returned set will include equivalent roles of any inverse roles.
@@ -61,7 +61,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Collection<R> getInverseRoles(R role);
 
-
 	/**
 	 * Get a set of all properties for a given role. <p /> It is not guarantueed that the returned set is
 	 * modifiable.
@@ -71,7 +70,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * @return The set of properties for a role.
 	 */
 	Collection<RoleProperty> getRoleProperties(R role);
-
 
 	/**
 	 *
@@ -86,7 +84,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Collection<IDLClassExpression<I, L, K, R>> getRoleDomains(final R role);
 
-
 	/**
 	 *
 	 * Retrieve the role ranges associated with {@literal role}.
@@ -100,7 +97,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Collection<IDLNodeTerm<I, L, K, R>> getRoleRanges(final R role);
 
-
 	/**
 	 * Query the role type of {@literal role}.
 	 *
@@ -110,24 +106,20 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	RoleType getRoleType(final R role);
 
-
 	/**
 	 * Get a collection of all roles known to this RBox.
 	 */
 	Collection<R> getRoles();
-
 
 	/**
 	 * Get a collection of all roles with the given property in this RBox.
 	 */
 	Collection<R> getRoles(RoleProperty property);
 
-
 	/**
 	 * Get a collection of all roles with the given type in this RBox.
 	 */
 	Collection<R> getRoles(RoleType type);
-
 
 	/**
 	 * Transitively get the subroles of the specified role. <p /> Note, that this will include the equivalent
@@ -139,7 +131,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Collection<R> getSubRoles(R role);
 
-
 	/**
 	 * Transitively get the superroles of the specified role. <p /> Note, that this will include the equivalent
 	 * roles, including {@literal role} itself.
@@ -150,12 +141,10 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	Collection<R> getSuperRoles(final R role);
 
-
 	/**
 	 * @return The {@link ITBox} associated with this {@link IAssertedRBox}
 	 */
 	ITBox<I, L, K, R> getTBox();
-
 
 	/**
 	 * Check, if the specified role has a property.
@@ -167,14 +156,12 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	boolean hasRoleProperty(R role, RoleProperty property);
 
-
 	/**
 	 * Determine, if the specified role is of the specified type.
 	 *
 	 * @return {@literal true} if {@literal role} has the specified role type.
 	 */
 	boolean hasRoleType(final R role, final RoleType roleType);
-
 
 	/**
 	 * Check, if the given role is known to the {@link IRBox}.
@@ -184,7 +171,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 * @return {@literal true} if {@literal role} is known to the current {@link IRBox}.
 	 */
 	boolean hasRole(final R role);
-
 
 	/**
 	 * Determine if the two roles are equivalent (either asserted or derived).
@@ -196,7 +182,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	boolean isEquivalentRole(final R first, final R second);
 
-
 	/**
 	 * Determine, if the specified role is of the specified type.
 	 *
@@ -207,13 +192,11 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	boolean isInverseRole(final R first, final R second);
 
-
 	/**
 	 * Feature test: Inverse roles.
 	 *
 	 */
 	boolean hasInverseRoles();
-
 
 	/**
 	 * Determine if {@literal sub} is a subclass of {@literal sup}
@@ -225,7 +208,6 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	boolean isSubRole(final R sup, final R sub);
 
-
 	/**
 	 * Determine if {@literal sup} is a superclass of {@literal sub}
 	 *
@@ -236,9 +218,7 @@ public interface IRBox<I extends Comparable<? super I>, L extends Comparable<? s
 	 */
 	boolean isSuperRole(final R sub, final R sup);
 
-
 	IAssertedRBox<I, L, K, R> getAssertedRBox();
-
 
 	String toString(String prefix);
 //	IRBox<I, L, K, R> clone();

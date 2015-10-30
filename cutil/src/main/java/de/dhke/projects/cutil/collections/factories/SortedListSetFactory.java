@@ -18,31 +18,53 @@
  * INDIRECT, INCIDENTAL, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT
  * OF THE USE OF THE PACKAGE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH
  * DAMAGE.
- **/
+ *
+ */
 package de.dhke.projects.cutil.collections.factories;
 
 import de.dhke.projects.cutil.collections.set.SortedListSet;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Set;
 
 /**
  *
- * @param <E> 
+ * @param <E>
+ *            <p>
  * @author Peter Wullinger <java@dhke.de>
  */
 public class SortedListSetFactory<E extends Comparable<? super E>>
-	implements ICollectionFactory<E, Set<E>>
-{
+	implements ICollectionFactory<E, Set<E>> {
+
+	private final Comparator<E> _comparator;
+
+
+	public SortedListSetFactory()
+	{
+		this(null);
+	}
+
+
+	public SortedListSetFactory(Comparator<E> comparator)
+	{
+		_comparator = comparator;
+	}
+
 
 	@Override
 	public Set<E> getInstance()
 	{
-		return new SortedListSet<>();
+		return getInstance(null);
 	}
+
 
 	@Override
 	public Set<E> getInstance(final Collection<? extends E> baseCollection)
 	{
-		return new SortedListSet<>(baseCollection);
+		if (_comparator != null) {
+			return new SortedListSet<>(baseCollection, _comparator);
+		} else {
+			return new SortedListSet<>(baseCollection);
+		}
 	}
 }

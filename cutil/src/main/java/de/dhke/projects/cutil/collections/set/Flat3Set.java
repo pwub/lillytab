@@ -32,24 +32,23 @@ import java.util.Set;
 
 
 /**
- * 
+ *
  * An implementation of a set type that
  * uses an array for sets of small size (default: up to three)
  * and defaults back to using a {@link HashSet} for
  * larger arrays.
- * 
+ *
  *
  * @param <T> The set element type.
  * @author Peter Wullinger <java@dhke.de>
  */
 public class Flat3Set<T>
-	implements Set<T>
-{
+	implements Set<T> {
 	private static final int MAX_ARRAY_SIZE = 3;
 	private Object[] _itemArray;
 	private Set<T> _backSet;
 
-	public  Flat3Set(final Collection<? extends T> coll)
+	public Flat3Set(final Collection<? extends T> coll)
 	{
 		if (coll.size() > MAX_ARRAY_SIZE) {
 			_backSet = new HashSet<>(coll);
@@ -67,7 +66,7 @@ public class Flat3Set<T>
 		this(Arrays.asList(items));
 	}
 
-		public Flat3Set()
+	public Flat3Set()
 	{
 		this(0);
 	}
@@ -146,7 +145,7 @@ public class Flat3Set<T>
 
 	@Override
 	@SuppressWarnings("unchecked")
-	public  boolean add(T e)
+	public boolean add(T e)
 	{
 		if (contains(e))
 			return false;
@@ -234,7 +233,9 @@ public class Flat3Set<T>
 	public void clear()
 	{
 		_itemArray = (T[]) new Object[0];
-		_backSet.clear();
+		if (_backSet != null) {
+			_backSet.clear();
+		}
 		_backSet = null;
 	}
 
@@ -244,7 +245,7 @@ public class Flat3Set<T>
 		return CollectionUtil.deepToString(this);
 	}
 
-		private static <T> T[] arrayRemove(final T[] array, int removePos)
+	private static <T> T[] arrayRemove(final T[] array, int removePos)
 	{
 		@SuppressWarnings("unchecked")
 		final T[] newArray = (T[]) new Object[array.length - 1];
@@ -256,12 +257,11 @@ public class Flat3Set<T>
 			}
 		}
 		return newArray;
-	}	
+	}
 
 
 	class ArrayItr
-		implements Iterator<T>
-	{
+		implements Iterator<T> {
 		int pos;
 
 		ArrayItr()
