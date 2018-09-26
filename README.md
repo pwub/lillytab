@@ -22,9 +22,12 @@ LillyTab is also a great DL teaching tool because of the simplicity of inspectin
 * documented access to ABox, TBox and RBox representation internals
 * modular architecture (add and replace tableau completers via API)
 * OWLAPI 4 integration (since version 1.11)
-* support for the DL SHOF(D) (which is OWL/DL minus qualified number restrictions and inverse roles)
+* support for the DL SHOIF(D) (which is OWL/DL minus qualified number restrictions)
 * various basic optimizations 
   * lazy unfolding
   * lazy saving (copy on write)
   * input term rewriting
   * dependency directed backtracking
+
+Caveat Emptor:
+Despite optimizations Lillytab is not performing well when expanding union terms and is thus not exceptionally well suited for some ontologies. Use with care.
