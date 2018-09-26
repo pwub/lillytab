@@ -49,7 +49,7 @@ import java.util.Set;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class TermUtil {
 

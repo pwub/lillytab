@@ -35,7 +35,7 @@ import java.util.Map;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class ABoxUtil { ABoxUtil()
 	{

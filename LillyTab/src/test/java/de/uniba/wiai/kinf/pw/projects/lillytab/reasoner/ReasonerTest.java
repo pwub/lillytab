@@ -71,7 +71,7 @@ import org.junit.Test;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class ReasonerTest
 {
@@ -1014,4 +1014,6 @@ public class ReasonerTest
 		_abox.getAssertedRBox().addRole("r", RoleType.OBJECT_PROPERTY);
 		assertFalse(_reasoner.isConsistent(_abox));
 	}
+
+
 }

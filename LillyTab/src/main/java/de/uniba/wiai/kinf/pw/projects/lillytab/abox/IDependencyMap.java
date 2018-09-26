@@ -34,7 +34,7 @@ import org.apache.commons.collections15.MultiMap;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public interface IDependencyMap<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends MultiMap<TermEntry<I, L, K, R>, TermEntry<I, L, K, R>>,

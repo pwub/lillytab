@@ -65,7 +65,7 @@ import org.slf4j.LoggerFactory;
  * @see OWLOntology
  *
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class OWLAPILoader
 {

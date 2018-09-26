@@ -21,17 +21,15 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.blocking;
 
+import de.dhke.projects.cutil.collections.CollectionUtil;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.AbstractBlockingStrategy;
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.BlockInfo;
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.BlockableAncestorIterable;
 import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStateCache;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TreeSet;
+import de.uniba.wiai.kinf.pw.projects.lillytab.blocking.IBlockingStrategy;
+import java.util.Collection;
 
 
 /**
@@ -42,57 +40,25 @@ import java.util.TreeSet;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
-	extends AbstractBlockingStrategy<I, L, K, R> {
+	implements IBlockingStrategy<I, L, K, R> {
 
-	@Override
-	public Set<NodeID> validateBlocks(IABoxNode<I, L, K, R> blocker)
-	{
-		final Set<NodeID> unblocked = new TreeSet<>();
-		final Iterator<NodeID> iter = getBlockedNodeIDs(blocker).iterator();
-		final IABox<I, L, K, R> abox = blocker.getABox();
-		final IBlockingStateCache stateCache = abox.getBlockingStateCache();
-		while (iter.hasNext()) {
-			final NodeID blockedID = iter.next();
-			IABoxNode<I, L, K, R> blockedNode = abox.getNode(blockedID);
-			/* node is sometimes null, happens after merges */
-			if ((blockedNode == null) || (!isPotentialBlocker(blocker, blockedNode))) {
-				// logFinest("'%s' is no longer a blocker for '%s'", node, this);
-				if (blockedNode != null)
-					stateCache.setBlocker(blockedNode.getNodeID(), null);
-				unblocked.add(blockedID);
-			}
-		}
-		return unblocked;
-	}
-
-	@Override
-	public IABoxNode<I, L, K, R> findBlocker(IABoxNode<I, L, K, R> targetNode)
+	public BlockInfo findBlocker(IABoxNode<I, L, K, R> targetNode)
 	{
 		final IABox<I, L, K, R> abox = targetNode.getABox();
 		assert abox != null;
 		final IBlockingStateCache stateCache = abox.getBlockingStateCache();
-		/* search for potential blockers */
-		final Queue<IABoxNode<I, L, K, R>> candidates = new LinkedList<>();
-		candidates.addAll(targetNode.getRABox().getPredecessorNodes());
-		final Set<IABoxNode<I, L, K, R>> visited = new HashSet<>();
-		visited.add(targetNode);
-		while (!candidates.isEmpty()) {
-			final IABoxNode<I, L, K, R> candidate = candidates.remove();
-			visited.add(candidate);
-			for (IABoxNode<I, L, K, R> pred : candidate.getRABox().getPredecessorNodes()) {
-				if (!visited.contains(pred)) {
-					candidates.add(pred);
-				}
-			}
 
+		/* search for potential blockers */
+		for (IABoxNode<I, L, K, R> candidate : new BlockableAncestorIterable<>(targetNode)) {
 			if (isPotentialBlocker(candidate, targetNode)) {
-				stateCache.setBlocker(targetNode.getNodeID(), candidate.getNodeID());
+				final BlockInfo blockInfo = new BlockInfo(candidate.getNodeID());
+				stateCache.setBlockInfo(targetNode.getNodeID(), blockInfo);
 				/* found blocker, stop */
 				// logFinest("node '%s' blocked by '%s'", this, blocker);
-				return candidate;
+				return blockInfo;
 			}
 		}
 		return null;
@@ -125,5 +91,29 @@ public class SubsetBlockingStrategy<I extends Comparable<? super I>, L extends C
 			&& blocker.isAnonymous()
 			&& blocker.getTerms().size() >= target.getTerms().size()
 			&& blocker.getTerms().containsAll(target.getTerms());
+	}
+
+	@Override
+	public boolean isBlocked(IABoxNode<I, L, K, R> blockedNode)
+	{
+		final BlockInfo blockInfo = blockedNode.getABox().getBlockingStateCache().getBlockInfo(blockedNode.getNodeID());
+		if (blockInfo != null) {
+			return false;
+		}
+		return findBlocker(blockedNode) != null;
+	}
+
+	@Override
+	public void validateBlocks(IABoxNode<I, L, K, R> influencer)
+	{
+		final IABox<I, L, K, R> abox = influencer.getABox();
+		final Collection<NodeID> affected = influencer.getABox().getBlockingStateCache().getAffects(influencer.
+			getNodeID());
+		if (!CollectionUtil.isNullOrEmpty(affected)) {
+			affected.forEach((node) -> {
+				abox.getBlockingStateCache().setBlockInfo(node, null);
+			});
+
+		}
 	}
 }

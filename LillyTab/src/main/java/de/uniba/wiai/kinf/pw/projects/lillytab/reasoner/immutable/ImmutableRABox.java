@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.immutable;
 
+import de.dhke.projects.cutil.ComparablePair;
 import de.dhke.projects.cutil.IDecorator;
 import de.dhke.projects.cutil.Pair;
 import de.dhke.projects.cutil.collections.immutable.GenericImmutableCollection;
@@ -41,7 +42,7 @@ import java.util.Collection;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements IRABox<I, L, K, R>, IDecorator<IRABox<I, L, K, R>> {
@@ -155,13 +156,13 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 	}
 
 	@Override
-	public Iterable<Pair<R, NodeID>> getPredecessorPairs()
+	public Iterable<ComparablePair<R, NodeID>> getPredecessorPairs()
 	{
 		return _baseLinkMap.getPredecessorPairs();
 	}
 
 	@Override
-	public Iterable<Pair<R, NodeID>> getSuccessorPairs()
+	public Iterable<ComparablePair<R, NodeID>> getSuccessorPairs()
 	{
 		return _baseLinkMap.getSuccessorPairs();
 	}
@@ -221,7 +222,7 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 	}
 
 	@Override
-	public Iterable<R> getOutgoingRoles(IABoxNode<L, I, K, R> target)
+	public Iterable<R> getOutgoingRoles(IABoxNode<I, L, K, R> target)
 	{
 		return _baseLinkMap.getOutgoingRoles(target);
 	}
@@ -233,7 +234,7 @@ public class ImmutableRABox<I extends Comparable<? super I>, L extends Comparabl
 	}
 
 	@Override
-	public Iterable<R> getIncomingRoles(IABoxNode<L, I, K, R> source)
+	public Iterable<R> getIncomingRoles(IABoxNode<I, L, K, R> source)
 	{
 		return _baseLinkMap.getIncomingRoles(source);
 	}

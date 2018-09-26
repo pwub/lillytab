@@ -26,7 +26,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * A reference to a DL role.
  * 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  * @param <R> The type for properties (roles)
  */
 public interface IDLRoleReference<R extends Comparable<? super R>>

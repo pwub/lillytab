@@ -26,7 +26,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * Represents a {@link ITerm} that cannot be further decomposed, i.e. has no subterms and other subcomponents.
  * 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public interface IAtom
 	extends ITerm {

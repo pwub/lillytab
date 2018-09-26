@@ -35,7 +35,7 @@ import org.apache.commons.collections15.list.TransformedList;
 /**
  *
  * @param <Term> The type of the terms
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class AbstractTermList<Term extends ITerm>
 	implements ITermList<Term> {

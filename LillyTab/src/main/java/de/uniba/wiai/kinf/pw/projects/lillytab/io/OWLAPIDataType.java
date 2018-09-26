@@ -46,7 +46,7 @@ import org.semanticweb.owlapi.vocab.XSDVocabulary;
  * A wrapper that implments datatypes for the {@link OWLAPILoader} and forwards validation to a back to
  * {@link XSDatatypeImpl}.
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class OWLAPIDataType
 	implements IDLDatatype<OWLIndividual, OWLLiteral, OWLClass, OWLProperty>

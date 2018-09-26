@@ -22,124 +22,40 @@
 package de.uniba.wiai.kinf.pw.projects.lillytab.blocking;
 
 import de.dhke.projects.cutil.collections.MapUtil;
-import de.dhke.projects.cutil.collections.cow.CopyOnWriteMap;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
+import de.dhke.projects.cutil.collections.MultiMapUtil;
+import de.dhke.projects.cutil.collections.factories.TreeSetFactory;
+import de.dhke.projects.cutil.collections.map.GenericMultiHashMap;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import org.apache.commons.collections15.MultiMap;
+
 
 /**
  * Map-based implementation of {@link IBlockingStateCache}.
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class BlockingStateCache
 	implements IBlockingStateCache {
 
-	private final Map<NodeID, NodeID> _blockMap;
-
+	private final Map<NodeID, BlockInfo> _blockMap;
+	private final MultiMap<NodeID, NodeID> _isInvoledIn;
 
 	public BlockingStateCache()
 	{
-		this(new HashMap<NodeID, NodeID>());
+		this(new HashMap<>(), new GenericMultiHashMap<>(new TreeSetFactory<>()));
 	}
 
-
-	public BlockingStateCache(final Map<NodeID, NodeID> blockMap)
+	public BlockingStateCache(
+		final Map<NodeID, BlockInfo> blockMap,
+		final MultiMap<NodeID, NodeID> isInvolvedIn
+	)
 	{
 		_blockMap = blockMap;
+		_isInvoledIn = isInvolvedIn;
 	}
-
-
-	/**
-	 * Update the blocker of the target node. Set blocker to {@literal null} to clear blocking status.
-	 *
-	 * @param targetNode The node to set the blocker for
-	 * @param blocker The blocking node
-	 * @return The value of {@literal blocker}
-	 *
-	 */
-	@Override
-	public NodeID setBlocker(final NodeID targetNode, final NodeID blocker)
-	{
-		if (blocker == null) {
-			_blockMap.remove(targetNode);
-			return null;
-		} else {
-			_blockMap.put(targetNode, blocker);
-			return blocker;
-		}
-	}
-
-
-	public boolean haveCachedBlocker(final NodeID targetNode)
-	{
-		return _blockMap.containsKey(targetNode);
-	}
-
-
-	@Override
-	public NodeID getBlocker(final NodeID targetNode)
-	{
-		return _blockMap.get(targetNode);
-	}
-
-
-	@Override
-	public <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  IABoxNode<I, L, K, R> getBlocker(
-		final IABoxNode<I, L, K, R> targetNode)
-	{
-		final IABox<I, L, K, R> abox = targetNode.getABox();
-		final NodeID blockerID = _blockMap.get(targetNode.getNodeID());
-		return abox.getNode(blockerID);
-	}
-
-
-	@Override
-	public boolean hasBlocker(NodeID blockedNode)
-	{
-		return _blockMap.containsKey(blockedNode);
-	}
-
-
-	@Override
-	public Set<NodeID> getBlockedNodes(NodeID blocker)
-	{
-		final Set<NodeID> blockedNodes = new TreeSet<>();
-
-		for (Map.Entry<NodeID, NodeID> entry : _blockMap.entrySet()) {
-			if (entry.getValue().equals(blocker)) {
-				blockedNodes.add(entry.getKey());
-			}
-		}
-		return blockedNodes;
-	}
-
-
-	@Override
-	public BlockingStateCache clone()
-	{
-		Map<NodeID, NodeID> baseBlockMap = _blockMap;
-		/* find base map, avoid multiple COW layers */
-		while (baseBlockMap instanceof CopyOnWriteMap) {
-			baseBlockMap = ((CopyOnWriteMap<NodeID, NodeID>) _blockMap).getDecoratee();
-		}
-
-		final Map<NodeID, NodeID> klonedBlockMap = CopyOnWriteMap.decorate(baseBlockMap);
-		final BlockingStateCache klone = new BlockingStateCache(klonedBlockMap);
-		return klone;
-	}
-
-
-	@Override
-	public int hashCode()
-	{
-		return MapUtil.deepHashCode(_blockMap);
-	}
-
 
 	@Override
 	public boolean equals(Object obj)
@@ -149,16 +65,80 @@ public class BlockingStateCache
 		}
 		if (obj instanceof BlockingStateCache) {
 			BlockingStateCache other = (BlockingStateCache) obj;
-			return MapUtil.deepEquals(_blockMap, other._blockMap);
+			return MapUtil.deepEquals(_blockMap, other._blockMap) && MultiMapUtil.deepEquals(_isInvoledIn,
+				other._isInvoledIn);
 		} else {
 			return false;
 		}
 	}
-
 
 	@Override
 	public IBlockingStateCache getImmutable()
 	{
 		return new ImmutableBlockingStateCache(this);
 	}
+
+	@Override
+	public int hashCode()
+	{
+		return MapUtil.deepHashCode(_blockMap) + 23 * MultiMapUtil.deepHashCode(_isInvoledIn);
+	}
+
+	@Override
+	public boolean hasBlocker(NodeID blockedNode)
+	{
+		return _blockMap.containsKey(blockedNode);
+	}
+
+	@Override
+	public BlockInfo getBlockInfo(NodeID blockedNode)
+	{
+		return _blockMap.get(blockedNode);
+	}
+
+	@Override
+	public void setBlockInfo(NodeID blockedNode, BlockInfo blockInfo)
+	{
+		final BlockInfo oldBlockInfo = _blockMap.get(blockedNode);
+		if (oldBlockInfo != null) {
+			oldBlockInfo.getInvolvedNodes().forEach((influencer) -> {
+				_isInvoledIn.remove(influencer, blockedNode);
+			});
+		}
+		if (blockInfo != null) {
+			_blockMap.put(blockedNode, blockInfo);
+			blockInfo.getInvolvedNodes().forEach((influencer) -> {
+				_isInvoledIn.put(influencer, blockedNode);
+			});
+		} else {
+			_blockMap.remove(blockedNode);
+		}
+
+	}
+
+	@Override
+	public IBlockingStateCache clone()
+	{
+		final Map<NodeID, BlockInfo> blockMap = new HashMap<>(_blockMap);
+		final MultiMap<NodeID, NodeID> isInvolvedIn = new GenericMultiHashMap<>(new TreeSetFactory<>());
+		isInvolvedIn.putAll(_isInvoledIn);
+
+		return new BlockingStateCache(blockMap, isInvolvedIn);
+	}
+
+	@Override
+	public Collection<NodeID> getAffects(NodeID influencer)
+	{
+		return _isInvoledIn.get(influencer);
+	}
+
+	@Override
+	public void invalidate(NodeID influencer)
+	{
+		
+		setBlockInfo(influencer, null);
+	}
+
+
+
 }

@@ -38,7 +38,7 @@ import java.util.WeakHashMap;
  * 
  *
  * @param <T> The type of cache items
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class SoftItemCache<T> {
 

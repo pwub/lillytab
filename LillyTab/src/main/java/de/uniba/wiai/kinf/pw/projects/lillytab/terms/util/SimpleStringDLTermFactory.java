@@ -25,7 +25,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl.DLTermFactory;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class SimpleStringDLTermFactory
 	extends DLTermFactory<String, String, String, String> {

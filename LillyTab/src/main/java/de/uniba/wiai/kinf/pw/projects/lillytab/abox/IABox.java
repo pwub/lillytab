@@ -55,7 +55,7 @@ import java.util.SortedSet;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public interface IABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends Set<IABoxNode<I, L, K, R>>, IImmutable<IABox<I, L, K, R>>, Cloneable, Serializable {

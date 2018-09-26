@@ -26,7 +26,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * Convenience interface for binary operators.
  * 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  * @param <Term> The type of the encapsulated terms
  */
 public interface IBinaryOperator<Term extends ITerm>

@@ -69,7 +69,7 @@ import org.junit.Test;
  *
  * Basic functionality tests can be found in {@link ReasonerTest}.
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class ReasonerOntologyTest {
 

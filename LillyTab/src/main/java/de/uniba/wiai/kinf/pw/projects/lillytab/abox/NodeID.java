@@ -28,7 +28,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
  * This is basically a replacable wrapper around an integer serial number.
  * 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public final class NodeID
 	implements Comparable<NodeID> {

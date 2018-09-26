@@ -26,7 +26,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public interface IDLTermVisitor<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends ITermVisitor<IDLTerm<I, L, K, R>>

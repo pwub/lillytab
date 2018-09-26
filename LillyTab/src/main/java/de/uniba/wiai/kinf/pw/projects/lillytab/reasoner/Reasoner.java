@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractReasoner<I, L, K, R> {
@@ -392,9 +392,11 @@ public class Reasoner<I extends Comparable<? super I>, L extends Comparable<? su
 				isTracing()));
 		}
 
+		/*
 		if (rbox.hasInverseRoles()) {
 			throw new IllegalArgumentException("Inverse roles are not supported, yet");
 		}
+		*/
 
 		if ((!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.INVERSE_FUNCTIONAL)))
 			|| (!CollectionUtil.isNullOrEmpty(rbox.getRoles(RoleProperty.FUNCTIONAL)))) {

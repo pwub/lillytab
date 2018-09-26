@@ -34,7 +34,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLTerm;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class DLObjectNegation<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends AbstractDLUnaryOperator<I, L, K, R, IDLClassExpression<I, L, K, R>>

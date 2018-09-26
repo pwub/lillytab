@@ -25,7 +25,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
  * {@link EReasonerError} appears when
  * 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class EReasonerError
 	extends EReasonerException {

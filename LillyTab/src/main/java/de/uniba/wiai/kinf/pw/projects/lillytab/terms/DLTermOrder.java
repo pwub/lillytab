@@ -33,7 +33,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.datarange.IDLDatatypeExpres
  * Is is necessary to keep the structure of this enum as below.
  * {@link IDLTerm#compareTo(java.lang.Object) } heavily relies on it.
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public enum DLTermOrder
 {

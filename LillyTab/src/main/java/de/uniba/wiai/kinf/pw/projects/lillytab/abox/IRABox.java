@@ -21,6 +21,7 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.abox;
 
+import de.dhke.projects.cutil.ComparablePair;
 import de.dhke.projects.cutil.Pair;
 import de.dhke.projects.cutil.collections.immutable.IImmutable;
 import java.util.Collection;
@@ -35,7 +36,7 @@ import java.util.Collection;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	extends IImmutable<IRABox<I, L, K, R>> {
@@ -111,13 +112,13 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 
 	Collection<R> getOutgoingRoles();
 
-	Iterable<R> getOutgoingRoles(final IABoxNode<L, I, K, R> target);
+	Iterable<R> getOutgoingRoles(final IABoxNode<I, L, K, R> target);
 
 	Iterable<R> getOutgoingRoles(final NodeID target);
 
 	Collection<R> getIncomingRoles();
 
-	Iterable<R> getIncomingRoles(final IABoxNode<L, I, K, R> source);
+	Iterable<R> getIncomingRoles(final IABoxNode<I, L, K, R> source);
 
 	Iterable<R> getIncomingRoles(final NodeID source);
 
@@ -129,9 +130,9 @@ public interface IRABox<I extends Comparable<? super I>, L extends Comparable<? 
 
 	Collection<NodeID> getPredecessors();
 
-	Iterable<Pair<R, NodeID>> getPredecessorPairs();
+	Iterable<ComparablePair<R, NodeID>> getPredecessorPairs();
 
-	Iterable<Pair<R, NodeID>> getSuccessorPairs();
+	Iterable<ComparablePair<R, NodeID>> getSuccessorPairs();
 
 	Collection<IABoxNode<I, L, K, R>> getSuccessorNodes(final R role);
 

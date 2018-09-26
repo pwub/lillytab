@@ -28,7 +28,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * Must override {@link Object#hashCode()} and {@link Object#equals(java.lang.Object)}.
  * 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public interface ITerm
 	extends Cloneable {

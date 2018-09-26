@@ -36,7 +36,7 @@ import org.junit.Test;
 /**
  *  Test term equality for for sample implementation {@link de.uniba.wiai.kinf.pw.projects.lillytab.terms.impl}. 
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class TermEqualityTest {
 

@@ -21,61 +21,24 @@
  **/
 package de.uniba.wiai.kinf.pw.projects.lillytab.blocking;
 
-import de.uniba.wiai.kinf.pw.projects.lillytab.abox.IABoxNode;
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.NodeID;
-import java.util.Set;
+import java.util.Collection;
+import java.util.Collections;
+
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class ImmutableBlockingStateCache
 	implements IBlockingStateCache {
 
-	private final BlockingStateCache _baseCache;
+	private final IBlockingStateCache _baseCache;
 
-
-	ImmutableBlockingStateCache(final BlockingStateCache baseCache)
+	ImmutableBlockingStateCache(final IBlockingStateCache baseCache)
 	{
 		_baseCache = baseCache.clone();
 	}
-
-
-	@Override
-	public boolean hasBlocker(NodeID blockedNode)
-	{
-		return _baseCache.hasBlocker(blockedNode);
-	}
-
-
-	@Override
-	public Set<NodeID> getBlockedNodes(NodeID blocker)
-	{
-		return _baseCache.getBlockedNodes(blocker);
-	}
-
-
-	@Override
-	public NodeID getBlocker(NodeID blockedNode)
-	{
-		return _baseCache.getBlocker(blockedNode);
-	}
-
-
-	@Override
-	public <I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>  IABoxNode<I, L, K, R> getBlocker(
-		IABoxNode<I, L, K, R> blockedNode)
-	{
-		return _baseCache.getBlocker(blockedNode);
-	}
-
-
-	@Override
-	public NodeID setBlocker(NodeID blockedNode, NodeID blocker)
-	{
-		throw new UnsupportedOperationException("Cannot modify ImmutableBlockingStateCache.");
-	}
-
 
 	@Override
 	public IBlockingStateCache clone()
@@ -83,10 +46,39 @@ public class ImmutableBlockingStateCache
 		return _baseCache.clone();
 	}
 
-
 	@Override
 	public IBlockingStateCache getImmutable()
 	{
 		return this;
+	}
+
+	@Override
+	public boolean hasBlocker(NodeID blockedNode)
+	{
+		return _baseCache.hasBlocker(blockedNode);
+	}
+
+	@Override
+	public Collection<NodeID> getAffects(NodeID influencer)
+	{
+		return Collections.unmodifiableCollection(_baseCache.getAffects(influencer));
+	}
+
+	@Override
+	public BlockInfo getBlockInfo(NodeID blockedNode)
+	{
+		return _baseCache.getBlockInfo(blockedNode);
+	}
+
+	@Override
+	public void setBlockInfo(NodeID blockedNode, BlockInfo blockInfo)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableBlockingStateCache");
+	}
+
+	@Override
+	public void invalidate(NodeID influencer)
+	{
+		throw new UnsupportedOperationException("Cannot modify ImmutableBlockingStateCache");
 	}
 }

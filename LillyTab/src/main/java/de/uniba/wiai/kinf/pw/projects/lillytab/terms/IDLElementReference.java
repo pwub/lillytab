@@ -28,7 +28,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
  * <Elements are required to form a total order. 
  *
  * @author Peter Wullinger
- * <peter.wullinger@uni-bamberg.de>
+ * <wullinger@rz.uni-kiel.de>
  * @param <Element> The type of the referenced element.
  */
 public interface IDLElementReference<Element extends Comparable<? super Element>> {

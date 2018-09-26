@@ -48,7 +48,7 @@ import org.apache.commons.collections15.keyvalue.DefaultMapEntry;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class RBox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements IRBox<I, L, K, R> {
@@ -122,7 +122,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		if (roles != null) {
 			return Collections.unmodifiableCollection(roles);
 		} else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -137,7 +137,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		if (roles != null) {
 			return Collections.unmodifiableCollection(roles);
 		} else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -179,7 +179,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		if (properties != null) {
 			return Collections.unmodifiableCollection(properties);
 		} else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -208,7 +208,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		if (roles != null) {
 			return Collections.unmodifiableCollection(roles);
 		} else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -229,7 +229,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		if (subRoles != null) {
 			return Collections.unmodifiableCollection(subRoles);
 		} else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -244,7 +244,7 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 		if (superRoles != null) {
 			return Collections.unmodifiableCollection(superRoles);
 		} else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 
@@ -484,18 +484,42 @@ public class RBox<I extends Comparable<? super I>, L extends Comparable<? super 
 
 			/**
 			 * All roles equal to the second role are inverses to the first role, too.
-			 *
 			 */
 			final Collection<R> secondEqs = getEquivalentRoles(second);
 			for (R secondEq : secondEqs) {
 				if (!isInverseRole(first, secondEq)) {
 					if (isEquivalentRole(first, secondEq)) {
-						if (isInverseRole(first, secondEq)) {
-							throw new EInconsistentRBoxException(_assertedRBox, String.format(
-								"Roles `%s' and `%s' are equal and cannot be inverses", first, secondEq));
-						}
+						throw new EInconsistentRBoxException(_assertedRBox, String.format(
+							"Roles `%s' and `%s' are equal and cannot be inverses", first, secondEq));
 					}
 					addList.add(new DefaultMapEntry<>(first, secondEq));
+				}
+			}
+
+			/**
+			 * super roles of inverse roles are inverses of subroles, i.e
+			 *
+			 * r ⊑ q and inv(q, p) => inv(r, p)
+			 *
+			 * since every r-connection implies a q-connection, which implies a reverse p-connection.
+			 * Consequently, every r-connection has a forced inverse p-connection.
+			 **/
+			for (R firstSuper : getSuperRoles(first)) {
+				if (!isInverseRole(firstSuper, second)) {
+					if (isEquivalentRole(firstSuper, second)) {
+						throw new EInconsistentRBoxException(_assertedRBox, String.format(
+							"Roles `%s' and `%s' are equal and cannot be inverses", first, second));
+					}
+					addList.add(new DefaultMapEntry<>(firstSuper, second));
+				}
+			}
+			for (R secondSuper : getSuperRoles(second)) {
+				if (!isInverseRole(first, secondSuper)) {
+					if (isEquivalentRole(first, secondSuper)) {
+						throw new EInconsistentRBoxException(_assertedRBox, String.format(
+							"Roles `%s' and `%s' are equal and cannot be inverses", first, secondSuper));
+					}
+					addList.add(new DefaultMapEntry<>(first, secondSuper));
 				}
 			}
 

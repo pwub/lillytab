@@ -26,7 +26,7 @@ import java.util.Iterator;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class NodeIDGenerator
 	implements Iterator<NodeID> {

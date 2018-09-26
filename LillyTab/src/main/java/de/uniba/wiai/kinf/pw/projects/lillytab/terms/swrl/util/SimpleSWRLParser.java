@@ -35,7 +35,7 @@ import java.util.List;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class SimpleSWRLParser {
 	final ISWRLTermFactory<String, String, String, String> _swrlFactory;

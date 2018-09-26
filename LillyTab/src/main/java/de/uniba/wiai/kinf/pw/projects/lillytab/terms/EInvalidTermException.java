@@ -24,7 +24,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 /**
  * Exception raised, when an invalid term structure is encountered.
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class EInvalidTermException extends RuntimeException {
 

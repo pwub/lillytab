@@ -26,7 +26,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.IDLRoleReference;
 /**
  *
  * @param <R> The type for properties (roles)
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class DLRoleReference<R extends Comparable<? super R>>
 	implements IDLRoleReference<R> {

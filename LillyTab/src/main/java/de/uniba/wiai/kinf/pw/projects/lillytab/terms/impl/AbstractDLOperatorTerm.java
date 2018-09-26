@@ -38,7 +38,7 @@ import de.uniba.wiai.kinf.pw.projects.lillytab.terms.visitor.IDLTermVisitor;
  *
  *
  * @param <Term> The type of the contained terms.
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public abstract class AbstractDLOperatorTerm<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>, Term extends IDLTerm<I, L, K, R>>
 	extends AbstractFixedTermList<Term>

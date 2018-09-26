@@ -77,7 +77,7 @@ import java.util.TreeSet;
  * @param <K> The type for DL classes
  * @param <R> The type for properties (roles)
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class ABox<I extends Comparable<? super I>, L extends Comparable<? super L>, K extends Comparable<? super K>, R extends Comparable<? super R>>
 	implements IABox<I, L, K, R> {
@@ -1028,6 +1028,7 @@ public class ABox<I extends Comparable<? super I>, L extends Comparable<? super 
 	public boolean touch(final NodeID nodeID)
 	{
 		IABoxNode<I, L, K, R> node = getNode(nodeID);
+		_blockingStateCache.invalidate(nodeID);
 		return touchNode(node);
 	}
 

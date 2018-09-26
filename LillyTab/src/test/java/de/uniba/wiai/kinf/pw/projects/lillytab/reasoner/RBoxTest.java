@@ -23,7 +23,8 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.reasoner;
 
 import de.uniba.wiai.kinf.pw.projects.lillytab.abox.EInconsistentRBoxException;
 import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.AssertedRBox;
-import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.TBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.reasoner.tbox.RBox;
+import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.IRBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.ITBox;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleProperty;
 import de.uniba.wiai.kinf.pw.projects.lillytab.tbox.RoleType;
@@ -34,11 +35,10 @@ import static org.junit.Assert.*;
 
 /**
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  */
 public class RBoxTest {
 
-	private IDLTermFactory<String, String, String, String> _termFactory;
 	private ITBox<String, String, String, String> _tbox;
 	private AssertedRBox<String, String, String, String> _assertedRBox;
 
@@ -63,8 +63,6 @@ public class RBoxTest {
 	@Before
 	public void setUp()
 	{
-		_termFactory = new SimpleStringDLTermFactory();
-		_tbox = new TBox<>(_termFactory);
 		_assertedRBox = new AssertedRBox<>(_tbox);
 	}
 
@@ -72,8 +70,6 @@ public class RBoxTest {
 	@After
 	public void tearDown()
 	{
-		_termFactory = null;
-		_tbox = null;
 		_assertedRBox = null;
 	}
 
@@ -163,7 +159,7 @@ public class RBoxTest {
 	}
 
 
-		public void testInvertEqualityChain()
+	public void testInvertEqualityChain()
 		throws EInconsistentRBoxException
 	{
 		_assertedRBox.addRole("a", RoleType.OBJECT_PROPERTY);
@@ -215,5 +211,34 @@ public class RBoxTest {
 		_assertedRBox.addEquivalentRole("b", "c");
 		_assertedRBox.addEquivalentRole("c", "d");
 		_assertedRBox.addEquivalentRole("di", "a");
+	}
+
+	@Test
+	public void testInverseSuperRoleChain()
+		throws EInconsistentRBoxException
+	{
+		_assertedRBox.addRole("a", RoleType.OBJECT_PROPERTY);
+		_assertedRBox.addRole("ai", RoleType.OBJECT_PROPERTY);
+		_assertedRBox.addRole("b", RoleType.OBJECT_PROPERTY);
+
+		_assertedRBox.addInverseRole("a", "ai");
+		_assertedRBox.addSubRole("b", "a");
+
+		assertTrue(_assertedRBox.getRBox().isInverseRole("b", "ai"));
+
+	}
+
+	@Test(expected = EInconsistentRBoxException.class)
+	public void testInverseSuperRoleChainClash()
+		throws EInconsistentRBoxException
+	{
+		_assertedRBox.addRole("a", RoleType.OBJECT_PROPERTY);
+		_assertedRBox.addRole("ai", RoleType.OBJECT_PROPERTY);
+		_assertedRBox.addRole("b", RoleType.OBJECT_PROPERTY);
+
+		_assertedRBox.addInverseRole("a", "ai");
+		_assertedRBox.addSubRole("b", "a");
+
+		_assertedRBox.addEquivalentRole("b", "ai");
 	}
 }

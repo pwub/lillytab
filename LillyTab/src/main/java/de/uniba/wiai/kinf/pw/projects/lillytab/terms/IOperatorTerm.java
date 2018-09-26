@@ -25,7 +25,7 @@ package de.uniba.wiai.kinf.pw.projects.lillytab.terms;
 /**
  *
  *
- * @author Peter Wullinger <peter.wullinger@uni-bamberg.de>
+ * @author Peter Wullinger <wullinger@rz.uni-kiel.de>
  * @param <Term>
  */
 public interface IOperatorTerm<Term extends ITerm>
