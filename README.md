@@ -2,7 +2,7 @@
 
 ## Synopsis
 
-LillyTab is a modular ABox consistency checker for the description logic SHOF(D).
+LillyTab is a modular ABox consistency checker for the description logic SHOIF(D).
 
 To put it less formally, *LillyTab* is an *OWL2* reasoner (but with support for only a limited subset of OWL2). 
 A primary goal of LillyTab is to be extensible and inspectable, meaning it gives you easy access to the internal
